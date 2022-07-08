@@ -1,0 +1,3 @@
+[submodule "ext/peanut"]
+	path = ext/peanut
+	url = https://github.com/pjessesco/peanut
