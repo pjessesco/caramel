@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <Matrix.h>
+#include <Peanut/Peanut.h>
 
 int main() {
     std::cout << "Hello, World!" << std::endl;
