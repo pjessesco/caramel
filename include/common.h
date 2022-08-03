@@ -26,6 +26,7 @@
 #pragma once
 
 #include <limits>
+#include <Peanut/Peanut.h>
 
 namespace Caramel{
     using Float = float;
@@ -47,4 +48,23 @@ namespace Caramel{
     inline Float rad_to_deg(Float rad){
         return rad * static_cast<Float>(180) * PI_INV;
     }
+
+    using Matrix22f = Peanut::Matrix<Float, 2, 2>;
+    using Matrix33f = Peanut::Matrix<Float, 3, 3>;
+    using Matrix44f = Peanut::Matrix<Float, 4, 4>;
+
+    using Vector2f = Peanut::Matrix<Float, 2, 1>;
+    using Vector3f = Peanut::Matrix<Float, 3, 1>;
+    using Vector4f = Peanut::Matrix<Float, 4, 1>;
+
+    // TODO : Implement in Peanut
+    template <Index N>
+    Float dot(const Peanut::Matrix<Float, N, 1> &a, const Peanut::Matrix<Float, N, 1> &b){
+        Float ret = static_cast<Float>(0);
+        for(int i=0;i<N;i++){
+            ret += a.elem(i, 0) * b.elem(i, 0);
+        }
+        return ret;
+    }
+
 }
