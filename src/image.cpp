@@ -81,10 +81,10 @@ namespace Caramel{
         int ret = SaveEXRImageToFile(&image, &header, filename.c_str(), &err);
         if (ret != TINYEXR_SUCCESS) {
             fprintf(stderr, "Save EXR err: %s\n", err);
-            MESSAGE(LogType::ERR, "Error occurs while save "+filename+" : "+err);
+            ERROR("Error occurs while save "+filename+" : "+err);
             FreeEXRErrorMessage(err);
         }
-        MESSAGE(LogType::LOG, "Saved exr file :"+filename);
+        LOG("Saved exr file :"+filename);
 
         free(header.channels);
         free(header.pixel_types);
@@ -93,7 +93,7 @@ namespace Caramel{
 
     void Image::set_pixel_value(int w, int h, Float r, Float g, Float b) {
         if(w<0 || m_width<=w || h<0 || m_height<=h){
-            MESSAGE(LogType::ERR, "unavailable image pixel position");
+            ERROR("unavailable image pixel position");
         }
 
         m_data[(w + h * m_width)*3] = r;

@@ -1,9 +1,15 @@
 #include <iostream>
 
+
+#include <logger.h>
 #include <Peanut/Peanut.h>
 
 int main() {
     std::cout << "Hello, World!" << std::endl;
+
+    WARNING("Warning example");
+    LOG("Log example");
+    ERROR("Error example");
 
     Peanut::Matrix<int, 2, 2> mat;
 

@@ -63,11 +63,11 @@ namespace Caramel {
         }
 
         inline static std::string log_prefix() {
-            return current_time_string() + "\033[1;30m[LOG ]\033[0m ";
+            return current_time_string() + "\033[1;30m[LOG]\033[0m ";
         }
 
         inline static std::string err_prefix() {
-            return current_time_string() + "\033[1;31m[ERR ]\033[0m ";
+            return current_time_string() + "\033[1;31m[ERR]\033[0m ";
         }
         inline static std::string warn_prefix() {
             return current_time_string() + "\033[1;31m[WARN]\033[0m ";
@@ -86,22 +86,19 @@ namespace Caramel {
     };
 }
 
-#define MESSAGE(type, msg) do {                                                    \
-    switch(type) {                                                                 \
-        case LogType::LOG:                                                         \
-            Logger::print_log(__FILE__, __LINE__, msg);                            \
-            break;                                                                 \
-        case LogType::ERR:                                                         \
-            Logger::print_err(__FILE__, __LINE__, msg);                            \
-            throw std::runtime_error("error");                                     \
-            break;                                                                 \
-        case LogType::WARN:                                                        \
-            Logger::print_warn(__FILE__, __LINE__, msg);                           \
-            break;                                                                 \
-        default:                                                                   \
-            break;                                                                 \
-    }                                                                              \
-} while(0);
+#define ERROR(msg) do {                                  \
+    Caramel::Logger::print_err(__FILE__, __LINE__, msg); \
+    throw std::runtime_error("error");                   \
+} while (0);
+
+#define LOG(msg) do {                                    \
+    Caramel::Logger::print_log(__FILE__, __LINE__, msg); \
+} while (0);
+
+#define WARNING(msg) do {                                 \
+    Caramel::Logger::print_warn(__FILE__, __LINE__, msg); \
+} while (0);
+
 
 #define NOT_IMPLEMENTED() do{         \
     MESSAGE(LogType::ERR, "NOT IMPLEMENTED") \
