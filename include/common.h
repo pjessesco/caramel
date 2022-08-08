@@ -39,7 +39,7 @@ namespace Caramel{
     constexpr Float PI_2 = 6.28318530718;
     constexpr Float PI_HALF = 1.57079632679;
     constexpr Float PI_INV = 0.31830988618;
-    constexpr Float EPSILON = 1e-8;
+    constexpr Float EPSILON = std::numeric_limits<Float>::epsilon();
 
     inline Float deg_to_rad(Float deg){
         return deg * PI / static_cast<Float>(180);
@@ -57,6 +57,9 @@ namespace Caramel{
     using Vector3f = Peanut::Matrix<Float, 3, 1>;
     using Vector4f = Peanut::Matrix<Float, 4, 1>;
 
+    using Vector2i = Peanut::Matrix<Int, 2, 1>;
+    using Vector3i = Peanut::Matrix<Int, 3, 1>;
+
     // TODO : Implement in Peanut
     template <Index N>
     Float dot(const Peanut::Matrix<Float, N, 1> &a, const Peanut::Matrix<Float, N, 1> &b){
@@ -65,6 +68,13 @@ namespace Caramel{
             ret += a.elem(i, 0) * b.elem(i, 0);
         }
         return ret;
+    }
+
+    // TODO : Implement in Peanut
+    inline Vector3f cross(const Vector3f &a, const Vector3f &b){
+        return Vector3f(a.m_data.d1[1] * b.m_data.d1[2] - a.m_data.d1[2] * b.m_data.d1[1],
+                        a.m_data.d1[2] * b.m_data.d1[0] - a.m_data.d1[0] * b.m_data.d1[2],
+                        a.m_data.d1[0] * b.m_data.d1[1] - a.m_data.d1[1] * b.m_data.d1[0]);
     }
 
 }

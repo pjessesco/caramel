@@ -12,5 +12,5 @@ include_directories(include)
 
 add_executable(caramel
         main.cpp
-        src/image.cpp)
+        src/image.cpp include/rayintersectinfo.h)
 
