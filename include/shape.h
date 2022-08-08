@@ -130,10 +130,10 @@ namespace Caramel{
             if(shapes.size() != 1){
                 ERROR("We do not support obj file with several shapes");
             }
-            LOG(" - Parsed # of vertices : "+std::to_string(attrib.vertices.size() / 3));
-            LOG(" - Parsed # of normals : "+std::to_string(attrib.normals.size()));
-            LOG(" - Parsed # of faces : "+std::to_string(shapes[0].mesh.indices.size() / 3));
-            LOG(" - Parsed # of texture coordinates : "+std::to_string(attrib.texcoords.size()));
+            LOG(" - # of vertices : "+std::to_string(attrib.vertices.size() / 3));
+            LOG(" - # of normals : "+std::to_string(attrib.normals.size()));
+            LOG(" - # of faces : "+std::to_string(shapes[0].mesh.indices.size() / 3));
+            LOG(" - # of texture coordinates : "+std::to_string(attrib.texcoords.size()));
 
             for(int i=0;i<attrib.vertices.size();i+=3){
                 m_vertices.emplace_back(Vector3f(attrib.vertices[i],
@@ -167,12 +167,17 @@ namespace Caramel{
                                                           indices[i+2].texcoord_index));
             }
 
-            LOG(" - Loaded # of vertices : "+std::to_string(m_vertices.size()));
-            LOG(" - Loaded # of normals : "+std::to_string(m_normals.size()));
-            LOG(" - Loaded # of tex coords : "+std::to_string(m_tex_coords.size()));
-            LOG(" - Loaded # of vertex indices : "+std::to_string(m_vertex_indices.size()));
-            LOG(" - Loaded # of normal indices : "+std::to_string(m_normal_indices.size()));
-            LOG(" - Loaded # of tex coord indices : "+std::to_string(m_tex_coord_indices.size()));
+            int memory_size = sizeof(Float) * (3 * m_vertices.size() +
+                                               3 * m_normals.size() +
+                                               2 * m_tex_coords.size()) +
+                              sizeof(Int) * (3 * m_vertex_indices.size() +
+                                             3 * m_normal_indices.size() +
+                                             3 * m_tex_coords.size());
+
+            LOG(" - Loading complete");
+            LOG(" - " + std::to_string(memory_size) + " bytes with "
+                + std::to_string(sizeof(Float)) + " bytes of Float and "
+                + std::to_string(sizeof(Int)) + " bytes of Int.");
         }
 
         std::tuple<bool, Float, Float, Float> ray_intersect(const Ray &ray) const override{
