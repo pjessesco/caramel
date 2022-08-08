@@ -33,6 +33,11 @@ namespace Caramel{
     using Int = int;
     using Index = unsigned int;
 
+    constexpr Float Float0 = static_cast<Float>(0);
+    constexpr Float Float1 = static_cast<Float>(1);
+    constexpr Int Int0 = static_cast<Int>(0);
+    constexpr Int Int1 = static_cast<Int>(1);
+
     constexpr Float INF = std::numeric_limits<Float>::infinity();
 
     constexpr Float PI = 3.14159265359;
@@ -61,20 +66,10 @@ namespace Caramel{
     using Vector3i = Peanut::Matrix<Int, 3, 1>;
 
     // TODO : Implement in Peanut
-    template <Index N>
-    Float dot(const Peanut::Matrix<Float, N, 1> &a, const Peanut::Matrix<Float, N, 1> &b){
-        Float ret = static_cast<Float>(0);
-        for(int i=0;i<N;i++){
-            ret += a.elem(i, 0) * b.elem(i, 0);
-        }
-        return ret;
-    }
-
-    // TODO : Implement in Peanut
     inline Vector3f cross(const Vector3f &a, const Vector3f &b){
-        return Vector3f(a.m_data.d1[1] * b.m_data.d1[2] - a.m_data.d1[2] * b.m_data.d1[1],
-                        a.m_data.d1[2] * b.m_data.d1[0] - a.m_data.d1[0] * b.m_data.d1[2],
-                        a.m_data.d1[0] * b.m_data.d1[1] - a.m_data.d1[1] * b.m_data.d1[0]);
+        return Vector3f(a[1] * b[2] - a[2] * b[1],
+                        a[2] * b[0] - a[0] * b[2],
+                        a[0] * b[1] - a[1] * b[0]);
     }
-
+    
 }

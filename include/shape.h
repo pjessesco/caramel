@@ -79,23 +79,23 @@ namespace Caramel{
             const Vector3f DE2 = cross(D, E2);
             const Vector3f TE1 = cross(T, E1);
 
-            const Float denom = dot(DE2, E1);
+            const Float denom = DE2.dot(E1);
             if(denom < EPSILON){
                 return {false, 0, 0, 0};
             }
             const Float denom_inv = static_cast<Float>(1) / denom;
 
-            const Float u = dot(DE2, T) * denom_inv;
+            const Float u = DE2.dot(T) * denom_inv;
             if(u < 0 || 1 < u){
                 return {false, 0, 0, 0};
             }
 
-            const Float v = dot(TE1, D) * denom_inv;
+            const Float v = TE1.dot(D) * denom_inv;
             if(v < 0 || 1 < v){
                 return {false, 0, 0, 0};
             }
 
-            const Float t = dot(TE1, E2) * denom_inv;
+            const Float t = TE1.dot(E2) * denom_inv;
             return {true, u, v, t};
         }
 
@@ -189,12 +189,12 @@ namespace Caramel{
         }
 
         Triangle get_triangle(Index i) const{
-            return Triangle(m_vertices[m_vertex_indices[i].m_data.d1[0]],
-                            m_vertices[m_vertex_indices[i].m_data.d1[1]],
-                            m_vertices[m_vertex_indices[i].m_data.d1[2]],
-                            m_normals[m_normal_indices[i].m_data.d1[0]],
-                            m_normals[m_normal_indices[i].m_data.d1[1]],
-                            m_normals[m_normal_indices[i].m_data.d1[2]]);
+            return Triangle(m_vertices[m_vertex_indices[i][0]],
+                            m_vertices[m_vertex_indices[i][1]],
+                            m_vertices[m_vertex_indices[i][2]],
+                            m_normals[m_normal_indices[i][0]],
+                            m_normals[m_normal_indices[i][1]],
+                            m_normals[m_normal_indices[i][2]]);
         }
 
         std::vector<Vector3f> m_vertices;
