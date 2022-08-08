@@ -9,6 +9,7 @@ int main() {
     std::cout << "Hello, World!" << std::endl;
 
     Caramel::OBJMesh("/Users/jino/caramel/bunny.obj");
+    Caramel::OBJMesh("/Users/jino/caramel/ajax.obj");
 
     WARNING("Warning example");
     LOG("Log example");
