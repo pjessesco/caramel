@@ -22,12 +22,16 @@
 // SOFTWARE.
 //
 
+#pragma once
+
 #include <vector>
 #include <filesystem>
 #include <tuple>
 
 #include <common.h>
 #include <logger.h>
+#include <ray.h>
+#include <rayintersectinfo.h>
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
@@ -38,76 +42,61 @@ namespace Caramel{
         Shape() {}
 
         virtual void transform(const Matrix44f &transform) = 0;
+        // u, v, t
+        virtual std::tuple<bool, Float, Float, Float> ray_intersect(const Ray &ray) const = 0;
 
-        Vector3f m_bbox_min;
-        Vector3f m_bbox_max;
     };
 
     struct Triangle : Shape{
         Triangle() {}
         Triangle(const Vector3f &p1, const Vector3f &p2, const Vector3f &p3,
-                 const Vector3f &n1, const Vector3f &n2, const Vector3f &n3) {
-            m_p.col(0) = p1;
-            m_p.col(1) = p2;
-            m_p.col(2) = p3;
-            m_n.col(0) = n1;
-            m_n.col(1) = n2;
-            m_n.col(2) = n3;
+                 const Vector3f &n1, const Vector3f &n2, const Vector3f &n3)
+        : m_p(Matrix33f::from_cols(p1, p2, p3)), m_n(Matrix33f::from_cols(p1, p2, p3)) {}
 
-            // TODO
-            // m_bbox_min =
-            // m_bbox_max =
+        void transform(const Matrix44f &transform) override{
+            ERROR("Not implemented");
         }
 
         inline Vector3f point(Index i) const{
-            return m_p.col(i);
+            return m_p.get_col(i);
         }
 
         inline Vector3f normal(Index i) const{
-            return m_n.col(i);
+            return m_n.get_col(i);
         }
 
-        BoolUVD ray_intersect(const Ray &ray) const override{
-            const Vector3f e1 = point(1) - point(0);
-            const Vector3f e2 = point(2) - point(0);
-            const Vector3f n_geo = e1.cross(e2);
+        // u, v, t
+        std::tuple<bool, Float, Float, Float> ray_intersect(const Ray &ray) const override{
+            const Vector3f A = m_p.get_col(0);
+            const Vector3f B = m_p.get_col(1);
+            const Vector3f C = m_p.get_col(2);
+            const Vector3f D = ray.m_d;
 
-            const Vector3f p_vec = ray.m_d.cross(e2);
+            const Vector3f T = ray.m_o - A;
+            const Vector3f E1 = B - A;
+            const Vector3f E2 = C - A;
 
-            const Float denominator = p_vec.dot(e1);
-            if(-EPSILON < denominator && denominator < EPSILON){
-                return {false, Vector2f(), -1};
+            const Vector3f DE2 = cross(D, E2);
+            const Vector3f TE1 = cross(T, E1);
+
+            const Float denom = dot(DE2, E1);
+            if(denom < EPSILON){
+                return {false, 0, 0, 0};
             }
+            const Float denom_inv = static_cast<Float>(1) / denom;
 
-            const Vector3f t_vec = ray.m_o - point(0);
-            const Float u = p_vec.dot(t_vec) / denominator;
+            const Float u = dot(DE2, T) * denom_inv;
             if(u < 0 || 1 < u){
-                return {false, Vector2f(), -1};
+                return {false, 0, 0, 0};
             }
 
-            const Vector3f q_vec = t_vec.cross(e1);
-            const Float v = q_vec.dot(ray.m_d) / denominator;
+            const Float v = dot(TE1, D) * denom_inv;
             if(v < 0 || 1 < v){
-                return {false, Vector2f(), -1};
+                return {false, 0, 0, 0};
             }
 
-            if(u+v>1) return {false, Vector2f(), -1};
-
-            const Float t = q_vec.dot(e2) / denominator;
-
-            return {true, Vector2f(u, v), t};
-        }
-
-        void transform(const Matrix44f &transform) override{
-            Matrix44f points_tmp = Matrix44f::identity();
-            points_tmp.block<3,3>(0,0) = m_p;
-            points_tmp = transform * points_tmp;
-            m_p = points_tmp.block<3, 3>(0, 0);
-
-            Matrix44f normals_tmp = Matrix44f::Identity();
-            normals_tmp.block<3, 3>(0, 0) = m_n;
-            normals_tmp = transform.inverse().transpose() * normals_tmp;
-            m_n = normals_tmp.block<3, 3>(0, 0);
+            const Float t = dot(TE1, E2) * denom_inv;
+            return {true, u, v, t};
         }
 
         Matrix33f m_p;
@@ -115,10 +104,100 @@ namespace Caramel{
     };
 
     struct OBJMesh : Shape{
+        OBJMesh(const std::filesystem::path &path){
+            if(!m_vertices.empty()){
+                ERROR("This mesh already loaded obj file");
+            }
+            if(!std::filesystem::exists(path)){
+                ERROR(path.string() + " is not exists");
+            }
+            std::string err;
 
+            tinyobj::ObjReader reader;
+            // `triangulate` option is true by default
+            if(!reader.ParseFromFile(path, tinyobj::ObjReaderConfig())){
+                if(!reader.Error().empty()){
+                    ERROR("TinyObjReader error : " + reader.Error());
+                }
+                ERROR("Cannot read obj file");
+            }
+
+            const auto& attrib = reader.GetAttrib();
+            const auto& shapes = reader.GetShapes();
+            const auto& mats = reader.GetMaterials();
+
+            LOG("Loading obj in "+path.string());
+            if(shapes.size() != 1){
+                ERROR("We do not support obj file with several shapes");
+            }
+            LOG(" - Parsed # of vertices : "+std::to_string(attrib.vertices.size() / 3));
+            LOG(" - Parsed # of normals : "+std::to_string(attrib.normals.size()));
+            LOG(" - Parsed # of faces : "+std::to_string(shapes[0].mesh.indices.size() / 3));
+            LOG(" - Parsed # of texture coordinates : "+std::to_string(attrib.texcoords.size()));
+
+            for(int i=0;i<attrib.vertices.size();i+=3){
+                m_vertices.emplace_back(Vector3f(attrib.vertices[i],
+                                                 attrib.vertices[i+1],
+                                                 attrib.vertices[i+2]));
+            }
+
+            for(int i=0;i<attrib.normals.size();i+=3){
+                m_normals.emplace_back(Vector3f(attrib.normals[i],
+                                                attrib.normals[i+1],
+                                                attrib.normals[i+2]));
+            }
+
+            for(int i=0;i<attrib.texcoords.size();i+=2){
+                m_tex_coords.emplace_back(Vector2f(attrib.texcoords[i],
+                                                   attrib.texcoords[i+1]));
+            }
+
+            const auto& indices = shapes[0].mesh.indices;
+            for(int i=0;i<indices.size();i+=3){
+                m_vertex_indices.emplace_back(Vector3i(indices[i].vertex_index,
+                                                       indices[i+1].vertex_index,
+                                                       indices[i+2].vertex_index));
+
+                m_normal_indices.emplace_back(Vector3i(indices[i].normal_index,
+                                                       indices[i+1].normal_index,
+                                                       indices[i+2].normal_index));
+
+                m_tex_coord_indices.emplace_back(Vector3i(indices[i].texcoord_index,
+                                                          indices[i+1].texcoord_index,
+                                                          indices[i+2].texcoord_index));
+            }
+
+            LOG(" - Loaded # of vertices : "+std::to_string(m_vertices.size()));
+            LOG(" - Loaded # of normals : "+std::to_string(m_normals.size()));
+            LOG(" - Loaded # of tex coords : "+std::to_string(m_tex_coords.size()));
+            LOG(" - Loaded # of vertex indices : "+std::to_string(m_vertex_indices.size()));
+            LOG(" - Loaded # of normal indices : "+std::to_string(m_normal_indices.size()));
+            LOG(" - Loaded # of tex coord indices : "+std::to_string(m_tex_coord_indices.size()));
+        }
+
+        std::tuple<bool, Float, Float, Float> ray_intersect(const Ray &ray) const override{
+            ERROR("Not implemented");
+        }
+
+        void transform(const Matrix44f &transform) override{
+            ERROR("Not implemented");
+        }
+
+        Triangle get_triangle(Index i) const{
+            return Triangle(m_vertices[m_vertex_indices[i].m_data.d1[0]],
+                            m_vertices[m_vertex_indices[i].m_data.d1[1]],
+                            m_vertices[m_vertex_indices[i].m_data.d1[2]],
+                            m_normals[m_normal_indices[i].m_data.d1[0]],
+                            m_normals[m_normal_indices[i].m_data.d1[1]],
+                            m_normals[m_normal_indices[i].m_data.d1[2]]);
+        }
+
+        std::vector<Vector3f> m_vertices;
+        std::vector<Vector3f> m_normals;
+        std::vector<Vector2f> m_tex_coords;
+        std::vector<Vector3i> m_vertex_indices;
+        std::vector<Vector3i> m_normal_indices;
+        std::vector<Vector3i> m_tex_coord_indices;
     };
 
-    struct PLYMesh : Shape{
-
-    };
 }

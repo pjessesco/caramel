@@ -1,11 +1,14 @@
 #include <iostream>
 
-
 #include <logger.h>
+#include <shape.h>
+
 #include <Peanut/Peanut.h>
 
 int main() {
     std::cout << "Hello, World!" << std::endl;
+
+    Caramel::OBJMesh("/Users/jino/caramel/bunny.obj");
 
     WARNING("Warning example");
     LOG("Log example");
