@@ -17,11 +17,17 @@ namespace Caramel{
             // right-handed coord
             m_left = cross(up, dir);
 
-
+            m_cam_to_world = Matrix44f::from_cols(
+                    Vector4f{m_left[0], m_left[1], m_left[2], Float0},
+                    Vector4f{    up[0],     up[1],     up[2], Float0},
+                    Vector4f{   dir[0],    dir[1],    dir[2], Float0},
+                    Vector4f{   pos[0],    pos[1],    pos[2], Float1}
+                    );
+            m_world_to_cam = Inverse(m_cam_to_world);
         }
 
         Ray sample_ray(Float w, Float h){
-
+            
 
 
         }
@@ -34,6 +40,7 @@ namespace Caramel{
         Float m_near, m_far;
         Float m_fov_x;
         Matrix44f m_cam_to_world;
+        Matrix44f m_world_to_cam;
     };
 
 }
