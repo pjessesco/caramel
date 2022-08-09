@@ -12,8 +12,8 @@ namespace Caramel{
     // Perspective camera
     struct Camera{
         Camera(const Vector3f pos, const Vector3f dir, const Vector3f up,
-               Index w, Index h, Float near, Float far, Float fov_x)
-        : m_pos{pos}, m_dir{dir}, m_w{w}, m_h{h}, m_near{near}, m_far{far}, m_fov_x{fov_x} {
+               Index w, Index h, Float fov_x)
+        : m_pos{pos}, m_dir{dir}, m_w{w}, m_h{h}, m_fov_x{fov_x} {
             // right-handed coord
             m_left = cross(up, dir);
 
@@ -23,24 +23,31 @@ namespace Caramel{
                     Vector4f{   dir[0],    dir[1],    dir[2], Float0},
                     Vector4f{   pos[0],    pos[1],    pos[2], Float1}
                     );
-            m_world_to_cam = Inverse(m_cam_to_world);
+
+            m_atan = atan(m_fov_x * PI / (2 * 180));
+            m_ratio = static_cast<Float>(m_h) / static_cast<Float>(m_w);
         }
 
         Ray sample_ray(Float w, Float h){
-            
+            Vector4f local_d{(w/m_w - 0.5f) * 2 * m_atan,
+                             (h/m_h - 0.5f) * 2 * m_atan * m_ratio,
+                             Float1,
+                             Float0};
 
+            Vector3f d = Block<0,0,3,1>(m_cam_to_world * local_d);
 
+            return Ray(m_pos, d);
         }
 
-        Vector3f m_pos;
-        Vector3f m_dir;
-        Vector3f m_up;
+        const Vector3f m_pos;
+        const Vector3f m_dir;
+        const Vector3f m_up;
         Vector3f m_left;
-        Index m_w, m_h;
-        Float m_near, m_far;
-        Float m_fov_x;
+        const Index m_w, m_h;
+        const Float m_fov_x;
+        Float m_atan;
+        Float m_ratio;
         Matrix44f m_cam_to_world;
-        Matrix44f m_world_to_cam;
     };
 
 }
