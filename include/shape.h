@@ -181,7 +181,17 @@ namespace Caramel{
         }
 
         std::tuple<bool, Float, Float, Float> ray_intersect(const Ray &ray) const override{
-            ERROR("Not implemented");
+            Float max_t = std::numeric_limits<Float>::max();
+            std::tuple<bool, Float, Float, Float> info = {false, 0, 0, 0};
+            for(int i=0;i<m_vertex_indices.size();i++){
+                auto [is_intersect, u, v, t] = get_triangle(i).ray_intersect(ray);
+                if(is_intersect){
+                    if(max_t > t){
+                        info = {is_intersect, u, v, t};
+                    }
+                }
+            }
+            return info;
         }
 
         void transform(const Matrix44f &transform) override{
