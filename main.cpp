@@ -10,29 +10,86 @@
 using namespace Caramel;
 
 int main() {
-    constexpr int TEST_W = 768;
-    constexpr int TEST_H = 768;
 
-    std::cout << "Hello, World!" << std::endl;
+    std::string test_scene_path = "/Users/jino/test_scenes/";
 
-    auto bunny = Caramel::OBJMesh("/Users/jino/caramel/bunny.obj");
+    // Test 1
+    {
+        constexpr int TEST_W = 300;
+        constexpr int TEST_H = 300;
 
-    Camera cam({-0.0315182f, 0.284011f, 0.7331f},
-               {-0.0191411f,  0.2299197f,  0.973022f},
-               {0.00717446f, 0.973206f, -0.229822f},
-               TEST_W, TEST_H, 16);
+        auto tri = Caramel::OBJMesh(test_scene_path + "case1/object.obj");
 
-    Image img(TEST_W, TEST_H);
+        Camera cam({0.0f, 0.0f, 0.0f},
+                   {0.0f, 0.0f, 1.0f},
+                   {0.0f, 1.0f, 0.0f},
+                   300, 300, 50);
 
-    for(int i=0;i<TEST_W;i++){
-        for(int j=0;j<TEST_H;j++){
-            auto ray = cam.sample_ray(i, j);
-            auto [intersect, u, v, t] = bunny.ray_intersect(ray);
-            img.set_pixel_value(i, j, -t, -t, -t); // FIXME : negative depth
+        Image img(TEST_W, TEST_H);
+
+        for(int i=0;i<TEST_W;i++){
+            for(int j=0;j<TEST_H;j++){
+                auto ray = cam.sample_ray(i, j);
+                auto [intersect, u, v, t] = tri.ray_intersect(ray);
+                img.set_pixel_value(i, j, t, t, t); // FIXME : negative depth
+            }
         }
+
+        img.write_exr(test_scene_path+"case1/caramel_test1.exr");
     }
 
-    img.write_exr("bunny_depth.exr");
+    // Test 2
+    {
+        constexpr int TEST_W = 300;
+        constexpr int TEST_H = 300;
+
+        auto tri = Caramel::OBJMesh(test_scene_path + "case2/object.obj");
+
+        Camera cam({0.0f, 0.0f, -2.0f},
+                   {0.0f, 0.0f, 1.0f},
+                   {0.0f, 1.0f, 0.0f},
+                   300, 300, 50);
+
+        Image img(TEST_W, TEST_H);
+
+        for(int i=0;i<TEST_W;i++){
+            for(int j=0;j<TEST_H;j++){
+                auto ray = cam.sample_ray(i, j);
+                auto [intersect, u, v, t] = tri.ray_intersect(ray);
+                img.set_pixel_value(i, j, -t, -t, -t); // FIXME : negative depth
+            }
+        }
+
+        img.write_exr(test_scene_path+"case2/caramel_test2.exr");
+    }
+
+
+    {
+        // Test 3
+        {
+            constexpr int TEST_W = 300;
+            constexpr int TEST_H = 300;
+
+            auto tri = Caramel::OBJMesh(test_scene_path + "case3/object.obj");
+
+            Camera cam({0.527079f, -0.527042f, -1.50351f},
+                       {-0.008999f, 0.009001f, 0.99992f},
+                       {8.1006e-05f, 0.99996f, -0.00900047f},
+                       300, 300, 50);
+
+            Image img(TEST_W, TEST_H);
+
+            for(int i=0;i<TEST_W;i++){
+                for(int j=0;j<TEST_H;j++){
+                    auto ray = cam.sample_ray(i, j);
+                    auto [intersect, u, v, t] = tri.ray_intersect(ray);
+                    img.set_pixel_value(i, j, -t, -t, -t); // FIXME : negative depth
+                }
+            }
+
+            img.write_exr(test_scene_path+"case3/caramel_test2.exr");
+        }
+    }
 
     return 0;
 }
