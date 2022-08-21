@@ -10,20 +10,19 @@
 using namespace Caramel;
 
 int main() {
-
-    std::string test_scene_path = "/Users/jino/test_scenes/";
+    std::string test_scene_path = "/Users/jino/caramel/test_scenes/";
 
     // Test 1
     {
-        constexpr int TEST_W = 300;
-        constexpr int TEST_H = 300;
+        constexpr int TEST_W = 10;
+        constexpr int TEST_H = 10;
 
         auto tri = Caramel::OBJMesh(test_scene_path + "case1/object.obj");
 
         Camera cam({0.0f, 0.0f, 0.0f},
                    {0.0f, 0.0f, 1.0f},
                    {0.0f, 1.0f, 0.0f},
-                   300, 300, 50);
+                   TEST_W, TEST_H, 50);
 
         Image img(TEST_W, TEST_H);
 
@@ -38,17 +37,19 @@ int main() {
         img.write_exr(test_scene_path+"case1/caramel_test1.exr");
     }
 
+    std::cout<<"===================================="<<std::endl;
+
     // Test 2
     {
-        constexpr int TEST_W = 300;
-        constexpr int TEST_H = 300;
+        constexpr int TEST_W = 10;
+        constexpr int TEST_H = 10;
 
         auto tri = Caramel::OBJMesh(test_scene_path + "case2/object.obj");
 
         Camera cam({0.0f, 0.0f, -2.0f},
                    {0.0f, 0.0f, 1.0f},
                    {0.0f, 1.0f, 0.0f},
-                   300, 300, 50);
+                   TEST_W, TEST_H, 50);
 
         Image img(TEST_W, TEST_H);
 
@@ -63,19 +64,20 @@ int main() {
         img.write_exr(test_scene_path+"case2/caramel_test2.exr");
     }
 
+    std::cout<<"===================================="<<std::endl;
 
     {
         // Test 3
         {
-            constexpr int TEST_W = 300;
-            constexpr int TEST_H = 300;
+            constexpr int TEST_W = 10;
+            constexpr int TEST_H = 10;
 
             auto tri = Caramel::OBJMesh(test_scene_path + "case3/object.obj");
 
             Camera cam({0.527079f, -0.527042f, -1.50351f},
                        {-0.008999f, 0.009001f, 0.99992f},
                        {8.1006e-05f, 0.99996f, -0.00900047f},
-                       300, 300, 50);
+                       TEST_W, TEST_H, 50);
 
             Image img(TEST_W, TEST_H);
 
@@ -87,7 +89,7 @@ int main() {
                 }
             }
 
-            img.write_exr(test_scene_path+"case3/caramel_test2.exr");
+            img.write_exr(test_scene_path+"case3/caramel_test3.exr");
         }
     }
 
