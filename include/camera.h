@@ -29,14 +29,14 @@ namespace Caramel{
         }
 
         Ray sample_ray(Float w, Float h){
-            Vector4f local_d{(w/m_w - 0.5f) * 2 * m_ratio,
-                             (h/m_h - 0.5f) * 2 ,
+            Vector4f local_d{-(w/m_w - 0.5f) * 2 * m_ratio,
+                             -(h/m_h - 0.5f) * 2 ,
                              m_ratio / tan(m_fov_x * PI / (2 * 180)),
                              Float0};
 
             Vector3f d = Block<0,0,3,1>(m_cam_to_world * local_d);
 
-            std::cout<<d<<std::endl;
+            std::cout<<w<<", "<<h<<", d : "<<d.normalize()<<", o : "<<m_pos<<std::endl;
             return Ray(m_pos, d.normalize());
         }
 
