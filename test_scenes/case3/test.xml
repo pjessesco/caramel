@@ -3,6 +3,7 @@
 
     <sensor type="perspective">
         <float name="fov" value="50"/>
+        <float name="near_clip" value="0.00000000000001"/>
         <transform name="to_world">
             <lookat origin="0.536078, -0.536043, -2.50343" 
                     target="0.527079, -0.527042, -1.50351" 
@@ -12,8 +13,8 @@
             <integer name="sample_count" value="1"/>
         </sampler>
         <film type="hdrfilm">
-            <integer name="width" value="10"/>
-            <integer name="height" value="10"/>
+            <integer name="width" value="500"/>
+            <integer name="height" value="500"/>
             <rfilter type="box"/>
         </film>
     </sensor>
