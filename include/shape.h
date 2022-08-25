@@ -88,7 +88,6 @@ namespace Caramel{
             }
 
             const Float v = TE1.dot(D) * denom_inv;
-            std::cout<<"v : " <<v<<std::endl;
             if(v < 0 || 1 < v){
                 return {false, 0, 0, 0};
             }
@@ -101,7 +100,7 @@ namespace Caramel{
             if(t<0){
                 return {false, 0, 0, 0};
             }
-            
+
             return {true, u, v, t};
         }
 

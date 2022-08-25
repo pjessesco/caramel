@@ -36,7 +36,6 @@ namespace Caramel{
 
             Vector3f d = Block<0,0,3,1>(m_cam_to_world * local_d);
 
-            std::cout<<w<<", "<<h<<", d : "<<d.normalize()<<", o : "<<m_pos<<std::endl;
             return Ray(m_pos, d.normalize());
         }
 
