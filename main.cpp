@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 
 #include <logger.h>
 #include <shape.h>
@@ -106,6 +107,8 @@ int main() {
 
         Image img(TEST_W, TEST_H);
 
+        auto time1 = std::chrono::high_resolution_clock::now();
+
         for(int i=0;i<TEST_W;i++){
             for(int j=0;j<TEST_H;j++){
                 auto ray = cam.sample_ray(i, j);
@@ -113,6 +116,9 @@ int main() {
                 img.set_pixel_value(i, j, t, t, t);
             }
         }
+        
+        auto time2 = std::chrono::high_resolution_clock::now();
+        std::cout<<"Test4 : "<<std::chrono::duration_cast<std::chrono::microseconds>(time2 - time1).count() << " [micro-s]"<<std::endl;
 
         img.write_exr(test_scene_path+"case4/caramel_test4.exr");
     }
