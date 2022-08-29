@@ -122,7 +122,19 @@ namespace Caramel {
         LOG(" - # of faces : " + std::to_string(shapes[0].mesh.indices.size() / 3));
         LOG(" - # of texture coordinates : " + std::to_string(attrib.texcoords.size()));
 
+        // Used for aabb
+        Float min_x = INF,  min_y = INF,  min_z = INF,
+              max_x = -INF, max_y = -INF, max_z = -INF;
+
         for (int i = 0; i < attrib.vertices.size(); i += 3) {
+            min_x = min_x > attrib.vertices[i]     ? attrib.vertices[i]     : min_x;
+            min_y = min_y > attrib.vertices[i + 1] ? attrib.vertices[i + 1] : min_y;
+            min_z = min_z > attrib.vertices[i + 2] ? attrib.vertices[i + 2] : min_z;
+
+            max_x = max_x < attrib.vertices[i]     ? attrib.vertices[i]     : max_x;
+            max_y = max_y < attrib.vertices[i + 1] ? attrib.vertices[i + 1] : max_y;
+            max_z = max_z < attrib.vertices[i + 2] ? attrib.vertices[i + 2] : max_z;
+
             m_vertices.emplace_back(Vector3f(attrib.vertices[i],
                                              attrib.vertices[i + 1],
                                              attrib.vertices[i + 2]));
@@ -161,11 +173,16 @@ namespace Caramel {
                                          3 * m_normal_indices.size() +
                                          3 * m_tex_coords.size());
 
+        m_aabb = AABB({min_x, min_y, min_z}, {max_x, max_y, max_z});
+
         LOG(" - Loading complete");
         LOG(" - " + std::to_string(memory_size) + " bytes with " + std::to_string(sizeof(Float)) + " bytes of Float and " + std::to_string(sizeof(Int)) + " bytes of Int.");
     }
 
     std::tuple<bool, Float, Float, Float> OBJMesh::ray_intersect(const Ray &ray) const {
+        if(!(m_aabb.ray_intersect(ray))){
+            return {false, 0, 0, 0};
+        }
         Float min_t = std::numeric_limits<Float>::max();
         std::tuple<bool, Float, Float, Float> info = {false, 0, 0, 0};
         for (int i = 0; i < m_vertex_indices.size(); i++) {
