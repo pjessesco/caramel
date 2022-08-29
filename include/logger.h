@@ -35,19 +35,19 @@ namespace Caramel {
         inline static void print_log(const std::string &file,
                                      int line,
                                      const std::string &msg) {
-            std::cout << log_prefix() << "In " << get_filename(file) << " " << line << ": " << msg << std::endl;
+            std::cout << log_prefix() << "In " << get_filename(file) << " " << line << " : " << msg << std::endl;
         }
 
         inline static void print_err(const std::string &file,
                                      int line,
                                      const std::string &msg) {
-            std::cout << err_prefix() << "In " << get_filename(file) << " " << line << ": " << msg << std::endl;
+            std::cout << err_prefix() << "In " << get_filename(file) << " " << line << " : " << msg << std::endl;
         }
 
         inline static void print_warn(const std::string &file,
                                       int line,
                                       const std::string &msg) {
-            std::cout << warn_prefix() << "In " << get_filename(file) << " " << line << ": " << msg << std::endl;
+            std::cout << warn_prefix() << "In " << get_filename(file) << " " << line << " : " << msg << std::endl;
         }
 
     private:
