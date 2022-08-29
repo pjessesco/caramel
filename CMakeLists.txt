@@ -10,8 +10,22 @@ include_directories(ext/peanut/include)
 
 include_directories(include)
 
-add_executable(caramel
+set(SOURCES
         main.cpp
         src/image.cpp
         src/shape.cpp)
+
+set(HEADERS
+        include/camera.h
+        include/common.h
+        include/image.h
+        include/logger.h
+        include/ray.h
+        include/rayintersectinfo.h
+        include/shape.h
+        include/transform.h)
+
+add_executable(caramel
+        ${SOURCES}
+        ${HEADERS})
 
