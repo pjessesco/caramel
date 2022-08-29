@@ -16,6 +16,7 @@ set(SOURCES
         src/shape.cpp)
 
 set(HEADERS
+        include/aabb.h
         include/camera.h
         include/common.h
         include/image.h

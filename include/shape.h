@@ -26,9 +26,12 @@
 
 #include <vector>
 #include <tuple>
+#include <cmath>
 
 #include <common.h>
 #include <ray.h>
+#include <aabb.h>
+#include <logger.h>
 
 namespace Caramel{
 
@@ -44,23 +47,30 @@ namespace Caramel{
         Triangle(const Vector3f &p1, const Vector3f &p2, const Vector3f &p3,
                  const Vector3f &n1, const Vector3f &n2, const Vector3f &n3);
 
+        // u, v, t
+        std::tuple<bool, Float, Float, Float> ray_intersect(const Ray &ray) const override;
         void transform(const Matrix44f &transform) override;
+
         inline Vector3f point(Index i) const;
         inline Vector3f normal(Index i) const;
 
-        // u, v, t
-        std::tuple<bool, Float, Float, Float> ray_intersect(const Ray &ray) const override;
-
+    private:
         Matrix33f m_p;
         Matrix33f m_n;
     };
 
     struct OBJMesh : Shape{
         OBJMesh(const std::filesystem::path &path);
+
         std::tuple<bool, Float, Float, Float> ray_intersect(const Ray &ray) const override;
         void transform(const Matrix44f &transform) override;
+
         Triangle get_triangle(Index i) const;
 
+    private:
+        bool ray_intersect_aabb(const Ray &ray) const;
+
+        AABB m_aabb;
         std::vector<Vector3f> m_vertices;
         std::vector<Vector3f> m_normals;
         std::vector<Vector2f> m_tex_coords;
