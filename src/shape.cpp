@@ -26,6 +26,7 @@
 
 #include <shape.h>
 #include <logger.h>
+#include <transform.h>
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
@@ -36,7 +37,10 @@ namespace Caramel {
         : m_p(Matrix33f::from_cols(p1, p2, p3)), m_n(Matrix33f::from_cols(p1, p2, p3)) {}
 
     void Triangle::transform(const Matrix44f &transform) {
-        ERROR("Not implemented");
+        for(Index i=0;i<3;i++){
+            m_p.set_col(i, transform_point(m_p.get_col(i), transform));
+            m_n.set_col(i, transform_normal(m_n.get_col(i), transform));
+        }
     }
 
     inline Vector3f Triangle::point(Index i) const {
@@ -177,7 +181,15 @@ namespace Caramel {
     }
 
     void OBJMesh::transform(const Matrix44f &transform) {
-        ERROR("Not implemented");
+        if(m_vertices.empty()){
+            ERROR("OBJ file is not loaded yet");
+        }
+        for(auto &m_vertice : m_vertices){
+            m_vertice = transform_point(m_vertice, transform);
+        }
+        for(auto &m_normal : m_normals){
+            m_normal = transform_point(m_normal, transform);
+        }
     }
 
     Triangle OBJMesh::get_triangle(Index i) const {
