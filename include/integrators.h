@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include <scene.h>
 #include <image.h>
+#include <parallel_for.h>
 #include <rayintersectinfo.h>
+#include <scene.h>
 
 namespace Caramel{
     class Integrator{
@@ -19,12 +20,19 @@ namespace Caramel{
 
             Image img(width, height);
 
-            for(int i=0;i<width;i++){
+            parallel_for(0, width, std::function([&](int i){
                 for(int j=0;j<width;j++){
                     auto rgb = get_pixel_value(i, j);
                     img.set_pixel_value(i, j, rgb[0], rgb[1], rgb[2]);
                 }
-            }
+            }));
+
+//            for(int i=0;i<width;i++){
+//                for(int j=0;j<width;j++){
+//                    auto rgb = get_pixel_value(i, j);
+//                    img.set_pixel_value(i, j, rgb[0], rgb[1], rgb[2]);
+//                }
+//            }
             return img;
         }
 
