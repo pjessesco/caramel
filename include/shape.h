@@ -36,8 +36,6 @@
 namespace Caramel{
 
     struct Shape{
-        Shape() = default;
-
         virtual void transform(const Matrix44f &transform) = 0;
         // u, v, t
         virtual std::tuple<bool, Float, Float, Float> ray_intersect(const Ray &ray) const = 0;
