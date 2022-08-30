@@ -1,0 +1,25 @@
+<scene version="3.0.0">
+    <integrator type="depth"/>
+
+    <sensor type="perspective">
+        <float name="fov" value="16"/>
+        <float name="near_clip" value="0.00000000000001"/>
+        <transform name="to_world">
+            <lookat origin="0.0, 0.75, 6.0" 
+                    target="0.0, 0.75, 0.0" 
+                    up="0, 1, 0"/>
+        </transform>
+        <sampler type="independent">  <!-- ldsampler -->
+            <integer name="sample_count" value="1"/>
+        </sampler>
+        <film type="hdrfilm">
+            <integer name="width" value="200"/>
+            <integer name="height" value="200"/>
+            <rfilter type="box"/>
+        </film>
+    </sensor>
+    
+    <shape type="obj">
+        <string name="filename" value="bunny_vn.obj"/>
+    </shape>
+</scene>
