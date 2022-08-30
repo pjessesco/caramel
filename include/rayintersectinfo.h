@@ -29,13 +29,14 @@
 namespace Caramel{
     class Shape;
     struct RayIntersectInfo {
+        RayIntersectInfo() : t(INF) {}
         Vector3f p;   // World position where ray hits
         Vector3f wi;  // Incoming ray direction in local coordinate
         Vector3f wo;  // Outgoing ray direction in local coordinate
         Vector3f n;   // Normal direction in world coordinate
         Float t;      // Length of the ray from origin to hitpoint
-        std::shared_ptr<Shape> *shape; // Hitted shape
         Float u, v;   // UV coordinate
+        Index idx;    // Shape index in a scene
         // TODO : brdf
     };
 }

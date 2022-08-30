@@ -26,9 +26,12 @@ int main() {
         scene.add_mesh(new OBJMesh(test_scene_path + "case1/object.obj"));
 
         DepthIntegrator integrator{scene};
-
         Image img = integrator.render();
         img.write_exr(test_scene_path+"case1/caramel_test1.exr");
+
+        UVIntegrator integrator2{scene};
+        Image img2 = integrator2.render();
+        img2.write_exr(test_scene_path+"case1/caramel_test1_uv.exr");
     }
 
     std::cout<<"===================================="<<std::endl;
@@ -67,29 +70,19 @@ int main() {
 
     // Test 4
     {
-        constexpr int TEST_W = 100;
-        constexpr int TEST_H = 100;
+        Scene scene(Camera({-0.0315182f, 0.284011f, 0.7331f},
+                           {0.0191411f, -0.2299197f, -0.973022f},
+                           {0.00717446f, 0.973206f, -0.229822f},
+                           100, 100, 16));
 
-        auto tri = Caramel::OBJMesh(test_scene_path + "case4/bunny.obj");
+        scene.add_mesh(new OBJMesh(test_scene_path + "case4/bunny.obj"));
 
-        Camera cam({-0.0315182f, 0.284011f, 0.7331f},
-                   {0.0191411f, -0.2299197f, -0.973022f},
-                   {0.00717446f, 0.973206f, -0.229822f},
-                   TEST_W, TEST_H, 16);
-
-        Image img(TEST_W, TEST_H);
+        DepthIntegrator integrator{scene};
 
         auto time1 = std::chrono::high_resolution_clock::now();
-
-        for(int i=0;i<TEST_W;i++){
-            for(int j=0;j<TEST_H;j++){
-                auto ray = cam.sample_ray(i, j);
-                auto [intersect, u, v, t] = tri.ray_intersect(ray);
-                img.set_pixel_value(i, j, t, t, t);
-            }
-        }
-        
+        Image img = integrator.render();
         auto time2 = std::chrono::high_resolution_clock::now();
+
         std::cout<<"Test4 : "<<std::chrono::duration_cast<std::chrono::microseconds>(time2 - time1).count() << " [micro-s]"<<std::endl;
 
         img.write_exr(test_scene_path+"case4/caramel_test4.exr");

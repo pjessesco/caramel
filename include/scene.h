@@ -37,22 +37,24 @@ namespace Caramel{
     struct Scene{
         Scene(const Camera &cam) : m_cam{cam} {}
 
-        //       is_hit,     u,     v,     t,   idx
-        std::tuple<bool, Float, Float, Float, Index> ray_intersect(const Ray &ray) const{
+        std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const{
 
-            //       is_hit,     u,     v,     t
-            std::tuple<bool, Float, Float, Float> result = {false, 0, 0, 0};
+            bool is_hit = false;
+            RayIntersectInfo info = RayIntersectInfo();
             Index mesh_idx = 999999;
 
             for(int i=0;i<m_meshes.size();i++){
-                auto tmp = m_meshes[i]->ray_intersect(ray);
-                if(get<0>(tmp)){
-                    mesh_idx = i;
-                    result = tmp;
+                auto [hit, tmp_info] = m_meshes[i]->ray_intersect(ray);
+                if(hit){
+                    is_hit = true;
+                    if(info.t > tmp_info.t){
+                        info = tmp_info;
+                        info.idx = i;
+                    }
                 }
             }
 
-            return std::tuple_cat(result, std::make_tuple(mesh_idx));
+            return {is_hit, info};
         }
 
         void add_mesh(Shape *shape){

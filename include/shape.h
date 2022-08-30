@@ -32,13 +32,14 @@
 #include <ray.h>
 #include <aabb.h>
 #include <logger.h>
+#include <rayintersectinfo.h>
 
 namespace Caramel{
 
     struct Shape{
         virtual void transform(const Matrix44f &transform) = 0;
         // u, v, t
-        virtual std::tuple<bool, Float, Float, Float> ray_intersect(const Ray &ray) const = 0;
+        virtual std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const = 0;
     };
 
     struct Triangle : Shape{
@@ -46,7 +47,7 @@ namespace Caramel{
                  const Vector3f &n1, const Vector3f &n2, const Vector3f &n3);
 
         // u, v, t
-        std::tuple<bool, Float, Float, Float> ray_intersect(const Ray &ray) const override;
+        std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
         void transform(const Matrix44f &transform) override;
 
         inline Vector3f point(Index i) const;
@@ -60,7 +61,7 @@ namespace Caramel{
     struct OBJMesh : Shape{
         OBJMesh(const std::filesystem::path &path);
 
-        std::tuple<bool, Float, Float, Float> ray_intersect(const Ray &ray) const override;
+        std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
         void transform(const Matrix44f &transform) override;
 
         Triangle get_triangle(Index i) const;

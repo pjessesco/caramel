@@ -6,6 +6,7 @@
 
 #include <scene.h>
 #include <image.h>
+#include <rayintersectinfo.h>
 
 namespace Caramel{
     class Integrator{
@@ -31,8 +32,34 @@ namespace Caramel{
             for(int i=0;i<width;i++){
                 for(int j=0;j<width;j++){
                     const Ray ray = m_scene.m_cam.sample_ray(i, j);
-                    auto [is_hit, u, v, t, idx] = m_scene.ray_intersect(ray);
-                    img.set_pixel_value(i,j,t,t,t);
+                    auto [is_hit, info] = m_scene.ray_intersect(ray);
+                    if(is_hit){
+                        img.set_pixel_value(i, j, info.t, info.t, info.t);
+                    }
+                }
+            }
+
+            return img;
+        }
+    };
+
+    class UVIntegrator : public Integrator{
+    public:
+        UVIntegrator(const Scene &scene) : Integrator(scene) {}
+
+        Image render() override{
+            const Index width = m_scene.m_cam.m_w;
+            const Index height = m_scene.m_cam.m_h;
+
+            Image img(width, height);
+
+            for(int i=0;i<width;i++){
+                for(int j=0;j<width;j++){
+                    const Ray ray = m_scene.m_cam.sample_ray(i, j);
+                    auto [is_hit, info] = m_scene.ray_intersect(ray);
+                    if(is_hit){
+                        img.set_pixel_value(i, j, info.u, info.v, Float1 - info.u - info.v);
+                    }
                 }
             }
 
