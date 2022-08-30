@@ -13,8 +13,8 @@
             <integer name="sample_count" value="1"/>
         </sampler>
         <film type="hdrfilm">
-            <integer name="width" value="100"/>
-            <integer name="height" value="100"/>
+            <integer name="width" value="200"/>
+            <integer name="height" value="200"/>
             <rfilter type="box"/>
         </film>
     </sensor>
