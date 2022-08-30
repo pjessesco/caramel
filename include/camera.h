@@ -28,7 +28,7 @@ namespace Caramel{
             m_ratio = static_cast<Float>(m_w) / static_cast<Float>(m_h);
         }
 
-        Ray sample_ray(Float w, Float h){
+        [[nodiscard]] Ray sample_ray(Float w, Float h) const{
             Vector4f local_d{-(w/m_w - 0.5f) * 2 * m_ratio,
                              -(h/m_h - 0.5f) * 2 ,
                              m_ratio / tan(m_fov_x * PI / (2 * 180)),
