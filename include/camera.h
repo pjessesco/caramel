@@ -13,14 +13,14 @@ namespace Caramel{
     struct Camera{
         Camera(const Vector3f pos, const Vector3f dir, const Vector3f up,
                Index w, Index h, Float fov_x)
-        : m_pos{pos}, m_dir{dir}, m_w{w}, m_h{h}, m_fov_x{fov_x} {
+        : m_pos{pos}, m_dir{dir.normalize()}, m_up(up.normalize()), m_w{w}, m_h{h}, m_fov_x{fov_x} {
             // right-handed coord
-            m_left = cross(up, dir);
+            m_left = cross(m_up, m_dir);
 
             m_cam_to_world = Matrix44f::from_cols(
                     Vector4f{m_left[0], m_left[1], m_left[2], Float0},
-                    Vector4f{    up[0],     up[1],     up[2], Float0},
-                    Vector4f{   dir[0],    dir[1],    dir[2], Float0},
+                    Vector4f{  m_up[0],   m_up[1],   m_up[2], Float0},
+                    Vector4f{ m_dir[0],  m_dir[1],  m_dir[2], Float0},
                     Vector4f{   pos[0],    pos[1],    pos[2], Float1}
                     );
 
