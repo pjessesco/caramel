@@ -33,7 +33,7 @@ namespace Caramel{
         Vector3f p;   // World position where ray hits
         Vector3f wi;  // Incoming ray direction in local coordinate
         Vector3f wo;  // Outgoing ray direction in local coordinate
-        Vector3f n;   // Normal direction in world coordinate
+        Vector3f sh_n;// Normal direction in world coordinate
         Float t;      // Length of the ray from origin to hitpoint
         Float u, v;   // UV coordinate
         Index idx;    // Shape index in a scene
