@@ -52,7 +52,7 @@ namespace Caramel {
     }
 
     // u, v, t
-    std::tuple<bool, Float, Float, Float> Triangle::ray_intersect(const Ray &ray) const {
+    std::tuple<bool, RayIntersectInfo> Triangle::ray_intersect(const Ray &ray) const {
         const Vector3f A = m_p.get_col(0);
         const Vector3f B = m_p.get_col(1);
         const Vector3f C = m_p.get_col(2);
@@ -70,24 +70,33 @@ namespace Caramel {
         const Float u = DE2.dot(T) * denom_inv;
 
         if (u < 0 || 1 < u) {
-            return {false, 0, 0, 0};
+            return {false, RayIntersectInfo()};
         }
 
         const Float v = TE1.dot(D) * denom_inv;
         if (v < 0 || 1 < v) {
-            return {false, 0, 0, 0};
+            return {false, RayIntersectInfo()};
         }
 
         if (u + v > 1) {
-            return {false, 0, 0, 0};
+            return {false, RayIntersectInfo()};
         }
 
         const Float t = TE1.dot(E2) * denom_inv;
         if (t < 0) {
-            return {false, 0, 0, 0};
+            return {false, RayIntersectInfo()};
         }
 
-        return {true, u, v, t};
+        // Intersect
+        Vector3f hitpos = (A * u) + (B * v) + (C * (Float1 - u - v));
+
+        RayIntersectInfo ret;
+        ret.p = hitpos;
+        ret.t = t;
+        ret.u = u;
+        ret.v = v;
+
+        return {true, ret};
     }
 
 
@@ -179,22 +188,25 @@ namespace Caramel {
         LOG(" - " + std::to_string(memory_size) + " bytes with " + std::to_string(sizeof(Float)) + " bytes of Float and " + std::to_string(sizeof(Int)) + " bytes of Int.");
     }
 
-    std::tuple<bool, Float, Float, Float> OBJMesh::ray_intersect(const Ray &ray) const {
+    std::tuple<bool, RayIntersectInfo> OBJMesh::ray_intersect(const Ray &ray) const {
         if(!(m_aabb.ray_intersect(ray))){
-            return {false, 0, 0, 0};
+            return {false, RayIntersectInfo()};
         }
-        Float min_t = std::numeric_limits<Float>::max();
-        std::tuple<bool, Float, Float, Float> info = {false, 0, 0, 0};
+
+        RayIntersectInfo info = RayIntersectInfo();
+        info.t = INF;
+        bool is_hit = false;
+
         for (int i = 0; i < m_vertex_indices.size(); i++) {
-            auto [is_intersect, u, v, t] = get_triangle(i).ray_intersect(ray);
+            auto [is_intersect, tmp_info] = get_triangle(i).ray_intersect(ray);
             if (is_intersect) {
-                if (min_t > t) {
-                    info = {is_intersect, u, v, t};
-                    min_t = t;
+                is_hit = true;
+                if (info.t > tmp_info.t) {
+                    info = tmp_info;
                 }
             }
         }
-        return info;
+        return {is_hit, info};
     }
 
     void OBJMesh::transform(const Matrix44f &transform) {
