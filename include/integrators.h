@@ -27,12 +27,6 @@ namespace Caramel{
                 }
             }));
 
-//            for(int i=0;i<width;i++){
-//                for(int j=0;j<width;j++){
-//                    auto rgb = get_pixel_value(i, j);
-//                    img.set_pixel_value(i, j, rgb[0], rgb[1], rgb[2]);
-//                }
-//            }
             return img;
         }
 
@@ -60,6 +54,20 @@ namespace Caramel{
             const Ray ray = m_scene.m_cam.sample_ray(i, j);
             auto [is_hit, info] = m_scene.ray_intersect(ray);
             return is_hit ? Vector3f(info.u, info.v, Float1 - info.u - info.v) : Vector3f();
+        }
+    };
+
+    class HitPosIntegrator : public Integrator{
+    public:
+        HitPosIntegrator(const Scene &scene) : Integrator(scene) {}
+
+        Vector3f get_pixel_value(Caramel::Float i, Caramel::Float j) override{
+            const Ray ray = m_scene.m_cam.sample_ray(i, j);
+            auto [is_hit, info] = m_scene.ray_intersect(ray);
+            if(i==87 && j==102)
+            std::cout<<i<<", "<<j<<", ray o : "<<ray.m_o<<" ray d : "<<ray.m_d
+                      <<", t : "<<info.t<<", u : "<<info.u<<", v : "<<info.v<<", pos : "<<info.p<<std::endl;
+            return is_hit ? Vector3f(info.p[0], info.p[1], info.p[2]) : Vector3f();
         }
     };
 

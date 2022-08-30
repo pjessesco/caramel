@@ -80,7 +80,7 @@ int main() {
         Scene scene(Camera({-0.0315182f, 0.284011f, 0.7331f},
                            {0.0191411f, -0.2299197f, -0.973022f},
                            {0.00717446f, 0.973206f, -0.229822f},
-                           100, 100, 16));
+                           200, 200, 16));
 
         scene.add_mesh(new OBJMesh(test_scene_path + "case4/bunny.obj"));
 
@@ -94,28 +94,10 @@ int main() {
             Image img = integrator.render();
             img.write_exr(test_scene_path+"case4/caramel_test_normal.exr");
         }
-    }
-
-    std::cout<<"===================================="<<std::endl;
-
-    // Test 5
-    {
-        Scene scene(Camera({0.0f, 0.75f, 6.0f},
-                           {0.0f, 0.0f, -6.0f},
-                           {0.0f, 1.0f, 0.0f},
-                           200, 200, 16));
-
-        scene.add_mesh(new OBJMesh(test_scene_path + "case5/bunny_vn.obj"));
-
         {
-            DepthIntegrator integrator{scene};
+            HitPosIntegrator integrator{scene};
             Image img = integrator.render();
-            img.write_exr(test_scene_path+"case5/caramel_test5.exr");
-        }
-        {
-            NormalIntegrator integrator{scene};
-            Image img = integrator.render();
-            img.write_exr(test_scene_path+"case5/caramel_test_normal.exr");
+            img.write_exr(test_scene_path+"case4/caramel_test_hitpos.exr");
         }
     }
 

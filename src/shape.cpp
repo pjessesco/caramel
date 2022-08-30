@@ -91,7 +91,9 @@ namespace Caramel {
         }
 
         // Intersect
-        Vector3f hitpos = (A * u) + (B * v) + (C * (Float1 - u - v));
+        Vector3f hitpos = (A * (Float1 - u - v)) +
+                          (B * u) +
+                          (C * v);
 
         RayIntersectInfo ret;
         ret.p = hitpos;
@@ -99,8 +101,10 @@ namespace Caramel {
         ret.u = u;
         ret.v = v;
 
-        if(is_vn_exists){
-            Vector3f shn = (m_n.get_col(0) * u) + (m_n.get_col(1) * u) + (m_n.get_col(2) * (Float1 - u - v));
+        if(false){
+            Vector3f shn = (m_n.get_col(0) * (Float1 - u - v)) +
+                           (m_n.get_col(1) * u) +
+                           (m_n.get_col(2) * v);
             ret.sh_n = shn.normalize();
         }
         else{
