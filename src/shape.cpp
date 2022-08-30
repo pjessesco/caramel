@@ -32,9 +32,12 @@
 #include <tiny_obj_loader.h>
 
 namespace Caramel {
+    Triangle::Triangle(const Vector3f &p1, const Vector3f &p2, const Vector3f &p3)
+        : m_p(Matrix33f::from_cols(p1, p2, p3)), is_vn_exists{false} {}
+
     Triangle::Triangle(const Vector3f &p1, const Vector3f &p2, const Vector3f &p3,
                        const Vector3f &n1, const Vector3f &n2, const Vector3f &n3)
-        : m_p(Matrix33f::from_cols(p1, p2, p3)), m_n(Matrix33f::from_cols(p1, p2, p3)) {}
+        : m_p(Matrix33f::from_cols(p1, p2, p3)), m_n(Matrix33f::from_cols(p1, p2, p3)), is_vn_exists{true} {}
 
     void Triangle::transform(const Matrix44f &transform) {
         for(Index i=0;i<3;i++){
@@ -96,6 +99,14 @@ namespace Caramel {
         ret.u = u;
         ret.v = v;
 
+        if(is_vn_exists){
+            Vector3f shn = (m_n.get_col(0) * u) + (m_n.get_col(1) * u) + (m_n.get_col(2) * (Float1 - u - v));
+            ret.sh_n = shn.normalize();
+        }
+        else{
+            ret.sh_n = cross(E1, E2).normalize();
+        }
+
         return {true, ret};
     }
 
@@ -130,6 +141,8 @@ namespace Caramel {
         LOG(" - # of normals : " + std::to_string(attrib.normals.size()));
         LOG(" - # of faces : " + std::to_string(shapes[0].mesh.indices.size() / 3));
         LOG(" - # of texture coordinates : " + std::to_string(attrib.texcoords.size()));
+
+        is_vn_exists = !attrib.normals.empty();
 
         // Used for aabb
         Float min_x = INF,  min_y = INF,  min_z = INF,
@@ -222,11 +235,18 @@ namespace Caramel {
     }
 
     Triangle OBJMesh::get_triangle(Index i) const {
-        return Triangle(m_vertices[m_vertex_indices[i][0]],
-                        m_vertices[m_vertex_indices[i][1]],
-                        m_vertices[m_vertex_indices[i][2]],
-                        m_normals[m_normal_indices[i][0]],
-                        m_normals[m_normal_indices[i][1]],
-                        m_normals[m_normal_indices[i][2]]);
+        if (is_vn_exists){
+            return Triangle(m_vertices[m_vertex_indices[i][0]],
+                            m_vertices[m_vertex_indices[i][1]],
+                            m_vertices[m_vertex_indices[i][2]],
+                            m_normals[m_normal_indices[i][0]],
+                            m_normals[m_normal_indices[i][1]],
+                            m_normals[m_normal_indices[i][2]]);
+        }
+        else{
+            return Triangle(m_vertices[m_vertex_indices[i][0]],
+                            m_vertices[m_vertex_indices[i][1]],
+                            m_vertices[m_vertex_indices[i][2]]);
+        }
     }
 }

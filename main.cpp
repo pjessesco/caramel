@@ -25,13 +25,21 @@ int main() {
 
         scene.add_mesh(new OBJMesh(test_scene_path + "case1/object.obj"));
 
-        DepthIntegrator integrator{scene};
-        Image img = integrator.render();
-        img.write_exr(test_scene_path+"case1/caramel_test1.exr");
-
-        UVIntegrator integrator2{scene};
-        Image img2 = integrator2.render();
-        img2.write_exr(test_scene_path+"case1/caramel_test1_uv.exr");
+        {
+            DepthIntegrator integrator{scene};
+            Image img = integrator.render();
+            img.write_exr(test_scene_path+"case1/caramel_test1.exr");
+        }
+        {
+            UVIntegrator integrator2{scene};
+            Image img2 = integrator2.render();
+            img2.write_exr(test_scene_path+"case1/caramel_test1_uv.exr");
+        }
+        {
+            NormalIntegrator integrator2{scene};
+            Image img2 = integrator2.render();
+            img2.write_exr(test_scene_path+"case1/caramel_test1_normal.exr");
+        }
     }
 
     std::cout<<"===================================="<<std::endl;
@@ -77,15 +85,16 @@ int main() {
 
         scene.add_mesh(new OBJMesh(test_scene_path + "case4/bunny.obj"));
 
-        DepthIntegrator integrator{scene};
-
-        auto time1 = std::chrono::high_resolution_clock::now();
-        Image img = integrator.render();
-        auto time2 = std::chrono::high_resolution_clock::now();
-
-        std::cout<<"Test4 : "<<std::chrono::duration_cast<std::chrono::microseconds>(time2 - time1).count() << " [micro-s]"<<std::endl;
-
-        img.write_exr(test_scene_path+"case4/caramel_test4.exr");
+        {
+            DepthIntegrator integrator{scene};
+            Image img = integrator.render();
+            img.write_exr(test_scene_path+"case4/caramel_test4.exr");
+        }
+        {
+            NormalIntegrator integrator{scene};
+            Image img = integrator.render();
+            img.write_exr(test_scene_path+"case4/caramel_test_normal.exr");
+        }
     }
 
     return 0;

@@ -54,4 +54,15 @@ namespace Caramel{
             return is_hit ? Vector3f(info.u, info.v, Float1 - info.u - info.v) : Vector3f();
         }
     };
+
+    class NormalIntegrator : public Integrator{
+    public:
+        NormalIntegrator(const Scene &scene) : Integrator(scene) {}
+
+        Vector3f get_pixel_value(Caramel::Float i, Caramel::Float j) override{
+            const Ray ray = m_scene.m_cam.sample_ray(i, j);
+            auto [is_hit, info] = m_scene.ray_intersect(ray);
+            return is_hit ? Vector3f(info.sh_n[0], info.sh_n[1], info.sh_n[2]) : Vector3f();
+        }
+    };
 }

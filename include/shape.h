@@ -37,12 +37,15 @@
 namespace Caramel{
 
     struct Shape{
+        virtual ~Shape() = default;
         virtual void transform(const Matrix44f &transform) = 0;
         // u, v, t
         virtual std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const = 0;
     };
 
     struct Triangle : Shape{
+        Triangle(const Vector3f &p1, const Vector3f &p2, const Vector3f &p3);
+
         Triangle(const Vector3f &p1, const Vector3f &p2, const Vector3f &p3,
                  const Vector3f &n1, const Vector3f &n2, const Vector3f &n3);
 
@@ -56,6 +59,7 @@ namespace Caramel{
     private:
         Matrix33f m_p;
         Matrix33f m_n;
+        const bool is_vn_exists;
     };
 
     struct OBJMesh : Shape{
@@ -70,6 +74,7 @@ namespace Caramel{
         bool ray_intersect_aabb(const Ray &ray) const;
 
         AABB m_aabb;
+        bool is_vn_exists;
         std::vector<Vector3f> m_vertices;
         std::vector<Vector3f> m_normals;
         std::vector<Vector2f> m_tex_coords;
