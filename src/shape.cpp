@@ -37,7 +37,7 @@ namespace Caramel {
 
     Triangle::Triangle(const Vector3f &p1, const Vector3f &p2, const Vector3f &p3,
                        const Vector3f &n1, const Vector3f &n2, const Vector3f &n3)
-        : m_p(Matrix33f::from_cols(p1, p2, p3)), m_n(Matrix33f::from_cols(p1, p2, p3)), is_vn_exists{true} {}
+        : m_p(Matrix33f::from_cols(p1, p2, p3)), m_n(Matrix33f::from_cols(n1, n2, n3)), is_vn_exists{true} {}
 
     void Triangle::transform(const Matrix44f &transform) {
         for(Index i=0;i<3;i++){
@@ -101,7 +101,7 @@ namespace Caramel {
         ret.u = u;
         ret.v = v;
 
-        if(false){
+        if(is_vn_exists){
             Vector3f shn = (m_n.get_col(0) * (Float1 - u - v)) +
                            (m_n.get_col(1) * u) +
                            (m_n.get_col(2) * v);
@@ -142,7 +142,7 @@ namespace Caramel {
             ERROR("We do not support obj file with several shapes");
         }
         LOG(" - # of vertices : " + std::to_string(attrib.vertices.size() / 3));
-        LOG(" - # of normals : " + std::to_string(attrib.normals.size()));
+        LOG(" - # of normals : " + std::to_string(attrib.normals.size() / 3));
         LOG(" - # of faces : " + std::to_string(shapes[0].mesh.indices.size() / 3));
         LOG(" - # of texture coordinates : " + std::to_string(attrib.texcoords.size()));
 

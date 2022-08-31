@@ -64,9 +64,6 @@ namespace Caramel{
         Vector3f get_pixel_value(Caramel::Float i, Caramel::Float j) override{
             const Ray ray = m_scene.m_cam.sample_ray(i, j);
             auto [is_hit, info] = m_scene.ray_intersect(ray);
-            if(i==87 && j==102)
-            std::cout<<i<<", "<<j<<", ray o : "<<ray.m_o<<" ray d : "<<ray.m_d
-                      <<", t : "<<info.t<<", u : "<<info.u<<", v : "<<info.v<<", pos : "<<info.p<<std::endl;
             return is_hit ? Vector3f(info.p[0], info.p[1], info.p[2]) : Vector3f();
         }
     };
