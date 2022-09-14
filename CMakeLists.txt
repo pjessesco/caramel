@@ -16,17 +16,18 @@ set(SOURCES
         src/shape.cpp)
 
 set(HEADERS
-        include/integrators.h
-        include/scene.h
         include/aabb.h
+        include/acceleration.h
         include/camera.h
         include/common.h
         include/image.h
+        include/integrators.h
         include/logger.h
         include/ray.h
         include/rayintersectinfo.h
+        include/scene.h
         include/shape.h
-        include/transform.h)
+        include/transform.h src/acceleration.cpp)
 
 add_executable(caramel
         ${SOURCES}

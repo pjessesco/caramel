@@ -13,7 +13,30 @@
 namespace Caramel{
     struct AABB {
         AABB() {}
-        AABB(const Vector3f &min, const Vector3f &max) : m_min{min}, m_max{max} {}
+        AABB(const Vector3f &p1, const Vector3f &p2) {
+            m_min = Vector3f{std::min({p1[0], p2[0]}),
+                             std::min({p1[1], p2[1]}),
+                             std::min({p1[2], p2[2]})};
+
+            m_max = Vector3f{std::max({p1[0], p2[0]}),
+                             std::max({p1[1], p2[1]}),
+                             std::max({p1[2], p2[2]})};
+        }
+
+        bool is_overlap(const AABB &aabb){
+            return aabb.m_min[0] <= m_max[0] &&
+                   aabb.m_min[1] <= m_max[1] &&
+                   aabb.m_min[2] <= m_max[2] &&
+                   aabb.m_max[0] >= m_min[0] &&
+                   aabb.m_max[1] >= m_min[1] &&
+                   aabb.m_max[2] >= m_min[2];
+        }
+
+        Vector3f corner(Index i){
+            return Vector3f(i & 1 ? m_min[0] : m_max[0],
+                            i & 2 ? m_min[1] : m_max[1],
+                            i & 4 ? m_min[2] : m_max[2]);
+        }
 
         bool ray_intersect(const Ray &ray) const{
             Float tmin = Float0;

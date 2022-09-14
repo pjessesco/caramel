@@ -46,6 +46,18 @@ namespace Caramel {
         }
     }
 
+    AABB Triangle::get_aabb() const{
+        const Vector3f p0 = point(0);
+        const Vector3f p1 = point(1);
+        const Vector3f p2 = point(2);
+        return AABB(Vector3f{std::min({p0[0], p1[0], p2[0]}),
+                             std::min({p0[1], p1[1], p2[1]}),
+                             std::min({p0[2], p1[2], p2[2]})},
+                    Vector3f{std::max({p0[0], p1[0], p2[0]}),
+                             std::max({p0[1], p1[1], p2[1]}),
+                             std::max({p0[2], p1[2], p2[2]})});
+    }
+
     inline Vector3f Triangle::point(Index i) const {
         return m_p.get_col(i);
     }
@@ -203,27 +215,15 @@ namespace Caramel {
 
         LOG(" - Loading complete");
         LOG(" - " + std::to_string(memory_size) + " bytes with " + std::to_string(sizeof(Float)) + " bytes of Float and " + std::to_string(sizeof(Int)) + " bytes of Int.");
+
+        LOG(" - Building accelation structure...");
+        m_accel = std::make_unique<Octree>(*this);
+        m_accel->build();
+        LOG(" - Done.");
     }
 
     std::tuple<bool, RayIntersectInfo> OBJMesh::ray_intersect(const Ray &ray) const {
-        if(!(m_aabb.ray_intersect(ray))){
-            return {false, RayIntersectInfo()};
-        }
-
-        RayIntersectInfo info = RayIntersectInfo();
-        info.t = INF;
-        bool is_hit = false;
-
-        for (int i = 0; i < m_vertex_indices.size(); i++) {
-            auto [is_intersect, tmp_info] = get_triangle(i).ray_intersect(ray);
-            if (is_intersect) {
-                is_hit = true;
-                if (info.t > tmp_info.t) {
-                    info = tmp_info;
-                }
-            }
-        }
-        return {is_hit, info};
+        return m_accel->ray_intersect(ray);
     }
 
     void OBJMesh::transform(const Matrix44f &transform) {
@@ -236,6 +236,10 @@ namespace Caramel {
         for(auto &m_normal : m_normals){
             m_normal = transform_point(m_normal, transform);
         }
+    }
+
+    AABB OBJMesh::get_aabb() const {
+        return m_aabb;
     }
 
     Triangle OBJMesh::get_triangle(Index i) const {

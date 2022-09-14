@@ -33,6 +33,7 @@
 #include <aabb.h>
 #include <logger.h>
 #include <rayintersectinfo.h>
+#include <acceleration.h>
 
 namespace Caramel{
 
@@ -41,6 +42,7 @@ namespace Caramel{
         virtual void transform(const Matrix44f &transform) = 0;
         // u, v, t
         virtual std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const = 0;
+        virtual AABB get_aabb() const = 0;
     };
 
     struct Triangle : Shape{
@@ -52,6 +54,7 @@ namespace Caramel{
         // u, v, t
         std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
         void transform(const Matrix44f &transform) override;
+        AABB get_aabb() const override;
 
         inline Vector3f point(Index i) const;
         inline Vector3f normal(Index i) const;
@@ -67,14 +70,18 @@ namespace Caramel{
 
         std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
         void transform(const Matrix44f &transform) override;
+        AABB get_aabb() const override;
 
         Triangle get_triangle(Index i) const;
 
-    private:
-        bool ray_intersect_aabb(const Ray &ray) const;
+        Index get_triangle_num() const{
+            return m_vertex_indices.size();
+        }
 
+    private:
         AABB m_aabb;
         bool is_vn_exists;
+        std::unique_ptr<AccelerationMesh> m_accel;
         std::vector<Vector3f> m_vertices;
         std::vector<Vector3f> m_normals;
         std::vector<Vector2f> m_tex_coords;
