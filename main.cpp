@@ -75,6 +75,8 @@ int main() {
         img.write_exr(test_scene_path+"case3/caramel_test3.exr");
     }
 
+    std::cout<<"===================================="<<std::endl;
+
     // Test 4
     {
         Scene scene(Camera({-0.0315182f, 0.284011f, 0.7331f},
@@ -98,6 +100,27 @@ int main() {
             HitPosIntegrator integrator{scene};
             Image img = integrator.render();
             img.write_exr(test_scene_path+"case4/caramel_test_hitpos.exr");
+        }
+    }
+
+    // Test 5
+    {
+        Scene scene(Camera({-65.6055f, 47.5762f, 24.3583f},
+                           {0.7894f, -0.3551f, -0.500699f},
+                           {0.299858f, 0.934836f, -0.190177f},
+                           200, 200, 30));
+
+        scene.add_mesh(new OBJMesh(test_scene_path + "case5/ajax.obj"));
+
+        {
+            NormalIntegrator integrator{scene};
+            Image img = integrator.render();
+            img.write_exr(test_scene_path+"case5/caramel_test_normal.exr");
+        }
+        {
+            HitPosIntegrator integrator{scene};
+            Image img = integrator.render();
+            img.write_exr(test_scene_path+"case5/caramel_test_hitpos.exr");
         }
     }
 
