@@ -24,12 +24,18 @@ namespace Caramel{
 
             LOG("Render start...");
 
+            int complete_line = 40;
+
             auto time1 = std::chrono::high_resolution_clock::now();
+            Float denominator = static_cast<Float>(width * height);
+            std::atomic<int> progress = 0;
 
             parallel_for(0, width, std::function([&](int i){
-                for(int j=0;j<width;j++){
+                for(int j=0;j<height;j++){
                     auto rgb = get_pixel_value(i, j);
                     img.set_pixel_value(i, j, rgb[0], rgb[1], rgb[2]);
+                    progress++;
+                    std::cout<<std::string(static_cast<int>(complete_line * progress / denominator), '=')<<std::string(static_cast<int>(complete_line * (1 - progress / denominator)), '-')<<"\r";
                 }
             }));
 
