@@ -259,6 +259,16 @@ namespace Caramel {
         return m_aabb;
     }
 
+    Float OBJMesh::get_area() const{
+        NOT_IMPLEMENTED();
+        return Float0;
+    }
+
+    std::tuple<Vector3f, Vector3f, Float> OBJMesh::sample_point(Sampler &sampler) const{
+        NOT_IMPLEMENTED();
+        return {Vector3f(), Vector3f(), Float0};
+    }
+
     Triangle OBJMesh::get_triangle(Index i) const {
         if (is_vn_exists){
             return Triangle(m_vertices[m_vertex_indices[i][0]],
