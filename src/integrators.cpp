@@ -9,6 +9,7 @@
 #include <parallel_for.h>
 #include <rayintersectinfo.h>
 #include <scene.h>
+#include <progress.h>
 
 namespace Caramel{
 
@@ -20,20 +21,17 @@ namespace Caramel{
 
         Image img(width, height);
 
+//        ProgressBar progress_bar(width * height);
+
         LOG("Render start...");
 
-        int complete_line = 40;
-
         auto time1 = std::chrono::high_resolution_clock::now();
-        Float denominator = static_cast<Float>(width * height);
-        std::atomic<int> progress = 0;
 
         parallel_for(0, width, std::function([&](int i){
                          for(int j=0;j<height;j++){
                              auto rgb = get_pixel_value(i, j);
                              img.set_pixel_value(i, j, rgb[0], rgb[1], rgb[2]);
-                             progress++;
-                             std::cout<<std::string(static_cast<int>(complete_line * progress / denominator), '=')<<std::string(static_cast<int>(complete_line * (1 - progress / denominator)), '-')<<"\r";
+//                             progress_bar.increase();
                          }
                      }));
 
