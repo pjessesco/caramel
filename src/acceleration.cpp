@@ -19,7 +19,7 @@ namespace Caramel{
     void Naive::build() {}
 
     std::tuple<bool, RayIntersectInfo> Naive::ray_intersect(const Ray &ray) {
-        if(!(m_shape.get_aabb().ray_intersect(ray))){
+        if(!(std::get<0>(m_shape.get_aabb().ray_intersect(ray)))){
             return {false, RayIntersectInfo()};
         }
 
@@ -94,23 +94,27 @@ namespace Caramel{
     }
 
     std::tuple<bool, RayIntersectInfo> Octree::Node::ray_intersect_branch(const Ray &ray, const OBJMesh &shape){
-        RayIntersectInfo info;
-        info.t = INF;
-        bool is_hit = false;
-        for(auto c : m_childs){
-            auto [is_intersect, tmp_info] = c.ray_intersect(ray, shape);
+        // sort childs
+        std::array<Index, 8> sorted_idx{0,1,2,3,4,5,6,7};
+        std::sort(sorted_idx.begin(), sorted_idx.end(),
+                  [&](Index a, Index b)->bool{
+                      return std::get<1>(m_childs[a].m_aabb.ray_intersect(ray)) <= std::get<1>(m_childs[b].m_aabb.ray_intersect(ray));
+                  });
+
+        for(auto i : sorted_idx){
+            auto [is_intersect, tmp_info] = m_childs[i].ray_intersect(ray, shape);
             if (is_intersect) {
-                is_hit = true;
-                if (info.t > tmp_info.t) {
-                    info = tmp_info;
-                }
+                return{true, tmp_info};
             }
         }
-        return {is_hit, info};
+
+        RayIntersectInfo info;
+        info.t = INF;
+        return {false, info};
     }
 
     std::tuple<bool, RayIntersectInfo> Octree::Node::ray_intersect(const Ray &ray, const OBJMesh &shape){
-        if(m_aabb.ray_intersect(ray)){
+        if(std::get<0>(m_aabb.ray_intersect(ray))){
             if(is_leaf()){
                 return ray_intersect_leaf(ray, shape);
             }
@@ -128,7 +132,7 @@ namespace Caramel{
     Octree::Octree(const OBJMesh &shape) : AccelerationMesh(shape) {}
 
     bool Octree::Node::is_leaf() const{
-        return !m_triangle_indices.empty() && m_childs.empty();
+        return m_childs.empty();
     }
 
     void Octree::build(){
