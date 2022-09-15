@@ -35,6 +35,7 @@
 #include <rayintersectinfo.h>
 #include <acceleration.h>
 #include <sampler.h>
+#include <distrib1D.h>
 
 namespace Caramel{
 
@@ -89,6 +90,8 @@ namespace Caramel{
         }
 
     private:
+        Distrib1D m_triangle_pdf;
+        Float m_area;
         AABB m_aabb;
         bool is_vn_exists;
         std::unique_ptr<AccelerationMesh> m_accel;
