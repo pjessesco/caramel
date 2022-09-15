@@ -23,6 +23,7 @@
 //
 
 #include <filesystem>
+#include <tuple>
 
 #include <shape.h>
 #include <logger.h>
@@ -207,6 +208,9 @@ namespace Caramel {
         }
 
         const auto &indices = shapes[0].mesh.indices;
+        std::vector<Float> triangle_area_vec;
+        triangle_area_vec.resize(indices.size());
+
         for (int i = 0; i < indices.size(); i += 3) {
             m_vertex_indices.emplace_back(Vector3i(indices[i].vertex_index,
                                                    indices[i + 1].vertex_index,
@@ -221,18 +225,17 @@ namespace Caramel {
                                                       indices[i + 2].texcoord_index));
         }
 
-        int memory_size = sizeof(Float) * (3 * m_vertices.size() +
-                                           3 * m_normals.size() +
-                                           2 * m_tex_coords.size()) +
-                          sizeof(Int) * (3 * m_vertex_indices.size() +
-                                         3 * m_normal_indices.size() +
-                                         3 * m_tex_coords.size());
+        // Initialize m_triangle_pdf used in sampling triangle.
+        for(int i=0;i<m_vertex_indices.size();i++){
+            Float ith_tri_area = get_triangle(i).get_area();
+            triangle_area_vec.emplace_back(ith_tri_area);
+            m_area += ith_tri_area;
+        }
+        m_triangle_pdf = Distrib1D(triangle_area_vec);
 
         m_aabb = AABB({min_x, min_y, min_z}, {max_x, max_y, max_z});
 
         LOG(" - Loading complete");
-        LOG(" - " + std::to_string(memory_size) + " bytes with " + std::to_string(sizeof(Float)) + " bytes of Float and " + std::to_string(sizeof(Int)) + " bytes of Int.");
-
         LOG(" - Building accelation structure...");
         m_accel = std::make_unique<Octree>(*this);
         m_accel->build();
@@ -260,13 +263,17 @@ namespace Caramel {
     }
 
     Float OBJMesh::get_area() const{
-        NOT_IMPLEMENTED();
-        return Float0;
+        return m_area;
     }
 
     std::tuple<Vector3f, Vector3f, Float> OBJMesh::sample_point(Sampler &sampler) const{
-        NOT_IMPLEMENTED();
-        return {Vector3f(), Vector3f(), Float0};
+        // Sample triangle considering area
+        Index i = m_triangle_pdf.sample(sampler.sample_1d());
+
+        // Sample point in chosen triangle
+        auto [pos, normal, _] = get_triangle(i).sample_point(sampler);
+
+        return {pos, normal, Float1 / m_area};
     }
 
     Triangle OBJMesh::get_triangle(Index i) const {
