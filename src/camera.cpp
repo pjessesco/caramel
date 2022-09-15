@@ -22,38 +22,38 @@
 // SOFTWARE.
 //
 
-#pragma once
-
-#include <thread>
-#include <atomic>
-#include <vector>
-#include <queue>
-#include <numeric>
-#include <semaphore>
-
+#include <camera.h>
 #include <common.h>
+#include <ray.h>
 
 namespace Caramel{
 
-    constexpr int THREAD_NUM = 10;
+    // Perspective camera
+    Camera::Camera(const Vector3f pos, const Vector3f dir, const Vector3f up,
+           Index w, Index h, Float fov_x)
+        : m_pos{pos}, m_dir{dir.normalize()}, m_up(up.normalize()), m_w{w}, m_h{h}, m_fov_x{fov_x} {
+        // right-handed coord
+        m_left = cross(m_up, m_dir);
 
-    void parallel_for(int start_idx, int end_idx, std::function<void(int)> func){
+        m_cam_to_world = Matrix44f::from_cols(
+                Vector4f{m_left[0], m_left[1], m_left[2], Float0},
+                Vector4f{  m_up[0],   m_up[1],   m_up[2], Float0},
+                Vector4f{ m_dir[0],  m_dir[1],  m_dir[2], Float0},
+                Vector4f{   pos[0],    pos[1],    pos[2], Float1}
+        );
 
-        std::vector<std::thread> tasks(end_idx - start_idx);
-        std::atomic<int> total_done_jobs = 0;
-        std::counting_semaphore<THREAD_NUM> sem{THREAD_NUM};
+        m_tan = tan(m_fov_x * PI / (2 * 180));
+        m_ratio = static_cast<Float>(m_w) / static_cast<Float>(m_h);
+    }
 
-        for(int i=start_idx;i<end_idx;i++){
-            sem.acquire();
-            std::thread th([&](int idx){
-                func(idx);
-                total_done_jobs++;
-                sem.release();
-            }, i);
-            th.detach();
-        }
+    [[nodiscard]] Ray Camera::sample_ray(Float w, Float h) const{
+        Vector4f local_d{-(w/m_w - 0.5f) * 2 * m_ratio,
+                         -(h/m_h - 0.5f) * 2 ,
+                         m_ratio / tan(m_fov_x * PI / (2 * 180)),
+                         Float0};
 
-        while (total_done_jobs != tasks.size()){}
+        Vector3f d = Block<0,0,3,1>(m_cam_to_world * local_d);
 
+        return Ray(m_pos, d.normalize());
     }
 }
