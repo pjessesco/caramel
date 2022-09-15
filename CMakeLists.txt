@@ -13,7 +13,10 @@ include_directories(include)
 set(SOURCES
         main.cpp
         src/image.cpp
-        src/shape.cpp)
+        src/shape.cpp
+        src/acceleration.cpp
+        src/aabb.cpp
+        src/integrators.cpp)
 
 set(HEADERS
         include/aabb.h
@@ -27,7 +30,7 @@ set(HEADERS
         include/rayintersectinfo.h
         include/scene.h
         include/shape.h
-        include/transform.h src/acceleration.cpp src/aabb.cpp)
+        include/transform.h)
 
 add_executable(caramel
         ${SOURCES}
