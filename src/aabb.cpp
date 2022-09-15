@@ -30,11 +30,7 @@ namespace Caramel{
                aabb.m_max[1] >= m_min[1] &&
                aabb.m_max[2] >= m_min[2];
     }
-
-    bool AABB::is_overlap(const Triangle &tri) const{
-        return is_contain(tri.point(0)) || is_contain(tri.point(1)) || is_contain(tri.point(2));
-    }
-
+    
     bool AABB::is_contain(const Vector3f &vec) const{
         return m_min[0] <= vec[0] && vec[0] <= m_max[0] &&
                m_min[1] <= vec[1] && vec[1] <= m_max[1] &&
