@@ -47,7 +47,7 @@ namespace Caramel{
                         i & 4 ? m_min[2] : m_max[2]);
     }
 
-    bool AABB::ray_intersect(const Ray &ray) const{
+    std::tuple<bool, Float, Float> AABB::ray_intersect(const Ray &ray) const{
         Float tmin = Float0;
         Float tmax = INF;
         for(Index i=0;i<3;i++){
@@ -56,6 +56,6 @@ namespace Caramel{
             tmin = std::min(std::max(t1, tmin), std::max(t2, tmin));
             tmax = std::max(std::min(t1, tmax), std::min(t2, tmax));
         }
-        return tmin <= tmax;
+        return {tmin <= tmax, tmin, tmax};
     }
 }

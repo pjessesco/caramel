@@ -24,7 +24,7 @@ namespace Caramel{
 
         Vector3f corner(Index i) const;
 
-        bool ray_intersect(const Ray &ray) const;
+        std::tuple<bool, Float, Float> ray_intersect(const Ray &ray) const;
 
         Vector3f m_min;
         Vector3f m_max;
