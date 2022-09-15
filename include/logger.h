@@ -101,6 +101,6 @@ namespace Caramel {
 
 
 #define NOT_IMPLEMENTED() do{         \
-    MESSAGE(LogType::ERR, "NOT IMPLEMENTED") \
+    ERROR("NOT IMPLEMENTED") \
 } while(0);
 

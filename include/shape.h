@@ -78,6 +78,9 @@ namespace Caramel{
         std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
         void transform(const Matrix44f &transform) override;
         AABB get_aabb() const override;
+        Float get_area() const override;
+        // point, normal, probability
+        std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;
 
         Triangle get_triangle(Index i) const;
 
