@@ -16,7 +16,8 @@ set(SOURCES
         src/shape.cpp
         src/acceleration.cpp
         src/aabb.cpp
-        src/integrators.cpp)
+        src/integrators.cpp
+        src/camera.cpp)
 
 set(HEADERS
         include/aabb.h
