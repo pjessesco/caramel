@@ -31,7 +31,8 @@ set(HEADERS
         include/rayintersectinfo.h
         include/scene.h
         include/shape.h
-        include/transform.h)
+        include/transform.h
+        include/distrib1D.h)
 
 add_executable(caramel
         ${SOURCES}
