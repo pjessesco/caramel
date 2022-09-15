@@ -72,8 +72,8 @@ namespace Caramel{
         if(m_triangle_indices.size() > MAX_TRIANGLE_NUM){
             construct_children(shape);
         }
-        for(auto c : m_childs){
-            construct_children_recursively(shape, depth + 1);
+        for(auto &c : m_childs){
+            c.construct_children_recursively(shape, depth + 1);
         }
     }
 
