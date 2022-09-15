@@ -21,7 +21,7 @@ namespace Caramel{
 
         Image img(width, height);
 
-//        ProgressBar progress_bar(width * height);
+        ProgressBar progress_bar(width);
 
         LOG("Render start...");
 
@@ -31,8 +31,8 @@ namespace Caramel{
                          for(int j=0;j<height;j++){
                              auto rgb = get_pixel_value(i, j);
                              img.set_pixel_value(i, j, rgb[0], rgb[1], rgb[2]);
-//                             progress_bar.increase();
                          }
+                         progress_bar.increase();
                      }));
 
         auto time2 = std::chrono::high_resolution_clock::now();
