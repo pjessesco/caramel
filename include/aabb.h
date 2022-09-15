@@ -18,7 +18,6 @@ namespace Caramel{
         AABB(const Vector3f &p1, const Vector3f &p2);
 
         bool is_overlap(const AABB &aabb) const;
-        bool is_overlap(const Triangle &triangle) const;
 
         bool is_contain(const Vector3f &vec) const;
 
