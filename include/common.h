@@ -70,5 +70,10 @@ namespace Caramel{
                         a[2] * b[0] - a[0] * b[2],
                         a[0] * b[1] - a[1] * b[0]);
     }
+
+    template <typename T>
+    inline T interpolate(const T &a, const T &b, const T &c, Float u, Float v){
+        return (a*(Float1-u-v)) + (b*u) + (c*v);
+    }
     
 }

@@ -34,6 +34,7 @@
 #include <logger.h>
 #include <rayintersectinfo.h>
 #include <acceleration.h>
+#include <sampler.h>
 
 namespace Caramel{
 
@@ -43,6 +44,9 @@ namespace Caramel{
         // u, v, t
         virtual std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const = 0;
         virtual AABB get_aabb() const = 0;
+        virtual Float get_area() const = 0;
+        // point, normal, probability
+        virtual std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const = 0;
     };
 
     struct Triangle : Shape{
@@ -55,6 +59,9 @@ namespace Caramel{
         std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
         void transform(const Matrix44f &transform) override;
         AABB get_aabb() const override;
+        Float get_area() const override;
+        // point, normal, probability
+        std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;
 
         inline Vector3f point(Index i) const;
         inline Vector3f normal(Index i) const;

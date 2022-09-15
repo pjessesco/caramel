@@ -58,6 +58,27 @@ namespace Caramel {
                              std::max({p0[2], p1[2], p2[2]})});
     }
 
+    Float Triangle::get_area() const{
+        return cross(point(1) - point(0), point(2) - point(0)).length() * static_cast<Float>(0.5);
+    }
+
+    std::tuple<Vector3f, Vector3f, Float> Triangle::sample_point(Sampler &sampler) const{
+        const Float u = sampler.sample_1d();
+        const Float v = sampler.sample_1d();
+        const Float x = Float1 - std::sqrt(Float1 - u);
+        const Float y = v * std::sqrt(Float1 - u);
+        // z = 1 - x - y
+        const Vector3f p0 = point(0);
+        const Vector3f p1 = point(1);
+        const Vector3f p2 = point(2);
+
+        return {interpolate(p0, p1, p2, x, y),
+                is_vn_exists ?
+                    interpolate(normal(0), normal(1), normal(2), x, y) :
+                    cross(p1 - p0, p2 - p0).normalize(),
+                Float1 / get_area()};
+    }
+
     inline Vector3f Triangle::point(Index i) const {
         return m_p.get_col(i);
     }
@@ -103,9 +124,7 @@ namespace Caramel {
         }
 
         // Intersect
-        Vector3f hitpos = (A * (Float1 - u - v)) +
-                          (B * u) +
-                          (C * v);
+        Vector3f hitpos = interpolate(A, B, C, u, v);
 
         RayIntersectInfo ret;
         ret.p = hitpos;
@@ -114,9 +133,7 @@ namespace Caramel {
         ret.v = v;
 
         if(is_vn_exists){
-            Vector3f shn = (m_n.get_col(0) * (Float1 - u - v)) +
-                           (m_n.get_col(1) * u) +
-                           (m_n.get_col(2) * v);
+            Vector3f shn = interpolate(m_n.get_col(0), m_n.get_col(1), m_n.get_col(2), u, v);
             ret.sh_n = shn.normalize();
         }
         else{
