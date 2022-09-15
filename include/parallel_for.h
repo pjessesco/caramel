@@ -1,6 +1,7 @@
 //
 // Created by Jino Park on 2022/08/30.
 //
+#pragma once
 
 #include <thread>
 #include <atomic>
