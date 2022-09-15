@@ -22,7 +22,6 @@
 // SOFTWARE.
 //
 
-
 #pragma once
 
 #include <limits>
