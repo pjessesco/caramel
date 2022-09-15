@@ -208,8 +208,6 @@ namespace Caramel {
         }
 
         const auto &indices = shapes[0].mesh.indices;
-        std::vector<Float> triangle_area_vec;
-        triangle_area_vec.resize(indices.size());
 
         for (int i = 0; i < indices.size(); i += 3) {
             m_vertex_indices.emplace_back(Vector3i(indices[i].vertex_index,
@@ -225,10 +223,13 @@ namespace Caramel {
                                                       indices[i + 2].texcoord_index));
         }
 
+        std::vector<Float> triangle_area_vec;
+        triangle_area_vec.resize(m_vertex_indices.size());
+
         // Initialize m_triangle_pdf used in sampling triangle.
         for(int i=0;i<m_vertex_indices.size();i++){
             Float ith_tri_area = get_triangle(i).get_area();
-            triangle_area_vec.emplace_back(ith_tri_area);
+            triangle_area_vec[i] = ith_tri_area;
             m_area += ith_tri_area;
         }
         m_triangle_pdf = Distrib1D(triangle_area_vec);

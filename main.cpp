@@ -40,6 +40,19 @@ using namespace Caramel;
 int main() {
     std::string test_scene_path = "/Users/jino/caramel/test_scenes/";
 
+    UniformStdSampler sampler(0);
+
+    auto m1 = new OBJMesh(test_scene_path + "case1/object.obj");
+    std::cout<<"[";
+    for(int i=0;i<100;i++){
+        auto [point, _, __] = m1->sample_point(sampler);
+        std::cout<<"["<<point[0]<<", "<<point[1]<<", "<<point[2]<<"],"<<std::endl;
+    }
+    std::cout<<"]";
+
+
+    return 0;
+
     // Test 1
     {
         Scene scene(Camera({0.0f, 0.0f, 0.0f},
