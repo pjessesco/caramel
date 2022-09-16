@@ -32,7 +32,7 @@ set(HEADERS
         include/scene.h
         include/shape.h
         include/transform.h
-        include/distrib1D.h)
+        include/distrib1D.h include/warp_sample.h)
 
 add_executable(caramel
         ${SOURCES}
