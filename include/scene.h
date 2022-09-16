@@ -57,8 +57,12 @@ namespace Caramel{
             return {is_hit, info};
         }
 
-        void add_mesh(Shape *shape){
-            m_meshes.emplace_back(std::shared_ptr<Shape>(shape));
+        void add_mesh(std::shared_ptr<Shape> shape){
+            m_meshes.emplace_back(shape);
+        }
+
+        void add_light(std::shared_ptr<Light> light){
+            m_lights.emplace_back(light);
         }
 
         bool is_visible(const Vector3f pos1, const Vector3f &pos2) const{

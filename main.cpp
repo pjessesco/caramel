@@ -40,20 +40,6 @@ using namespace Caramel;
 int main() {
     std::string test_scene_path = "/Users/jino/caramel/test_scenes/";
 
-    if(false){
-        UniformStdSampler sampler(0);
-
-        auto m1 = new OBJMesh(test_scene_path + "case1/object.obj");
-        std::cout<<"[";
-        for(int i=0;i<2000;i++){
-            auto [point, _, __] = m1->sample_point(sampler);
-            std::cout<<"["<<point[0]<<", "<<point[1]<<", "<<point[2]<<"],"<<std::endl;
-        }
-        std::cout<<"]";
-
-        return 0;
-    }
-
     // Test 1
     {
         Scene scene(Camera({0.0f, 0.0f, 0.0f},
@@ -61,7 +47,7 @@ int main() {
                            {0.0f, 1.0f, 0.0f},
                            500, 500, 50));
 
-        scene.add_mesh(new OBJMesh(test_scene_path + "case1/object.obj"));
+        scene.add_mesh(std::make_shared<OBJMesh>(test_scene_path + "case1/object.obj"));
 
         {
             DepthIntegrator integrator{scene};
@@ -88,7 +74,7 @@ int main() {
                            {0.0f, 0.0f, 1.0f},
                            {0.0f, 1.0f, 0.0f},
                            500, 500, 50));
-        scene.add_mesh(new OBJMesh(test_scene_path + "case2/object.obj"));
+        scene.add_mesh(std::make_shared<OBJMesh>(test_scene_path + "case2/object.obj"));
 
         DepthIntegrator integrator{scene};
 
@@ -105,7 +91,7 @@ int main() {
                            {8.1006e-05f, 0.99996f, -0.00900047f},
                            500, 500, 50));
 
-        scene.add_mesh(new OBJMesh(test_scene_path + "case3/object.obj"));
+        scene.add_mesh(std::make_shared<OBJMesh>(test_scene_path + "case3/object.obj"));
 
         DepthIntegrator integrator{scene};
 
@@ -122,7 +108,7 @@ int main() {
                            {0.00717446f, 0.973206f, -0.229822f},
                            200, 200, 16));
 
-        scene.add_mesh(new OBJMesh(test_scene_path + "case4/bunny.obj"));
+        scene.add_mesh(std::make_shared<OBJMesh>(test_scene_path + "case4/bunny.obj"));
 
         {
             DepthIntegrator integrator{scene};
@@ -148,7 +134,7 @@ int main() {
                            {0.299858f, 0.934836f, -0.190177f},
                            1000, 1000, 30));
 
-        scene.add_mesh(new OBJMesh(test_scene_path + "case5/ajax.obj"));
+        scene.add_mesh(std::make_shared<OBJMesh>(test_scene_path + "case5/ajax.obj"));
 
         {
             NormalIntegrator integrator{scene};
