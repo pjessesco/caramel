@@ -148,5 +148,25 @@ int main() {
         }
     }
 
+    // Test 6
+    {
+        Scene scene(Camera({-0.0315182f, 0.284011f, 0.7331f},
+                           {0.0191411f, -0.2299197f, -0.973022f},
+                           {0.00717446f, 0.973206f, -0.229822f},
+                           200, 200, 16));
+
+
+        auto obj1 = std::make_shared<OBJMesh>(test_scene_path + "case6/bunny.obj");
+        scene.add_mesh(obj1);
+        scene.add_light(std::make_shared<AreaLight>(scene, obj1, Vector3f(static_cast<Float>(100), static_cast<Float>(100), static_cast<Float>(100))));
+
+
+
+        HitPosIntegrator integrator{scene};
+        Image img = integrator.render();
+        img.write_exr(test_scene_path+"case4/caramel_test_hitpos.exr");
+
+    }
+
     return 0;
 }
