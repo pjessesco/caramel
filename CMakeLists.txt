@@ -17,7 +17,8 @@ set(SOURCES
         src/acceleration.cpp
         src/aabb.cpp
         src/integrators.cpp
-        src/camera.cpp)
+        src/camera.cpp
+        src/light.cpp)
 
 set(HEADERS
         include/aabb.h
@@ -32,7 +33,7 @@ set(HEADERS
         include/scene.h
         include/shape.h
         include/transform.h
-        include/distrib1D.h include/warp_sample.h)
+        include/distrib1D.h include/warp_sample.h include/light.h src/light.cpp)
 
 add_executable(caramel
         ${SOURCES}

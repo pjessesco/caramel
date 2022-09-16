@@ -53,7 +53,7 @@ namespace Caramel{
             return m_is_light;
         }
 
-        bool set_light(){
+        void set_light(){
             m_is_light = true;
         }
 

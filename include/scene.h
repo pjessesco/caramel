@@ -32,6 +32,7 @@
 #include <shape.h>
 #include <transform.h>
 #include <camera.h>
+#include <light.h>
 
 namespace Caramel{
     struct Scene{
@@ -74,6 +75,7 @@ namespace Caramel{
         }
 
 
+        std::vector<std::shared_ptr<Light>> m_lights;
         std::vector<std::shared_ptr<Shape>> m_meshes;
         Camera m_cam;
     };
