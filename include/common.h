@@ -40,9 +40,13 @@ namespace Caramel{
     constexpr Float INF = std::numeric_limits<Float>::infinity();
 
     constexpr Float PI = 3.14159265359;
-    constexpr Float PI_2 = 6.28318530718;
-    constexpr Float PI_HALF = 1.57079632679;
-    constexpr Float PI_INV = 0.31830988618;
+    constexpr Float PI_2 = PI * 2;
+    constexpr Float PI_4 = PI * 4;
+    constexpr Float PI_HALF = PI * Float(0.5);
+    constexpr Float PI_INV = 1 / PI;
+    constexpr Float PI_2_INV = 1 / PI_2;
+    constexpr Float PI_4_INV = 1 / PI_4;
+
     constexpr Float EPSILON = std::numeric_limits<Float>::epsilon();
 
     inline Float deg_to_rad(Float deg){
