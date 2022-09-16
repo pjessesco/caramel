@@ -25,6 +25,7 @@
 #pragma once
 
 #include <cmath>
+#include <tuple>
 
 #include <sampler.h>
 #include <common.h>
@@ -33,10 +34,11 @@ namespace Caramel{
 
     // ----------------------------------------------
 
-    Vector2f sample_unit_disk_uniformly(Sampler &sampler){
+    std::tuple<Vector2f, Float> sample_unit_disk_uniformly(Sampler &sampler){
         const Float sqrt_x = std::sqrt(sampler.sample_1d());
         const Float angle = sampler.sample_1d() * PI_2;
-        return {sqrt_x * cos(angle), sqrt_x * sin(angle)};
+        return {{sqrt_x * cos(angle), sqrt_x * sin(angle)},
+                 PI_INV};
     }
 
     Float sample_unit_disk_uniformly_pdf(const Vector2f &vec){
@@ -45,7 +47,7 @@ namespace Caramel{
 
     // ----------------------------------------------
 
-    Vector3f sample_unit_sphere_uniformly(Sampler &sampler){
+    std::tuple<Vector3f, Float> sample_unit_sphere_uniformly(Sampler &sampler){
         const Float phi = PI_2 * sampler.sample_1d();
         const Float theta = std::acos(Float1 - 2 * sampler.sample_1d());
 
@@ -54,7 +56,8 @@ namespace Caramel{
         const Float sin_phi = std::sin(phi);
         const Float cos_phi = std::cos(phi);
 
-        return {sin_theta * cos_phi, sin_theta * sin_phi, cos_theta};
+        return {{sin_theta * cos_phi, sin_theta * sin_phi, cos_theta},
+                PI_4_INV};
     }
 
     // `sample_unit_sphere_uniformly()` does not sample
@@ -65,7 +68,7 @@ namespace Caramel{
 
     // ----------------------------------------------
 
-    Vector3f sample_unit_hemisphere_uniformly(Sampler &sampler){
+    std::tuple<Vector3f, Float> sample_unit_hemisphere_uniformly(Sampler &sampler){
         const Float phi = PI_2 * sampler.sample_1d();
         const Float theta = std::acos(Float1 - sampler.sample_1d());
 
@@ -74,7 +77,8 @@ namespace Caramel{
         const Float sin_phi = std::sin(phi);
         const Float cos_phi = std::cos(phi);
 
-        return {sin_theta * cos_phi, sin_theta * sin_phi, cos_theta};
+        return {{sin_theta * cos_phi, sin_theta * sin_phi, cos_theta},
+                PI_2_INV};
     }
 
     Float sample_unit_hemisphere_uniformly_pdf(const Vector3f &vec){
@@ -83,10 +87,11 @@ namespace Caramel{
 
     // ----------------------------------------------
 
-    Vector3f sample_unit_hemisphere_cosine(Sampler &sampler){
-        const Vector2f xy = sample_unit_disk_uniformly(sampler);
+    std::tuple<Vector3f, Float> sample_unit_hemisphere_cosine(Sampler &sampler){
+        auto [xy, _] = sample_unit_disk_uniformly(sampler);
         const Float z = std::sqrt(Float1 - xy.dot(xy));
-        return {xy[0], xy[1], z};
+        return {{xy[0], xy[1], z},
+                z*PI_INV};
     }
 
     Float sample_unit_hemisphere_cosine_pdf(const Vector3f &vec){
