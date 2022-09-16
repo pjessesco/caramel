@@ -41,7 +41,6 @@ namespace Caramel{
 
             bool is_hit = false;
             RayIntersectInfo info = RayIntersectInfo();
-            Index mesh_idx = 999999;
 
             for(int i=0;i<m_meshes.size();i++){
                 auto [hit, tmp_info] = m_meshes[i]->ray_intersect(ray);
@@ -59,6 +58,19 @@ namespace Caramel{
 
         void add_mesh(Shape *shape){
             m_meshes.emplace_back(std::shared_ptr<Shape>(shape));
+        }
+
+        bool is_visible(const Vector3f pos1, const Vector3f &pos2) const{
+            const Ray ray{pos1, pos2 - pos1};
+            const auto [is_hit, info] = ray_intersect(ray);
+
+            if(!is_hit){
+                return false;
+            }
+
+            const Vector3f dist = pos2 - pos1;
+
+            return dist.length() - info.t > EPSILON ? false : true;
         }
 
 

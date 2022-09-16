@@ -48,6 +48,17 @@ namespace Caramel{
         virtual Float get_area() const = 0;
         // point, normal, probability
         virtual std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const = 0;
+
+        bool is_light() const{
+            return m_is_light;
+        }
+
+        bool set_light(){
+            m_is_light = true;
+        }
+
+    private:
+        bool m_is_light = false;
     };
 
     struct Triangle : Shape{
