@@ -42,8 +42,8 @@
 namespace Caramel{
     class Distrib1D{
     public:
-        Distrib1D() {}
-        Distrib1D(const std::vector<Float> &vec){
+        Distrib1D() = default;
+        explicit Distrib1D(const std::vector<Float> &vec){
             m_pdf = vec;
             m_cdf.resize(m_pdf.size());
             m_cdf[0] = m_pdf[0];

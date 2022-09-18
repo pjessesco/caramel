@@ -23,6 +23,7 @@
 //
 
 #include <chrono>
+#include <utility>
 
 #include <integrators.h>
 #include <image.h>
@@ -33,7 +34,7 @@
 
 namespace Caramel{
 
-    Integrator::Integrator(const Scene &scene) : m_scene{scene} {}
+    Integrator::Integrator(Scene scene) : m_scene{std::move(scene)} {}
 
     Image Integrator::render(){
         const Index width = m_scene.m_cam.m_w;

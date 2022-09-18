@@ -34,6 +34,7 @@ namespace Caramel{
 
     constexpr Float Float0 = static_cast<Float>(0);
     constexpr Float Float1 = static_cast<Float>(1);
+    constexpr Float Float0_5 = static_cast<Float>(0.5f);
     constexpr Int Int0 = static_cast<Int>(0);
     constexpr Int Int1 = static_cast<Int>(1);
 
@@ -70,9 +71,9 @@ namespace Caramel{
 
     // TODO : Implement in Peanut
     inline Vector3f cross(const Vector3f &a, const Vector3f &b){
-        return Vector3f(a[1] * b[2] - a[2] * b[1],
-                        a[2] * b[0] - a[0] * b[2],
-                        a[0] * b[1] - a[1] * b[0]);
+        return {a[1] * b[2] - a[2] * b[1],
+                a[2] * b[0] - a[0] * b[2],
+                a[0] * b[1] - a[1] * b[0]};
     }
 
     template <typename T>

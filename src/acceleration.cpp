@@ -44,7 +44,6 @@ namespace Caramel{
         }
 
         RayIntersectInfo info = RayIntersectInfo();
-        info.t = INF;
         bool is_hit = false;
 
         for (int i = 0; i < m_shape.get_triangle_num(); i++) {
@@ -65,7 +64,7 @@ namespace Caramel{
     Octree::Node::Node(const AABB &aabb) : m_aabb{aabb} {}
 
     void Octree::Node::construct_children(const OBJMesh &shape){
-        const Vector3f center = (m_aabb.m_max + m_aabb.m_min) * 0.5f;
+        const Vector3f center = (m_aabb.m_max + m_aabb.m_min) * Float0_5;
 
         for(int i=0;i<8;i++){
             m_childs.emplace_back(AABB(center, m_aabb.corner(i)));
@@ -99,7 +98,6 @@ namespace Caramel{
 
     std::tuple<bool, RayIntersectInfo> Octree::Node::ray_intersect_leaf(const Ray &ray, const OBJMesh &shape){
         RayIntersectInfo info;
-        info.t = INF;
         bool is_hit = false;
         for(Index i:m_triangle_indices){
             auto [is_intersect, tmp_info] = shape.get_triangle(i).ray_intersect(ray);
@@ -129,7 +127,6 @@ namespace Caramel{
         }
 
         RayIntersectInfo info;
-        info.t = INF;
         return {false, info};
     }
 
