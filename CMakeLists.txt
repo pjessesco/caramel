@@ -33,7 +33,7 @@ set(HEADERS
         include/scene.h
         include/shape.h
         include/transform.h
-        include/distrib1D.h include/warp_sample.h include/light.h src/light.cpp)
+        include/distrib1D.h include/warp_sample.h include/light.h src/light.cpp include/bsdf.h)
 
 add_executable(caramel
         ${SOURCES}
