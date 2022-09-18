@@ -85,7 +85,7 @@ namespace Caramel{
     };
 
     struct OBJMesh : Shape{
-        OBJMesh(const std::filesystem::path &path);
+        explicit OBJMesh(const std::filesystem::path &path);
 
         std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
         void transform(const Matrix44f &transform) override;

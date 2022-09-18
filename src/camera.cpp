@@ -29,8 +29,8 @@
 namespace Caramel{
 
     // Perspective camera
-    Camera::Camera(const Vector3f pos, const Vector3f dir, const Vector3f up,
-           Index w, Index h, Float fov_x)
+    Camera::Camera(const Vector3f &pos, const Vector3f &dir, const Vector3f &up,
+                   Index w, Index h, Float fov_x)
         : m_pos{pos}, m_dir{dir.normalize()}, m_up(up.normalize()), m_w{w}, m_h{h}, m_fov_x{fov_x} {
         // right-handed coord
         m_left = cross(m_up, m_dir);
@@ -42,18 +42,19 @@ namespace Caramel{
                 Vector4f{   pos[0],    pos[1],    pos[2], Float1}
         );
 
-        m_tan = tan(m_fov_x * PI / (2 * 180));
         m_ratio = static_cast<Float>(m_w) / static_cast<Float>(m_h);
+        // m_ratio / tangent of half fov
+        m_cam_space_dir_z = m_ratio / tan(m_fov_x * PI / (360));
     }
 
     [[nodiscard]] Ray Camera::sample_ray(Float w, Float h) const{
-        Vector4f local_d{-(w/m_w - 0.5f) * 2 * m_ratio,
-                         -(h/m_h - 0.5f) * 2 ,
-                         m_ratio / tan(m_fov_x * PI / (2 * 180)),
-                         Float0};
+        const Vector4f local_d{-(w / static_cast<Float>(m_w) - Float0_5) * 2 * m_ratio,
+                               -(h / static_cast<Float>(m_h) - Float0_5) * 2 ,
+                               m_cam_space_dir_z,
+                               Float0};
 
-        Vector3f d = Block<0,0,3,1>(m_cam_to_world * local_d);
+        const Vector3f d = Block<0,0,3,1>(m_cam_to_world * local_d);
 
-        return Ray(m_pos, d.normalize());
+        return {m_pos, d.normalize()};
     }
 }

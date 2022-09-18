@@ -31,7 +31,7 @@ namespace Caramel{
 
     // Perspective camera
     struct Camera{
-        Camera(const Vector3f pos, const Vector3f dir, const Vector3f up,
+        Camera(const Vector3f &pos, const Vector3f &dir, const Vector3f &up,
                Index w, Index h, Float fov_x);
 
         [[nodiscard]] Ray sample_ray(Float w, Float h) const;
@@ -42,7 +42,7 @@ namespace Caramel{
         Vector3f m_left;
         const Index m_w, m_h;
         const Float m_fov_x;
-        Float m_tan;
+        Float m_cam_space_dir_z;
         Float m_ratio;
         Matrix44f m_cam_to_world;
     };

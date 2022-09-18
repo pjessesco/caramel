@@ -36,7 +36,7 @@
 
 namespace Caramel{
     struct Scene{
-        Scene(const Camera &cam) : m_cam{cam} {}
+        explicit Scene(const Camera &cam) : m_cam{cam} {}
 
         std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const{
 
@@ -57,11 +57,11 @@ namespace Caramel{
             return {is_hit, info};
         }
 
-        void add_mesh(std::shared_ptr<Shape> shape){
+        void add_mesh(const std::shared_ptr<Shape>& shape){
             m_meshes.emplace_back(shape);
         }
 
-        void add_light(std::shared_ptr<Light> light){
+        void add_light(const std::shared_ptr<Light>& light){
             m_lights.emplace_back(light);
         }
 
@@ -75,9 +75,8 @@ namespace Caramel{
 
             const Vector3f dist = pos2 - pos1;
 
-            return dist.length() - info.t > EPSILON ? false : true;
+            return dist.length() - info.t <= EPSILON;
         }
-
 
         std::vector<std::shared_ptr<Light>> m_lights;
         std::vector<std::shared_ptr<Shape>> m_meshes;

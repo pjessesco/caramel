@@ -35,7 +35,7 @@ namespace Caramel{
 
     class Light{
     public:
-        Light(const Scene &scene);
+        explicit Light(const Scene &scene);
         virtual Vector3f radiance() const = 0;
         virtual std::tuple<Vector3f, Float> sample_contribution(const Vector3f &pos, Sampler &sampler) = 0;
 

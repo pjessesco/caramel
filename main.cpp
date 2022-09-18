@@ -164,7 +164,7 @@ int main() {
 
         HitPosIntegrator integrator{scene};
         Image img = integrator.render();
-        img.write_exr(test_scene_path+"case4/caramel_test_hitpos.exr");
+        img.write_exr(test_scene_path+"case6/caramel_test_hitpos.exr");
 
     }
 

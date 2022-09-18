@@ -60,7 +60,7 @@ namespace Caramel {
     }
 
     Float Triangle::get_area() const{
-        return cross(point(1) - point(0), point(2) - point(0)).length() * static_cast<Float>(0.5);
+        return cross(point(1) - point(0), point(2) - point(0)).length() * Float0_5;
     }
 
     std::tuple<Vector3f, Vector3f, Float> Triangle::sample_point(Sampler &sampler) const{

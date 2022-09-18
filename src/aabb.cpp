@@ -30,7 +30,7 @@
 #include <shape.h>
 
 namespace Caramel{
-    AABB::AABB() {}
+    AABB::AABB() = default;
     AABB::AABB(const Vector3f &p1, const Vector3f &p2) {
         m_min = Vector3f{std::min({p1[0], p2[0]}),
                          std::min({p1[1], p2[1]}),
@@ -57,9 +57,9 @@ namespace Caramel{
     }
 
     Vector3f AABB::corner(Index i) const{
-        return Vector3f(i & 1 ? m_min[0] : m_max[0],
-                        i & 2 ? m_min[1] : m_max[1],
-                        i & 4 ? m_min[2] : m_max[2]);
+        return {i & 1 ? m_min[0] : m_max[0],
+                i & 2 ? m_min[1] : m_max[1],
+                i & 4 ? m_min[2] : m_max[2]};
     }
 
     std::tuple<bool, Float, Float> AABB::ray_intersect(const Ray &ray) const{
