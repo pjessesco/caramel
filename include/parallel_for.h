@@ -37,7 +37,7 @@ namespace Caramel{
 
     constexpr int THREAD_NUM = 10;
 
-    void parallel_for(int start_idx, int end_idx, std::function<void(int)> func){
+    inline void parallel_for(int start_idx, int end_idx, std::function<void(int)> func){
 
         std::vector<std::thread> tasks(end_idx - start_idx);
         std::atomic<int> total_done_jobs = 0;
