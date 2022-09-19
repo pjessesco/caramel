@@ -85,9 +85,9 @@ namespace Caramel{
     }
 
     void Octree::Node::construct_children_recursively(const OBJMesh &shape, int depth){
-//        if(depth > MAX_DEPTH){
-//            return;
-//        }
+        if(depth > MAX_DEPTH){
+            return;
+        }
 
         if(m_triangle_indices.size() > MAX_TRIANGLE_NUM){
             construct_children(shape);

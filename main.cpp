@@ -40,8 +40,17 @@ using namespace Caramel;
 int main() {
     std::string test_scene_path = "/Users/jino/caramel/test_scenes/";
 
+    bool test1 = false;
+    bool test2 = false;
+    bool test3 = false;
+    bool test4 = false;
+    bool test5 = false;
+    bool test6 = true;
+
+
+
     // Test 1
-    {
+    if(test1){
         Scene scene(Camera({0.0f, 0.0f, 0.0f},
                            {0.0f, 0.0f, 1.0f},
                            {0.0f, 1.0f, 0.0f},
@@ -69,7 +78,7 @@ int main() {
     std::cout<<"===================================="<<std::endl;
 
     // Test 2
-    {
+    if(test2){
         Scene scene(Camera({0.0f, 0.0f, -2.0f},
                            {0.0f, 0.0f, 1.0f},
                            {0.0f, 1.0f, 0.0f},
@@ -85,7 +94,7 @@ int main() {
     std::cout<<"===================================="<<std::endl;
 
     // Test 3
-    {
+    if(test3){
         Scene scene(Camera({0.536078f, -0.536043f, -2.50343f},
                            {-0.008999f, 0.009001f, 0.99992f},
                            {8.1006e-05f, 0.99996f, -0.00900047f},
@@ -102,7 +111,7 @@ int main() {
     std::cout<<"===================================="<<std::endl;
 
     // Test 4
-    {
+    if(test4){
         Scene scene(Camera({-0.0315182f, 0.284011f, 0.7331f},
                            {0.0191411f, -0.2299197f, -0.973022f},
                            {0.00717446f, 0.973206f, -0.229822f},
@@ -127,8 +136,10 @@ int main() {
         }
     }
 
+    std::cout<<"===================================="<<std::endl;
+
     // Test 5
-    {
+    if(test5){
         Scene scene(Camera({-65.6055f, 47.5762f, 24.3583f},
                            {0.7894f, -0.3551f, -0.500699f},
                            {0.299858f, 0.934836f, -0.190177f},
@@ -148,21 +159,41 @@ int main() {
         }
     }
 
+    std::cout<<"===================================="<<std::endl;
+
     // Test 6
-    {
-        Scene scene(Camera({-0.0315182f, 0.284011f, 0.7331f},
-                           {0.0191411f, -0.2299197f, -0.973022f},
-                           {0.00717446f, 0.973206f, -0.229822f},
-                           200, 200, 16));
+    if(test6){
+        Scene scene(Camera({278.0f, 273.0f, -800.0f},
+                           {0.0f, 0.0f, 1.0f},
+                           {0.0f, 1.0f, 0.0f},
+                           600, 600, 39.3077));
 
 
-        auto obj1 = std::make_shared<OBJMesh>(test_scene_path + "case6/bunny.obj");
-        scene.add_mesh(obj1);
-        scene.add_light(std::make_shared<AreaLight>(scene, obj1, Vector3f(static_cast<Float>(100), static_cast<Float>(100), static_cast<Float>(100))));
+        auto back = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_back.obj");
+        scene.add_mesh(back);
 
+        auto ceiling = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_ceiling.obj");
+        scene.add_mesh(ceiling);
 
+        auto floor = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_floor.obj");
+        scene.add_mesh(floor);
 
-        HitPosIntegrator integrator{scene};
+        auto greenwall = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_greenwall.obj");
+        scene.add_mesh(greenwall);
+
+        auto largebox = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_largebox.obj");
+        scene.add_mesh(largebox);
+
+        auto luminaire = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_luminaire.obj");
+        scene.add_mesh(luminaire);
+
+        auto redwall = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_redwall.obj");
+        scene.add_mesh(redwall);
+
+        auto smallbox = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_smallbox.obj");
+        scene.add_mesh(smallbox);
+
+        NormalIntegrator integrator{scene};
         Image img = integrator.render();
         img.write_exr(test_scene_path+"case6/caramel_test_hitpos.exr");
 
