@@ -29,6 +29,7 @@
 #include <ray.h>
 #include <rayintersectinfo.h>
 #include <aabb.h>
+#include <parallel_for.h>
 
 namespace Caramel{
 
@@ -84,15 +85,23 @@ namespace Caramel{
     }
 
     void Octree::Node::construct_children_recursively(const OBJMesh &shape, int depth){
-        if(depth > MAX_DEPTH){
-            return;
-        }
+//        if(depth > MAX_DEPTH){
+//            return;
+//        }
 
         if(m_triangle_indices.size() > MAX_TRIANGLE_NUM){
             construct_children(shape);
         }
-        for(auto &c : m_childs){
-            c.construct_children_recursively(shape, depth + 1);
+
+        if(depth == 0 && m_childs.size() == 8){
+            parallel_for(0, 8, [&](int i){
+                m_childs[i].construct_children_recursively(shape, depth + 1);
+            });
+        }
+        else{
+            for(auto &c : m_childs){
+                c.construct_children_recursively(shape, depth + 1);
+            }
         }
     }
 
