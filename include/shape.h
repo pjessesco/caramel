@@ -37,6 +37,7 @@
 #include <sampler.h>
 #include <distrib1D.h>
 #include <bsdf.h>
+#include <light.h>
 
 namespace Caramel{
 
@@ -51,13 +52,13 @@ namespace Caramel{
         // point, normal, probability
         virtual std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const = 0;
 
-        // Shape can have arealight only
-        std::shared_ptr<AreaLight> m_arealight;
-        std::unique_ptr<BSDF> m_bsdf;
-
         bool is_light() const{
             return m_arealight != nullptr;
         }
+
+        // Shape can have arealight only
+        std::shared_ptr<AreaLight> m_arealight;
+        std::unique_ptr<BSDF> m_bsdf;
     };
 
     struct Triangle : Shape{

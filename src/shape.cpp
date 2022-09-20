@@ -137,10 +137,10 @@ namespace Caramel {
 
         if(is_vn_exists){
             Vector3f shn = interpolate(m_n.get_col(0), m_n.get_col(1), m_n.get_col(2), u, v);
-            ret.sh_n = shn.normalize();
+            ret.sh_coord = Coordinate(shn.normalize());
         }
         else{
-            ret.sh_n = cross(E1, E2).normalize();
+            ret.sh_coord = Coordinate(cross(E1, E2).normalize());
         }
 
         return {true, ret};
