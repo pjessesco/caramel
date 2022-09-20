@@ -76,4 +76,9 @@ namespace Caramel{
         return dist.length() - info.t <= EPSILON;
     }
 
+    void Scene::enroll_arealight(const std::shared_ptr<Shape>& shape, const std::shared_ptr<AreaLight>& arealight){
+        arealight->m_shape = shape;
+        shape->m_arealight = arealight;
+    }
+
 }

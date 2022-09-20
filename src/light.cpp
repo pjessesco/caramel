@@ -38,10 +38,8 @@ namespace Caramel{
 
     // -----------------------------------------------------------------
 
-    AreaLight::AreaLight(const Scene &scene, std::shared_ptr<Shape> shape, const Vector3f &radiance)
-        : Light(scene), m_shape{shape}, m_radiance{radiance} {
-        shape->set_light();
-    }
+    AreaLight::AreaLight(const Scene &scene, const Vector3f &radiance)
+        : Light(scene), m_radiance{radiance} {}
 
     Vector3f AreaLight::radiance() const{
         return m_radiance;

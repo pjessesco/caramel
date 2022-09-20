@@ -45,11 +45,11 @@ namespace Caramel{
 
     class AreaLight : public Light{
     public:
-        AreaLight(const Scene &scene, std::shared_ptr<Shape> shape, const Vector3f &radiance);
+        AreaLight(const Scene &scene, const Vector3f &radiance);
         Vector3f radiance() const override;
         std::tuple<Vector3f, Float> sample_contribution(const Vector3f &hitpos, Sampler &sampler) override;
 
-        const std::weak_ptr<Shape> m_shape;
+        std::weak_ptr<Shape> m_shape;
         Vector3f m_radiance;
     };
 

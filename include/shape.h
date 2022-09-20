@@ -51,18 +51,13 @@ namespace Caramel{
         // point, normal, probability
         virtual std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const = 0;
 
-        bool is_light() const{
-            return m_is_light;
-        }
-
-        void set_light(){
-            m_is_light = true;
-        }
-
+        // Shape can have arealight only
+        std::shared_ptr<AreaLight> m_arealight;
         std::unique_ptr<BSDF> m_bsdf;
 
-    private:
-        bool m_is_light;
+        bool is_light() const{
+            return m_arealight != nullptr;
+        }
     };
 
     struct Triangle : Shape{

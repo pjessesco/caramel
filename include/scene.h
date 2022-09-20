@@ -43,6 +43,8 @@ namespace Caramel{
         void add_light(const std::shared_ptr<Light>& light);
         bool is_visible(const Vector3f pos1, const Vector3f &pos2) const;
 
+        void enroll_arealight(const std::shared_ptr<Shape>& shape, const std::shared_ptr<AreaLight>& arealight);
+
         std::vector<std::shared_ptr<Light>> m_lights;
         std::vector<std::shared_ptr<Shape>> m_meshes;
         Camera m_cam;
