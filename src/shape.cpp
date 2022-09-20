@@ -122,7 +122,8 @@ namespace Caramel {
         }
 
         const Float t = TE1.dot(E2) * denom_inv;
-        if (t < 0) {
+
+        if(t < ray.m_min_t){
             return {false, RayIntersectInfo()};
         }
 
