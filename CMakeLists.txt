@@ -19,6 +19,7 @@ set(SOURCES
         src/integrators.cpp
         src/camera.cpp
         src/light.cpp)
+        src/scene.cpp
 
 set(HEADERS
         include/aabb.h
