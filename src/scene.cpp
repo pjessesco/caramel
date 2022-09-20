@@ -76,6 +76,11 @@ namespace Caramel{
         return dist.length() - info.t <= EPSILON;
     }
 
+    std::tuple<std::shared_ptr<Light>, Float> Scene::sample_light(Sampler &sampler) const{
+        const Index idx = static_cast<Index>(sampler.sample_1d() * static_cast<Float>(m_lights.size()));
+        return {m_lights[idx], Float1 / static_cast<Float>(m_lights.size())};
+    }
+
     void Scene::enroll_arealight(const std::shared_ptr<Shape>& shape, const std::shared_ptr<AreaLight>& arealight){
         arealight->m_shape = shape;
         shape->m_arealight = arealight;
