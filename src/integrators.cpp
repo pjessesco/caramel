@@ -51,7 +51,12 @@ namespace Caramel{
         parallel_for(0, width, std::function([&](int i){
                          UniformStdSampler sampler(i);
                          for(int j=0;j<height;j++){
-                             auto rgb = get_pixel_value(i, j, sampler);
+                             Vector3f rgb = vec3f_zero;
+                             for(Index spp=0;spp<SPP;spp++){
+                                 rgb = rgb + get_pixel_value(i, j, sampler);
+                             }
+                             rgb = rgb / SPP;
+
                              img.set_pixel_value(i, j, rgb[0], rgb[1], rgb[2]);
                          }
                          progress_bar.increase();

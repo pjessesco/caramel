@@ -38,6 +38,9 @@ namespace Caramel{
     protected:
         virtual Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) = 0;
         Scene m_scene;
+
+    private:
+        static constexpr Index SPP = 1;
     };
 
     class DepthIntegrator : public Integrator{
