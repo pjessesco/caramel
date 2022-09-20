@@ -40,11 +40,18 @@ namespace Caramel{
     //
 
     struct Coordinate{
-        Coordinate() : Coordinate(Vector3f{Float0, Float0, Float1}) {}
+        Coordinate() : m_world_n{Float0, Float0, Float1}, m_axis1{Float1, Float0, Float0}, m_axis2{Float0, Float1, Float0} {}
 
-        explicit Coordinate(const Vector3f &world_normal) : m_world_n{world_normal.normalize()}{
-            m_axis1 = Vector3f(world_normal[2], Float0, -world_normal[0]).normalize();
-            m_axis2 = cross(world_normal, m_axis1);
+        explicit Coordinate(const Vector3f &world_normal){
+            m_world_n = world_normal.normalize();
+            if(Peanut::is_zero(m_world_n[0]) && Peanut::is_zero(m_world_n[2])){
+                m_axis1 = Vector3f(m_world_n[1], -m_world_n[0], Float0).normalize();
+                m_axis2 = cross(m_world_n, m_axis1);
+            }
+            else{
+                m_axis1 = Vector3f(m_world_n[2], Float0, -m_world_n[0]).normalize();
+                m_axis2 = cross(m_world_n, m_axis1);
+            }
         }
 
         Vector3f to_world(const Vector3f &local_vec) const{
