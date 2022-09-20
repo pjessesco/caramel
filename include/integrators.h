@@ -63,4 +63,11 @@ namespace Caramel{
         explicit NormalIntegrator(const Scene &scene);
         Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) override;
     };
+
+    class AlbedoIntegrator : public Integrator{
+    public:
+        explicit AlbedoIntegrator(const Scene &scene);
+        Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) override;
+    };
 }
+

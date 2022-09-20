@@ -23,7 +23,6 @@
 //
 
 #include <chrono>
-#include <utility>
 
 #include <integrators.h>
 #include <image.h>
@@ -103,4 +102,13 @@ namespace Caramel{
         return is_hit ? Vector3f(info.sh_n[0], info.sh_n[1], info.sh_n[2]) : Vector3f();
     }
 
+    AlbedoIntegrator::AlbedoIntegrator(const Scene &scene) : Integrator(scene) {}
+
+    // Different with albedo precisely...
+    Vector3f AlbedoIntegrator::get_pixel_value(Float i, Float j, Sampler &sampler) {
+        const Ray ray = m_scene.m_cam.sample_ray(i, j);
+        auto [is_hit, info] = m_scene.ray_intersect(ray);
+
+        return is_hit ? m_scene.m_meshes[info.idx]->m_bsdf->get_reflection(Vector3f(), Vector3f()) : Vector3f();
+    }
 }
