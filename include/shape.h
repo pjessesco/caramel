@@ -36,10 +36,12 @@
 #include <acceleration.h>
 #include <sampler.h>
 #include <distrib1D.h>
+#include <bsdf.h>
 
 namespace Caramel{
 
     struct Shape{
+        Shape(std::unique_ptr<BSDF> bsdf = std::make_unique<Diffuse>());
         virtual ~Shape() = default;
         virtual void transform(const Matrix44f &transform) = 0;
         // u, v, t
@@ -57,8 +59,10 @@ namespace Caramel{
             m_is_light = true;
         }
 
+        std::unique_ptr<BSDF> m_bsdf;
+
     private:
-        bool m_is_light = false;
+        bool m_is_light;
     };
 
     struct Triangle : Shape{

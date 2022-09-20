@@ -35,25 +35,30 @@ namespace Caramel{
 
     class BSDF{
     public:
-        virtual std::tuple<Vector3f, Float> sample_recursive_info(const Vector3f &world_incoming_dir, Sampler &sampler) = 0;
-        virtual Vector3f get_reflection(const Vector3f &world_incoming_dir) = 0;
+        virtual ~BSDF() = default;
+        // Given incoming dir, returns sampled recursive ray direction, and reflectance * cos / pdf
+        virtual std::tuple<Vector3f, Vector3f> sample_recursive_dir(const Vector3f &local_incoming_dir, Sampler &sampler) = 0;
 
-    protected:
-        explicit BSDF(const Scene &scene) : m_scene{scene} {}
-        const Scene &m_scene;
+        // Given incoming & outgoing dir, returns reflectance
+        virtual Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) = 0;
     };
 
     class Diffuse : public BSDF{
-        explicit Diffuse(const Scene &scene, const Vector3f &albedo = Vector3f{Float0_5, Float0_5, Float0_5})
-            : BSDF(scene), m_albedo{albedo} {}
+    public:
+        explicit Diffuse(const Vector3f &albedo = Vector3f{Float0_5, Float0_5, Float0_5})
+            : m_albedo{albedo} {}
 
-        std::tuple<Vector3f, Float> sample_recursive_info(const Vector3f &world_incoming_dir, Sampler &sampler){
-
+        std::tuple<Vector3f, Vector3f> sample_recursive_dir(const Vector3f &, Sampler &sampler) override{
+            auto [local_outgoing, dir_pdf] = sample_unit_hemisphere_cosine(sampler);
+            return {local_outgoing, m_albedo};
         }
 
+        Vector3f get_reflection(const Vector3f &, const Vector3f &) override{
+            return m_albedo * PI_INV;
+        }
 
- 
-        const Vector3f &m_albedo;
+    private:
+        Vector3f m_albedo;
     };
 
 
