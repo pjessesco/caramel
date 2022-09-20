@@ -129,16 +129,27 @@ namespace Caramel{
         }
 
         // Direct light sampling
-        if(true){
+        if(false){
             auto [light, light_pdf] = m_scene.sample_light(sampler);
-            auto [light_contrib, light_contrib_pdf] = light->sample_contribution(info.p, sampler);
-            return light_contrib / (light_pdf * light_contrib_pdf);
+
+            auto [emitted_rad, light_pos, light_n, light_pos_pdf] = light->sample_contribution(info.p, sampler);
+
+//            Float cos1 = .
+            return Vector3f();
         }
 
-//        // BRDF sampling
-//        else{
-//
-//            m_scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir( sampler);
-//        }
+        // BRDF sampling
+        else{
+            auto [local_outgoing, contrib] = m_scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(info.sh_coord.to_local(ray.m_d), sampler);
+
+            const Ray recursive_ray(info.p, info.sh_coord.to_world(local_outgoing));
+
+            auto [recursive_is_hit, recursive_info] = m_scene.ray_intersect(recursive_ray);
+
+            if(!recursive_is_hit || !m_scene.m_meshes[recursive_info.idx]->is_light()){
+                return vec3f_zero;
+            }
+            return /*contrib * */ m_scene.m_meshes[recursive_info.idx]->m_arealight->radiance();
+        }
     }
 }

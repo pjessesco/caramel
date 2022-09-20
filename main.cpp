@@ -195,7 +195,7 @@ int main() {
         auto smallbox = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_smallbox.obj");
         scene.add_mesh(smallbox);
 
-        AlbedoIntegrator integrator{scene};
+        DirectIntegrator integrator{scene};
         Image img = integrator.render();
         img.write_exr(test_scene_path+"case6/caramel_test_hitpos.exr");
 

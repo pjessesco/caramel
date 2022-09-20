@@ -28,21 +28,31 @@
 
 namespace Caramel{
 
+    //         Local coord                    World coord
+    //
+    //           1  0  0             axis1[0]  axis2[0]  world_n[0]
+    //           0  1  0       ->    axis1[1]  axis2[1]  world_n[1]
+    //           0  0  1             axis1[2]  axis2[2]  world_n[2]
+    //
+    //              l0,        ->    axis1[0]  axis2[0]  world_n[0]   l0,
+    //              l1               axis1[1]  axis2[1]  world_n[1] * l1,
+    //              l2               axis1[2]  axis2[2]  world_n[2]   l2
+    //
+
     struct Coordinate{
         Coordinate() : Coordinate(Vector3f{Float0, Float0, Float1}) {}
 
         explicit Coordinate(const Vector3f &world_normal) : m_world_n{world_normal.normalize()}{
-            m_axis1 = Vector3f(-Float1/world_normal[0], Float0, Float1/world_normal[2]).normalize();
+            m_axis1 = Vector3f(world_normal[2], Float0, -world_normal[0]).normalize();
             m_axis2 = cross(world_normal, m_axis1);
         }
 
-        Vector3f to_world(const Vector3f &vec){
-            return m_axis1 * vec[0] + m_axis2 * vec[1] + m_world_n * vec[2];
+        Vector3f to_world(const Vector3f &local_vec) const{
+            return Matrix33f::from_cols(m_axis1, m_axis2, m_world_n) * local_vec;
         }
 
-        Vector3f to_local(const Vector3f &vec){
-            NOT_IMPLEMENTED();
-            return Vector3f();
+        Vector3f to_local(const Vector3f &world_vec){
+            return Peanut::Inverse(Matrix33f::from_cols(m_axis1, m_axis2, m_world_n)) * world_vec;
         }
 
 
