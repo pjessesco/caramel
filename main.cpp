@@ -23,10 +23,8 @@
 //
 
 #include <iostream>
-#include <chrono>
 #include <memory>
 
-#include <logger.h>
 #include <shape.h>
 #include <camera.h>
 #include <image.h>
@@ -186,7 +184,7 @@ int main() {
 
         auto luminaire = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_luminaire.obj");
         scene.add_mesh(luminaire);
-        scene.add_light(std::make_shared<AreaLight>(scene, luminaire, Vector3f(100.0f, 100.0f, 100.0f)));
+        scene.add_light(std::make_shared<AreaLight>(scene, luminaire, Vector3f(10.0f, 10.0f, 10.0f)));
 
         auto redwall = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_redwall.obj");
         scene.add_mesh(redwall);
@@ -194,7 +192,7 @@ int main() {
         auto smallbox = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_smallbox.obj");
         scene.add_mesh(smallbox);
 
-        DirectIntegrator integrator{scene};
+        AlbedoIntegrator integrator{scene};
         Image img = integrator.render();
         img.write_exr(test_scene_path+"case6/caramel_test_hitpos.exr");
 
