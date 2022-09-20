@@ -69,6 +69,9 @@ namespace Caramel{
     using Vector2i = Peanut::Matrix<Int, 2, 1>;
     using Vector3i = Peanut::Matrix<Int, 3, 1>;
 
+    const Vector3f vec3f_zero = {Float0, Float0, Float0};
+    const Vector3f vec3f_one = {Float1, Float1, Float1};
+
     // TODO : Implement in Peanut
     inline Vector3f cross(const Vector3f &a, const Vector3f &b){
         return {a[1] * b[2] - a[2] * b[1],
