@@ -36,31 +36,31 @@ namespace Caramel{
         Image render();
 
     protected:
-        virtual Vector3f get_pixel_value(Float i, Float j) = 0;
+        virtual Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) = 0;
         Scene m_scene;
     };
 
     class DepthIntegrator : public Integrator{
     public:
         explicit DepthIntegrator(const Scene &scene);
-        Vector3f get_pixel_value(Caramel::Float i, Caramel::Float j) override;
+        Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) override;
     };
 
     class UVIntegrator : public Integrator{
     public:
         explicit UVIntegrator(const Scene &scene);
-        Vector3f get_pixel_value(Caramel::Float i, Caramel::Float j) override;
+        Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) override;
     };
 
     class HitPosIntegrator : public Integrator{
     public:
         explicit HitPosIntegrator(const Scene &scene);
-        Vector3f get_pixel_value(Caramel::Float i, Caramel::Float j) override;
+        Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) override;
     };
 
     class NormalIntegrator : public Integrator{
     public:
         explicit NormalIntegrator(const Scene &scene);
-        Vector3f get_pixel_value(Caramel::Float i, Caramel::Float j) override;
+        Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) override;
     };
 }

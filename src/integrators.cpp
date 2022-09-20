@@ -49,8 +49,9 @@ namespace Caramel{
         auto time1 = std::chrono::high_resolution_clock::now();
 
         parallel_for(0, width, std::function([&](int i){
+                         UniformStdSampler sampler(i);
                          for(int j=0;j<height;j++){
-                             auto rgb = get_pixel_value(i, j);
+                             auto rgb = get_pixel_value(i, j, sampler);
                              img.set_pixel_value(i, j, rgb[0], rgb[1], rgb[2]);
                          }
                          progress_bar.increase();
@@ -66,7 +67,7 @@ namespace Caramel{
 
     DepthIntegrator::DepthIntegrator(const Scene &scene) : Integrator(scene) {}
 
-    Vector3f DepthIntegrator::get_pixel_value(Caramel::Float i, Caramel::Float j) {
+    Vector3f DepthIntegrator::get_pixel_value(Float i, Float j, Sampler &sampler) {
         const Ray ray = m_scene.m_cam.sample_ray(i, j);
         auto [is_hit, info] = m_scene.ray_intersect(ray);
         return is_hit ? Vector3f(info.t, info.t, info.t) : Vector3f();
@@ -76,7 +77,7 @@ namespace Caramel{
 
     UVIntegrator::UVIntegrator(const Scene &scene) : Integrator(scene) {}
 
-    Vector3f UVIntegrator::get_pixel_value(Caramel::Float i, Caramel::Float j) {
+    Vector3f UVIntegrator::get_pixel_value(Float i, Float j, Sampler &sampler) {
         const Ray ray = m_scene.m_cam.sample_ray(i, j);
         auto [is_hit, info] = m_scene.ray_intersect(ray);
         return is_hit ? Vector3f(info.u, info.v, Float1 - info.u - info.v) : Vector3f();
@@ -86,7 +87,7 @@ namespace Caramel{
 
     HitPosIntegrator::HitPosIntegrator(const Scene &scene) : Integrator(scene) {}
 
-    Vector3f HitPosIntegrator::get_pixel_value(Caramel::Float i, Caramel::Float j) {
+    Vector3f HitPosIntegrator::get_pixel_value(Float i, Float j, Sampler &sampler) {
         const Ray ray = m_scene.m_cam.sample_ray(i, j);
         auto [is_hit, info] = m_scene.ray_intersect(ray);
         return is_hit ? Vector3f(info.p[0], info.p[1], info.p[2]) : Vector3f();
@@ -96,7 +97,7 @@ namespace Caramel{
 
     NormalIntegrator::NormalIntegrator(const Scene &scene) : Integrator(scene) {}
 
-    Vector3f NormalIntegrator::get_pixel_value(Caramel::Float i, Caramel::Float j) {
+    Vector3f NormalIntegrator::get_pixel_value(Float i, Float j, Sampler &sampler) {
         const Ray ray = m_scene.m_cam.sample_ray(i, j);
         auto [is_hit, info] = m_scene.ray_intersect(ray);
         return is_hit ? Vector3f(info.sh_n[0], info.sh_n[1], info.sh_n[2]) : Vector3f();
