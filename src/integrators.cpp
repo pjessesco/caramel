@@ -29,6 +29,7 @@
 #include <parallel_for.h>
 #include <rayintersectinfo.h>
 #include <scene.h>
+#include <light.h>
 #include <progress.h>
 
 namespace Caramel{
@@ -108,6 +109,24 @@ namespace Caramel{
     Vector3f AlbedoIntegrator::get_pixel_value(Float i, Float j, Sampler &sampler) {
         const Ray ray = m_scene.m_cam.sample_ray(i, j);
         auto [is_hit, info] = m_scene.ray_intersect(ray);
+
+        return is_hit ? m_scene.m_meshes[info.idx]->m_bsdf->get_reflection(Vector3f(), Vector3f()) : Vector3f();
+    }
+
+    DirectIntegrator::DirectIntegrator(const Scene &scene) : Integrator(scene) {}
+
+    // Different with albedo precisely...
+    Vector3f DirectIntegrator::get_pixel_value(Float i, Float j, Sampler &sampler) {
+        const Ray ray = m_scene.m_cam.sample_ray(i, j);
+        auto [is_hit, info] = m_scene.ray_intersect(ray);
+
+        if(!is_hit){
+            return Vector3f{Float0, Float0, Float0};
+        }
+
+        if(m_scene.m_meshes[info.idx]->is_light()){
+//            return m_scene.m_meshes[info.idx]->m_arealight;
+        }
 
         return is_hit ? m_scene.m_meshes[info.idx]->m_bsdf->get_reflection(Vector3f(), Vector3f()) : Vector3f();
     }

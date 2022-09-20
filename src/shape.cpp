@@ -33,7 +33,7 @@
 #include <tiny_obj_loader.h>
 
 namespace Caramel {
-    Shape::Shape(std::unique_ptr<BSDF> bsdf) : m_is_light(false), m_bsdf{std::move(bsdf)} {}
+    Shape::Shape(std::unique_ptr<BSDF> bsdf) : m_bsdf{std::move(bsdf)}, m_arealight{nullptr} {}
 
     Triangle::Triangle(const Vector3f &p1, const Vector3f &p2, const Vector3f &p3)
         : m_p(Matrix33f::from_cols(p1, p2, p3)), is_vn_exists{false} {}

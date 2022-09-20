@@ -182,9 +182,12 @@ int main() {
         auto largebox = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_largebox.obj");
         scene.add_mesh(largebox);
 
-        auto luminaire = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_luminaire.obj");
-        scene.add_mesh(luminaire);
-        scene.add_light(std::make_shared<AreaLight>(scene, luminaire, Vector3f(10.0f, 10.0f, 10.0f)));
+        auto luminaire_obj = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_luminaire.obj");
+        auto luminaire_light = std::make_shared<AreaLight>(scene, Vector3f(10.0f, 10.0f, 10.0f));
+        scene.add_mesh(luminaire_obj);
+        scene.add_light(luminaire_light);
+        scene.enroll_arealight(luminaire_obj, luminaire_light);
+
 
         auto redwall = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_redwall.obj");
         scene.add_mesh(redwall);
