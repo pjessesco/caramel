@@ -53,7 +53,7 @@ namespace Caramel{
                          for(int j=0;j<height;j++){
                              Vector3f rgb = vec3f_zero;
                              for(Index spp=0;spp<SPP;spp++){
-                                 rgb = rgb + get_pixel_value(i, j, sampler);
+                                 rgb = rgb + get_pixel_value(i + sampler.sample_1d(), j + sampler.sample_1d(), sampler);
                              }
                              rgb = rgb / SPP;
 
@@ -64,7 +64,6 @@ namespace Caramel{
 
         auto time2 = std::chrono::high_resolution_clock::now();
         LOG("Render done in " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(time2 - time1).count() / 1000.0f) + " seconds");
-
 
         return img;
     }
@@ -139,8 +138,7 @@ namespace Caramel{
 
             auto [emitted_rad, light_pos, light_n, light_pos_pdf] = light->sample_contribution(info.p, sampler);
 
-//            Float cos1 = .
-            return Vector3f();
+            return m_scene.is_visible(light_pos, info.p) ? Vector3f{Float0, Float1, Float0} : Vector3f{Float1, Float0, Float0};
         }
 
         // BRDF sampling
@@ -154,7 +152,10 @@ namespace Caramel{
             if(!recursive_is_hit || !m_scene.m_meshes[recursive_info.idx]->is_light()){
                 return vec3f_zero;
             }
-            return /*contrib * */ m_scene.m_meshes[recursive_info.idx]->m_arealight->radiance();
+
+            Vector3f rad = m_scene.m_meshes[recursive_info.idx]->m_arealight->radiance();
+
+            return mult_ewise(contrib, rad);
         }
     }
 }
