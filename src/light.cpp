@@ -45,22 +45,22 @@ namespace Caramel{
         return m_radiance;
     }
 
-    std::tuple<Vector3f, Float> AreaLight::sample_contribution(const Vector3f &hitpos, Sampler &sampler){
+    std::tuple<Vector3f, Vector3f, Vector3f, Float> AreaLight::sample_contribution(const Vector3f &hitpos, Sampler &sampler){
         // Sample point on the shape
         const auto [light_pos, light_normal_world, pos_pdf] = m_shape.lock()->sample_point(sampler);
         const Vector3f light_to_hitpos = hitpos - light_pos;
 
         // If hitpoint is behind of a sampled point, zero contribution
         if(light_normal_world.dot(light_to_hitpos) <= 0){
-            return {Vector3f{Float0, Float0, Float0}, pos_pdf};
+            return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf};
         }
 
         // If hitpoint and sampled point is not visible to each other, zero contribution
         if(!m_scene.is_visible(hitpos, light_pos)){
-            return {Vector3f{Float0, Float0, Float0}, pos_pdf};
+            return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf};
         }
 
-        return {m_radiance, pos_pdf};
+        return {m_radiance, light_pos, light_normal_world, pos_pdf};
     }
 
 

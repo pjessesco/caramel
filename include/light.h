@@ -37,7 +37,8 @@ namespace Caramel{
     public:
         explicit Light(const Scene &scene);
         virtual Vector3f radiance() const = 0;
-        virtual std::tuple<Vector3f, Float> sample_contribution(const Vector3f &pos, Sampler &sampler) = 0;
+        // returns emitted radiance, sampled point, sampled normal, pdf
+        virtual std::tuple<Vector3f, Vector3f, Vector3f, Float> sample_contribution(const Vector3f &pos, Sampler &sampler) = 0;
 
     protected:
         const Scene &m_scene;
@@ -47,7 +48,7 @@ namespace Caramel{
     public:
         AreaLight(const Scene &scene, const Vector3f &radiance);
         Vector3f radiance() const override;
-        std::tuple<Vector3f, Float> sample_contribution(const Vector3f &hitpos, Sampler &sampler) override;
+        std::tuple<Vector3f, Vector3f, Vector3f, Float> sample_contribution(const Vector3f &hitpos, Sampler &sampler) override;
 
         std::weak_ptr<Shape> m_shape;
         Vector3f m_radiance;
