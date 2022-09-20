@@ -34,20 +34,20 @@ namespace Caramel{
 
     // ----------------------------------------------
 
-    std::tuple<Vector2f, Float> sample_unit_disk_uniformly(Sampler &sampler){
+    inline std::tuple<Vector2f, Float> sample_unit_disk_uniformly(Sampler &sampler){
         const Float sqrt_x = std::sqrt(sampler.sample_1d());
         const Float angle = sampler.sample_1d() * PI_2;
         return {{sqrt_x * cos(angle), sqrt_x * sin(angle)},
                  PI_INV};
     }
 
-    Float sample_unit_disk_uniformly_pdf(const Vector2f &vec){
+    inline Float sample_unit_disk_uniformly_pdf(const Vector2f &vec){
         return vec.length() >= Float1 ? Float0 : PI_INV;
     }
 
     // ----------------------------------------------
 
-    std::tuple<Vector3f, Float> sample_unit_sphere_uniformly(Sampler &sampler){
+    inline std::tuple<Vector3f, Float> sample_unit_sphere_uniformly(Sampler &sampler){
         const Float phi = PI_2 * sampler.sample_1d();
         const Float theta = std::acos(Float1 - 2 * sampler.sample_1d());
 
@@ -62,13 +62,13 @@ namespace Caramel{
 
     // `sample_unit_sphere_uniformly()` does not sample
     // inside of the sphere, so no need to check vector's length.
-    Float sample_unit_sphere_uniformly_pdf(const Vector3f &vec){
+    inline Float sample_unit_sphere_uniformly_pdf(const Vector3f &vec){
         return PI_4_INV;
     }
 
     // ----------------------------------------------
 
-    std::tuple<Vector3f, Float> sample_unit_hemisphere_uniformly(Sampler &sampler){
+    inline std::tuple<Vector3f, Float> sample_unit_hemisphere_uniformly(Sampler &sampler){
         const Float phi = PI_2 * sampler.sample_1d();
         const Float theta = std::acos(Float1 - sampler.sample_1d());
 
@@ -81,20 +81,20 @@ namespace Caramel{
                 PI_2_INV};
     }
 
-    Float sample_unit_hemisphere_uniformly_pdf(const Vector3f &vec){
+    inline Float sample_unit_hemisphere_uniformly_pdf(const Vector3f &vec){
         return vec[2] <= 0 ? Float0 : PI_2_INV;
     }
 
     // ----------------------------------------------
 
-    std::tuple<Vector3f, Float> sample_unit_hemisphere_cosine(Sampler &sampler){
+    inline std::tuple<Vector3f, Float> sample_unit_hemisphere_cosine(Sampler &sampler){
         auto [xy, _] = sample_unit_disk_uniformly(sampler);
         const Float z = std::sqrt(Float1 - xy.dot(xy));
         return {{xy[0], xy[1], z},
                 z*PI_INV};
     }
 
-    Float sample_unit_hemisphere_cosine_pdf(const Vector3f &vec){
+    inline Float sample_unit_hemisphere_cosine_pdf(const Vector3f &vec){
         return vec[2] <= 0 ? Float0 : vec[2]*PI_INV;
     }
 
