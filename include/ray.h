@@ -28,7 +28,7 @@
 
 namespace Caramel{
     struct Ray{
-        Ray(const Vector3f &o, const Vector3f &d) : m_o{o}, m_d{d} {}
+        Ray(const Vector3f &o, const Vector3f &d) : m_o{o}, m_d{d.normalize()} {}
 
         Vector3f m_o;
         Vector3f m_d;

@@ -27,7 +27,6 @@
 #include <logger.h>
 #include <ray.h>
 #include <aabb.h>
-#include <shape.h>
 
 namespace Caramel{
     AABB::AABB() = default;
