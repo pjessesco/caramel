@@ -125,9 +125,20 @@ namespace Caramel{
         }
 
         if(m_scene.m_meshes[info.idx]->is_light()){
-//            return m_scene.m_meshes[info.idx]->m_arealight;
+            return m_scene.m_meshes[info.idx]->m_arealight->radiance();
         }
 
-        return is_hit ? m_scene.m_meshes[info.idx]->m_bsdf->get_reflection(Vector3f(), Vector3f()) : Vector3f();
+        // Direct light sampling
+        if(true){
+            auto [light, light_pdf] = m_scene.sample_light(sampler);
+            auto [light_contrib, light_contrib_pdf] = light->sample_contribution(info.p, sampler);
+            return light_contrib / (light_pdf * light_contrib_pdf);
+        }
+
+//        // BRDF sampling
+//        else{
+//
+//            m_scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir( sampler);
+//        }
     }
 }
