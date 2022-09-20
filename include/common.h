@@ -79,6 +79,11 @@ namespace Caramel{
                 a[0] * b[1] - a[1] * b[0]};
     }
 
+    // TODO : Implement in Peanut
+    inline Vector3f mult_ewise(const Vector3f &a, const Vector3f &b){
+        return {a[0] * b[0], a[1] * b[1], a[2] * b[2]};
+    }
+
     template <typename T>
     inline T interpolate(const T &a, const T &b, const T &c, Float u, Float v){
         return (a*(Float1-u-v)) + (b*u) + (c*v);
