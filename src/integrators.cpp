@@ -100,7 +100,7 @@ namespace Caramel{
     Vector3f NormalIntegrator::get_pixel_value(Float i, Float j, Sampler &sampler) {
         const Ray ray = m_scene.m_cam.sample_ray(i, j);
         auto [is_hit, info] = m_scene.ray_intersect(ray);
-        return is_hit ? Vector3f(info.sh_n[0], info.sh_n[1], info.sh_n[2]) : Vector3f();
+        return is_hit ? Vector3f(info.sh_coord.m_world_n[0], info.sh_coord.m_world_n[1], info.sh_coord.m_world_n[2]) : Vector3f();
     }
 
     AlbedoIntegrator::AlbedoIntegrator(const Scene &scene) : Integrator(scene) {}

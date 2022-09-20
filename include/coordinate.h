@@ -29,7 +29,9 @@
 namespace Caramel{
 
     struct Coordinate{
-        Coordinate(const Vector3f &world_normal) : m_world_n{world_normal.normalize()}{
+        Coordinate() : Coordinate(Vector3f{Float0, Float0, Float1}) {}
+
+        explicit Coordinate(const Vector3f &world_normal) : m_world_n{world_normal.normalize()}{
             m_axis1 = Vector3f(-Float1/world_normal[0], Float0, Float1/world_normal[2]).normalize();
             m_axis2 = cross(world_normal, m_axis1);
         }
@@ -39,7 +41,8 @@ namespace Caramel{
         }
 
         Vector3f to_local(const Vector3f &vec){
-
+            NOT_IMPLEMENTED();
+            return Vector3f();
         }
 
 
