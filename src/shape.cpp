@@ -35,34 +35,33 @@
 namespace Caramel {
     Shape::Shape(std::unique_ptr<BSDF> bsdf) : m_bsdf{std::move(bsdf)}, m_arealight{nullptr} {}
 
-    Triangle::Triangle(const Vector3f &p1, const Vector3f &p2, const Vector3f &p3)
-        : m_p(Matrix33f::from_cols(p1, p2, p3)), is_vn_exists{false} {}
+    Triangle::Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2)
+        : m_p0{p0}, m_p1{p1}, m_p2{p2}, is_vn_exists{false} {}
 
-    Triangle::Triangle(const Vector3f &p1, const Vector3f &p2, const Vector3f &p3,
-                       const Vector3f &n1, const Vector3f &n2, const Vector3f &n3)
-        : m_p(Matrix33f::from_cols(p1, p2, p3)), m_n(Matrix33f::from_cols(n1, n2, n3)), is_vn_exists{true} {}
+    Triangle::Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2,
+                       const Vector3f &n0, const Vector3f &n1, const Vector3f &n2)
+        : m_p0{p0}, m_p1{p1}, m_p2{p2}, m_n0{n0}, m_n1{n1}, m_n2{n2}, is_vn_exists{true} {}
 
     void Triangle::transform(const Matrix44f &transform) {
-        for(Index i=0;i<3;i++){
-            m_p.set_col(i, transform_point(m_p.get_col(i), transform));
-            m_n.set_col(i, transform_normal(m_n.get_col(i), transform));
-        }
+            m_p0 = transform_point(m_p0, transform);
+            m_p1 = transform_point(m_p1, transform);
+            m_p2 = transform_point(m_p2, transform);
+            m_n0 = transform_normal(m_n0, transform);
+            m_n1 = transform_normal(m_n1, transform);
+            m_n2 = transform_normal(m_n2, transform);
     }
 
     AABB Triangle::get_aabb() const{
-        const Vector3f p0 = point(0);
-        const Vector3f p1 = point(1);
-        const Vector3f p2 = point(2);
-        return AABB(Vector3f{std::min({p0[0], p1[0], p2[0]}),
-                             std::min({p0[1], p1[1], p2[1]}),
-                             std::min({p0[2], p1[2], p2[2]})},
-                    Vector3f{std::max({p0[0], p1[0], p2[0]}),
-                             std::max({p0[1], p1[1], p2[1]}),
-                             std::max({p0[2], p1[2], p2[2]})});
+        return AABB(Vector3f{std::min({m_p0[0], m_p1[0], m_p2[0]}),
+                             std::min({m_p0[1], m_p1[1], m_p2[1]}),
+                             std::min({m_p0[2], m_p1[2], m_p2[2]})},
+                    Vector3f{std::max({m_p0[0], m_p1[0], m_p2[0]}),
+                             std::max({m_p0[1], m_p1[1], m_p2[1]}),
+                             std::max({m_p0[2], m_p1[2], m_p2[2]})});
     }
 
     Float Triangle::get_area() const{
-        return cross(point(1) - point(0), point(2) - point(0)).length() * Float0_5;
+        return cross(m_p1 - m_p0, m_p2 - m_p0).length() * Float0_5;
     }
 
     std::tuple<Vector3f, Vector3f, Float> Triangle::sample_point(Sampler &sampler) const{
@@ -71,35 +70,29 @@ namespace Caramel {
         const Float x = Float1 - std::sqrt(Float1 - u);
         const Float y = v * std::sqrt(Float1 - u);
         // z = 1 - x - y
-        const Vector3f p0 = point(0);
-        const Vector3f p1 = point(1);
-        const Vector3f p2 = point(2);
 
-        return {interpolate(p0, p1, p2, x, y),
+        return {interpolate(m_p0, m_p1, m_p2, x, y),
                 is_vn_exists ?
                     interpolate(normal(0), normal(1), normal(2), x, y) :
-                    cross(p1 - p0, p2 - p0).normalize(),
+                    cross(m_p1 - m_p0, m_p2 - m_p0).normalize(),
                 Float1 / get_area()};
     }
 
     inline Vector3f Triangle::point(Index i) const {
-        return m_p.get_col(i);
+        return i == 0 ? m_p0 : i == 1 ? m_p1 : m_p2;
     }
 
     inline Vector3f Triangle::normal(Index i) const {
-        return m_n.get_col(i);
+        return i == 0 ? m_n0 : i == 1 ? m_n1 : m_n2;
     }
 
     // u, v, t
     std::tuple<bool, RayIntersectInfo> Triangle::ray_intersect(const Ray &ray) const {
-        const Vector3f A = m_p.get_col(0);
-        const Vector3f B = m_p.get_col(1);
-        const Vector3f C = m_p.get_col(2);
         const Vector3f D = ray.m_d;
 
-        const Vector3f T = ray.m_o - A;
-        const Vector3f E1 = B - A;
-        const Vector3f E2 = C - A;
+        const Vector3f T = ray.m_o - m_p0;
+        const Vector3f E1 = m_p1 - m_p0;
+        const Vector3f E2 = m_p2 - m_p0;
 
         const Vector3f DE2 = cross(D, E2);
 
@@ -122,7 +115,7 @@ namespace Caramel {
         }
 
         // Intersect
-        Vector3f hitpos = interpolate(A, B, C, u, v);
+        Vector3f hitpos = interpolate(m_p0, m_p1, m_p2, u, v);
 
         RayIntersectInfo ret;
         ret.p = hitpos;
@@ -131,7 +124,7 @@ namespace Caramel {
         ret.v = v;
 
         if(is_vn_exists){
-            Vector3f shn = interpolate(m_n.get_col(0), m_n.get_col(1), m_n.get_col(2), u, v);
+            Vector3f shn = interpolate(m_n0, m_n1, m_n2, u, v);
             ret.sh_coord = Coordinate(shn.normalize());
         }
         else{
