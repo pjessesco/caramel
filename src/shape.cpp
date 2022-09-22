@@ -102,27 +102,21 @@ namespace Caramel {
         const Vector3f E2 = C - A;
 
         const Vector3f DE2 = cross(D, E2);
-        const Vector3f TE1 = cross(T, E1);
 
         const Float denom_inv = static_cast<Float>(1) / DE2.dot(E1);
 
-        const Float u = DE2.dot(T) * denom_inv;
-
-        if (u < 0 || 1 < u) {
-            return {false, RayIntersectInfo()};
-        }
-
+        const Vector3f TE1 = cross(T, E1);
         const Float v = TE1.dot(D) * denom_inv;
-        if (v < 0 || 1 < v) {
+        if (v < Float0 || Float1 < v) {
             return {false, RayIntersectInfo()};
         }
 
-        if (u + v > 1) {
+        const Float u = DE2.dot(T) * denom_inv;
+        if (u < Float0 || Float1 < u + v) {
             return {false, RayIntersectInfo()};
         }
 
         const Float t = TE1.dot(E2) * denom_inv;
-
         if(t < ray.m_min_t){
             return {false, RayIntersectInfo()};
         }
