@@ -138,10 +138,21 @@ namespace Caramel{
 
             auto [emitted_rad, light_pos, light_n, light_pos_pdf] = light->sample_contribution(info.p, sampler);
 
-            if(!m_scene.is_visible(Vector3f(270.0f, 548.7f, 275.0f), info.p)){
-                return vec3f_zero;
+            {
+                Vector3f target_pos = Vector3f(270.0f, 548.7f, 275.0f);
+                const Ray recursive_ray{info.p, target_pos - info.p};
+                auto [is_hit_recursive, info_recursive] = m_scene.ray_intersect(recursive_ray);
+                if(!is_hit_recursive){
+                    return Vector3f{Float1, Float0, Float0};
+                }
+                // self intersection
+                if(info_recursive.idx == info.idx){
+                    return Vector3f{Float0, info_recursive.t, Float0};
+                }
+                return Vector3f{Float0, Float0, Float1};
+
             }
-            return {Float1, Float0, Float0};
+
 
             const Vector3f local_incoming_dir = info.sh_coord.to_local(ray.m_d);
             const Vector3f hitpos_to_light_world = light_pos - info.p;
