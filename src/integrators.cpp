@@ -138,9 +138,10 @@ namespace Caramel{
 
             auto [emitted_rad, light_pos, light_n, light_pos_pdf] = light->sample_contribution(info.p, sampler);
 
-            if(!m_scene.is_visible(light_pos, info.p)){
+            if(!m_scene.is_visible(Vector3f(270.0f, 548.7f, 275.0f), info.p)){
                 return vec3f_zero;
             }
+            return {Float1, Float0, Float0};
 
             const Vector3f local_incoming_dir = info.sh_coord.to_local(ray.m_d);
             const Vector3f hitpos_to_light_world = light_pos - info.p;
