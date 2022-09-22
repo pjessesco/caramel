@@ -62,10 +62,10 @@ namespace Caramel{
     };
 
     struct Triangle : Shape{
-        Triangle(const Vector3f &p1, const Vector3f &p2, const Vector3f &p3);
+        Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2);
 
-        Triangle(const Vector3f &p1, const Vector3f &p2, const Vector3f &p3,
-                 const Vector3f &n1, const Vector3f &n2, const Vector3f &n3);
+        Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2,
+                 const Vector3f &n0, const Vector3f &n1, const Vector3f &n2);
 
         // u, v, t
         std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
@@ -79,8 +79,8 @@ namespace Caramel{
         inline Vector3f normal(Index i) const;
 
     private:
-        Matrix33f m_p;
-        Matrix33f m_n;
+        Vector3f m_p0, m_p1, m_p2;
+        Vector3f m_n0, m_n1, m_n2;
         const bool is_vn_exists;
     };
 
