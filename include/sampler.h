@@ -44,7 +44,11 @@ namespace Caramel{
         }
 
         Float sample_1d() override{
-            return m_dis(m_gen);
+            Float ret = m_dis(m_gen);
+            while(ret == Float1){
+                ret = m_dis(m_gen);
+            }
+            return ret;
         }
 
     private:
