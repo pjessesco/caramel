@@ -26,7 +26,6 @@
 
 #include <aabb.h>
 #include <common.h>
-#include <parallel_for.h>
 #include <ray.h>
 #include <rayintersectinfo.h>
 #include <shape.h>

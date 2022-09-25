@@ -42,7 +42,7 @@
 namespace Caramel{
 
     struct Shape{
-        Shape(std::unique_ptr<BSDF> bsdf = std::make_unique<Diffuse>());
+        explicit Shape(std::unique_ptr<BSDF> bsdf = std::make_unique<Diffuse>());
         virtual ~Shape() = default;
         virtual void transform(const Matrix44f &transform) = 0;
         // u, v, t

@@ -41,7 +41,7 @@ namespace Caramel{
         std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const;
         void add_mesh(const std::shared_ptr<Shape>& shape);
         void add_light(const std::shared_ptr<Light>& light);
-        bool is_visible(const Vector3f pos1, const Vector3f &pos2) const;
+        bool is_visible(const Vector3f &pos1, const Vector3f &pos2) const;
         std::tuple<std::shared_ptr<Light>, Float> sample_light(Sampler &sampler) const;
 
         void enroll_arealight(const std::shared_ptr<Shape>& shape, const std::shared_ptr<AreaLight>& arealight);

@@ -24,15 +24,15 @@
 
 #pragma once
 
-#include <common.h>
-
 #include <random>
+
+#include <common.h>
 
 namespace Caramel{
 
     class Sampler{
     public:
-        Sampler() {}
+        Sampler() = default;
         virtual Float sample_1d() = 0;
     };
 

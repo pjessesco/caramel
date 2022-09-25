@@ -63,7 +63,7 @@ namespace Caramel{
         m_lights.emplace_back(light);
     }
 
-    bool Scene::is_visible(const Vector3f pos1, const Vector3f &pos2) const{
+    bool Scene::is_visible(const Vector3f &pos1, const Vector3f &pos2) const{
         const Ray ray{pos1, pos2 - pos1};
         const auto [is_hit, info] = ray_intersect(ray);
 
