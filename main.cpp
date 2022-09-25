@@ -58,17 +58,17 @@ int main() {
 
         {
             DepthIntegrator integrator{scene};
-            Image img = integrator.render();
+            Image img = integrator.render(1);
             img.write_exr(test_scene_path+"case1/caramel_test1.exr");
         }
         {
             UVIntegrator integrator2{scene};
-            Image img2 = integrator2.render();
+            Image img2 = integrator2.render(1);
             img2.write_exr(test_scene_path+"case1/caramel_test1_uv.exr");
         }
         {
             NormalIntegrator integrator2{scene};
-            Image img2 = integrator2.render();
+            Image img2 = integrator2.render(1);
             img2.write_exr(test_scene_path+"case1/caramel_test1_normal.exr");
         }
     }
@@ -85,7 +85,7 @@ int main() {
 
         DepthIntegrator integrator{scene};
 
-        Image img = integrator.render();
+        Image img = integrator.render(1);
         img.write_exr(test_scene_path+"case2/caramel_test2.exr");
     }
 
@@ -102,7 +102,7 @@ int main() {
 
         DepthIntegrator integrator{scene};
 
-        Image img = integrator.render();
+        Image img = integrator.render(1);
         img.write_exr(test_scene_path+"case3/caramel_test3.exr");
     }
 
@@ -119,17 +119,17 @@ int main() {
 
         {
             DepthIntegrator integrator{scene};
-            Image img = integrator.render();
+            Image img = integrator.render(1);
             img.write_exr(test_scene_path+"case4/caramel_test4.exr");
         }
         {
             NormalIntegrator integrator{scene};
-            Image img = integrator.render();
+            Image img = integrator.render(1);
             img.write_exr(test_scene_path+"case4/caramel_test_normal.exr");
         }
         {
             HitPosIntegrator integrator{scene};
-            Image img = integrator.render();
+            Image img = integrator.render(1);
             img.write_exr(test_scene_path+"case4/caramel_test_hitpos.exr");
         }
     }
@@ -147,12 +147,12 @@ int main() {
 
         {
             NormalIntegrator integrator{scene};
-            Image img = integrator.render();
+            Image img = integrator.render(1);
             img.write_exr(test_scene_path+"case5/caramel_test_normal.exr");
         }
         {
             HitPosIntegrator integrator{scene};
-            Image img = integrator.render();
+            Image img = integrator.render(1);
             img.write_exr(test_scene_path+"case5/caramel_test_hitpos.exr");
         }
     }
@@ -199,7 +199,7 @@ int main() {
         scene.add_mesh(smallbox);
 
         DirectIntegrator integrator{scene};
-        Image img = integrator.render();
+        Image img = integrator.render(10);
         img.write_exr(test_scene_path+"case6/caramel_test_hitpos.exr");
 
     }
