@@ -28,7 +28,6 @@
 
 #include <common.h>
 #include <ray.h>
-#include <scene.h>
 #include <warp_sample.h>
 
 namespace Caramel{
@@ -45,17 +44,9 @@ namespace Caramel{
 
     class Diffuse : public BSDF{
     public:
-        explicit Diffuse(const Vector3f &albedo = Vector3f{Float0_5, Float0_5, Float0_5})
-            : m_albedo{albedo} {}
-
-        std::tuple<Vector3f, Vector3f> sample_recursive_dir(const Vector3f &, Sampler &sampler) override{
-            auto [local_outgoing, dir_pdf] = sample_unit_hemisphere_cosine(sampler);
-            return {local_outgoing, m_albedo};
-        }
-
-        Vector3f get_reflection(const Vector3f &, const Vector3f &) override{
-            return m_albedo * PI_INV;
-        }
+        explicit Diffuse(const Vector3f &albedo = Vector3f{Float0_5, Float0_5, Float0_5});
+        std::tuple<Vector3f, Vector3f> sample_recursive_dir(const Vector3f &, Sampler &sampler) override;
+        Vector3f get_reflection(const Vector3f &, const Vector3f &) override;
 
     private:
         Vector3f m_albedo;

@@ -24,41 +24,14 @@
 
 #include <vector>
 
+#include <aabb.h>
 #include <common.h>
-#include <shape.h>
+#include <parallel_for.h>
 #include <ray.h>
 #include <rayintersectinfo.h>
-#include <aabb.h>
-#include <parallel_for.h>
+#include <shape.h>
 
 namespace Caramel{
-
-    // ================= Naive implementation ====================
-
-    Naive::Naive(const OBJMesh &shape) : AccelerationMesh(shape) {}
-
-    void Naive::build() {}
-
-    std::tuple<bool, RayIntersectInfo> Naive::ray_intersect(const Ray &ray) {
-        if(!(std::get<0>(m_shape.get_aabb().ray_intersect(ray)))){
-            return {false, RayIntersectInfo()};
-        }
-
-        RayIntersectInfo info = RayIntersectInfo();
-        bool is_hit = false;
-
-        for (int i = 0; i < m_shape.get_triangle_num(); i++) {
-            auto [is_intersect, tmp_info] = m_shape.get_triangle(i).ray_intersect(ray);
-            if (is_intersect) {
-                is_hit = true;
-                if (info.t > tmp_info.t) {
-                    info = tmp_info;
-                }
-            }
-        }
-
-        return {is_hit, info};
-    }
 
     // ================= Octree::Node implementation ====================
 

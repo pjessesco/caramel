@@ -25,19 +25,12 @@
 #include <tuple>
 
 #include <common.h>
-#include <sampler.h>
-#include <shape.h>
-#include <scene.h>
 #include <light.h>
+#include <sampler.h>
+#include <scene.h>
+#include <shape.h>
 
 namespace Caramel{
-
-    // -----------------------------------------------------------------
-
-    Light::Light(const Scene &scene) : m_scene{scene} {}
-
-    // -----------------------------------------------------------------
-
     AreaLight::AreaLight(const Scene &scene, const Vector3f &radiance)
         : Light(scene), m_radiance{radiance} {}
 

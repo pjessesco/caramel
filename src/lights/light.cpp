@@ -22,30 +22,9 @@
 // SOFTWARE.
 //
 
-#pragma once
-
-#include <common.h>
-
-#include <random>
+#include <light.h>
+#include <scene.h>
 
 namespace Caramel{
-
-    class Sampler{
-    public:
-        Sampler() {}
-        virtual Float sample_1d() = 0;
-    };
-
-    class UniformStdSampler : public Sampler{
-    public:
-        explicit UniformStdSampler(int seed);
-        Float sample_1d() override;
-
-    private:
-        std::mt19937 m_gen;
-        std::uniform_real_distribution<Float> m_dis;
-    };
-
-
-
+    Light::Light(const Scene &scene) : m_scene{scene} {}
 }

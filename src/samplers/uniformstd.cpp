@@ -22,30 +22,23 @@
 // SOFTWARE.
 //
 
-#pragma once
+#include <random>
 
 #include <common.h>
-
-#include <random>
+#include <sampler.h>
 
 namespace Caramel{
 
-    class Sampler{
-    public:
-        Sampler() {}
-        virtual Float sample_1d() = 0;
-    };
+    UniformStdSampler::UniformStdSampler(int seed) {
+        m_gen = std::mt19937(seed);
+        m_dis = std::uniform_real_distribution<Float>(Float0, Float1);
+    }
 
-    class UniformStdSampler : public Sampler{
-    public:
-        explicit UniformStdSampler(int seed);
-        Float sample_1d() override;
-
-    private:
-        std::mt19937 m_gen;
-        std::uniform_real_distribution<Float> m_dis;
-    };
-
-
-
+    Float UniformStdSampler::sample_1d() {
+        Float ret = m_dis(m_gen);
+        while(ret == Float1){
+            ret = m_dis(m_gen);
+        }
+        return ret;
+    }
 }

@@ -22,30 +22,17 @@
 // SOFTWARE.
 //
 
-#pragma once
-
-#include <common.h>
-
-#include <random>
+#include <integrators.h>
+#include <light.h>
+#include <progress.h>
+#include <scene.h>
 
 namespace Caramel{
+    DepthIntegrator::DepthIntegrator(const Scene &scene) : Integrator(scene) {}
 
-    class Sampler{
-    public:
-        Sampler() {}
-        virtual Float sample_1d() = 0;
-    };
-
-    class UniformStdSampler : public Sampler{
-    public:
-        explicit UniformStdSampler(int seed);
-        Float sample_1d() override;
-
-    private:
-        std::mt19937 m_gen;
-        std::uniform_real_distribution<Float> m_dis;
-    };
-
-
-
+    Vector3f DepthIntegrator::get_pixel_value(Float i, Float j, Sampler &sampler) {
+        const Ray ray = m_scene.m_cam.sample_ray(i, j);
+        auto [is_hit, info] = m_scene.ray_intersect(ray);
+        return is_hit ? Vector3f(info.t, info.t, info.t) : Vector3f();
+    }
 }
