@@ -13,13 +13,24 @@ include_directories(include)
 set(SOURCES
         main.cpp
         src/aabb.cpp
-        src/acceleration.cpp
+        src/bsdfs/diffuse.cpp
         src/camera.cpp
         src/image.cpp
-        src/integrators.cpp
-        src/light.cpp
+        src/integrators/depth.cpp
+        src/integrators/direct.cpp
+        src/integrators/hitpos.cpp
+        src/integrators/integrators.cpp
+        src/integrators/normal.cpp
+        src/integrators/uv.cpp
+        src/lights/area.cpp
+        src/lights/light.cpp
+        src/mesh_accel/naive.cpp
+        src/mesh_accel/octree.cpp
+        src/samplers/uniformstd.cpp
         src/scene.cpp
-        src/shape.cpp)
+        src/shapes/objmesh.cpp
+        src/shapes/shape.cpp
+        src/shapes/triangle.cpp)
 
 set(HEADERS
         include/aabb.h
@@ -38,7 +49,7 @@ set(HEADERS
         include/scene.h
         include/shape.h
         include/transform.h
-        include/warp_sample.h)
+        include/warp_sample.h )
 
 add_executable(caramel
         ${SOURCES}

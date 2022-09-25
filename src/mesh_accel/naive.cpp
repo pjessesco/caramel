@@ -22,30 +22,39 @@
 // SOFTWARE.
 //
 
-#pragma once
+#include <vector>
 
+#include <aabb.h>
 #include <common.h>
-
-#include <random>
+#include <parallel_for.h>
+#include <ray.h>
+#include <rayintersectinfo.h>
+#include <shape.h>
 
 namespace Caramel{
+    Naive::Naive(const OBJMesh &shape) : AccelerationMesh(shape) {}
 
-    class Sampler{
-    public:
-        Sampler() {}
-        virtual Float sample_1d() = 0;
-    };
+    void Naive::build() {}
 
-    class UniformStdSampler : public Sampler{
-    public:
-        explicit UniformStdSampler(int seed);
-        Float sample_1d() override;
+    std::tuple<bool, RayIntersectInfo> Naive::ray_intersect(const Ray &ray) {
+        if(!(std::get<0>(m_shape.get_aabb().ray_intersect(ray)))){
+            return {false, RayIntersectInfo()};
+        }
 
-    private:
-        std::mt19937 m_gen;
-        std::uniform_real_distribution<Float> m_dis;
-    };
+        RayIntersectInfo info = RayIntersectInfo();
+        bool is_hit = false;
 
+        for (int i = 0; i < m_shape.get_triangle_num(); i++) {
+            auto [is_intersect, tmp_info] = m_shape.get_triangle(i).ray_intersect(ray);
+            if (is_intersect) {
+                is_hit = true;
+                if (info.t > tmp_info.t) {
+                    info = tmp_info;
+                }
+            }
+        }
 
-
+        return {is_hit, info};
+    }
 }
+
