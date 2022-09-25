@@ -114,4 +114,7 @@ namespace Caramel{
         std::vector<Vector3i> m_tex_coord_indices;
     };
 
+    // u, v, t
+    std::tuple<Float, Float, Float> moeller_trumbore(const Ray &ray, const Vector3f p0, const Vector3f p1, const Vector3f p2);
+
 }

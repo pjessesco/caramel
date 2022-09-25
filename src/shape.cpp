@@ -88,34 +88,16 @@ namespace Caramel {
 
     // u, v, t
     std::tuple<bool, RayIntersectInfo> Triangle::ray_intersect(const Ray &ray) const {
-        const Vector3f D = ray.m_d;
 
-        const Vector3f T = ray.m_o - m_p0;
-        const Vector3f E1 = m_p1 - m_p0;
-        const Vector3f E2 = m_p2 - m_p0;
+        auto [u, v, t] = moeller_trumbore(ray, m_p0, m_p1, m_p2);
 
-        const Vector3f DE2 = cross(D, E2);
-
-        const Float denom_inv = static_cast<Float>(1) / DE2.dot(E1);
-
-        const Vector3f TE1 = cross(T, E1);
-        const Float v = TE1.dot(D) * denom_inv;
-        if (v < Float0 || Float1 < v) {
-            return {false, RayIntersectInfo()};
-        }
-
-        const Float u = DE2.dot(T) * denom_inv;
-        if (u < Float0 || Float1 < u + v) {
-            return {false, RayIntersectInfo()};
-        }
-
-        const Float t = TE1.dot(E2) * denom_inv;
-        if(t < ray.m_min_t){
+        if(u==-Float1 && v==-Float1 && t==-Float1){
             return {false, RayIntersectInfo()};
         }
 
         // Intersect
         Vector3f hitpos = interpolate(m_p0, m_p1, m_p2, u, v);
+
 
         RayIntersectInfo ret;
         ret.p = hitpos;
@@ -128,6 +110,8 @@ namespace Caramel {
             ret.sh_coord = Coordinate(shn.normalize());
         }
         else{
+            const Vector3f E1 = m_p1 - m_p0;
+            const Vector3f E2 = m_p2 - m_p0;
             ret.sh_coord = Coordinate(cross(E1, E2).normalize());
         }
 
@@ -281,5 +265,39 @@ namespace Caramel {
                             m_vertices[m_vertex_indices[i][1]],
                             m_vertices[m_vertex_indices[i][2]]);
         }
+    }
+
+    std::tuple<Float, Float, Float> moeller_trumbore(const Ray &ray, const Vector3f p0, const Vector3f p1, const Vector3f p2){
+        const Vector3f D = ray.m_d;
+
+        const Vector3f T = ray.m_o - p0;
+        const Vector3f E1 = p1 - p0;
+        const Vector3f E2 = p2 - p0;
+
+        const Vector3f DE2 = cross(D, E2);
+
+        const Float denom = DE2.dot(E1);
+        if(std::abs(denom) < EPSILON){
+            return {-Float1, -Float1, -Float1};
+        }
+        const Float denom_inv = static_cast<Float>(1) / DE2.dot(E1);
+
+        const Vector3f TE1 = cross(T, E1);
+        const Float v = TE1.dot(D) * denom_inv;
+        if (v < Float0 || Float1 < v) {
+            return {-Float1, -Float1, -Float1};
+        }
+
+        const Float u = DE2.dot(T) * denom_inv;
+        if (u < Float0 || Float1 < u + v) {
+            return {-Float1, -Float1, -Float1};
+        }
+
+        const Float t = TE1.dot(E2) * denom_inv;
+        if(t <= ray.m_min_t){
+            return {-Float1, -Float1, -Float1};
+        }
+
+        return {u, v, t};
     }
 }
