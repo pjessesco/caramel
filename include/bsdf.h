@@ -35,11 +35,14 @@ namespace Caramel{
     class BSDF{
     public:
         virtual ~BSDF() = default;
-        // Given incoming dir, returns sampled recursive ray direction, and reflectance * cos / pdf
+        // Given incoming dir, returns sampled recursive ray direction, and reflectance * cos / pdf if non-discrete.
         virtual std::tuple<Vector3f, Vector3f> sample_recursive_dir(const Vector3f &local_incoming_dir, Sampler &sampler) = 0;
 
         // Given incoming & outgoing dir, returns reflectance
         virtual Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) = 0;
+
+        // Returns whether bsdf is discrete (mirror, etc) or continuous (diffuse, etc).
+        virtual bool is_discrete() const = 0;
     };
 
     class Diffuse : public BSDF{
@@ -47,10 +50,17 @@ namespace Caramel{
         explicit Diffuse(const Vector3f &albedo = Vector3f{Float0_5, Float0_5, Float0_5});
         std::tuple<Vector3f, Vector3f> sample_recursive_dir(const Vector3f &, Sampler &sampler) override;
         Vector3f get_reflection(const Vector3f &, const Vector3f &) override;
-
+        bool is_discrete() const override;
     private:
         Vector3f m_albedo;
     };
 
+    class Mirror : public BSDF{
+    public:
+        explicit Mirror();
+        std::tuple<Vector3f, Vector3f> sample_recursive_dir(const Vector3f &local_incoming_dir, Sampler &) override;
+        Vector3f get_reflection(const Vector3f &, const Vector3f &) override;
+        bool is_discrete() const override;
+    };
 
 }

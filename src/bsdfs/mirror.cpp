@@ -27,20 +27,18 @@
 #include <warp_sample.h>
 
 namespace Caramel{
-    Diffuse::Diffuse(const Vector3f &albedo)
-        : m_albedo{albedo} {}
+    Mirror::Mirror() = default;
 
-    std::tuple<Vector3f, Vector3f> Diffuse::sample_recursive_dir(const Vector3f &, Sampler &sampler) {
-        auto [local_outgoing, dir_pdf] = sample_unit_hemisphere_cosine(sampler);
-        return {local_outgoing, m_albedo};
+    std::tuple<Vector3f, Vector3f> Mirror::sample_recursive_dir(const Vector3f &local_incoming_dir, Sampler &){
+        return {{local_incoming_dir[0], local_incoming_dir[1], -local_incoming_dir[2]}, vec3f_one};
     }
 
-    Vector3f Diffuse::get_reflection(const Vector3f &, const Vector3f &) {
-        return m_albedo * PI_INV;
+    Vector3f Mirror::get_reflection(const Vector3f &, const Vector3f &){
+        return vec3f_zero;
     }
 
-    bool Diffuse::is_discrete() const{
-        return false;
+    bool Mirror::is_discrete() const{
+        return true;
     }
 
 }

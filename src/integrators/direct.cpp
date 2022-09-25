@@ -31,11 +31,27 @@ namespace Caramel{
 
     // Different with albedo precisely...
     Vector3f DirectIntegrator::get_pixel_value(Float i, Float j, Sampler &sampler) {
-        const Ray ray = m_scene.m_cam.sample_ray(i, j);
-        auto [is_hit, info] = m_scene.ray_intersect(ray);
+        Ray ray = m_scene.m_cam.sample_ray(i, j);
+        RayIntersectInfo info;
+        bool is_hit;
+        std::tie(is_hit, info) = m_scene.ray_intersect(ray);
 
         if(!is_hit){
-            return Vector3f{Float0, Float0, Float0};
+            return vec3f_zero;
+        }
+
+        // traverse recursive ray until non-discrete bsdf is met
+        Float recursive_pdf = Float1;
+        while(m_scene.m_meshes[info.idx]->m_bsdf->is_discrete()){
+            auto [recursive_dir, _] = m_scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(info.sh_coord.to_local(ray.m_d), sampler);
+            ray = Ray(info.p, info.sh_coord.to_world(recursive_dir));
+            if(sampler.sample_1d() < static_cast<Float>(0.95)){
+                std::tie(is_hit, info) = m_scene.ray_intersect(ray);
+                recursive_pdf *= 0.95;
+            }
+            else{
+                return vec3f_zero;
+            }
         }
 
         if(m_scene.m_meshes[info.idx]->is_light()){
@@ -57,7 +73,7 @@ namespace Caramel{
             Vector3f fr = m_scene.m_meshes[info.idx]->m_bsdf->get_reflection(local_incoming_dir, local_outgoing_dir);
 
             Float geo = light_n.dot(-1 * hitpos_to_light_world_normal) * info.sh_coord.m_world_n.dot(hitpos_to_light_world_normal) / dist_square;
-            Float pdf = light_pdf * light_pos_pdf;
+            Float pdf = light_pdf * light_pos_pdf * recursive_pdf;
 
             return mult_ewise(fr, emitted_rad) * geo / pdf;
         }
@@ -76,7 +92,7 @@ namespace Caramel{
 
             Vector3f rad = m_scene.m_meshes[recursive_info.idx]->m_arealight->radiance();
 
-            return mult_ewise(contrib, rad);
+            return mult_ewise(contrib, rad) / recursive_pdf;
         }
     }
 }
