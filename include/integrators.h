@@ -78,5 +78,11 @@ namespace Caramel{
         explicit DirectIntegrator(const Scene &scene);
         Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) override;
     };
+
+    class SelfIntersectionDebugIntegrator : public Integrator{
+    public:
+        explicit SelfIntersectionDebugIntegrator(const Scene &scene);
+        Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) override;
+    };
 }
 

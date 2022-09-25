@@ -138,22 +138,6 @@ namespace Caramel{
 
             auto [emitted_rad, light_pos, light_n, light_pos_pdf] = light->sample_contribution(info.p, sampler);
 
-            {
-                Vector3f target_pos = Vector3f(270.0f, 548.7f, 275.0f);
-                const Ray recursive_ray{info.p, target_pos - info.p};
-                auto [is_hit_recursive, info_recursive] = m_scene.ray_intersect(recursive_ray);
-                if(!is_hit_recursive){
-                    return Vector3f{Float1, Float0, Float0};
-                }
-                // self intersection
-                if(info_recursive.idx == info.idx){
-                    return Vector3f{Float0, info_recursive.t, Float0};
-                }
-                return Vector3f{Float0, Float0, Float1};
-
-            }
-
-
             const Vector3f local_incoming_dir = info.sh_coord.to_local(ray.m_d);
             const Vector3f hitpos_to_light_world = light_pos - info.p;
             const Float dist_square = hitpos_to_light_world.dot(hitpos_to_light_world);
@@ -186,5 +170,34 @@ namespace Caramel{
 
             return mult_ewise(contrib, rad);
         }
+    }
+
+    SelfIntersectionDebugIntegrator::SelfIntersectionDebugIntegrator(const Scene &scene) : Integrator(scene) {}
+
+    Vector3f SelfIntersectionDebugIntegrator::get_pixel_value(Float i, Float j, Sampler &sampler) {
+        const Ray ray = m_scene.m_cam.sample_ray(i, j);
+        auto [is_hit, info] = m_scene.ray_intersect(ray);
+
+        if(!is_hit){
+            return Vector3f{Float0, Float0, Float0};
+        }
+
+        if(m_scene.m_meshes[info.idx]->is_light()){
+            return m_scene.m_meshes[info.idx]->m_arealight->radiance();
+        }
+
+        Vector3f target_pos = Vector3f(270.0f, 548.7f, 275.0f);
+        const Ray recursive_ray{info.p, target_pos - info.p};
+        auto [is_hit_recursive, info_recursive] = m_scene.ray_intersect(recursive_ray);
+        if(!is_hit_recursive){
+            return Vector3f{Float1, Float0, Float0};
+        }
+        // self intersection
+        if(info_recursive.idx == info.idx){
+            return Vector3f{Float0, info_recursive.t, Float0};
+        }
+
+        return Vector3f{Float0, Float0, Float1};
+        
     }
 }
