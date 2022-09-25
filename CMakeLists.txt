@@ -14,6 +14,7 @@ set(SOURCES
         main.cpp
         src/aabb.cpp
         src/bsdfs/diffuse.cpp
+        src/bsdfs/mirror.cpp
         src/camera.cpp
         src/image.cpp
         src/integrators/depth.cpp
@@ -49,7 +50,7 @@ set(HEADERS
         include/scene.h
         include/shape.h
         include/transform.h
-        include/warp_sample.h )
+        include/warp_sample.h)
 
 add_executable(caramel
         ${SOURCES}

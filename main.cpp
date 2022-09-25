@@ -180,7 +180,7 @@ int main() {
         scene.add_mesh(greenwall);
 
         auto largebox = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_largebox.obj");
-        largebox->m_bsdf = std::make_unique<Diffuse>(Vector3f{0.5f, 0.2f, 0.7f});
+        largebox->m_bsdf = std::make_unique<Mirror>();
         scene.add_mesh(largebox);
 
         auto luminaire_obj = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_luminaire.obj");
