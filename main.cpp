@@ -166,7 +166,6 @@ int main() {
                            {0.0f, 1.0f, 0.0f},
                            600, 600, 39.3077));
 
-
         auto back = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_back.obj");
         scene.add_mesh(back);
 
@@ -177,9 +176,11 @@ int main() {
         scene.add_mesh(floor);
 
         auto greenwall = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_greenwall.obj");
+        greenwall->m_bsdf = std::make_unique<Diffuse>(Vector3f{0.0f, 1.0f, 0.0f});
         scene.add_mesh(greenwall);
 
         auto largebox = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_largebox.obj");
+        largebox->m_bsdf = std::make_unique<Diffuse>(Vector3f{0.5f, 0.2f, 0.7f});
         scene.add_mesh(largebox);
 
         auto luminaire_obj = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_luminaire.obj");
@@ -190,9 +191,11 @@ int main() {
 
 
         auto redwall = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_redwall.obj");
+        redwall->m_bsdf = std::make_unique<Diffuse>(Vector3f{1.0f, 0.0f, 0.0f});
         scene.add_mesh(redwall);
 
         auto smallbox = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_smallbox.obj");
+        smallbox->m_bsdf = std::make_unique<Diffuse>(Vector3f{0.6f, 0.3f, 0.4f});
         scene.add_mesh(smallbox);
 
         DirectIntegrator integrator{scene};
