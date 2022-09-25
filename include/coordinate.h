@@ -58,7 +58,7 @@ namespace Caramel{
             return Matrix33f::from_cols(m_axis1, m_axis2, m_world_n) * local_vec;
         }
 
-        Vector3f to_local(const Vector3f &world_vec){
+        Vector3f to_local(const Vector3f &world_vec) const{
             return Peanut::Inverse(Matrix33f::from_cols(m_axis1, m_axis2, m_world_n)) * world_vec;
         }
 

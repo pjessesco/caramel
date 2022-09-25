@@ -24,7 +24,6 @@
 
 #include <integrators.h>
 #include <light.h>
-#include <progress.h>
 #include <scene.h>
 
 namespace Caramel{

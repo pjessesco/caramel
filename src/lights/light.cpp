@@ -23,7 +23,6 @@
 //
 
 #include <light.h>
-#include <scene.h>
 
 namespace Caramel{
     Light::Light(const Scene &scene) : m_scene{scene} {}
