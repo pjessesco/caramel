@@ -24,6 +24,7 @@
 
 #include <filesystem>
 #include <tuple>
+#include <algorithm>
 
 #include <shape.h>
 #include <logger.h>
@@ -89,7 +90,7 @@ namespace Caramel {
     // u, v, t
     std::tuple<bool, RayIntersectInfo> Triangle::ray_intersect(const Ray &ray) const {
 
-        auto [u, v, t] = moeller_trumbore(ray, m_p0, m_p1, m_p2);
+        auto [u, v, t] = waterright_intersection(ray, m_p0, m_p1, m_p2);
 
         if(u==-Float1 && v==-Float1 && t==-Float1){
             return {false, RayIntersectInfo()};
@@ -299,5 +300,80 @@ namespace Caramel {
         }
 
         return {u, v, t};
+    }
+
+    // https://jcgt.org/published/0002/01/05/paper.pdf
+    std::tuple<Float, Float, Float> waterright_intersection(const Ray &ray, const Vector3f p0, const Vector3f p1, const Vector3f p2){
+
+        // Shift vertices
+        Vector3f _p0 = p0 - ray.m_o;
+        Vector3f _p1 = p1 - ray.m_o;
+        Vector3f _p2 = p2 - ray.m_o;
+
+        // Permute to make z value largest.
+        Index largest_idx = ray.m_d[0] > ray.m_d[1] ?
+                                ray.m_d[0] > ray.m_d[2] ?
+                                    0 :
+                                    2
+                                : ray.m_d[1] > ray.m_d[2] ?
+                                    1 :
+                                    2;
+        Index rest1, rest2;
+
+        switch (largest_idx) {
+            case 0:
+                rest1 = 1;
+                rest2 = 2;
+                break;
+            case 1:
+                rest1 = 2;
+                rest2 = 0;
+                break;
+            case 2:
+                rest1 = 0;
+                rest2 = 1;
+                break;
+        }
+
+        _p0 = {_p0[rest1], _p0[rest2], _p0[largest_idx]};
+        _p1 = {_p1[rest1], _p1[rest2], _p1[largest_idx]};
+        _p2 = {_p2[rest1], _p2[rest2], _p2[largest_idx]};
+
+        // Shear
+        const Float sx = -ray.m_d[0] / ray.m_d[2];
+        const Float sy = -ray.m_d[1] / ray.m_d[2];
+        const Float sz = Float1 / ray.m_d[2];
+
+        _p0[0] += sx * _p0[2];
+        _p0[1] += sy * _p0[2];
+        _p1[0] += sx * _p1[2];
+        _p1[1] += sy * _p1[2];
+        _p2[0] += sx * _p2[2];
+        _p2[1] += sy * _p2[2];
+
+        const Matrix33f M{Float1, Float0, sx,
+                          Float0, Float1, sy,
+                          Float0, Float0, sz};
+
+        const Float U = _p2[0] * _p1[1] - _p2[1] * _p1[0];
+        const Float V = _p0[0] * _p2[1] - _p0[1] * _p2[0];
+        const Float W = _p1[0] * _p0[1] - _p1[1] * _p0[0];
+
+        if(U<0 || V<0 || W<0){
+            return {-1, -1, -1};
+        }
+
+        const Float det = U + V + W;
+        if(std::abs(det)<EPSILON){
+            return {-1, -1, -1};
+        }
+
+        const Float T = U * _p0[2] + V * _p1[2] + W * _p2[2];
+
+        if(T < EPSILON){
+            return {-1, -1, -1};
+        }
+        return {U/det, V/det, T/det};
+
     }
 }
