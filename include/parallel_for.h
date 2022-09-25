@@ -35,7 +35,7 @@
 
 namespace Caramel{
 
-    constexpr int THREAD_NUM = 1;
+    constexpr int THREAD_NUM = 10;
 
     inline void parallel_for(int start_idx, int end_idx, std::function<void(int)> func){
 
