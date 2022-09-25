@@ -40,7 +40,7 @@ namespace Caramel{
         Scene m_scene;
 
     private:
-        static constexpr Index SPP = 1;
+        static constexpr Index SPP = 100;
     };
 
     class DepthIntegrator : public Integrator{

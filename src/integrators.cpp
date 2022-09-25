@@ -133,25 +133,23 @@ namespace Caramel{
         }
 
         // Direct light sampling
-        if(true){
+        if constexpr(true){
             auto [light, light_pdf] = m_scene.sample_light(sampler);
 
             auto [emitted_rad, light_pos, light_n, light_pos_pdf] = light->sample_contribution(info.p, sampler);
 
             const Vector3f local_incoming_dir = info.sh_coord.to_local(ray.m_d);
             const Vector3f hitpos_to_light_world = light_pos - info.p;
+            const Vector3f hitpos_to_light_world_normal = hitpos_to_light_world.normalize();
             const Float dist_square = hitpos_to_light_world.dot(hitpos_to_light_world);
             const Vector3f local_outgoing_dir = info.sh_coord.to_local(hitpos_to_light_world.normalize());
 
             Vector3f fr = m_scene.m_meshes[info.idx]->m_bsdf->get_reflection(local_incoming_dir, local_outgoing_dir);
 
-            Float geo = light_n.dot(-1 * hitpos_to_light_world) * info.sh_coord.m_world_n.dot(hitpos_to_light_world) / dist_square;
+            Float geo = light_n.dot(-1 * hitpos_to_light_world_normal) * info.sh_coord.m_world_n.dot(hitpos_to_light_world_normal) / dist_square;
             Float pdf = light_pdf * light_pos_pdf;
 
-            return {light_pdf, light_pdf, light_pdf};
-            // pdf가 왜 천장에도 있지?
             return mult_ewise(fr, emitted_rad) * geo / pdf;
-
         }
 
         // BRDF sampling
@@ -198,6 +196,6 @@ namespace Caramel{
         }
 
         return Vector3f{Float0, Float0, Float1};
-        
+
     }
 }
