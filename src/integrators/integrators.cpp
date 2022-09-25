@@ -34,7 +34,7 @@
 namespace Caramel{
     Integrator::Integrator(Scene scene) : m_scene{std::move(scene)} {}
 
-    Image Integrator::render(){
+    Image Integrator::render(Index spp){
         const Index width = m_scene.m_cam.m_w;
         const Index height = m_scene.m_cam.m_h;
 
@@ -50,10 +50,10 @@ namespace Caramel{
                          UniformStdSampler sampler(i);
                          for(int j=0;j<height;j++){
                              Vector3f rgb = vec3f_zero;
-                             for(Index spp=0;spp<SPP;spp++){
+                             for(Index s=0;s<spp;s++){
                                  rgb = rgb + get_pixel_value(i + sampler.sample_1d(), j + sampler.sample_1d(), sampler);
                              }
-                             rgb = rgb / SPP;
+                             rgb = rgb / spp;
 
                              img.set_pixel_value(i, j, rgb[0], rgb[1], rgb[2]);
                          }

@@ -33,14 +33,11 @@ namespace Caramel{
     class Integrator{
     public:
         explicit Integrator(Scene scene);
-        Image render();
+        Image render(Index spp);
 
     protected:
         virtual Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) = 0;
         Scene m_scene;
-
-    private:
-        static constexpr Index SPP = 100;
     };
 
     class DepthIntegrator : public Integrator{
