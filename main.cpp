@@ -152,14 +152,19 @@ int main() {
 
         {
             DirectIntegrator integrator{scene};
-            Image img = integrator.render(10);
-            img.write_exr(test_scene_path+"case6/caramel_test_direct.exr");
+            Image img = integrator.render(20);
+            img.write_exr(test_scene_path+"case6/caramel_test_brdf.exr");
         }
 
         {
-            PathIntegrator integrator(scene, 5);
-            Image img = integrator.render(100);
-            img.write_exr(test_scene_path+"case6/caramel_test_path.exr");
+            PathIntegrator integrator(scene, 5, true);
+            Image img = integrator.render(500);
+            img.write_exr(test_scene_path+"case6/caramel_test_path_brdf.exr");
+        }
+        {
+            PathIntegrator integrator(scene, 5, false);
+            Image img = integrator.render(10);
+            img.write_exr(test_scene_path+"case6/caramel_test_path_em.exr");
         }
     }
 
