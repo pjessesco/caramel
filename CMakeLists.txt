@@ -31,7 +31,10 @@ set(SOURCES
         src/scene.cpp
         src/shapes/objmesh.cpp
         src/shapes/shape.cpp
-        src/shapes/triangle.cpp)
+        src/shapes/triangle.cpp
+        src/scenes/ajax.cpp
+        src/scenes/bunny.cpp
+        src/scenes/cbox.cpp)
 
 set(HEADERS
         include/aabb.h
