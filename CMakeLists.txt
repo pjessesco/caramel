@@ -23,6 +23,7 @@ set(SOURCES
         src/integrators/integrators.cpp
         src/integrators/normal.cpp
         src/integrators/uv.cpp
+        src/integrators/path.cpp
         src/lights/area.cpp
         src/lights/light.cpp
         src/mesh_accel/naive.cpp

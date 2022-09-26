@@ -150,10 +150,17 @@ int main() {
     if(test6){
         Scene scene = scene_cbox();
 
-        DirectIntegrator integrator{scene};
-        Image img = integrator.render(10);
-        img.write_exr(test_scene_path+"case6/caramel_test_hitpos.exr");
+        {
+            DirectIntegrator integrator{scene};
+            Image img = integrator.render(10);
+            img.write_exr(test_scene_path+"case6/caramel_test_direct.exr");
+        }
 
+        {
+            PathIntegrator integrator(scene, 5);
+            Image img = integrator.render(100);
+            img.write_exr(test_scene_path+"case6/caramel_test_path.exr");
+        }
     }
 
     return 0;
