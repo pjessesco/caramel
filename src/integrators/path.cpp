@@ -27,11 +27,17 @@
 #include <scene.h>
 
 namespace Caramel{
-    PathIntegrator::PathIntegrator(const Scene &scene, Index max_depth) : Integrator(scene), m_max_depth{max_depth} {}
+    PathIntegrator::PathIntegrator(const Scene &scene, Index max_depth, bool brdf_sampling)
+        : Integrator(scene), m_max_depth{max_depth}, m_brdf_sampling(brdf_sampling) {}
 
     // Different with albedo precisely...
     Vector3f PathIntegrator::get_pixel_value(Float i, Float j, Sampler &sampler) {
-        return emitter_sampling_path(i, j, sampler);
+        if(m_brdf_sampling){
+            return brdf_sampling_path(i, j, sampler);
+        }
+        else{
+            return emitter_sampling_path(i, j, sampler);
+        }
     }
 
     Vector3f PathIntegrator::brdf_sampling_path(Float i, Float j, Sampler &sampler){
@@ -41,7 +47,8 @@ namespace Caramel{
         Vector3f current_brdf = vec3f_one;
         Vector3f ret = vec3f_zero;
 
-        for(Index depth=0;depth<m_max_depth;depth++){
+        // Note the loop range difference
+        for(Index depth=0;depth<=m_max_depth;depth++){
             bool is_hit;
             std::tie(is_hit, info) = m_scene.ray_intersect(ray);
 
@@ -84,6 +91,7 @@ namespace Caramel{
                 if(depth == 0 || from_specular){
                     ret = ret + mult_ewise(m_scene.m_meshes[info.idx]->m_arealight->radiance(), current_brdf);
                 }
+                break;
             }
 
             // emiiter sampling

@@ -29,7 +29,6 @@
 namespace Caramel{
     DirectIntegrator::DirectIntegrator(const Scene &scene) : Integrator(scene) {}
 
-    // Different with albedo precisely...
     Vector3f DirectIntegrator::get_pixel_value(Float i, Float j, Sampler &sampler) {
         Ray ray = m_scene.m_cam.sample_ray(i, j);
         RayIntersectInfo info;

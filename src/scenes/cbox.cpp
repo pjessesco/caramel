@@ -14,7 +14,7 @@ namespace Caramel{
         Scene scene(Camera({278.0f, 273.0f, -800.0f},
                            {0.0f, 0.0f, 1.0f},
                            {0.0f, 1.0f, 0.0f},
-                           600, 600, 39.3077));
+                           300, 300, 39.3077));
 
         auto back = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_back.obj");
         scene.add_mesh(back);
@@ -30,7 +30,7 @@ namespace Caramel{
         scene.add_mesh(greenwall);
 
         auto largebox = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_largebox.obj");
-        largebox->m_bsdf = std::make_unique<Mirror>();
+//        largebox->m_bsdf = std::make_unique<Mirror>();
         scene.add_mesh(largebox);
 
         auto luminaire_obj = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_luminaire.obj");
