@@ -31,11 +31,10 @@
 #include <scene.h>
 #include <integrators.h>
 
-#include <Peanut/Peanut.h>
-
 using namespace Caramel;
 
 int main() {
+
     std::string test_scene_path = "/Users/jino/caramel/test_scenes/";
 
     bool test1 = false;
@@ -44,8 +43,6 @@ int main() {
     bool test4 = false;
     bool test5 = false;
     bool test6 = true;
-
-
 
     // Test 1
     if(test1){
@@ -110,12 +107,7 @@ int main() {
 
     // Test 4
     if(test4){
-        Scene scene(Camera({-0.0315182f, 0.284011f, 0.7331f},
-                           {0.0191411f, -0.2299197f, -0.973022f},
-                           {0.00717446f, 0.973206f, -0.229822f},
-                           200, 200, 16));
-
-        scene.add_mesh(std::make_shared<OBJMesh>(test_scene_path + "case4/bunny.obj"));
+        Scene scene = scene_bunny();
 
         {
             DepthIntegrator integrator{scene};
@@ -138,12 +130,7 @@ int main() {
 
     // Test 5
     if(test5){
-        Scene scene(Camera({-65.6055f, 47.5762f, 24.3583f},
-                           {0.7894f, -0.3551f, -0.500699f},
-                           {0.299858f, 0.934836f, -0.190177f},
-                           1000, 1000, 30));
-
-        scene.add_mesh(std::make_shared<OBJMesh>(test_scene_path + "case5/ajax.obj"));
+        Scene scene = scene_ajax();
 
         {
             NormalIntegrator integrator{scene};
@@ -161,42 +148,7 @@ int main() {
 
     // Test 6
     if(test6){
-        Scene scene(Camera({278.0f, 273.0f, -800.0f},
-                           {0.0f, 0.0f, 1.0f},
-                           {0.0f, 1.0f, 0.0f},
-                           600, 600, 39.3077));
-
-        auto back = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_back.obj");
-        scene.add_mesh(back);
-
-        auto ceiling = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_ceiling.obj");
-        scene.add_mesh(ceiling);
-
-        auto floor = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_floor.obj");
-        scene.add_mesh(floor);
-
-        auto greenwall = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_greenwall.obj");
-        greenwall->m_bsdf = std::make_unique<Diffuse>(Vector3f{0.0f, 1.0f, 0.0f});
-        scene.add_mesh(greenwall);
-
-        auto largebox = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_largebox.obj");
-        largebox->m_bsdf = std::make_unique<Mirror>();
-        scene.add_mesh(largebox);
-
-        auto luminaire_obj = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_luminaire.obj");
-        auto luminaire_light = std::make_shared<AreaLight>(scene, Vector3f(30.0f, 30.0f, 30.0f));
-        scene.add_mesh(luminaire_obj);
-        scene.add_light(luminaire_light);
-        scene.enroll_arealight(luminaire_obj, luminaire_light);
-
-
-        auto redwall = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_redwall.obj");
-        redwall->m_bsdf = std::make_unique<Diffuse>(Vector3f{1.0f, 0.0f, 0.0f});
-        scene.add_mesh(redwall);
-
-        auto smallbox = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_smallbox.obj");
-        smallbox->m_bsdf = std::make_unique<Diffuse>(Vector3f{0.6f, 0.3f, 0.4f});
-        scene.add_mesh(smallbox);
+        Scene scene = scene_cbox();
 
         DirectIntegrator integrator{scene};
         Image img = integrator.render(10);

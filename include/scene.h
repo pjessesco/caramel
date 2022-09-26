@@ -50,4 +50,11 @@ namespace Caramel{
         std::vector<std::shared_ptr<Shape>> m_meshes;
         Camera m_cam;
     };
+
+    // Will be removed after scene file implemented
+    Scene scene_cbox();
+    Scene scene_ajax();
+    Scene scene_bunny();
+
+
 }
