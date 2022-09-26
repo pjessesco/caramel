@@ -47,6 +47,9 @@ namespace Caramel{
             ray = Ray(info.p, info.sh_coord.to_world(recursive_dir));
             if(sampler.sample_1d() < static_cast<Float>(0.95)){
                 std::tie(is_hit, info) = m_scene.ray_intersect(ray);
+                if(!is_hit){
+                    return vec3f_zero;
+                }
                 recursive_pdf *= 0.95;
             }
             else{
