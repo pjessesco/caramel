@@ -25,15 +25,18 @@
 #include <common.h>
 #include <bsdf.h>
 #include <warp_sample.h>
+#include <coordinate.h>
 
 namespace Caramel{
     Mirror::Mirror() = default;
 
-    std::tuple<Vector3f, Vector3f> Mirror::sample_recursive_dir(const Vector3f &local_incoming_dir, Sampler &){
-        return {{local_incoming_dir[0], local_incoming_dir[1], -local_incoming_dir[2]}, vec3f_one};
+    std::tuple<Vector3f, Vector3f> Mirror::sample_recursive_dir(const Vector3f &world_incoming_dir, Sampler &, const Coordinate &coord){
+        const Vector3f local_incoming = coord.to_local(world_incoming_dir);
+        const Vector3f local_outgoing{local_incoming[0], local_incoming[1], -local_incoming[2]};
+        return {coord.to_world(local_outgoing), vec3f_one};
     }
 
-    Vector3f Mirror::get_reflection(const Vector3f &, const Vector3f &){
+    Vector3f Mirror::get_reflection(const Vector3f &, const Vector3f &, const Coordinate &coord){
         return vec3f_zero;
     }
 
