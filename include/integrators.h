@@ -72,14 +72,24 @@ namespace Caramel{
 
     class PathIntegrator : public Integrator{
     public:
-        explicit PathIntegrator(const Scene &scene, Index max_depth, bool brdf_sampling);
+
+        enum class SamplingType{
+            BSDF,
+            LIGHT,
+            MIS
+        };
+
+        explicit PathIntegrator(const Scene &scene, Index max_depth, SamplingType sampling_type);
         Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) override;
 
     private:
         Vector3f brdf_sampling_path(Float i, Float j, Sampler &sampler);
         Vector3f emitter_sampling_path(Float i, Float j, Sampler &sampler);
+        Vector3f mis_sampling_path(Float i, Float j, Sampler &sampler);
+
         Index m_max_depth;
         bool m_brdf_sampling;
+        SamplingType m_sampling_type;
     };
 }
 
