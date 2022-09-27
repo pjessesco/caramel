@@ -44,7 +44,8 @@ namespace Caramel{
         redwall->m_bsdf = std::make_unique<Diffuse>(Vector3f{1.0f, 0.0f, 0.0f});
         scene.add_mesh(redwall);
 
-        auto smallbox = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_smallbox.obj");
+        auto smallbox = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_smallbox.obj", translate(100, 0, 0));
+//        smallbox->transform(translate(100, 0, 0));
         smallbox->m_bsdf = std::make_unique<Diffuse>(Vector3f{0.6f, 0.3f, 0.4f});
         scene.add_mesh(smallbox);
 

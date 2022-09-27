@@ -36,15 +36,6 @@ namespace Caramel {
                        const Vector3f &n0, const Vector3f &n1, const Vector3f &n2)
         : m_p0{p0}, m_p1{p1}, m_p2{p2}, m_n0{n0}, m_n1{n1}, m_n2{n2}, is_vn_exists{true} {}
 
-    void Triangle::transform(const Matrix44f &transform) {
-        m_p0 = transform_point(m_p0, transform);
-        m_p1 = transform_point(m_p1, transform);
-        m_p2 = transform_point(m_p2, transform);
-        m_n0 = transform_normal(m_n0, transform);
-        m_n1 = transform_normal(m_n1, transform);
-        m_n2 = transform_normal(m_n2, transform);
-    }
-
     AABB Triangle::get_aabb() const{
         return AABB(Vector3f{std::min({m_p0[0], m_p1[0], m_p2[0]}),
                              std::min({m_p0[1], m_p1[1], m_p2[1]}),
