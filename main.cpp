@@ -151,24 +151,24 @@ int main() {
         Scene scene = scene_cbox();
 
         {
-            DirectIntegrator integrator{scene};
+            DirectIntegrator integrator{scene, SamplingType::LIGHT};
             Image img = integrator.render(20);
             img.write_exr(test_scene_path+"case6/caramel_test_brdf.exr");
         }
 
         {
-            PathIntegrator integrator(scene, 5, PathIntegrator::SamplingType::BSDF);
+            PathIntegrator integrator(scene, 5, SamplingType::BSDF);
             Image img = integrator.render(100);
             img.write_exr(test_scene_path+"case6/caramel_test_path_brdf.exr");
         }
         {
-            PathIntegrator integrator(scene, 5, PathIntegrator::SamplingType::LIGHT);
+            PathIntegrator integrator(scene, 5, SamplingType::LIGHT);
             Image img = integrator.render(100);
             img.write_exr(test_scene_path+"case6/caramel_test_path_em.exr");
         }
 
         {
-            PathIntegrator integrator(scene, 5, PathIntegrator::SamplingType::MIS);
+            PathIntegrator integrator(scene, 5, SamplingType::MIS);
             Image img = integrator.render(100);
             img.write_exr(test_scene_path+"case6/caramel_test_path_mis.exr");
         }

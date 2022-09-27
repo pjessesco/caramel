@@ -30,6 +30,13 @@
 #include <scene.h>
 
 namespace Caramel{
+
+    enum class SamplingType{
+        BSDF,
+        LIGHT,
+        MIS
+    };
+
     class Integrator{
     public:
         explicit Integrator(Scene scene);
@@ -66,20 +73,19 @@ namespace Caramel{
 
     class DirectIntegrator : public Integrator{
     public:
-        explicit DirectIntegrator(const Scene &scene);
+        DirectIntegrator(const Scene &scene, SamplingType sampling_type);
         Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) override;
+
+    private:
+        Vector3f brdf_sampling_direct(Float i, Float j, Sampler &sampler);
+        Vector3f emitter_sampling_direct(Float i, Float j, Sampler &sampler);
+
+        SamplingType m_sampling_type;
     };
 
     class PathIntegrator : public Integrator{
     public:
-
-        enum class SamplingType{
-            BSDF,
-            LIGHT,
-            MIS
-        };
-
-        explicit PathIntegrator(const Scene &scene, Index max_depth, SamplingType sampling_type);
+        PathIntegrator(const Scene &scene, Index max_depth, SamplingType sampling_type);
         Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) override;
 
     private:
