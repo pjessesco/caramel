@@ -36,8 +36,8 @@ namespace Caramel{
     class BSDF{
     public:
         virtual ~BSDF() = default;
-        // Given incoming dir, returns sampled recursive ray direction, and reflectance * cos / pdf if non-discrete.
-        virtual std::tuple<Vector3f, Vector3f> sample_recursive_dir(const Vector3f &world_incoming_dir, Sampler &sampler, const Coordinate &coord) = 0;
+        // Given incoming dir, returns sampled recursive ray direction, reflectance * cos / pdf, and its pdf if non-discrete,
+        virtual std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &world_incoming_dir, Sampler &sampler, const Coordinate &coord) = 0;
 
         // Given incoming & outgoing dir, returns reflectance
         virtual Vector3f get_reflection(const Vector3f &world_incoming_dir, const Vector3f &world_outgoing_dir, const Coordinate &coord) = 0;
@@ -49,7 +49,7 @@ namespace Caramel{
     class Diffuse : public BSDF{
     public:
         explicit Diffuse(const Vector3f &albedo = Vector3f{Float0_5, Float0_5, Float0_5});
-        std::tuple<Vector3f, Vector3f> sample_recursive_dir(const Vector3f &, Sampler &sampler, const Coordinate &coord) override;
+        std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &, Sampler &sampler, const Coordinate &coord) override;
         Vector3f get_reflection(const Vector3f &world_incoming_dir, const Vector3f &world_outgoing_dir, const Coordinate &coord) override;
         bool is_discrete() const override;
     private:
@@ -59,7 +59,7 @@ namespace Caramel{
     class Mirror : public BSDF{
     public:
         explicit Mirror();
-        std::tuple<Vector3f, Vector3f> sample_recursive_dir(const Vector3f &world_incoming_dir, Sampler &, const Coordinate &coord) override;
+        std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &world_incoming_dir, Sampler &, const Coordinate &coord) override;
         Vector3f get_reflection(const Vector3f &world_incoming_dir, const Vector3f &world_outgoing_dir, const Coordinate &coord) override;
         bool is_discrete() const override;
     };
