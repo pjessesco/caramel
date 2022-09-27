@@ -140,12 +140,14 @@ namespace Caramel {
         if(m_vertices.empty()){
             ERROR("OBJ file is not loaded yet");
         }
-        for(auto &m_vertice : m_vertices){
-            m_vertice = transform_point(m_vertice, transform);
+        for(Index i=0;i<m_vertices.size();i++){
+            m_vertices[i] = transform_point(m_vertices[i], transform);
         }
-        for(auto &m_normal : m_normals){
-            m_normal = transform_point(m_normal, transform);
+
+        for(Index i=0;i<m_normals.size();i++){
+            m_normals[i] = transform_normal(m_normals[i], transform);
         }
+        m_accel->build();
     }
 
     AABB OBJMesh::get_aabb() const {

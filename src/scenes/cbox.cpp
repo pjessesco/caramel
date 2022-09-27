@@ -23,6 +23,7 @@ namespace Caramel{
         scene.add_mesh(ceiling);
 
         auto floor = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_floor.obj");
+        floor->m_bsdf = std::make_unique<Diffuse>(Vector3f{0.2f, 0.5f, 0.3f});
         scene.add_mesh(floor);
 
         auto greenwall = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_greenwall.obj");
@@ -30,7 +31,7 @@ namespace Caramel{
         scene.add_mesh(greenwall);
 
         auto largebox = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_largebox.obj");
-//        largebox->m_bsdf = std::make_unique<Mirror>();
+        largebox->m_bsdf = std::make_unique<Mirror>();
         scene.add_mesh(largebox);
 
         auto luminaire_obj = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_luminaire.obj");
@@ -38,7 +39,6 @@ namespace Caramel{
         scene.add_mesh(luminaire_obj);
         scene.add_light(luminaire_light);
         scene.enroll_arealight(luminaire_obj, luminaire_light);
-
 
         auto redwall = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_redwall.obj");
         redwall->m_bsdf = std::make_unique<Diffuse>(Vector3f{1.0f, 0.0f, 0.0f});
