@@ -157,14 +157,20 @@ int main() {
         }
 
         {
-            PathIntegrator integrator(scene, 5, true);
-            Image img = integrator.render(500);
+            PathIntegrator integrator(scene, 5, PathIntegrator::SamplingType::BSDF);
+            Image img = integrator.render(100);
             img.write_exr(test_scene_path+"case6/caramel_test_path_brdf.exr");
         }
         {
-            PathIntegrator integrator(scene, 5, false);
-            Image img = integrator.render(10);
+            PathIntegrator integrator(scene, 5, PathIntegrator::SamplingType::LIGHT);
+            Image img = integrator.render(100);
             img.write_exr(test_scene_path+"case6/caramel_test_path_em.exr");
+        }
+
+        {
+            PathIntegrator integrator(scene, 5, PathIntegrator::SamplingType::MIS);
+            Image img = integrator.render(100);
+            img.write_exr(test_scene_path+"case6/caramel_test_path_mis.exr");
         }
     }
 
