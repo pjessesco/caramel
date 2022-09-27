@@ -34,7 +34,7 @@
 #include "tiny_obj_loader.h"
 
 namespace Caramel {
-    OBJMesh::OBJMesh(const std::filesystem::path &path) {
+    OBJMesh::OBJMesh(const std::filesystem::path &path, const Matrix44f &transform) {
         if (!m_vertices.empty()) {
             ERROR("This mesh already loaded obj file");
         }
@@ -72,44 +72,45 @@ namespace Caramel {
               max_x = -INF, max_y = -INF, max_z = -INF;
 
         for (int i = 0; i < attrib.vertices.size(); i += 3) {
-            min_x = min_x > attrib.vertices[i]     ? attrib.vertices[i]     : min_x;
-            min_y = min_y > attrib.vertices[i + 1] ? attrib.vertices[i + 1] : min_y;
-            min_z = min_z > attrib.vertices[i + 2] ? attrib.vertices[i + 2] : min_z;
+            const Vector3f transformed_point = transform_point({attrib.vertices[i], attrib.vertices[i+1], attrib.vertices[i+2]}, transform);
 
-            max_x = max_x < attrib.vertices[i]     ? attrib.vertices[i]     : max_x;
-            max_y = max_y < attrib.vertices[i + 1] ? attrib.vertices[i + 1] : max_y;
-            max_z = max_z < attrib.vertices[i + 2] ? attrib.vertices[i + 2] : max_z;
+            min_x = min_x > transformed_point[0] ? transformed_point[0] : min_x;
+            min_y = min_y > transformed_point[1] ? transformed_point[1] : min_y;
+            min_z = min_z > transformed_point[2] ? transformed_point[2] : min_z;
 
-            m_vertices.emplace_back(Vector3f(attrib.vertices[i],
-                                             attrib.vertices[i + 1],
-                                             attrib.vertices[i + 2]));
+            max_x = max_x < transformed_point[0] ? transformed_point[0] : max_x;
+            max_y = max_y < transformed_point[1] ? transformed_point[1] : max_y;
+            max_z = max_z < transformed_point[2] ? transformed_point[2] : max_z;
+
+            m_vertices.emplace_back(transformed_point[0],
+                                    transformed_point[1],
+                                    transformed_point[2]);
         }
 
         for (int i = 0; i < attrib.normals.size(); i += 3) {
-            m_normals.emplace_back(Vector3f(attrib.normals[i],
-                                            attrib.normals[i + 1],
-                                            attrib.normals[i + 2]));
+            const Vector3f transformed_normal = transform_normal({attrib.normals[i], attrib.normals[i + 1], attrib.normals[i + 2]}, transform);
+            m_normals.emplace_back(transformed_normal[0], transformed_normal[1], transformed_normal[2]);
         }
 
         for (int i = 0; i < attrib.texcoords.size(); i += 2) {
-            m_tex_coords.emplace_back(Vector2f(attrib.texcoords[i],
-                                               attrib.texcoords[i + 1]));
+            m_tex_coords.emplace_back(attrib.texcoords[i],
+                                      attrib.texcoords[i + 1]);
         }
 
         const auto &indices = shapes[0].mesh.indices;
 
         for (int i = 0; i < indices.size(); i += 3) {
-            m_vertex_indices.emplace_back(Vector3i(indices[i].vertex_index,
-                                                   indices[i + 1].vertex_index,
-                                                   indices[i + 2].vertex_index));
+            m_vertex_indices.emplace_back(indices[i].vertex_index,
+                                          indices[i + 1].vertex_index,
+                                          indices[i + 2].vertex_index);
 
-            m_normal_indices.emplace_back(Vector3i(indices[i].normal_index,
-                                                   indices[i + 1].normal_index,
-                                                   indices[i + 2].normal_index));
+            m_normal_indices.emplace_back(indices[i].normal_index,
+                                          indices[i + 1].normal_index,
+                                          indices[i + 2].normal_index);
 
-            m_tex_coord_indices.emplace_back(Vector3i(indices[i].texcoord_index,
-                                                      indices[i + 1].texcoord_index,
-                                                      indices[i + 2].texcoord_index));
+            m_tex_coord_indices.emplace_back(indices[i].texcoord_index,
+                                             indices[i + 1].texcoord_index,
+                                             indices[i + 2].texcoord_index);
         }
 
         std::vector<Float> triangle_area_vec;
@@ -134,20 +135,6 @@ namespace Caramel {
 
     std::tuple<bool, RayIntersectInfo> OBJMesh::ray_intersect(const Ray &ray) const {
         return m_accel->ray_intersect(ray);
-    }
-
-    void OBJMesh::transform(const Matrix44f &transform) {
-        if(m_vertices.empty()){
-            ERROR("OBJ file is not loaded yet");
-        }
-        for(Index i=0;i<m_vertices.size();i++){
-            m_vertices[i] = transform_point(m_vertices[i], transform);
-        }
-
-        for(Index i=0;i<m_normals.size();i++){
-            m_normals[i] = transform_normal(m_normals[i], transform);
-        }
-        m_accel->build();
     }
 
     AABB OBJMesh::get_aabb() const {

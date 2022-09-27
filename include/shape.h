@@ -44,7 +44,7 @@ namespace Caramel{
     struct Shape{
         explicit Shape(std::unique_ptr<BSDF> bsdf = std::make_unique<Diffuse>());
         virtual ~Shape() = default;
-        virtual void transform(const Matrix44f &transform) = 0;
+
         // u, v, t
         virtual std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const = 0;
         virtual AABB get_aabb() const = 0;
@@ -69,7 +69,6 @@ namespace Caramel{
 
         // u, v, t
         std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
-        void transform(const Matrix44f &transform) override;
         AABB get_aabb() const override;
         Float get_area() const override;
         // point, normal, probability
@@ -85,10 +84,9 @@ namespace Caramel{
     };
 
     struct OBJMesh : Shape{
-        explicit OBJMesh(const std::filesystem::path &path);
+        OBJMesh(const std::filesystem::path &path, const Matrix44f &transform = Matrix44f::identity());
 
         std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
-        void transform(const Matrix44f &transform) override;
         AABB get_aabb() const override;
         Float get_area() const override;
         // point, normal, probability
