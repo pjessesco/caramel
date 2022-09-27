@@ -61,7 +61,7 @@ namespace Caramel{
             }
 
             // brdf sample
-            auto [recursive_dir, sampled_brdf] = m_scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
+            auto [recursive_dir, sampled_brdf, brdf_pdf] = m_scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
             current_brdf = mult_ewise(current_brdf, sampled_brdf);
 
             ray = Ray(info.p, recursive_dir);
@@ -111,7 +111,7 @@ namespace Caramel{
 
 
             // brdf sampling
-            auto [recursive_dir, sampled_brdf] = m_scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
+            auto [recursive_dir, sampled_brdf, brdf_pdf] = m_scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
             current_brdf = mult_ewise(current_brdf, sampled_brdf);
             from_specular = m_scene.m_meshes[info.idx]->m_bsdf->is_discrete();
 

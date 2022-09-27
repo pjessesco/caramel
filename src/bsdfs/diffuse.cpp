@@ -31,9 +31,9 @@ namespace Caramel{
     Diffuse::Diffuse(const Vector3f &albedo)
         : m_albedo{albedo} {}
 
-    std::tuple<Vector3f, Vector3f> Diffuse::sample_recursive_dir(const Vector3f &, Sampler &sampler, const Coordinate &coord) {
+    std::tuple<Vector3f, Vector3f, Float> Diffuse::sample_recursive_dir(const Vector3f &, Sampler &sampler, const Coordinate &coord) {
         auto [local_outgoing, dir_pdf] = sample_unit_hemisphere_cosine(sampler);
-        return {coord.to_world(local_outgoing), m_albedo};
+        return {coord.to_world(local_outgoing), m_albedo, dir_pdf};
     }
 
     Vector3f Diffuse::get_reflection(const Vector3f &, const Vector3f &, const Coordinate &coord) {

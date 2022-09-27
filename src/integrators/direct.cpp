@@ -42,7 +42,7 @@ namespace Caramel{
         // traverse recursive ray until non-discrete bsdf is met
         Float recursive_pdf = Float1;
         while(m_scene.m_meshes[info.idx]->m_bsdf->is_discrete()){
-            auto [recursive_dir, _] = m_scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
+            auto [recursive_dir, _, __] = m_scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
             ray = Ray(info.p, recursive_dir);
             if(sampler.sample_1d() < static_cast<Float>(0.95)){
                 std::tie(is_hit, info) = m_scene.ray_intersect(ray);
@@ -80,7 +80,7 @@ namespace Caramel{
 
         // BRDF sampling
         else{
-            auto [world_outgoing, contrib] = m_scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
+            auto [world_outgoing, contrib, _] = m_scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
 
             const Ray recursive_ray(info.p, world_outgoing);
 
