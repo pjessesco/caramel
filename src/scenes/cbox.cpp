@@ -14,7 +14,7 @@ namespace Caramel{
         Scene scene(Camera({278.0f, 273.0f, -800.0f},
                            {0.0f, 0.0f, 1.0f},
                            {0.0f, 1.0f, 0.0f},
-                           300, 300, 39.3077));
+                           1000, 1000, 39.3077));
 
         auto back = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_back.obj");
         scene.add_mesh(back);
@@ -23,7 +23,7 @@ namespace Caramel{
         scene.add_mesh(ceiling);
 
         auto floor = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_floor.obj");
-        floor->m_bsdf = std::make_unique<Diffuse>(Vector3f{0.2f, 0.5f, 0.3f});
+        floor->m_bsdf = std::make_unique<Diffuse>(Vector3f{0.2f, 0.1f, 0.6f});
         scene.add_mesh(floor);
 
         auto greenwall = std::make_shared<OBJMesh>(test_scene_path + "case6/meshes/cbox_greenwall.obj");
