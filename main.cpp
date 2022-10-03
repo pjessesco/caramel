@@ -37,73 +37,10 @@ int main() {
 
     std::string test_scene_path = "/Users/jino/caramel/test_scenes/";
 
-    bool test1 = false;
-    bool test2 = false;
-    bool test3 = false;
     bool test4 = false;
     bool test5 = false;
     bool test6 = true;
-
-    // Test 1
-    if(test1){
-        Scene scene(Camera({0.0f, 0.0f, 0.0f},
-                           {0.0f, 0.0f, 1.0f},
-                           {0.0f, 1.0f, 0.0f},
-                           500, 500, 50));
-
-        scene.add_mesh(std::make_shared<OBJMesh>(test_scene_path + "case1/object.obj"));
-
-        {
-            DepthIntegrator integrator{scene};
-            Image img = integrator.render(1);
-            img.write_exr(test_scene_path+"case1/caramel_test1.exr");
-        }
-        {
-            UVIntegrator integrator2{scene};
-            Image img2 = integrator2.render(1);
-            img2.write_exr(test_scene_path+"case1/caramel_test1_uv.exr");
-        }
-        {
-            NormalIntegrator integrator2{scene};
-            Image img2 = integrator2.render(1);
-            img2.write_exr(test_scene_path+"case1/caramel_test1_normal.exr");
-        }
-    }
-
-    std::cout<<"===================================="<<std::endl;
-
-    // Test 2
-    if(test2){
-        Scene scene(Camera({0.0f, 0.0f, -2.0f},
-                           {0.0f, 0.0f, 1.0f},
-                           {0.0f, 1.0f, 0.0f},
-                           500, 500, 50));
-        scene.add_mesh(std::make_shared<OBJMesh>(test_scene_path + "case2/object.obj"));
-
-        DepthIntegrator integrator{scene};
-
-        Image img = integrator.render(1);
-        img.write_exr(test_scene_path+"case2/caramel_test2.exr");
-    }
-
-    std::cout<<"===================================="<<std::endl;
-
-    // Test 3
-    if(test3){
-        Scene scene(Camera({0.536078f, -0.536043f, -2.50343f},
-                           {-0.008999f, 0.009001f, 0.99992f},
-                           {8.1006e-05f, 0.99996f, -0.00900047f},
-                           500, 500, 50));
-
-        scene.add_mesh(std::make_shared<OBJMesh>(test_scene_path + "case3/object.obj"));
-
-        DepthIntegrator integrator{scene};
-
-        Image img = integrator.render(1);
-        img.write_exr(test_scene_path+"case3/caramel_test3.exr");
-    }
-
-    std::cout<<"===================================="<<std::endl;
+    bool test7 = true;
 
     // Test 4
     if(test4){
@@ -112,21 +49,19 @@ int main() {
         {
             DepthIntegrator integrator{scene};
             Image img = integrator.render(1);
-            img.write_exr(test_scene_path+"case4/caramel_test4.exr");
+            img.write_exr(test_scene_path+"bunny/caramel_test4.exr");
         }
         {
             NormalIntegrator integrator{scene};
             Image img = integrator.render(1);
-            img.write_exr(test_scene_path+"case4/caramel_test_normal.exr");
+            img.write_exr(test_scene_path+"bunny/caramel_test_normal.exr");
         }
         {
             HitPosIntegrator integrator{scene};
             Image img = integrator.render(1);
-            img.write_exr(test_scene_path+"case4/caramel_test_hitpos.exr");
+            img.write_exr(test_scene_path+"bunny/caramel_test_hitpos.exr");
         }
     }
-
-    std::cout<<"===================================="<<std::endl;
 
     // Test 5
     if(test5){
@@ -135,44 +70,30 @@ int main() {
         {
             NormalIntegrator integrator{scene};
             Image img = integrator.render(1);
-            img.write_exr(test_scene_path+"case5/caramel_test_normal.exr");
+            img.write_exr(test_scene_path+"ajax/caramel_test_normal.exr");
         }
         {
             HitPosIntegrator integrator{scene};
             Image img = integrator.render(1);
-            img.write_exr(test_scene_path+"case5/caramel_test_hitpos.exr");
+            img.write_exr(test_scene_path+"ajax/caramel_test_hitpos.exr");
         }
     }
-
-    std::cout<<"===================================="<<std::endl;
 
     // Test 6
     if(test6){
-        Scene scene = scene_cbox();
-
-        {
-            DirectIntegrator integrator{scene, SamplingType::LIGHT};
-            Image img = integrator.render(20);
-            img.write_exr(test_scene_path+"case6/caramel_test_brdf.exr");
-        }
-
+        Scene scene = scene_cbox_complex();
         {
             PathIntegrator integrator(scene, 5, SamplingType::BSDF);
-            Image img = integrator.render(100);
-            img.write_exr(test_scene_path+"case6/caramel_test_path_brdf.exr");
+            Image img = integrator.render(10);
+            img.write_exr(test_scene_path+"cbox/caramel_test_path_brdf.exr");
         }
         {
             PathIntegrator integrator(scene, 5, SamplingType::LIGHT);
-            Image img = integrator.render(100);
-            img.write_exr(test_scene_path+"case6/caramel_test_path_em.exr");
-        }
-
-        {
-            PathIntegrator integrator(scene, 5, SamplingType::MIS);
-            Image img = integrator.render(100);
-            img.write_exr(test_scene_path+"case6/caramel_test_path_mis.exr");
+            Image img = integrator.render(10);
+            img.write_exr(test_scene_path+"cbox/caramel_test_path_em.exr");
         }
     }
+
 
     return 0;
 }
