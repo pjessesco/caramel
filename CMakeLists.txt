@@ -35,7 +35,8 @@ set(SOURCES
         src/shapes/triangle.cpp
         src/scenes/ajax.cpp
         src/scenes/bunny.cpp
-        src/scenes/cbox.cpp)
+        src/scenes/cbox.cpp
+        src/scenes/logo1.cpp)
 
 set(HEADERS
         include/aabb.h

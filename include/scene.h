@@ -53,8 +53,11 @@ namespace Caramel{
 
     // Will be removed after scene file implemented
     Scene scene_cbox();
+    Scene scene_cbox2();
+    Scene scene_cbox_complex();
     Scene scene_ajax();
     Scene scene_bunny();
+    Scene scene_logo1();
 
 
 }

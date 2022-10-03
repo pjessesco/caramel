@@ -1,0 +1,25 @@
+<scene version="3.0.0">
+    <integrator type="normal"/>
+
+    <sensor type="perspective">
+        <float name="fov" value="30"/>
+        <float name="near_clip" value="0.00000000000001"/>
+        <transform name="to_world">
+            <lookat target="-64.8161, 47.2211, 23.8576"
+                    origin="-65.6055, 47.5762, 24.3583"
+                    up="0.299858, 0.934836, -0.190177"/>
+        </transform>
+        <sampler type="independent">  <!-- ldsampler -->
+            <integer name="sample_count" value="1"/>
+        </sampler>
+        <film type="hdrfilm">
+            <integer name="width" value="500"/>
+            <integer name="height" value="500"/>
+            <rfilter type="box"/>
+        </film>
+    </sensor>
+    
+    <shape type="obj">
+        <string name="filename" value="ajax.obj"/>
+    </shape>
+</scene>

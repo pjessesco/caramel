@@ -16,7 +16,7 @@ namespace Caramel{
                            {0.00717446f, 0.973206f, -0.229822f},
                            200, 200, 16));
 
-        scene.add_mesh(std::make_shared<OBJMesh>(test_scene_path + "case4/bunny.obj"));
+        scene.add_mesh(std::make_shared<OBJMesh>(test_scene_path + "bunny/bunny.obj"));
         return scene;
     }
 }
