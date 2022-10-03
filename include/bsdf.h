@@ -33,6 +33,17 @@
 
 namespace Caramel{
 
+    // Commonly used functions for bsdfs
+
+    // Snell's Law : eta_i * sin_i = eta_t * sin_t
+    // Calculate `sin_t` using above equation.
+    Float snell_get_sin_t(Float sin_i, Float eta_i, Float eta_t);
+
+    // Calculate fresnel reflectance for unpolarized light.
+    Float fresnel_dielectric(Float cos_i, Float eta_i, Float eta_t);
+
+
+    // Class definitions
     class BSDF{
     public:
         virtual ~BSDF() = default;
@@ -62,6 +73,25 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &world_incoming_dir, Sampler &, const Coordinate &coord) override;
         Vector3f get_reflection(const Vector3f &world_incoming_dir, const Vector3f &world_outgoing_dir, const Coordinate &coord) override;
         bool is_discrete() const override;
+    };
+
+    class Dielectric : public BSDF{
+    public:
+        static constexpr Float IOR_VACUUM       = static_cast<Float>(1.0);
+        static constexpr Float IOR_ICE          = static_cast<Float>(1.31);
+        static constexpr Float IOR_FUSED_QUARTZ = static_cast<Float>(1.46);
+        static constexpr Float IOR_GLASS        = static_cast<Float>(1.55);
+        static constexpr Float IOR_SAPPHIRE     = static_cast<Float>(1.77);
+        static constexpr Float IOR_DIAMOND      = static_cast<Float>(2.42);
+
+        Dielectric(Float in_ior = IOR_GLASS, Float ex_ior = IOR_VACUUM);
+        std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &world_incoming_dir, Sampler &, const Coordinate &coord) override;
+        Vector3f get_reflection(const Vector3f &world_incoming_dir, const Vector3f &world_outgoing_dir, const Coordinate &coord) override;
+        bool is_discrete() const override;
+
+    private:
+        Float m_in_index_of_refraction;
+        Float m_ex_index_of_refraction;
     };
 
 }

@@ -55,7 +55,7 @@ set(HEADERS
         include/scene.h
         include/shape.h
         include/transform.h
-        include/warp_sample.h)
+        include/warp_sample.h src/bsdfs/dielectric.cpp src/bsdfs/bsdf.cpp)
 
 add_executable(caramel
         ${SOURCES}
