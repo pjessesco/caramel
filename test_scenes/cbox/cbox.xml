@@ -1,6 +1,6 @@
 <scene version="3.0.0">
     <default name="spp" value="128"/>
-    <default name="res" value="256"/>
+    <default name="res" value="1000"/>
     <default name="max_depth" value="6"/>
 
     <integrator type="path">
@@ -9,9 +9,8 @@
 
     <sensor type="perspective">
         <string name="fov_axis" value="smaller"/>
-        <float name="near_clip" value="10"/>
+        <float name="near_clip" value="0.0000000001"/>
         <float name="far_clip" value="2800"/>
-        <float name="focus_distance" value="1000"/>
         <float name="fov" value="39.3077"/>
         <transform name="to_world">
             <lookat origin="278, 273, -800"
@@ -33,7 +32,6 @@
         <transform name="to_world">
             <translate x="0" y="-0.5" z="0"/>
         </transform>
-        <ref id="light"/>
         <emitter type="area">
             <rgb name="radiance" value="30, 30, 30"/>
         </emitter>
@@ -72,13 +70,32 @@
     <shape type="obj">
         <string name="filename" value="meshes/cbox_smallbox.obj"/>
         <bsdf type="dielectric">
-            <rgb name="r"/>
+            <float name="int_ior" value="1.55"/>
+            <float name="ext_ior" value="1.0"/>
         </bsdf>
+        <transform name="to_world">
+			<scale x="0.5" y="0.5" z="0.5"/>
+			<translate x="200" y="0" z="0"/>
+		</transform>
     </shape>
     <shape type="obj">
         <string name="filename" value="meshes/cbox_largebox.obj"/>
-        <bsdf type="diffuse">
-            <rgb name="reflectance" value="0.2, 0.1, 0.6"/>
+        <bsdf type="conductor">
+            <string name="material" value="none"/>
         </bsdf>
+        <transform name="to_world">
+			<translate x="40" y="0" z="40"/>
+		</transform>
+    </shape>
+    <shape type="obj">
+        <string name="filename" value="meshes/ajax.obj"/>
+        <bsdf type="diffuse">
+            <rgb name="reflectance" value="0.2, 0.2, 0.7"/>
+        </bsdf>
+        <transform name="to_world">
+            <rotate y="1" angle="90"/>
+			<scale x="3" y="3" z="3"/>
+			<translate x="350" y="80" z="117"/>
+		</transform>
     </shape>
 </scene>

@@ -28,20 +28,36 @@
 #include <coordinate.h>
 
 namespace Caramel{
-    Mirror::Mirror() = default;
 
-    std::tuple<Vector3f, Vector3f, Float> Mirror::sample_recursive_dir(const Vector3f &world_incoming_dir, Sampler &, const Coordinate &coord){
-        const Vector3f local_incoming = coord.to_local(world_incoming_dir);
-        const Vector3f local_outgoing{local_incoming[0], local_incoming[1], -local_incoming[2]};
-        return {coord.to_world(local_outgoing), vec3f_one, Float0};
+    // Snell's Law : eta_i * sin_i = eta_t * sin_t
+    // Calculate `sin_t` using above equation.
+    Float snell_get_sin_t(Float sin_i, Float eta_i, Float eta_t) {
+        assert(sin_i >= Float0);
+        return eta_i * sin_i / eta_t;
     }
 
-    Vector3f Mirror::get_reflection(const Vector3f &, const Vector3f &, const Coordinate &){
-        return vec3f_zero;
+    // Calculate fresnel reflectance for unpolarized light.
+    Float fresnel_dielectric(Float cos_i, Float eta_i, Float eta_t) {
+        assert(Float0 <= cos_i && cos_i <= Float1);
+
+        const Float sin_i = sqrt(Float1 - (cos_i * cos_i));
+        const Float sin_t = snell_get_sin_t(sin_i, eta_i, eta_t);
+
+        // Total reflection
+        if(sin_t >= Float1) return Float1;
+
+        const Float cos_t = sqrt(Float1 - (sin_t * sin_t));
+
+        const Float eta_t_cos_t = eta_t * cos_t;
+        const Float eta_t_cos_i = eta_t * cos_i;
+        const Float eta_i_cos_t = eta_i * cos_t;
+        const Float eta_i_cos_i = eta_i * cos_i;
+
+        const Float r_parallel = (eta_t_cos_i - eta_i_cos_t) / (eta_t_cos_i + eta_i_cos_t);
+        const Float r_perpendicular = (eta_i_cos_i - eta_t_cos_t) / (eta_i_cos_i + eta_t_cos_t);
+
+        return (r_parallel * r_parallel + r_perpendicular * r_perpendicular) * static_cast<Float>(0.5);
     }
 
-    bool Mirror::is_discrete() const{
-        return true;
-    }
 
 }
