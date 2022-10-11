@@ -50,10 +50,10 @@ namespace Caramel{
             local_incoming_cos *= -1;
         }
 
-        const Float reflect_ratio = fresnel_dielectric(local_incoming_cos, in_ior, ex_ior);
+        const Float reflect_ratio = fresnel_dielectric(local_incoming_cos, ex_ior, in_ior);
 
         if(sampler.sample_1d() <= reflect_ratio){
-            const Vector3f local_outgoing = local_incoming + (-2 * local_incoming.dot(n) * n);
+            const Vector3f local_outgoing{local_incoming[0], local_incoming[1], -local_incoming[2]};
             return {coord.to_world(local_outgoing), vec3f_one, Float0};
         }
         else{
@@ -62,7 +62,7 @@ namespace Caramel{
             const Float sin_t = snell_get_sin_t(sin_i, ex_ior, in_ior);
             const Float cos_t = sqrt(1 - (sin_t * sin_t));
             const Vector3f local_outgoing_dir = eta_ratio * local_incoming + (eta_ratio * n.dot(-1 * local_incoming) - cos_t) * n;
-            return {coord.to_world(local_outgoing_dir), vec3f_one, Float0};
+            return {coord.to_world(local_outgoing_dir), vec3f_one /* TODO : Fix */, Float0};
         }
 
     }
