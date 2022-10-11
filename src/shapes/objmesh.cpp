@@ -125,9 +125,7 @@ namespace Caramel {
         m_triangle_pdf = Distrib1D(triangle_area_vec);
 
         m_aabb = AABB({min_x, min_y, min_z}, {max_x, max_y, max_z});
-        std::cout<<"aabb min : "<<m_aabb.m_min << ", aabb max : "<< m_aabb.m_max<<std::endl;
-        std::cout<<"centre : "<<(m_aabb.m_min + m_aabb.m_max)/2 <<std::endl;
-
+        
         LOG(" - Loading complete");
         LOG(" - Building accelation structure...");
         m_accel = std::make_unique<Octree>(*this);
