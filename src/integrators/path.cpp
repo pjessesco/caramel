@@ -97,20 +97,22 @@ namespace Caramel{
             }
 
             // emiiter sampling
-            auto [light, light_pdf] = m_scene.sample_light(sampler);
-            auto [emitted_rad, light_pos, light_n, light_pos_pdf] = light->sample_contribution(info.p, sampler);
+            const bool is_current_specular = m_scene.m_meshes[info.idx]->m_bsdf->is_discrete();
+            if(!is_current_specular){
+                auto [light, light_pdf] = m_scene.sample_light(sampler);
+                auto [emitted_rad, light_pos, light_n, light_pos_pdf] = light->sample_contribution(info.p, sampler);
 
-            const Vector3f hitpos_to_light_world = light_pos - info.p;
-            const Vector3f hitpos_to_light_world_normal = hitpos_to_light_world.normalize();
-            const Float dist_square = hitpos_to_light_world.dot(hitpos_to_light_world);
+                const Vector3f hitpos_to_light_world = light_pos - info.p;
+                const Vector3f hitpos_to_light_world_normal = hitpos_to_light_world.normalize();
+                const Float dist_square = hitpos_to_light_world.dot(hitpos_to_light_world);
 
-            Vector3f fr = m_scene.m_meshes[info.idx]->m_bsdf->get_reflection(ray.m_d, hitpos_to_light_world.normalize(), info.sh_coord);
+                Vector3f fr = m_scene.m_meshes[info.idx]->m_bsdf->get_reflection(ray.m_d, hitpos_to_light_world.normalize(), info.sh_coord);
 
-            Float geo = light_n.dot(-1 * hitpos_to_light_world_normal) * info.sh_coord.m_world_n.dot(hitpos_to_light_world_normal) / dist_square;
-            Float pdf = light_pdf * light_pos_pdf;
+                Float geo = light_n.dot(-1 * hitpos_to_light_world_normal) * info.sh_coord.m_world_n.dot(hitpos_to_light_world_normal) / dist_square;
+                Float pdf = light_pdf * light_pos_pdf;
 
-            ret = ret + mult_ewise(mult_ewise(fr, emitted_rad), current_brdf) * geo / pdf;
-
+                ret = ret + mult_ewise(mult_ewise(fr, emitted_rad), current_brdf) * geo / pdf;
+            }
 
             // brdf sampling
             auto [recursive_dir, sampled_brdf, brdf_pdf] = m_scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
