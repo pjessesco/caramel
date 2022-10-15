@@ -30,6 +30,7 @@
 #include <queue>
 #include <numeric>
 #include <semaphore>
+#include <functional>
 
 #include <common.h>
 
