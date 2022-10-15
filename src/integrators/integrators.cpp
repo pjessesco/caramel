@@ -23,6 +23,7 @@
 //
 
 #include <chrono>
+#include <functional>
 
 #include <image.h>
 #include <integrators.h>

@@ -45,7 +45,7 @@ namespace Caramel {
 
         tinyobj::ObjReader reader;
         // `triangulate` option is true by default
-        if (!reader.ParseFromFile(path, tinyobj::ObjReaderConfig())) {
+        if (!reader.ParseFromFile(path.string(), tinyobj::ObjReaderConfig())) {
             if (!reader.Error().empty()) {
                 ERROR("TinyObjReader error : " + reader.Error());
             }
