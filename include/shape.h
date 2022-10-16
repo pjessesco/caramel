@@ -56,12 +56,12 @@ namespace Caramel{
             return m_arealight != nullptr;
         }
 
+        std::unique_ptr<BSDF> m_bsdf;
         // Shape can have arealight only
         std::shared_ptr<AreaLight> m_arealight;
-        std::unique_ptr<BSDF> m_bsdf;
     };
 
-    struct Triangle : Shape{
+    struct Triangle final : Shape{
         Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2);
 
         Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2,
@@ -83,7 +83,7 @@ namespace Caramel{
         const bool is_vn_exists;
     };
 
-    struct OBJMesh : Shape{
+    struct OBJMesh final : Shape{
         OBJMesh(const std::filesystem::path &path, const Matrix44f &transform = Matrix44f::identity());
 
         std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;

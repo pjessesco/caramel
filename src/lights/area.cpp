@@ -34,6 +34,8 @@ namespace Caramel{
     AreaLight::AreaLight(const Scene &scene, const Vector3f &radiance)
         : Light(scene), m_radiance{radiance} {}
 
+    AreaLight::~AreaLight() = default;
+
     Vector3f AreaLight::radiance() const{
         return m_radiance;
     }

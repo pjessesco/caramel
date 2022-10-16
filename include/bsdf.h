@@ -57,7 +57,7 @@ namespace Caramel{
         virtual bool is_discrete() const = 0;
     };
 
-    class Diffuse : public BSDF{
+    class Diffuse final : public BSDF{
     public:
         explicit Diffuse(const Vector3f &albedo = Vector3f{Float0_5, Float0_5, Float0_5});
         std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &, Sampler &sampler, const Coordinate &coord) override;
@@ -67,7 +67,7 @@ namespace Caramel{
         Vector3f m_albedo;
     };
 
-    class Mirror : public BSDF{
+    class Mirror final : public BSDF{
     public:
         explicit Mirror();
         std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &world_incoming_dir, Sampler &, const Coordinate &coord) override;
@@ -75,7 +75,7 @@ namespace Caramel{
         bool is_discrete() const override;
     };
 
-    class Dielectric : public BSDF{
+    class Dielectric final : public BSDF{
     public:
         static constexpr Float IOR_VACUUM       = static_cast<Float>(1.0);
         static constexpr Float IOR_ICE          = static_cast<Float>(1.31);
