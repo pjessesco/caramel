@@ -24,8 +24,6 @@
 
 #pragma once
 
-#include <cmath>
-
 #include <common.h>
 
 namespace Caramel{
