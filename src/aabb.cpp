@@ -23,10 +23,10 @@
 //
 #include <cmath>
 
+#include <aabb.h>
 #include <common.h>
 #include <logger.h>
 #include <ray.h>
-#include <aabb.h>
 
 namespace Caramel{
     AABB::AABB() = default;
