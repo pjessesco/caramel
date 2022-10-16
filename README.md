@@ -1,5 +1,11 @@
 # Caramel
 
+[![Build (macOS, AppleClang)](https://github.com/pjessesco/caramel/actions/workflows/build_macos_appleclang.yml/badge.svg)](https://github.com/pjessesco/caramel/actions/workflows/build_macos_appleclang.yml)
+[![Build (macOS, Clang)](https://github.com/pjessesco/caramel/actions/workflows/build_macos_clang.yml/badge.svg)](https://github.com/pjessesco/caramel/actions/workflows/build_macos_clang.yml)
+[![Build (Windows, Clang)](https://github.com/pjessesco/caramel/actions/workflows/build_windows_clang.yml/badge.svg)](https://github.com/pjessesco/caramel/actions/workflows/build_windows_clang.yml)
+[![Build (Windows, MSVC)](https://github.com/pjessesco/caramel/actions/workflows/build_windows_msvc.yml/badge.svg)](https://github.com/pjessesco/caramel/actions/workflows/build_windows_msvc.yml)
+
+
 Caramel is a physically-based offline renderer for studying myself based on [Peanut](https://github.com/pjessesco/peanut). 
 
 ## Features
