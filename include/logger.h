@@ -86,21 +86,21 @@ namespace Caramel {
     };
 }
 
-#define ERROR(msg) do {                                  \
+#define CRM_ERROR(msg) do {                                  \
     Caramel::Logger::print_err(__FILE__, __LINE__, msg); \
     throw std::runtime_error("error");                   \
 } while (0);
 
-#define LOG(msg) do {                                    \
+#define CRM_LOG(msg) do {                                    \
     Caramel::Logger::print_log(__FILE__, __LINE__, msg); \
 } while (0);
 
-#define WARNING(msg) do {                                 \
+#define CRM_WARNING(msg) do {                                 \
     Caramel::Logger::print_warn(__FILE__, __LINE__, msg); \
 } while (0);
 
 
 #define NOT_IMPLEMENTED() do{         \
-    ERROR("NOT IMPLEMENTED") \
+    CRM_ERROR"NOT IMPLEMENTED") \
 } while(0);
 
