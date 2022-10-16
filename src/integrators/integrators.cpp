@@ -43,7 +43,7 @@ namespace Caramel{
 
         ProgressBar progress_bar(width);
 
-        LOG("Render start...");
+        CRM_LOG("Render start...");
 
         auto time1 = std::chrono::high_resolution_clock::now();
 
@@ -62,7 +62,7 @@ namespace Caramel{
                      }));
 
         auto time2 = std::chrono::high_resolution_clock::now();
-        LOG("Render done in " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(time2 - time1).count() / 1000.0f) + " seconds");
+        CRM_LOG("Render done in " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(time2 - time1).count() / 1000.0f) + " seconds");
 
         return img;
     }
