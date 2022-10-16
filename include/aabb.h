@@ -28,8 +28,8 @@
 
 namespace Caramel{
 
-    class Triangle;
-    class Ray;
+    struct Triangle;
+    struct Ray;
 
     struct AABB {
         AABB();

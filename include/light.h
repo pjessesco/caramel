@@ -29,8 +29,8 @@
 #include <common.h>
 
 namespace Caramel{
-    class Scene;
-    class Shape;
+    struct Scene;
+    struct Shape;
     class Sampler;
 
     class Light{
@@ -44,9 +44,11 @@ namespace Caramel{
         const Scene &m_scene;
     };
 
-    class AreaLight : public Light{
+    class AreaLight final : public Light{
     public:
         AreaLight(const Scene &scene, const Vector3f &radiance);
+        ~AreaLight();
+        
         Vector3f radiance() const override;
         std::tuple<Vector3f, Vector3f, Vector3f, Float> sample_contribution(const Vector3f &hitpos, Sampler &sampler) override;
 
