@@ -36,10 +36,10 @@
 namespace Caramel {
     OBJMesh::OBJMesh(const std::filesystem::path &path, const Matrix44f &transform) {
         if (!m_vertices.empty()) {
-            ERROR("This mesh already loaded obj file");
+            CRM_ERROR("This mesh already loaded obj file");
         }
         if (!std::filesystem::exists(path)) {
-            ERROR(path.string() + " is not exists");
+            CRM_ERROR(path.string() + " is not exists");
         }
         std::string err;
 
@@ -47,23 +47,23 @@ namespace Caramel {
         // `triangulate` option is true by default
         if (!reader.ParseFromFile(path.string(), tinyobj::ObjReaderConfig())) {
             if (!reader.Error().empty()) {
-                ERROR("TinyObjReader error : " + reader.Error());
+                CRM_ERROR("TinyObjReader error : " + reader.Error());
             }
-            ERROR("Cannot read obj file");
+            CRM_ERROR("Cannot read obj file");
         }
 
         const auto &attrib = reader.GetAttrib();
         const auto &shapes = reader.GetShapes();
         const auto &mats = reader.GetMaterials();
 
-        LOG("Loading obj in " + path.string());
+        CRM_LOG("Loading obj in " + path.string());
         if (shapes.size() != 1) {
-            ERROR("We do not support obj file with several shapes");
+            CRM_ERROR("We do not support obj file with several shapes");
         }
-        LOG(" - # of vertices : " + std::to_string(attrib.vertices.size() / 3));
-        LOG(" - # of normals : " + std::to_string(attrib.normals.size() / 3));
-        LOG(" - # of faces : " + std::to_string(shapes[0].mesh.indices.size() / 3));
-        LOG(" - # of texture coordinates : " + std::to_string(attrib.texcoords.size()));
+        CRM_LOG(" - # of vertices : " + std::to_string(attrib.vertices.size() / 3));
+        CRM_LOG(" - # of normals : " + std::to_string(attrib.normals.size() / 3));
+        CRM_LOG(" - # of faces : " + std::to_string(shapes[0].mesh.indices.size() / 3));
+        CRM_LOG(" - # of texture coordinates : " + std::to_string(attrib.texcoords.size()));
 
         is_vn_exists = !attrib.normals.empty();
 
@@ -126,11 +126,11 @@ namespace Caramel {
 
         m_aabb = AABB({min_x, min_y, min_z}, {max_x, max_y, max_z});
         
-        LOG(" - Loading complete");
-        LOG(" - Building accelation structure...");
+        CRM_LOG(" - Loading complete");
+        CRM_LOG(" - Building accelation structure...");
         m_accel = std::make_unique<Octree>(*this);
         m_accel->build();
-        LOG(" - Done.");
+        CRM_LOG(" - Done.");
     }
 
     std::tuple<bool, RayIntersectInfo> OBJMesh::ray_intersect(const Ray &ray) const {
