@@ -47,31 +47,31 @@ namespace Caramel{
         Scene m_scene;
     };
 
-    class DepthIntegrator : public Integrator{
+    class DepthIntegrator final : public Integrator{
     public:
         explicit DepthIntegrator(const Scene &scene);
         Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) override;
     };
 
-    class UVIntegrator : public Integrator{
+    class UVIntegrator final : public Integrator{
     public:
         explicit UVIntegrator(const Scene &scene);
         Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) override;
     };
 
-    class HitPosIntegrator : public Integrator{
+    class HitPosIntegrator final : public Integrator{
     public:
         explicit HitPosIntegrator(const Scene &scene);
         Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) override;
     };
 
-    class NormalIntegrator : public Integrator{
+    class NormalIntegrator final : public Integrator{
     public:
         explicit NormalIntegrator(const Scene &scene);
         Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) override;
     };
 
-    class DirectIntegrator : public Integrator{
+    class DirectIntegrator final : public Integrator{
     public:
         DirectIntegrator(const Scene &scene, SamplingType sampling_type);
         Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) override;
@@ -83,7 +83,7 @@ namespace Caramel{
         SamplingType m_sampling_type;
     };
 
-    class PathIntegrator : public Integrator{
+    class PathIntegrator final : public Integrator{
     public:
         PathIntegrator(const Scene &scene, Index max_depth, SamplingType sampling_type);
         Vector3f get_pixel_value(Float i, Float j, Sampler &sampler) override;

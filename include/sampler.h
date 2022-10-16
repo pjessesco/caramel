@@ -36,7 +36,7 @@ namespace Caramel{
         virtual Float sample_1d() = 0;
     };
 
-    class UniformStdSampler : public Sampler{
+    class UniformStdSampler final : public Sampler{
     public:
         explicit UniformStdSampler(int seed);
         Float sample_1d() override;
