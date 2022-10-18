@@ -33,7 +33,7 @@ namespace Caramel{
 
     Image::Image(unsigned int width, unsigned int height)
         : m_width(width), m_height(height) {
-        m_data.reserve(width*height*CHANNEL_NUM);
+        m_data.resize(width*height*CHANNEL_NUM);
     }
 
     void Image::write_exr(const std::string &filename){
