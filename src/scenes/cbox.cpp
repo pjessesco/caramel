@@ -9,7 +9,7 @@
 
 namespace Caramel{
     Scene scene_cbox_complex(){
-        std::string test_scene_path = "/Users/jino/caramel/test_scenes/";
+        std::string test_scene_path = "../test_scenes/";
 
         Scene scene(Camera({278.0f, 273.0f, -800.0f},
                            {0.0f, 0.0f, 1.0f},

@@ -35,64 +35,19 @@ using namespace Caramel;
 
 int main() {
 
-    std::string test_scene_path = "/Users/jino/caramel/test_scenes/";
-
-    bool test4 = false;
-    bool test5 = false;
-    bool test6 = true;
-    bool test7 = true;
-
-    // Test 4
-    if(test4){
-        Scene scene = scene_bunny();
-
-        {
-            DepthIntegrator integrator{scene};
-            Image img = integrator.render(1);
-            img.write_exr(test_scene_path+"bunny/caramel_test4.exr");
-        }
-        {
-            NormalIntegrator integrator{scene};
-            Image img = integrator.render(1);
-            img.write_exr(test_scene_path+"bunny/caramel_test_normal.exr");
-        }
-        {
-            HitPosIntegrator integrator{scene};
-            Image img = integrator.render(1);
-            img.write_exr(test_scene_path+"bunny/caramel_test_hitpos.exr");
-        }
-    }
-
-    // Test 5
-    if(test5){
-        Scene scene = scene_ajax();
-
-        {
-            NormalIntegrator integrator{scene};
-            Image img = integrator.render(1);
-            img.write_exr(test_scene_path+"ajax/caramel_test_normal.exr");
-        }
-        {
-            HitPosIntegrator integrator{scene};
-            Image img = integrator.render(1);
-            img.write_exr(test_scene_path+"ajax/caramel_test_hitpos.exr");
-        }
-    }
-
     // Test 6
-    if(test6){
-        Scene scene = scene_cbox_complex();
-        {
-            PathIntegrator integrator(scene, 5, SamplingType::BSDF);
-            Image img = integrator.render(10);
-            img.write_exr(test_scene_path+"cbox/caramel_test_path_brdf.exr");
-        }
-        {
-            PathIntegrator integrator(scene, 5, SamplingType::LIGHT);
-            Image img = integrator.render(10);
-            img.write_exr(test_scene_path+"cbox/caramel_test_path_em.exr");
-        }
+    Scene scene = scene_cbox_complex();
+    {
+        PathIntegrator integrator(scene, 5, SamplingType::BSDF);
+        Image img = integrator.render(10);
+        img.write_exr("../test_scenes/cbox/caramel_test_path_brdf.exr");
     }
+    {
+        PathIntegrator integrator(scene, 5, SamplingType::LIGHT);
+        Image img = integrator.render(10);
+        img.write_exr("../test_scenes/cbox/caramel_test_path_em.exr");
+    }
+
 
 
     return 0;
