@@ -98,7 +98,7 @@ namespace Caramel{
         std::array<Index, 8> sorted_idx{0,1,2,3,4,5,6,7};
         std::sort(sorted_idx.begin(), sorted_idx.end(),
                   [&](Index a, Index b)->bool{
-                      return std::get<1>(m_childs[a].m_aabb.ray_intersect(ray)) <= std::get<1>(m_childs[b].m_aabb.ray_intersect(ray));
+                      return std::get<1>(m_childs[a].m_aabb.ray_intersect(ray)) < std::get<1>(m_childs[b].m_aabb.ray_intersect(ray));
                   });
 
         for(auto i : sorted_idx){
