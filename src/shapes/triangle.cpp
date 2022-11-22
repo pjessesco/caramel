@@ -30,11 +30,11 @@
 
 namespace Caramel {
     Triangle::Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2)
-        : m_p0{p0}, m_p1{p1}, m_p2{p2}, is_vn_exists{false} {}
+        : Shape(nullptr), m_p0{p0}, m_p1{p1}, m_p2{p2}, is_vn_exists{false} {}
 
     Triangle::Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2,
                        const Vector3f &n0, const Vector3f &n1, const Vector3f &n2)
-        : m_p0{p0}, m_p1{p1}, m_p2{p2}, m_n0{n0}, m_n1{n1}, m_n2{n2}, is_vn_exists{true} {}
+        : Shape(nullptr), m_p0{p0}, m_p1{p1}, m_p2{p2}, m_n0{n0}, m_n1{n1}, m_n2{n2}, is_vn_exists{true} {}
 
     AABB Triangle::get_aabb() const{
         return AABB(Vector3f{std::min({m_p0[0], m_p1[0], m_p2[0]}),

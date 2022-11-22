@@ -18,33 +18,33 @@ namespace Caramel{
                            {0.0f, 1.0f, 0.0f},
                            1000, 1000, 39.3077));
 
-        auto floor = std::make_shared<OBJMesh>(test_scene_path + "logo/meshes/cbox_floor.obj");
+        auto floor = std::make_shared<OBJMesh>(test_scene_path + "logo/meshes/cbox_floor.obj", std::make_unique<Diffuse>());
         floor->m_bsdf = std::make_unique<Diffuse>(Vector3f{0.2f, 0.1f, 0.6f});
         scene.add_mesh(floor);
 
         {
-            auto ch1 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/a_large.obj");
-            auto ch2 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/a_small.obj");
+            auto ch1 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/a_large.obj", std::make_unique<Diffuse>());
+            auto ch2 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/a_small.obj", std::make_unique<Diffuse>());
         }
         {
-            auto ch1 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/c_large.obj");
-            auto ch2 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/c_small.obj");
+            auto ch1 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/c_large.obj", std::make_unique<Diffuse>());
+            auto ch2 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/c_small.obj", std::make_unique<Diffuse>());
         }
         {
-            auto ch1 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/e_large.obj");
-            auto ch2 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/e_small.obj");
+            auto ch1 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/e_large.obj", std::make_unique<Diffuse>());
+            auto ch2 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/e_small.obj", std::make_unique<Diffuse>());
         }
         {
-            auto ch1 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/l_large.obj");
-            auto ch2 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/l_small.obj");
+            auto ch1 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/l_large.obj", std::make_unique<Diffuse>());
+            auto ch2 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/l_small.obj", std::make_unique<Diffuse>());
         }
         {
-            auto ch1 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/m_large.obj");
-            auto ch2 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/m_small.obj");
+            auto ch1 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/m_large.obj", std::make_unique<Diffuse>());
+            auto ch2 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/m_small.obj", std::make_unique<Diffuse>());
         }
         {
-            auto ch1 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/r_large.obj");
-            auto ch2 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/r_small.obj");
+            auto ch1 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/r_large.obj", std::make_unique<Diffuse>());
+            auto ch2 = std::make_shared<OBJMesh>(test_scene_path + "logo/font1/r_small.obj", std::make_unique<Diffuse>());
         }
 
 
