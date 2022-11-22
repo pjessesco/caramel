@@ -44,15 +44,13 @@ namespace Caramel{
 
     Vector3f PathIntegrator::brdf_sampling_path(Float i, Float j, Sampler &sampler){
         Ray ray = m_scene.m_cam.sample_ray(i, j);
-        RayIntersectInfo info;
 
         Vector3f current_brdf = vec3f_one;
         Vector3f ret = vec3f_zero;
 
         // Note the loop range difference
         for(Index depth=0;depth<=m_max_depth;depth++){
-            bool is_hit;
-            std::tie(is_hit, info) = m_scene.ray_intersect(ray);
+            auto [is_hit, info] = m_scene.ray_intersect(ray);
 
             if(!is_hit){
                 return vec3f_zero;
@@ -72,18 +70,15 @@ namespace Caramel{
         return ret;
     }
 
-
     Vector3f PathIntegrator::emitter_sampling_path(Float i, Float j, Sampler &sampler){
         Ray ray = m_scene.m_cam.sample_ray(i, j);
-        RayIntersectInfo info;
 
         Vector3f current_brdf = vec3f_one;
         Vector3f ret = vec3f_zero;
         bool from_specular = true;
 
         for(Index depth=0;depth<m_max_depth;depth++){
-            bool is_hit;
-            std::tie(is_hit, info) = m_scene.ray_intersect(ray);
+            auto [is_hit, info] = m_scene.ray_intersect(ray);
 
             if(!is_hit){
                 break;
@@ -106,16 +101,16 @@ namespace Caramel{
                 const Vector3f hitpos_to_light_world_normal = hitpos_to_light_world.normalize();
                 const Float dist_square = hitpos_to_light_world.dot(hitpos_to_light_world);
 
-                Vector3f fr = m_scene.m_meshes[info.idx]->m_bsdf->get_reflection(ray.m_d, hitpos_to_light_world.normalize(), info.sh_coord);
+                const Vector3f fr = m_scene.m_meshes[info.idx]->m_bsdf->get_reflection(ray.m_d, hitpos_to_light_world.normalize(), info.sh_coord);
 
-                Float geo = light_n.dot(-1 * hitpos_to_light_world_normal) * info.sh_coord.m_world_n.dot(hitpos_to_light_world_normal) / dist_square;
-                Float pdf = light_pdf * light_pos_pdf;
+                const Float geo = light_n.dot(-1 * hitpos_to_light_world_normal) * info.sh_coord.m_world_n.dot(hitpos_to_light_world_normal) / dist_square;
+                const Float pdf = light_pdf * light_pos_pdf;
 
                 ret = ret + mult_ewise(mult_ewise(fr, emitted_rad), current_brdf) * geo / pdf;
             }
 
             // brdf sampling
-            auto [recursive_dir, sampled_brdf, brdf_pdf] = m_scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
+            auto [recursive_dir, sampled_brdf, _] = m_scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
             current_brdf = mult_ewise(current_brdf, sampled_brdf);
             from_specular = m_scene.m_meshes[info.idx]->m_bsdf->is_discrete();
 
