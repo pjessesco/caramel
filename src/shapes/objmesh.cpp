@@ -34,7 +34,8 @@
 #include "tiny_obj_loader.h"
 
 namespace Caramel {
-    OBJMesh::OBJMesh(const std::filesystem::path &path, const Matrix44f &transform) {
+    OBJMesh::OBJMesh(const std::filesystem::path &path, std::unique_ptr<BSDF> bsdf, const Matrix44f &transform)
+    : Shape(std::move(bsdf)){
         if (!m_vertices.empty()) {
             CRM_ERROR("This mesh already loaded obj file");
         }

@@ -17,7 +17,7 @@ namespace Caramel{
                            {0.299858f, 0.934836f, -0.190177f},
                            1000, 1000, 30));
 
-        scene.add_mesh(std::make_shared<OBJMesh>(test_scene_path + "ajax/ajax.obj"));
+        scene.add_mesh(std::make_shared<OBJMesh>(test_scene_path + "ajax/ajax.obj", std::make_unique<Diffuse>()));
 
         return scene;
     }
