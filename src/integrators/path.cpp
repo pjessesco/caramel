@@ -121,52 +121,7 @@ namespace Caramel{
 
 
     Vector3f PathIntegrator::mis_sampling_path(Float i, Float j, Sampler &sampler){
-        Ray ray = m_scene.m_cam.sample_ray(i, j);
-        RayIntersectInfo info;
-
-        Vector3f current_brdf = vec3f_one;
-        Vector3f ret = vec3f_zero;
-        bool from_specular = true;
-
-        for(Index depth=0;depth<m_max_depth;depth++){
-            bool is_hit;
-            std::tie(is_hit, info) = m_scene.ray_intersect(ray);
-
-            if(!is_hit){
-                break;
-            }
-
-            if(m_scene.m_meshes[info.idx]->is_light()){
-                ret = ret + mult_ewise(m_scene.m_meshes[info.idx]->m_arealight->radiance(), current_brdf);
-            }
-
-            // emiiter sampling
-            auto [light, light_choose_pdf] = m_scene.sample_light(sampler);
-            auto [emitted_rad, light_pos, light_n, light_pos_pdf] = light->sample_contribution(info.p, sampler);
-
-            const Vector3f hitpos_to_light_world = light_pos - info.p;
-            const Vector3f hitpos_to_light_world_normal = hitpos_to_light_world.normalize();
-            const Float dist_square = hitpos_to_light_world.dot(hitpos_to_light_world);
-
-            Vector3f fr = m_scene.m_meshes[info.idx]->m_bsdf->get_reflection(ray.m_d, hitpos_to_light_world.normalize(), info.sh_coord);
-
-            Float geo = light_n.dot(-1 * hitpos_to_light_world_normal) * info.sh_coord.m_world_n.dot(hitpos_to_light_world_normal) / dist_square;
-            Float light_pdf = light_choose_pdf * light_pos_pdf;
-
-            // Store light contribution, this will be calculated after getting brdf_pdf.
-            Vector3f light_contrib = mult_ewise(mult_ewise(fr, emitted_rad), current_brdf) * geo / light_pdf;
-
-
-            // brdf sampling
-            auto [recursive_dir, sampled_brdf, brdf_pdf] = m_scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
-
-            ret = ret + light_contrib * (light_pdf) / (light_pdf + brdf_pdf);
-
-            current_brdf = mult_ewise(current_brdf, sampled_brdf) * (brdf_pdf) / (light_pdf + brdf_pdf);
-            from_specular = m_scene.m_meshes[info.idx]->m_bsdf->is_discrete();
-
-            ray = Ray(info.p, recursive_dir);
-        }
-        return ret;
+        // WIP
+        return Vector3f();
     }
 }
