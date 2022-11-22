@@ -33,11 +33,11 @@
 #include <scene.h>
 
 namespace Caramel{
-    Integrator::Integrator(Scene scene) : m_scene{std::move(scene)} {}
+    Integrator::Integrator() {}
 
-    Image Integrator::render(Index spp){
-        const Index width = m_scene.m_cam.m_w;
-        const Index height = m_scene.m_cam.m_h;
+    Image Integrator::render(const Scene &scene, Index spp){
+        const Index width = scene.m_cam.m_w;
+        const Index height = scene.m_cam.m_h;
 
         Image img(width, height);
 
@@ -52,7 +52,7 @@ namespace Caramel{
                          for(int j=0;j<height;j++){
                              Vector3f rgb = vec3f_zero;
                              for(Index s=0;s<spp;s++){
-                                 rgb = rgb + get_pixel_value(i + sampler.sample_1d(), j + sampler.sample_1d(), sampler);
+                                 rgb = rgb + get_pixel_value(scene, i + sampler.sample_1d(), j + sampler.sample_1d(), sampler);
                              }
                              rgb = rgb / spp;
 

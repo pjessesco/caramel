@@ -26,11 +26,11 @@
 #include <scene.h>
 
 namespace Caramel{
-    DepthIntegrator::DepthIntegrator(const Scene &scene) : Integrator(scene) {}
+    DepthIntegrator::DepthIntegrator() : Integrator() {}
 
-    Vector3f DepthIntegrator::get_pixel_value(Float i, Float j, Sampler &sampler) {
-        const Ray ray = m_scene.m_cam.sample_ray(i, j);
-        auto [is_hit, info] = m_scene.ray_intersect(ray);
+    Vector3f DepthIntegrator::get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) {
+        const Ray ray = scene.m_cam.sample_ray(i, j);
+        auto [is_hit, info] = scene.ray_intersect(ray);
         return is_hit ? Vector3f(info.t, info.t, info.t) : Vector3f();
     }
 }
