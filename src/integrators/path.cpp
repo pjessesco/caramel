@@ -27,41 +27,41 @@
 #include <scene.h>
 
 namespace Caramel{
-    PathIntegrator::PathIntegrator(const Scene &scene, Index max_depth, SamplingType sampling_type)
-        : Integrator(scene), m_max_depth{max_depth}, m_sampling_type(sampling_type) {}
+    PathIntegrator::PathIntegrator(Index max_depth, SamplingType sampling_type)
+        : Integrator(), m_max_depth{max_depth}, m_sampling_type(sampling_type) {}
 
     // Different with albedo precisely...
-    Vector3f PathIntegrator::get_pixel_value(Float i, Float j, Sampler &sampler) {
+    Vector3f PathIntegrator::get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) {
         switch (m_sampling_type) {
             case SamplingType::BSDF:
-                return brdf_sampling_path(i, j, sampler);
+                return brdf_sampling_path(scene, i, j, sampler);
             case SamplingType::LIGHT:
-                return emitter_sampling_path(i, j, sampler);
+                return emitter_sampling_path(scene, i, j, sampler);
             case SamplingType::MIS:
-                return mis_sampling_path(i, j, sampler);
+                return mis_sampling_path(scene, i, j, sampler);
         }
     }
 
-    Vector3f PathIntegrator::brdf_sampling_path(Float i, Float j, Sampler &sampler){
-        Ray ray = m_scene.m_cam.sample_ray(i, j);
+    Vector3f PathIntegrator::brdf_sampling_path(const Scene &scene, Float i, Float j, Sampler &sampler){
+        Ray ray = scene.m_cam.sample_ray(i, j);
 
         Vector3f current_brdf = vec3f_one;
         Vector3f ret = vec3f_zero;
 
         // Note the loop range difference
         for(Index depth=0;depth<=m_max_depth;depth++){
-            auto [is_hit, info] = m_scene.ray_intersect(ray);
+            auto [is_hit, info] = scene.ray_intersect(ray);
 
             if(!is_hit){
                 return vec3f_zero;
             }
 
-            if(m_scene.m_meshes[info.idx]->is_light()){
-                return mult_ewise(current_brdf, m_scene.m_meshes[info.idx]->m_arealight->radiance());
+            if(scene.m_meshes[info.idx]->is_light()){
+                return mult_ewise(current_brdf, scene.m_meshes[info.idx]->m_arealight->radiance());
             }
 
             // brdf sample
-            auto [recursive_dir, sampled_brdf, brdf_pdf] = m_scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
+            auto [recursive_dir, sampled_brdf, brdf_pdf] = scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
             current_brdf = mult_ewise(current_brdf, sampled_brdf);
 
             ray = Ray(info.p, recursive_dir);
@@ -70,38 +70,38 @@ namespace Caramel{
         return ret;
     }
 
-    Vector3f PathIntegrator::emitter_sampling_path(Float i, Float j, Sampler &sampler){
-        Ray ray = m_scene.m_cam.sample_ray(i, j);
+    Vector3f PathIntegrator::emitter_sampling_path(const Scene &scene, Float i, Float j, Sampler &sampler){
+        Ray ray = scene.m_cam.sample_ray(i, j);
 
         Vector3f current_brdf = vec3f_one;
         Vector3f ret = vec3f_zero;
         bool from_specular = true;
 
         for(Index depth=0;depth<m_max_depth;depth++){
-            auto [is_hit, info] = m_scene.ray_intersect(ray);
+            auto [is_hit, info] = scene.ray_intersect(ray);
 
             if(!is_hit){
                 break;
             }
 
-            if(m_scene.m_meshes[info.idx]->is_light()){
+            if(scene.m_meshes[info.idx]->is_light()){
                 if(depth == 0 || from_specular){
-                    ret = ret + mult_ewise(m_scene.m_meshes[info.idx]->m_arealight->radiance(), current_brdf);
+                    ret = ret + mult_ewise(scene.m_meshes[info.idx]->m_arealight->radiance(), current_brdf);
                 }
                 break;
             }
 
             // emiiter sampling
-            const bool is_current_specular = m_scene.m_meshes[info.idx]->m_bsdf->is_discrete();
+            const bool is_current_specular = scene.m_meshes[info.idx]->m_bsdf->is_discrete();
             if(!is_current_specular){
-                auto [light, light_pdf] = m_scene.sample_light(sampler);
+                auto [light, light_pdf] = scene.sample_light(sampler);
                 auto [emitted_rad, light_pos, light_n, light_pos_pdf] = light->sample_contribution(info.p, sampler);
 
                 const Vector3f hitpos_to_light_world = light_pos - info.p;
                 const Vector3f hitpos_to_light_world_normal = hitpos_to_light_world.normalize();
                 const Float dist_square = hitpos_to_light_world.dot(hitpos_to_light_world);
 
-                const Vector3f fr = m_scene.m_meshes[info.idx]->m_bsdf->get_reflection(ray.m_d, hitpos_to_light_world.normalize(), info.sh_coord);
+                const Vector3f fr = scene.m_meshes[info.idx]->m_bsdf->get_reflection(ray.m_d, hitpos_to_light_world.normalize(), info.sh_coord);
 
                 const Float geo = light_n.dot(-1 * hitpos_to_light_world_normal) * info.sh_coord.m_world_n.dot(hitpos_to_light_world_normal) / dist_square;
                 const Float pdf = light_pdf * light_pos_pdf;
@@ -110,9 +110,9 @@ namespace Caramel{
             }
 
             // brdf sampling
-            auto [recursive_dir, sampled_brdf, _] = m_scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
+            auto [recursive_dir, sampled_brdf, _] = scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
             current_brdf = mult_ewise(current_brdf, sampled_brdf);
-            from_specular = m_scene.m_meshes[info.idx]->m_bsdf->is_discrete();
+            from_specular = scene.m_meshes[info.idx]->m_bsdf->is_discrete();
 
             ray = Ray(info.p, recursive_dir);
         }
@@ -120,7 +120,7 @@ namespace Caramel{
     }
 
 
-    Vector3f PathIntegrator::mis_sampling_path(Float i, Float j, Sampler &sampler){
+    Vector3f PathIntegrator::mis_sampling_path(const Scene &scene, Float i, Float j, Sampler &sampler){
         // WIP
         return Vector3f();
     }
