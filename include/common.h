@@ -89,5 +89,10 @@ namespace Caramel{
     inline T interpolate(const T &a, const T &b, const T &c, Float u, Float v){
         return (a*(Float1-u-v)) + (b*u) + (c*v);
     }
+
+    // TODO : Implement in Peanut
+    inline Float max(const Vector3f &vec){
+        return std::max(std::max(vec[0], vec[1]), vec[2]);
+    }
     
 }
