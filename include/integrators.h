@@ -84,7 +84,7 @@ namespace Caramel{
 
     class PathIntegrator final : public Integrator{
     public:
-        PathIntegrator(Index max_depth, SamplingType sampling_type);
+        PathIntegrator(Index rr_depth, Index max_depth, SamplingType sampling_type);
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
 
     private:
@@ -92,8 +92,8 @@ namespace Caramel{
         Vector3f emitter_sampling_path(const Scene &scene, Float i, Float j, Sampler &sampler);
         Vector3f mis_sampling_path(const Scene &scene, Float i, Float j, Sampler &sampler);
 
+        Index m_rr_depth;
         Index m_max_depth;
-        bool m_brdf_sampling;
         SamplingType m_sampling_type;
     };
 }
