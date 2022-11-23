@@ -27,8 +27,8 @@
 #include <scene.h>
 
 namespace Caramel{
-    PathIntegrator::PathIntegrator(Index max_depth, SamplingType sampling_type)
-        : Integrator(), m_max_depth{max_depth}, m_sampling_type(sampling_type) {}
+    PathIntegrator::PathIntegrator(Index rr_depth, Index max_depth, SamplingType sampling_type)
+        : Integrator(), m_rr_depth{rr_depth}, m_max_depth{max_depth}, m_sampling_type(sampling_type) {}
 
     // Different with albedo precisely...
     Vector3f PathIntegrator::get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) {
@@ -113,6 +113,16 @@ namespace Caramel{
             auto [recursive_dir, sampled_brdf, _] = scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
             current_brdf = mult_ewise(current_brdf, sampled_brdf);
             from_specular = scene.m_meshes[info.idx]->m_bsdf->is_discrete();
+
+            if(depth >= m_rr_depth){
+                const Float rr = max(current_brdf);
+                if(sampler.sample_1d() <= rr){
+                    current_brdf = current_brdf / rr;
+                }
+                else{
+                    break;
+                }
+            }
 
             ray = Ray(info.p, recursive_dir);
         }
