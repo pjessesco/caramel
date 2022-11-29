@@ -39,11 +39,12 @@ namespace Caramel{
 
     class Integrator{
     public:
-        Integrator();
-        Image render(const Scene &scene, Index spp);
+        explicit Integrator(Index m_spp = 1);
+        Image render(const Scene &scene);
 
     protected:
         virtual Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) = 0;
+        Index m_spp;
     };
 
     class DepthIntegrator final : public Integrator{
@@ -72,7 +73,7 @@ namespace Caramel{
 
     class DirectIntegrator final : public Integrator{
     public:
-        DirectIntegrator(SamplingType sampling_type);
+        explicit DirectIntegrator(Index spp, SamplingType sampling_type);
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
 
     private:
@@ -84,7 +85,7 @@ namespace Caramel{
 
     class PathIntegrator final : public Integrator{
     public:
-        PathIntegrator(Index rr_depth, Index max_depth, SamplingType sampling_type);
+        PathIntegrator(Index rr_depth, Index max_depth, Index spp, SamplingType sampling_type);
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
 
     private:
