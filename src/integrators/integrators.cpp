@@ -33,9 +33,9 @@
 #include <scene.h>
 
 namespace Caramel{
-    Integrator::Integrator() {}
+    Integrator::Integrator(Index spp) : m_spp{spp} {}
 
-    Image Integrator::render(const Scene &scene, Index spp){
+    Image Integrator::render(const Scene &scene){
         const Index width = scene.m_cam.m_w;
         const Index height = scene.m_cam.m_h;
 
@@ -51,10 +51,10 @@ namespace Caramel{
                          UniformStdSampler sampler(i);
                          for(int j=0;j<height;j++){
                              Vector3f rgb = vec3f_zero;
-                             for(Index s=0;s<spp;s++){
+                             for(Index s=0;s<m_spp;s++){
                                  rgb = rgb + get_pixel_value(scene, i + sampler.sample_1d(), j + sampler.sample_1d(), sampler);
                              }
-                             rgb = rgb / spp;
+                             rgb = rgb / m_spp;
 
                              img.set_pixel_value(i, j, rgb[0], rgb[1], rgb[2]);
                          }

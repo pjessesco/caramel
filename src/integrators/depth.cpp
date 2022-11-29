@@ -26,7 +26,7 @@
 #include <scene.h>
 
 namespace Caramel{
-    DepthIntegrator::DepthIntegrator() : Integrator() {}
+    DepthIntegrator::DepthIntegrator() : Integrator(1) {}
 
     Vector3f DepthIntegrator::get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) {
         const Ray ray = scene.m_cam.sample_ray(i, j);
