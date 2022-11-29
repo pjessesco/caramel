@@ -27,8 +27,8 @@
 #include <scene.h>
 
 namespace Caramel{
-    DirectIntegrator::DirectIntegrator(SamplingType sampling_type)
-        : Integrator(), m_sampling_type(sampling_type) {}
+    DirectIntegrator::DirectIntegrator(Index spp, SamplingType sampling_type)
+        : Integrator(spp), m_sampling_type(sampling_type) {}
 
     Vector3f DirectIntegrator::get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) {
         switch (m_sampling_type) {

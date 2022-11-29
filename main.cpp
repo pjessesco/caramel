@@ -38,8 +38,8 @@ int main() {
     // Test 6
     Scene scene = scene_cbox_complex();
     {
-        PathIntegrator integrator(5, 10, SamplingType::LIGHT);
-        Image img = integrator.render(scene, 10);
+        PathIntegrator integrator(5, 10, 10, SamplingType::LIGHT);
+        Image img = integrator.render(scene);
         img.write_exr("../test_scenes/cbox/caramel_test_path_em.exr");
     }
 
