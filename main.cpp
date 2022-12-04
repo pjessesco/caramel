@@ -25,25 +25,26 @@
 #include <iostream>
 #include <memory>
 
-#include <shape.h>
-#include <camera.h>
 #include <image.h>
 #include <scene.h>
 #include <integrators.h>
+#include <scene_parser.h>
 
 using namespace Caramel;
 
 int main() {
 
+    SceneParser parser("../test_scenes/cbox.json");
+    Integrator *integrator = parser.parse_integrator();
+    Camera *cam = parser.parse_camera();
+
     // Test 6
     Scene scene = scene_cbox_complex();
+    scene.set_camera(cam);
     {
-        PathIntegrator integrator(5, 10, 10, SamplingType::LIGHT);
-        Image img = integrator.render(scene);
+        Image img = integrator->render(scene);
         img.write_exr("../test_scenes/cbox/caramel_test_path_em.exr");
     }
-
-
 
     return 0;
 }
