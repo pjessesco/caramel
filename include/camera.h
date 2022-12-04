@@ -36,6 +36,11 @@ namespace Caramel{
 
         [[nodiscard]] Ray sample_ray(Float w, Float h) const;
 
+        template <typename Type, typename ...Param>
+        static Camera* Create(Param ...args){
+            return dynamic_cast<Camera*>(new Type(args...));
+        }
+
         const Vector3f m_pos;
         const Vector3f m_dir;
         const Vector3f m_up;
@@ -46,5 +51,4 @@ namespace Caramel{
         Float m_ratio;
         Matrix44f m_cam_to_world;
     };
-
 }

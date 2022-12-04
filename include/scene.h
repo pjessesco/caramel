@@ -36,7 +36,9 @@
 
 namespace Caramel{
     struct Scene{
-        explicit Scene(const Camera &cam);
+        Scene();
+
+        void set_camera(Camera *camera);
 
         std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const;
         void add_mesh(const std::shared_ptr<Shape>& shape);
@@ -48,7 +50,7 @@ namespace Caramel{
 
         std::vector<std::shared_ptr<Light>> m_lights;
         std::vector<std::shared_ptr<Shape>> m_meshes;
-        Camera m_cam;
+        std::unique_ptr<Camera> m_cam;
     };
 
     // Will be removed after scene file implemented

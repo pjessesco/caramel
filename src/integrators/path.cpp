@@ -43,7 +43,7 @@ namespace Caramel{
     }
 
     Vector3f PathIntegrator::brdf_sampling_path(const Scene &scene, Float i, Float j, Sampler &sampler){
-        Ray ray = scene.m_cam.sample_ray(i, j);
+        Ray ray = scene.m_cam->sample_ray(i, j);
 
         Vector3f current_brdf = vec3f_one;
         Vector3f ret = vec3f_zero;
@@ -71,7 +71,7 @@ namespace Caramel{
     }
 
     Vector3f PathIntegrator::emitter_sampling_path(const Scene &scene, Float i, Float j, Sampler &sampler){
-        Ray ray = scene.m_cam.sample_ray(i, j);
+        Ray ray = scene.m_cam->sample_ray(i, j);
 
         Vector3f current_brdf = vec3f_one;
         Vector3f ret = vec3f_zero;
