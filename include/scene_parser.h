@@ -125,8 +125,10 @@ namespace Caramel{
             const std::string type = parse_string(shape_json, "type");
             if(type=="obj"){
                 return Shape::Create<OBJMesh>(parse_string(shape_json, "path"),
-                                              parse_bsdf(shape_json)
-                                              /* Transform not supported yet */);
+                                              parse_bsdf(shape_json),
+                                              shape_json.contains("to_world") ?
+                                                    parse_matrix44f(shape_json, "to_world") :
+                                                    Matrix44f::identity());
             }
             else if(type=="triangle"){
                 if(shape_json.contains("n0") || shape_json.contains("n1") || shape_json.contains("n2")){
@@ -181,7 +183,7 @@ namespace Caramel{
             const Json child = get_unique_first_elem(parent, key);
 
             if(child.is_array() && child.size()==3 &&
-               child[0].is_number() && child[1].is_number() && child[2].is_number()){
+               std::all_of(child.begin(), child.end(), [](auto e){return e.is_number();})){
                 return Vector3f{static_cast<Float>(child[0]),
                                 static_cast<Float>(child[1]),
                                 static_cast<Float>(child[2])};
@@ -215,6 +217,47 @@ namespace Caramel{
             CRM_ERROR("Can not parse non-negative int : " + to_string(child));
         }
 
+        Matrix44f parse_matrix44f(const Json &parent, const std::string &key) const{
+            const Json child = get_unique_first_elem(parent, key);
+            if(!child.is_array()){
+                CRM_ERROR("Can not parse matrix : " + to_string(child));
+            }
+
+            if(child.size() == 16 &&
+               std::all_of(child.begin(), child.end(), [](auto e){return e.is_number();})){
+                return Matrix44f{static_cast<Float>(child[0]), static_cast<Float>(child[1]), static_cast<Float>(child[2]), static_cast<Float>(child[3]),
+                                 static_cast<Float>(child[4]), static_cast<Float>(child[5]), static_cast<Float>(child[6]), static_cast<Float>(child[7]),
+                                 static_cast<Float>(child[8]), static_cast<Float>(child[9]), static_cast<Float>(child[10]), static_cast<Float>(child[11]),
+                                 static_cast<Float>(child[12]), static_cast<Float>(child[13]), static_cast<Float>(child[14]), static_cast<Float>(child[15])};
+            }
+            else if(std::all_of(child.begin(), child.end(), [](auto e){return e.is_object();})){
+                Matrix44f mat = Matrix44f::identity();
+                for(const auto &e : child){
+                    const std::string key = parse_string(e, "type");
+                    if(key == "translate"){
+                        const Vector3f val = parse_vector3f(child, "value");
+                        mat = translate(val[0], val[1], val[2]) * mat;
+                    }
+                    else if(key == "scale"){
+                        const Vector3f val = parse_vector3f(child, "value");
+                        mat = scale(val[0], val[1], val[2]) * mat;
+                    }
+                    else if(key=="rotate_x"){
+                        mat = rotate_x(parse_positive_float(child, "degree")) * mat;
+                    }
+                    else if(key=="rotate_y"){
+                        mat = rotate_y(parse_positive_float(child, "degree")) * mat;
+                    }
+                    else if(key=="rotate_z"){
+                        mat = rotate_z(parse_positive_float(child, "degree")) * mat;
+                    }
+                    else{
+                        CRM_ERROR("Can not parse transform : " + to_string(e));
+                    }
+                }
+                return mat;
+            }
+        }
 
         Json m_scene_json;
 
