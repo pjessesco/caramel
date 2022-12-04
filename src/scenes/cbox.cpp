@@ -9,12 +9,8 @@
 
 namespace Caramel{
     Scene scene_cbox_complex(){
+        Scene scene;
         std::string test_scene_path = "../test_scenes/";
-
-        Scene scene(Camera({278.0f, 273.0f, -800.0f},
-                           {0.0f, 0.0f, 1.0f},
-                           {0.0f, 1.0f, 0.0f},
-                           1000, 1000, 39.3077));
 
         auto back = std::make_shared<OBJMesh>(test_scene_path + "cbox/meshes/cbox_back.obj",
                                               std::make_unique<Diffuse>());

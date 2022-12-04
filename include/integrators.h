@@ -27,6 +27,7 @@
 #include <chrono>
 
 #include <image.h>
+#include <common.h>
 #include <scene.h>
 
 namespace Caramel{
@@ -42,6 +43,11 @@ namespace Caramel{
         explicit Integrator(Index m_spp = 1);
         Image render(const Scene &scene);
 
+        template <typename Type, typename ...Param>
+        static Integrator* Create(Param ...args){
+            return dynamic_cast<Integrator*>(new Type(args...));
+        }
+
     protected:
         virtual Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) = 0;
         Index m_spp;
@@ -49,25 +55,26 @@ namespace Caramel{
 
     class DepthIntegrator final : public Integrator{
     public:
-        explicit DepthIntegrator();
+        DepthIntegrator();
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
+
     };
 
     class UVIntegrator final : public Integrator{
     public:
-        explicit UVIntegrator();
+        UVIntegrator();
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
     };
 
     class HitPosIntegrator final : public Integrator{
     public:
-        explicit HitPosIntegrator();
+        HitPosIntegrator();
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
     };
 
     class NormalIntegrator final : public Integrator{
     public:
-        explicit NormalIntegrator();
+        NormalIntegrator();
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
     };
 
@@ -97,5 +104,7 @@ namespace Caramel{
         Index m_max_depth;
         SamplingType m_sampling_type;
     };
+
+
 }
 

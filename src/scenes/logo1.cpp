@@ -13,10 +13,12 @@ namespace Caramel{
     Scene scene_logo1(){
         std::string test_scene_path = "/Users/jino/caramel/test_scenes/";
 
-        Scene scene(Camera({278.0f, 273.0f, -800.0f},
-                           {0.0f, 0.0f, 1.0f},
-                           {0.0f, 1.0f, 0.0f},
-                           1000, 1000, 39.3077));
+//        Camera({278.0f, 273.0f, -800.0f},
+//               {0.0f, 0.0f, 1.0f},
+//               {0.0f, 1.0f, 0.0f},
+//               1000, 1000, 39.3077)
+
+        Scene scene;
 
         auto floor = std::make_shared<OBJMesh>(test_scene_path + "logo/meshes/cbox_floor.obj", std::make_unique<Diffuse>());
         floor->m_bsdf = std::make_unique<Diffuse>(Vector3f{0.2f, 0.1f, 0.6f});

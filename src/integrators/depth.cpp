@@ -29,7 +29,7 @@ namespace Caramel{
     DepthIntegrator::DepthIntegrator() : Integrator(1) {}
 
     Vector3f DepthIntegrator::get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) {
-        const Ray ray = scene.m_cam.sample_ray(i, j);
+        const Ray ray = scene.m_cam->sample_ray(i, j);
         auto [is_hit, info] = scene.ray_intersect(ray);
         return is_hit ? Vector3f(info.t, info.t, info.t) : Vector3f();
     }
