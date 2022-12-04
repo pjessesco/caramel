@@ -36,8 +36,12 @@ namespace Caramel{
     Integrator::Integrator(Index spp) : m_spp{spp} {}
 
     Image Integrator::render(const Scene &scene){
-        const Index width = scene.m_cam.m_w;
-        const Index height = scene.m_cam.m_h;
+        if(scene.m_cam == nullptr){
+            CRM_ERROR("Camera is nullptr;");
+        }
+
+        const Index width = scene.m_cam->m_w;
+        const Index height = scene.m_cam->m_h;
 
         Image img(width, height);
 

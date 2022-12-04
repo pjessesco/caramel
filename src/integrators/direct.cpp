@@ -40,7 +40,7 @@ namespace Caramel{
     }
 
     Vector3f DirectIntegrator::brdf_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler) {
-        Ray ray = scene.m_cam.sample_ray(i, j);
+        Ray ray = scene.m_cam->sample_ray(i, j);
         RayIntersectInfo info;
         bool is_hit;
         std::tie(is_hit, info) = scene.ray_intersect(ray);
@@ -84,7 +84,7 @@ namespace Caramel{
     }
 
     Vector3f DirectIntegrator::emitter_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler) {
-        Ray ray = scene.m_cam.sample_ray(i, j);
+        Ray ray = scene.m_cam->sample_ray(i, j);
         RayIntersectInfo info;
         bool is_hit;
         std::tie(is_hit, info) = scene.ray_intersect(ray);

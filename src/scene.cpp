@@ -34,7 +34,11 @@
 
 namespace Caramel{
 
-    Scene::Scene(const Camera &cam) : m_cam{cam} {}
+    Scene::Scene() : m_cam{nullptr} {}
+
+    void Scene::set_camera(Caramel::Camera *camera) {
+        m_cam = std::unique_ptr<Camera>(camera);
+    }
 
     std::tuple<bool, RayIntersectInfo> Scene::ray_intersect(const Ray &ray) const{
 
