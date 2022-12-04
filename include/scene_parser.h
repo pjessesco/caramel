@@ -36,6 +36,7 @@
 #include <scene.h>
 #include <integrators.h>
 #include <camera.h>
+#include <bsdf.h>
 #include <shape.h>
 
 #include <json.hpp>
@@ -87,7 +88,7 @@ namespace Caramel{
                                                           SamplingType::LIGHT);
             }
             else{
-                CRM_ERROR("Can not found " + type + " in json : "+ to_string(child));
+                CRM_ERROR(type + "integrator is not supported : "+ to_string(child));
             }
         }
 
@@ -102,9 +103,69 @@ namespace Caramel{
                                               parse_positive_int(child, "height"),
                                               parse_positive_float(child, "fov"));
             }
+            else{
+                CRM_ERROR(type + "camera is not supported : "+ to_string(child));
+            }
+        }
+
+        std::vector<Shape*> parse_shapes() const{
+            std::vector<Shape*> shapes;
+
+            const Json child = get_unique_first_elem(m_scene_json, "shape");
+            if(child.is_array()){
+                for(const auto &ch : child){
+                    shapes.push_back(parse_shape(ch));
+                }
+                return shapes;
+            }
         }
 
     private:
+        Shape* parse_shape(const Json &shape_json) const{
+            const std::string type = parse_string(shape_json, "type");
+            if(type=="obj"){
+                return Shape::Create<OBJMesh>(parse_string(shape_json, "path"),
+                                              parse_bsdf(shape_json)
+                                              /* Transform not supported yet */);
+            }
+            else if(type=="triangle"){
+                if(shape_json.contains("n0") || shape_json.contains("n1") || shape_json.contains("n2")){
+                    return Shape::Create<Triangle>(parse_vector3f(shape_json, "p0"),
+                                                   parse_vector3f(shape_json, "p1"),
+                                                   parse_vector3f(shape_json, "p2"),
+                                                   parse_vector3f(shape_json, "n0"),
+                                                   parse_vector3f(shape_json, "n1"),
+                                                   parse_vector3f(shape_json, "n2"));
+                }
+                else{
+                    return Shape::Create<Triangle>(parse_vector3f(shape_json, "p0"),
+                                                   parse_vector3f(shape_json, "p1"),
+                                                   parse_vector3f(shape_json, "p2"));
+                }
+            }
+
+        }
+
+        BSDF* parse_bsdf(const Json &bsdf_json) const{
+            const Json child = get_unique_first_elem(bsdf_json, "bsdf");
+            const std::string type = parse_string(child, "type");
+            if(type == "diffuse"){
+                return child.contains("albedo") ?
+                            BSDF::Create<Diffuse>(parse_vector3f(child, "albedo")) :
+                            BSDF::Create<Diffuse>();
+            }
+            else if(type=="mirror"){
+                return BSDF::Create<Mirror>();
+            }
+            else if(type=="dielectric"){
+                return BSDF::Create<Dielectric>(parse_positive_int(child, "in_ior"),
+                                                parse_positive_int(child, "ex_ior"));
+            }
+            else{
+                CRM_ERROR(type + "bsdf is not supported : "+ to_string(child));
+            }
+
+        }
 
         Json get_unique_first_elem(const Json &parent, const std::string &key) const{
             if(!parent.contains(key)){

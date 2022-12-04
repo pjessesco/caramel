@@ -37,6 +37,7 @@ int main() {
     SceneParser parser("../test_scenes/cbox.json");
     Integrator *integrator = parser.parse_integrator();
     Camera *cam = parser.parse_camera();
+    parser.parse_shapes();
 
     // Test 6
     Scene scene = scene_cbox_complex();
