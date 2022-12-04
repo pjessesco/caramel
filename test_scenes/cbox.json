@@ -1,0 +1,41 @@
+{
+    "integrator": {
+        "type": "path",
+        "depth_rr" : 4,
+        "depth_max" : 3,
+        "spp" : 1
+    },
+
+    "camera": {
+        "type" : "perspective(NOT_USED)",
+        "pos" : [278.0, 273.0, -800.0],
+        "dir" : [0.0, 0.0, 1.0],
+        "up" : [0.0, 1.0, 0.0],
+        "width" : 1000,
+        "height" : 1000,
+        "fov" : 39.3077
+    },
+
+    "shape" : [
+        {
+            "type" : "OBJMesh",
+            "path" : "../../asdf.obj",
+            "bsdf" : {
+                "type" : "Diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
+            }
+        },
+        {
+            "type" : "OBJMesh",
+            "path" : "../../qwer.obj",
+            "bsdf" : {
+                "type" : "Dielectroc",
+                "intIOR" : 1,
+                "extIOR" : 1.4
+            }
+        }
+    ]
+}
+
+
+
