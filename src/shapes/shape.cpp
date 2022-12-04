@@ -29,7 +29,7 @@
 #include <transform.h>
 
 namespace Caramel {
-    Shape::Shape(std::unique_ptr<BSDF> bsdf) : m_bsdf{std::move(bsdf)}, m_arealight{nullptr} {}
+    Shape::Shape(BSDF *bsdf) : m_bsdf{bsdf}, m_arealight{nullptr} {}
 
     std::tuple<Float, Float, Float> moeller_trumbore(const Ray &ray, const Vector3f &p0, const Vector3f &p1, const Vector3f &p2){
         const Vector3f D = ray.m_d;

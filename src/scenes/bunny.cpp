@@ -18,7 +18,7 @@ namespace Caramel{
 
         Scene scene;
 
-        scene.add_mesh(std::make_shared<OBJMesh>(test_scene_path + "bunny/bunny.obj", std::make_unique<Diffuse>()));
+        scene.add_mesh(std::make_shared<OBJMesh>(test_scene_path + "bunny/bunny.obj", new Diffuse()));
         return scene;
     }
 }

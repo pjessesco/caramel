@@ -55,6 +55,11 @@ namespace Caramel{
 
         // Returns whether bsdf is discrete (mirror, etc) or continuous (diffuse, etc).
         virtual bool is_discrete() const = 0;
+
+        template <typename Type, typename ...Param>
+        static BSDF* Create(Param ...args){
+            return dynamic_cast<BSDF*>(new Type(args...));
+        }
     };
 
     class Diffuse final : public BSDF{
