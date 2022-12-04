@@ -18,7 +18,7 @@
 
     "shape" : [
         {
-            "type" : "OBJMesh",
+            "type" : "obj",
             "path" : "../../asdf.obj",
             "bsdf" : {
                 "type" : "Diffuse",
@@ -26,7 +26,7 @@
             }
         },
         {
-            "type" : "OBJMesh",
+            "type" : "obj",
             "path" : "../../qwer.obj",
             "bsdf" : {
                 "type" : "Dielectroc",

@@ -42,7 +42,7 @@
 namespace Caramel{
 
     struct Shape{
-        explicit Shape(std::unique_ptr<BSDF> bsdf);
+        explicit Shape(BSDF *bsdf);
         virtual ~Shape() = default;
 
         // u, v, t
@@ -54,6 +54,11 @@ namespace Caramel{
 
         bool is_light() const{
             return m_arealight != nullptr;
+        }
+
+        template <typename Type, typename ...Param>
+        static Shape* Create(Param ...args){
+            return dynamic_cast<Shape*>(new Type(args...));
         }
 
         std::unique_ptr<BSDF> m_bsdf;
@@ -84,7 +89,7 @@ namespace Caramel{
     };
 
     struct OBJMesh final : Shape{
-        OBJMesh(const std::filesystem::path &path, std::unique_ptr<BSDF> bsdf, const Matrix44f &transform = Matrix44f::identity());
+        OBJMesh(const std::filesystem::path &path, BSDF *bsdf, const Matrix44f &transform = Matrix44f::identity());
 
         std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
         AABB get_aabb() const override;
