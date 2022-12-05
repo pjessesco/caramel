@@ -1,0 +1,116 @@
+{
+    "integrator": {
+        "type": "path",
+        "depth_rr" : 4,
+        "depth_max" : 3,
+        "spp" : 1
+    },
+
+    "camera": {
+        "type" : "perspective(NOT_USED)",
+        "pos" : [278.0, 273.0, -800.0],
+        "dir" : [0.0, 0.0, 1.0],
+        "up" : [0.0, 1.0, 0.0],
+        "width" : 1000,
+        "height" : 1000,
+        "fov" : 39.3077
+    },
+
+    "shape" : [
+        {
+            "type" : "obj",
+            "path" : "meshes/cbox_back.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "meshes/cbox_ceiling.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "meshes/cbox_floor.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.2, 0.1, 0.6]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "meshes/cbox_greenwall.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.0, 1.0, 0.0]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "meshes/cbox_largebox.obj",
+            "bsdf" : {
+                "type" : "mirror"
+            },
+            "to_world" : [
+                {
+                    "type" : "translate",
+                    "value" : [40, 0, 40]
+                }
+            ]
+        },
+        {
+            "type" : "obj",
+            "path" : "meshes/cbox_redwall.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [1.0, 0.0, 0.0]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "meshes/cbox_smallbox.obj",
+            "bsdf" : {
+                "type" : "dielectric",
+                "in_ior" : 1.55,
+                "ex_ior" : 1.0
+            },
+            "to_world" : [
+                {
+                    "type" : "scale",
+                    "value" : [0.5, 0.5, 0.5]
+                },
+                {
+                    "type" : "translate",
+                    "value" : [200, 0, 0]
+                }
+            ]
+        },
+        {
+            "type" : "obj",
+            "path" : "meshes/ajax.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.2, 0.2, 0.7]
+            },
+            "to_world" : [
+                {
+                    "type" : "rotate_y",
+                    "degree" : 90
+                },
+                {
+                    "type" : "scale",
+                    "value" : [3, 3, 3]
+                },
+                {
+                    "type" : "translate",
+                    "value" : [350, 80, 117]
+                }
+            ]
+        }
+    ]
+}
+
+
+
