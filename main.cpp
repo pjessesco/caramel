@@ -32,19 +32,29 @@
 
 using namespace Caramel;
 
-int main() {
+int main(int argc, char* argv[]) {
 
-    SceneParser parser("../test_scenes/cbox.json");
+    if(argc <= 1){
+        CRM_WARNING("Usage : ./caramel [path to scene file]")
+    }
+
+    const std::filesystem::path scene_path((std::string(argv[1])));
+    std::filesystem::current_path(scene_path.parent_path());
+    const std::string scene_filename = scene_path.stem();
+
+    SceneParser parser(scene_path);
     Integrator *integrator = parser.parse_integrator();
     Camera *cam = parser.parse_camera();
-    parser.parse_shapes();
+    std::vector<Shape*> shapes = parser.parse_shapes();
 
-    // Test 6
     Scene scene = scene_cbox_complex();
+    for(auto s : shapes){
+        scene.add_mesh(std::shared_ptr<Shape>(s));
+    }
     scene.set_camera(cam);
     {
         Image img = integrator->render(scene);
-        img.write_exr("../test_scenes/cbox/caramel_test_path_em.exr");
+        img.write_exr(scene_path.stem().string() + ".exr");
     }
 
     return 0;

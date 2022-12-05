@@ -116,8 +116,8 @@ namespace Caramel{
                 for(const auto &ch : child){
                     shapes.push_back(parse_shape(ch));
                 }
-                return shapes;
             }
+            return shapes;
         }
 
     private:
@@ -160,8 +160,8 @@ namespace Caramel{
                 return BSDF::Create<Mirror>();
             }
             else if(type=="dielectric"){
-                return BSDF::Create<Dielectric>(parse_positive_int(child, "in_ior"),
-                                                parse_positive_int(child, "ex_ior"));
+                return BSDF::Create<Dielectric>(parse_positive_float(child, "in_ior"),
+                                                parse_positive_float(child, "ex_ior"));
             }
             else{
                 CRM_ERROR(type + "bsdf is not supported : "+ to_string(child));
@@ -235,21 +235,21 @@ namespace Caramel{
                 for(const auto &e : child){
                     const std::string key = parse_string(e, "type");
                     if(key == "translate"){
-                        const Vector3f val = parse_vector3f(child, "value");
+                        const Vector3f val = parse_vector3f(e, "value");
                         mat = translate(val[0], val[1], val[2]) * mat;
                     }
                     else if(key == "scale"){
-                        const Vector3f val = parse_vector3f(child, "value");
+                        const Vector3f val = parse_vector3f(e, "value");
                         mat = scale(val[0], val[1], val[2]) * mat;
                     }
                     else if(key=="rotate_x"){
-                        mat = rotate_x(parse_positive_float(child, "degree")) * mat;
+                        mat = rotate_x(parse_positive_float(e, "degree")) * mat;
                     }
                     else if(key=="rotate_y"){
-                        mat = rotate_y(parse_positive_float(child, "degree")) * mat;
+                        mat = rotate_y(parse_positive_float(e, "degree")) * mat;
                     }
                     else if(key=="rotate_z"){
-                        mat = rotate_z(parse_positive_float(child, "degree")) * mat;
+                        mat = rotate_z(parse_positive_float(e, "degree")) * mat;
                     }
                     else{
                         CRM_ERROR("Can not parse transform : " + to_string(e));
