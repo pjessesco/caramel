@@ -12,11 +12,10 @@ namespace Caramel{
         Scene scene;
 
         auto luminaire_obj = std::make_shared<OBJMesh>("meshes/cbox_luminaire.obj",
-                                                       new Diffuse());
-        auto luminaire_light = std::make_shared<AreaLight>(scene, Vector3f(30.0f, 30.0f, 30.0f));
+                                                       new Diffuse(),
+                                                       new AreaLight(Vector3f(30.0f, 30.0f, 30.0f)));
+
         scene.add_mesh(luminaire_obj);
-        scene.add_light(luminaire_light);
-        scene.enroll_arealight(luminaire_obj, luminaire_light);
 
         return scene;
     }

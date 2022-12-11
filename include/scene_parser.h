@@ -126,6 +126,7 @@ namespace Caramel{
             if(type=="obj"){
                 return Shape::Create<OBJMesh>(parse_string(shape_json, "path"),
                                               parse_bsdf(shape_json),
+                                              nullptr,
                                               shape_json.contains("to_world") ?
                                                     parse_matrix44f(shape_json, "to_world") :
                                                     Matrix44f::identity());

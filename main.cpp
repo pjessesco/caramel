@@ -35,7 +35,7 @@ using namespace Caramel;
 int main(int argc, char* argv[]) {
 
     if(argc <= 1){
-        CRM_WARNING("Usage : ./caramel [path to scene file]")
+        CRM_ERROR("Usage : ./caramel [path to scene file]")
     }
 
     const std::filesystem::path scene_path((std::string(argv[1])));
