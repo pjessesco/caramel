@@ -40,14 +40,13 @@ int main(int argc, char* argv[]) {
 
     const std::filesystem::path scene_path((std::string(argv[1])));
     std::filesystem::current_path(scene_path.parent_path());
-    const std::string scene_filename = scene_path.stem();
+    const std::string scene_filename = scene_path.stem().string();
 
     SceneParser parser(scene_path);
     Integrator *integrator = parser.parse_integrator();
     Camera *cam = parser.parse_camera();
     std::vector<Shape*> shapes = parser.parse_shapes();
 
-//    Scene scene = scene_cbox_complex();
     Scene scene;
     for(auto s : shapes){
         scene.add_mesh(std::shared_ptr<Shape>(s));

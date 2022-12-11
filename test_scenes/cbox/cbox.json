@@ -1,9 +1,9 @@
 {
     "integrator": {
         "type": "path",
-        "depth_rr" : 4,
-        "depth_max" : 3,
-        "spp" : 1
+        "depth_rr" : 5,
+        "depth_max" : 10,
+        "spp" : 10
     },
 
     "camera": {
@@ -17,6 +17,16 @@
     },
 
     "shape" : [
+        {
+            "type" : "obj",
+            "path" : "meshes/cbox_luminaire.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            },
+            "arealight" : {
+                "radiance" : [20, 30, 40]
+            }
+        },
         {
             "type" : "obj",
             "path" : "meshes/cbox_back.obj",
