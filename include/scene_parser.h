@@ -120,13 +120,19 @@ namespace Caramel{
             return shapes;
         }
 
+        Light* parse_light() const{
+            // TODO
+        }
+
     private:
         Shape* parse_shape(const Json &shape_json) const{
             const std::string type = parse_string(shape_json, "type");
             if(type=="obj"){
                 return Shape::Create<OBJMesh>(parse_string(shape_json, "path"),
                                               parse_bsdf(shape_json),
-                                              nullptr,
+                                              shape_json.contains("arealight") ?
+                                                    parse_arealight(shape_json) :
+                                                    nullptr,
                                               shape_json.contains("to_world") ?
                                                     parse_matrix44f(shape_json, "to_world") :
                                                     Matrix44f::identity());
@@ -147,6 +153,12 @@ namespace Caramel{
                 }
             }
 
+        }
+
+        // Other lights are handled in `parse_light()`
+        AreaLight* parse_arealight(const Json &shape_json) const{
+            const Json child = get_unique_first_elem(shape_json, "arealight");
+            return AreaLight::Create(parse_vector3f(child, "radiance"));
         }
 
         BSDF* parse_bsdf(const Json &bsdf_json) const{

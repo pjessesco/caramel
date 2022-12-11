@@ -34,7 +34,6 @@ set(SOURCES
         src/shapes/objmesh.cpp
         src/shapes/shape.cpp
         src/shapes/triangle.cpp
-        src/scenes/cbox.cpp
         src/scenes/logo1.cpp)
 
 set(HEADERS
