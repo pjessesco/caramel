@@ -42,6 +42,11 @@ namespace Caramel{
                                                                                     const Vector3f &pos,
                                                                                     Sampler &sampler) = 0;
 
+        // Arealight is handled in AreaLight::Create
+        template <typename Type, typename ...Param>
+        static Light* Create(Param ...args){
+            return dynamic_cast<Light*>(new Type(args...));
+        }
     };
 
     class AreaLight final : public Light{
@@ -53,6 +58,11 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Vector3f, Float> sample_contribution(const Scene &scene,
                                                                             const Vector3f &hitpos,
                                                                             Sampler &sampler) override;
+
+        template <typename ...Param>
+        static AreaLight* Create(Param ...args){
+            return new AreaLight(args...);
+        }
 
         Shape *m_shape;
         Vector3f m_radiance;
