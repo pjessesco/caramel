@@ -61,6 +61,9 @@ namespace Caramel{
 
     void Scene::add_mesh(const std::shared_ptr<Shape>& shape){
         m_meshes.emplace_back(shape);
+        if(shape->is_light()){
+            m_lights.push_back(shape->m_arealight);
+        }
     }
 
     void Scene::add_light(const std::shared_ptr<Light>& light){
@@ -83,11 +86,6 @@ namespace Caramel{
     std::tuple<std::shared_ptr<Light>, Float> Scene::sample_light(Sampler &sampler) const{
         const Index idx = static_cast<Index>(sampler.sample_1d() * static_cast<Float>(m_lights.size()));
         return {m_lights[idx], Float1 / static_cast<Float>(m_lights.size())};
-    }
-
-    void Scene::enroll_arealight(const std::shared_ptr<Shape>& shape, const std::shared_ptr<AreaLight>& arealight){
-        arealight->m_shape = shape;
-        shape->m_arealight = arealight;
     }
 
 }
