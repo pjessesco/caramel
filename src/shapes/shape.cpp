@@ -45,7 +45,7 @@ namespace Caramel {
         const Vector3f DE2 = cross(D, E2);
 
         const Float denom = DE2.dot(E1);
-        if(std::abs(denom) < EPSILON){
+        if(std::abs(denom) < 0){
             return {-Float1, -Float1, -Float1};
         }
         const Float denom_inv = static_cast<Float>(1) / DE2.dot(E1);
