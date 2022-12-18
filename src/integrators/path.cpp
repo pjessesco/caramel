@@ -57,12 +57,12 @@ namespace Caramel{
             }
 
             if(scene.m_meshes[info.idx]->is_light()){
-                return mult_ewise(current_brdf, scene.m_meshes[info.idx]->m_arealight->radiance());
+                return Peanut::EMult(current_brdf, scene.m_meshes[info.idx]->m_arealight->radiance());
             }
 
             // brdf sample
             auto [recursive_dir, sampled_brdf, brdf_pdf] = scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
-            current_brdf = mult_ewise(current_brdf, sampled_brdf);
+            current_brdf = Peanut::EMult(current_brdf, sampled_brdf);
 
             ray = Ray(info.p, recursive_dir);
         }
@@ -86,7 +86,7 @@ namespace Caramel{
 
             if(scene.m_meshes[info.idx]->is_light()){
                 if(depth == 0 || from_specular){
-                    ret = ret + mult_ewise(scene.m_meshes[info.idx]->m_arealight->radiance(), current_brdf);
+                    ret = ret + Peanut::EMult(scene.m_meshes[info.idx]->m_arealight->radiance(), current_brdf);
                 }
                 break;
             }
@@ -106,16 +106,16 @@ namespace Caramel{
                 const Float geo = light_n.dot(-1 * hitpos_to_light_world_normal) * info.sh_coord.m_world_n.dot(hitpos_to_light_world_normal) / dist_square;
                 const Float pdf = light_pdf * light_pos_pdf;
 
-                ret = ret + mult_ewise(mult_ewise(fr, emitted_rad), current_brdf) * geo / pdf;
+                ret = ret + Peanut::EMult(Peanut::EMult(fr, emitted_rad), current_brdf) * geo / pdf;
             }
 
             // brdf sampling
             auto [recursive_dir, sampled_brdf, _] = scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
-            current_brdf = mult_ewise(current_brdf, sampled_brdf);
+            current_brdf = Peanut::EMult(current_brdf, sampled_brdf);
             from_specular = scene.m_meshes[info.idx]->m_bsdf->is_discrete();
 
             if(depth >= m_rr_depth){
-                const Float rr = max(current_brdf);
+                const Float rr = current_brdf.max();
                 if(sampler.sample_1d() <= rr){
                     current_brdf = current_brdf / rr;
                 }
