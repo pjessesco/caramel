@@ -41,10 +41,13 @@ namespace Caramel{
     Float fresnel_dielectric(Float _cos_i, Float eta_i, Float eta_t) {
         Float cos_i = _cos_i;
         if(_cos_i < Float0){
-            cos_i = std::max(Float0, _cos_i);
+            cos_i = Float0;
             CRM_WARNING("cos_i(" + std::to_string(_cos_i) + ") is negative which is not allowed, clamped to 0");
         }
-        assert(Float0 <= cos_i && cos_i <= Float1);
+        if(_cos_i > Float1){
+            cos_i = Float1;
+            CRM_WARNING("cos_i(" + std::to_string(_cos_i) + ") exceeds 1 which is not allowed, clamped to 1");
+        }
 
         const Float sin_i = sqrt(Float1 - (cos_i * cos_i));
         const Float sin_t = snell_get_sin_t(sin_i, eta_i, eta_t);
