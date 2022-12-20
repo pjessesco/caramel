@@ -24,6 +24,7 @@
 
 #include <common.h>
 #include <bsdf.h>
+#include <logger.h>
 #include <warp_sample.h>
 #include <coordinate.h>
 
@@ -37,7 +38,12 @@ namespace Caramel{
     }
 
     // Calculate fresnel reflectance for unpolarized light.
-    Float fresnel_dielectric(Float cos_i, Float eta_i, Float eta_t) {
+    Float fresnel_dielectric(Float _cos_i, Float eta_i, Float eta_t) {
+        Float cos_i = _cos_i;
+        if(_cos_i < Float0){
+            cos_i = std::max(Float0, _cos_i);
+            CRM_WARNING("cos_i(" + std::to_string(_cos_i) + ") is negative which is not allowed, clamped to 0");
+        }
         assert(Float0 <= cos_i && cos_i <= Float1);
 
         const Float sin_i = sqrt(Float1 - (cos_i * cos_i));
