@@ -99,4 +99,21 @@ namespace Caramel{
         Float m_ex_index_of_refraction;
     };
 
+    class Microfacet final : public BSDF{
+    public:
+        Microfacet(Float alpha, Float in_ior, Float ex_ior, const Vector3f &kd);
+        std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &world_incoming_dir, Sampler &, const Coordinate &coord) override;
+        Vector3f get_reflection(const Vector3f &world_incoming_dir, const Vector3f &world_outgoing_dir, const Coordinate &coord) override;
+        bool is_discrete() const override;
+
+    private:
+        Float G1(const Vector3f &wv, const Vector3f &wh) const;
+
+        Float m_alpha;
+        Float m_in_index_of_refraction;
+        Float m_ex_index_of_refraction;
+        Float m_ks;
+        Vector3f m_kd;
+    };
+
 }

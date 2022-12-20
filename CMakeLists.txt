@@ -15,7 +15,8 @@ set(SOURCES
         src/aabb.cpp
         src/bsdfs/diffuse.cpp
         src/bsdfs/mirror.cpp
-        src/bsdfs/dielectric.cpp 
+        src/bsdfs/dielectric.cpp
+        src/bsdfs/microfacet.cpp
         src/bsdfs/bsdf.cpp
         src/camera.cpp
         src/image.cpp

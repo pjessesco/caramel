@@ -176,6 +176,12 @@ namespace Caramel{
                 return BSDF::Create<Dielectric>(parse_positive_float(child, "in_ior"),
                                                 parse_positive_float(child, "ex_ior"));
             }
+            else if(type=="microfacet"){
+                return BSDF::Create<Microfacet>(parse_positive_float(child, "alpha"),
+                                                parse_positive_float(child, "in_ior"),
+                                                parse_positive_float(child, "ex_ior"),
+                                                parse_vector3f(child, "kd"));
+            }
             else{
                 CRM_ERROR(type + "bsdf is not supported : "+ to_string(child));
             }
