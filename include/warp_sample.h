@@ -98,6 +98,43 @@ namespace Caramel{
         return vec[2] <= 0 ? Float0 : vec[2]*PI_INV;
     }
 
+    // ----------------------------------------------
+
+    inline std::pair<Vector3f, Float> sample_beckmann_distrib(Sampler &sampler, Float alpha){
+        const Float s1 = sampler.sample_1d();
+        const Float s2 = sampler.sample_1d();
+
+        const Float phi = PI_2 * s1;
+        const Float theta = std::atan(std::sqrt(-alpha*alpha * std::log(1-s2)));
+
+        const Float cos_phi = std::cos(phi);
+        const Float sin_phi = std::sin(phi);
+        const Float cos_theta = std::cos(theta);
+        const Float sin_theta = std::sin(theta);
+
+        const Vector3f val = Vector3f{sin_theta * cos_phi, sin_theta * sin_phi, cos_theta};
+
+        // pdf ------------------
+
+        const Float alpha_2 = alpha * alpha;
+        const Float tan_theta_2 = (val[0] * val[0] + val[1] * val[1]) / (val[2] * val[2]);
+        const Float cos_theta_3 = val[2] * val[2] * val[2];
+
+        const Float pdf = PI_INV * std::exp(-tan_theta_2/alpha_2) / (alpha_2 * cos_theta_3);
+        return {val, pdf};
+    }
+
+    inline Float sample_beckmann_distrib_pdf(const Vector3f &vec, Float alpha){
+        if(vec[2] <= 0){
+            return 0;
+        }
+
+        const Float alpha_2 = alpha * alpha;
+        const float tan_theta_2 = (vec[0]*vec[0] + vec[1]*vec[1]) / (vec[2] * vec[2]);
+        const float cos_theta_3 = vec[2] * vec[2] * vec[2];
+        return PI_INV * std::exp(-tan_theta_2/alpha_2) / (alpha_2 * cos_theta_3);
+    }
+
 }
 
 
