@@ -55,7 +55,7 @@ set(HEADERS
         include/shape.h
         include/transform.h
         include/warp_sample.h
-        include/scene_parser.h)
+        include/scene_parser.h src/scene_parser.cpp)
 
 add_executable(caramel
         ${SOURCES}
