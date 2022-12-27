@@ -33,11 +33,6 @@
 #include <vector>
 
 #include <common.h>
-#include <scene.h>
-#include <integrators.h>
-#include <camera.h>
-#include <bsdf.h>
-#include <shape.h>
 
 #include <json.hpp>
 
@@ -47,239 +42,44 @@ namespace Caramel{
     class Integrator;
     struct Shape;
     struct Camera;
+    class Light;
+    class AreaLight;
 
     class SceneParser{
         using Json = nlohmann::json;
 
     public:
-        explicit SceneParser(const std::filesystem::path &path) {
-            CRM_LOG("Parsing " + path.string());
-            if(!std::filesystem::exists(path)){
-                CRM_ERROR("Scene file does not exists : " + path.string());
-            }
+        explicit SceneParser(const std::filesystem::path &path);
 
-            std::ifstream stream(path);
-            m_scene_json = Json::parse(stream);
-        }
+        Integrator* parse_integrator() const;
 
-        Integrator* parse_integrator() const{
-            const Json child = get_unique_first_elem(m_scene_json, "integrator");
-            const std::string type = parse_string(child, "type");
-            if(type=="depth"){
-                return Integrator::Create<DepthIntegrator>();
-            }
-            else if(type=="uv"){
-                return Integrator::Create<UVIntegrator>();
-            }
-            else if(type=="hitpos"){
-                return Integrator::Create<HitPosIntegrator>();
-            }
-            else if(type=="normal"){
-                return Integrator::Create<NormalIntegrator>();
-            }
-            else if(type=="direct"){
-                return Integrator::Create<DirectIntegrator>(parse_positive_int(child, "spp"),
-                                                            SamplingType::LIGHT);
-            }
-            else if(type=="path"){
-                return Integrator::Create<PathIntegrator>(parse_positive_int(child, "depth_rr"),
-                                                          parse_positive_int(child, "depth_max"),
-                                                          parse_positive_int(child, "spp"),
-                                                          SamplingType::LIGHT);
-            }
-            else{
-                CRM_ERROR(type + "integrator is not supported : "+ to_string(child));
-            }
-        }
+        Camera* parse_camera() const;
 
-        Camera* parse_camera() const{
-            const Json child = get_unique_first_elem(m_scene_json, "camera");
-            const std::string type = parse_string(child, "type");
-            if(true /* perspective */){
-                return Camera::Create<Camera>(parse_vector3f(child, "pos"),
-                                              parse_vector3f(child, "dir"),
-                                              parse_vector3f(child, "up"),
-                                              parse_positive_int(child, "width"),
-                                              parse_positive_int(child, "height"),
-                                              parse_positive_float(child, "fov"));
-            }
-            else{
-                CRM_ERROR(type + "camera is not supported : "+ to_string(child));
-            }
-        }
+        std::vector<Shape*> parse_shapes() const;
 
-        std::vector<Shape*> parse_shapes() const{
-            std::vector<Shape*> shapes;
-
-            const Json child = get_unique_first_elem(m_scene_json, "shape");
-            if(child.is_array()){
-                for(const auto &ch : child){
-                    shapes.push_back(parse_shape(ch));
-                }
-            }
-            return shapes;
-        }
-
-        Light* parse_light() const{
-            // TODO
-        }
+        Light* parse_light() const;
 
     private:
-        Shape* parse_shape(const Json &shape_json) const{
-            const std::string type = parse_string(shape_json, "type");
-            if(type=="obj"){
-                return Shape::Create<OBJMesh>(parse_string(shape_json, "path"),
-                                              parse_bsdf(shape_json),
-                                              shape_json.contains("arealight") ?
-                                                    parse_arealight(shape_json) :
-                                                    nullptr,
-                                              shape_json.contains("to_world") ?
-                                                    parse_matrix44f(shape_json, "to_world") :
-                                                    Matrix44f::identity());
-            }
-            else if(type=="triangle"){
-                if(shape_json.contains("n0") || shape_json.contains("n1") || shape_json.contains("n2")){
-                    return Shape::Create<Triangle>(parse_vector3f(shape_json, "p0"),
-                                                   parse_vector3f(shape_json, "p1"),
-                                                   parse_vector3f(shape_json, "p2"),
-                                                   parse_vector3f(shape_json, "n0"),
-                                                   parse_vector3f(shape_json, "n1"),
-                                                   parse_vector3f(shape_json, "n2"));
-                }
-                else{
-                    return Shape::Create<Triangle>(parse_vector3f(shape_json, "p0"),
-                                                   parse_vector3f(shape_json, "p1"),
-                                                   parse_vector3f(shape_json, "p2"));
-                }
-            }
-
-        }
+        Shape* parse_shape(const Json &shape_json) const;
 
         // Other lights are handled in `parse_light()`
-        AreaLight* parse_arealight(const Json &shape_json) const{
-            const Json child = get_unique_first_elem(shape_json, "arealight");
-            return AreaLight::Create(parse_vector3f(child, "radiance"));
-        }
+        AreaLight* parse_arealight(const Json &shape_json) const;
 
-        BSDF* parse_bsdf(const Json &bsdf_json) const{
-            const Json child = get_unique_first_elem(bsdf_json, "bsdf");
-            const std::string type = parse_string(child, "type");
-            if(type == "diffuse"){
-                return child.contains("albedo") ?
-                            BSDF::Create<Diffuse>(parse_vector3f(child, "albedo")) :
-                            BSDF::Create<Diffuse>();
-            }
-            else if(type=="mirror"){
-                return BSDF::Create<Mirror>();
-            }
-            else if(type=="dielectric"){
-                return BSDF::Create<Dielectric>(parse_positive_float(child, "in_ior"),
-                                                parse_positive_float(child, "ex_ior"));
-            }
-            else if(type=="microfacet"){
-                return BSDF::Create<Microfacet>(parse_positive_float(child, "alpha"),
-                                                parse_positive_float(child, "in_ior"),
-                                                parse_positive_float(child, "ex_ior"),
-                                                parse_vector3f(child, "kd"));
-            }
-            else{
-                CRM_ERROR(type + "bsdf is not supported : "+ to_string(child));
-            }
+        BSDF* parse_bsdf(const Json &bsdf_json) const;
 
-        }
+        Json get_unique_first_elem(const Json &parent, const std::string &key) const;
 
-        Json get_unique_first_elem(const Json &parent, const std::string &key) const{
-            if(!parent.contains(key)){
-                CRM_ERROR("Can not found " + key + " in json : "+ to_string(parent));
-            }
-            if(parent.count(key) > 1){
-                CRM_WARNING("Duplicated key " + key + "is found in json : " + to_string(parent));
-            }
-            return parent[key];
-        }
+        Vector3f parse_vector3f(const Json &parent, const std::string &key) const;
 
-        Vector3f parse_vector3f(const Json &parent, const std::string &key) const{
-            const Json child = get_unique_first_elem(parent, key);
+        std::string parse_string(const Json &parent, const std::string &key) const;
 
-            if(child.is_array() && child.size()==3 &&
-               std::all_of(child.begin(), child.end(), [](auto e){return e.is_number();})){
-                return Vector3f{static_cast<Float>(child[0]),
-                                static_cast<Float>(child[1]),
-                                static_cast<Float>(child[2])};
-            }
-            CRM_ERROR("Can not parse vector3f : " + to_string(child));
-        }
+        Float parse_positive_float(const Json &parent, const std::string &key) const;
 
-        std::string parse_string(const Json &parent, const std::string &key) const{
-            const Json child = get_unique_first_elem(parent, key);
+        Index parse_positive_int(const Json &parent, const std::string &key) const;
 
-            if(child.is_string()){
-                return child;
-            }
-            // ???
-            CRM_ERROR("Can not parse string : " + to_string(child));
-        }
-
-        Float parse_positive_float(const Json &parent, const std::string &key) const{
-            const Json child = get_unique_first_elem(parent, key);
-            if(child.is_number() && child > Float0){
-                return static_cast<Float>(child);
-            }
-            CRM_ERROR("Can not parse float : " + to_string(child));
-        }
-
-        Index parse_positive_int(const Json &parent, const std::string &key) const{
-            const Json child = get_unique_first_elem(parent, key);
-            if(child.is_number_integer() && child > 0){
-                return static_cast<Index>(child);
-            }
-            CRM_ERROR("Can not parse non-negative int : " + to_string(child));
-        }
-
-        Matrix44f parse_matrix44f(const Json &parent, const std::string &key) const{
-            const Json child = get_unique_first_elem(parent, key);
-            if(!child.is_array()){
-                CRM_ERROR("Can not parse matrix : " + to_string(child));
-            }
-
-            if(child.size() == 16 &&
-               std::all_of(child.begin(), child.end(), [](auto e){return e.is_number();})){
-                return Matrix44f{static_cast<Float>(child[0]), static_cast<Float>(child[1]), static_cast<Float>(child[2]), static_cast<Float>(child[3]),
-                                 static_cast<Float>(child[4]), static_cast<Float>(child[5]), static_cast<Float>(child[6]), static_cast<Float>(child[7]),
-                                 static_cast<Float>(child[8]), static_cast<Float>(child[9]), static_cast<Float>(child[10]), static_cast<Float>(child[11]),
-                                 static_cast<Float>(child[12]), static_cast<Float>(child[13]), static_cast<Float>(child[14]), static_cast<Float>(child[15])};
-            }
-            else if(std::all_of(child.begin(), child.end(), [](auto e){return e.is_object();})){
-                Matrix44f mat = Matrix44f::identity();
-                for(const auto &e : child){
-                    const std::string key = parse_string(e, "type");
-                    if(key == "translate"){
-                        const Vector3f val = parse_vector3f(e, "value");
-                        mat = translate(val[0], val[1], val[2]) * mat;
-                    }
-                    else if(key == "scale"){
-                        const Vector3f val = parse_vector3f(e, "value");
-                        mat = scale(val[0], val[1], val[2]) * mat;
-                    }
-                    else if(key=="rotate_x"){
-                        mat = rotate_x(parse_positive_float(e, "degree")) * mat;
-                    }
-                    else if(key=="rotate_y"){
-                        mat = rotate_y(parse_positive_float(e, "degree")) * mat;
-                    }
-                    else if(key=="rotate_z"){
-                        mat = rotate_z(parse_positive_float(e, "degree")) * mat;
-                    }
-                    else{
-                        CRM_ERROR("Can not parse transform : " + to_string(e));
-                    }
-                }
-                return mat;
-            }
-        }
+        Matrix44f parse_matrix44f(const Json &parent, const std::string &key) const;
 
         Json m_scene_json;
-
     };
 
 }
