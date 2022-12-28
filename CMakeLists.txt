@@ -11,7 +11,6 @@ include_directories(ext/peanut/include)
 include_directories(include)
 
 set(SOURCES
-        main.cpp
         src/aabb.cpp
         src/bsdfs/diffuse.cpp
         src/bsdfs/mirror.cpp
@@ -57,7 +56,22 @@ set(HEADERS
         include/warp_sample.h
         include/scene_parser.h src/scene_parser.cpp)
 
+if(NOT EXCLUDE_TEST)
+    add_executable(caramel_test
+            ${SOURCES}
+            ${HEADERS}
+
+            test/catch_amalgamated.hpp
+            test/catch_amalgamated.cpp
+
+            test/test_ray_intersection.cpp
+            )
+
+    target_include_directories(caramel_test PUBLIC ../include)
+endif()
+
 add_executable(caramel
+        main.cpp
         ${SOURCES}
         ${HEADERS})
 
