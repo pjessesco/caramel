@@ -135,7 +135,7 @@ namespace Caramel {
         CRM_LOG(" - Done.");
     }
 
-    std::tuple<bool, RayIntersectInfo> OBJMesh::ray_intersect(const Ray &ray) const {
+    std::pair<bool, RayIntersectInfo> OBJMesh::ray_intersect(const Ray &ray) const {
         return m_accel->ray_intersect(ray);
     }
 
