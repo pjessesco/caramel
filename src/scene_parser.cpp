@@ -41,7 +41,7 @@ namespace Caramel{
         m_scene_json = Json::parse(stream);
     }
 
-    Integrator *SceneParser::parse_integrator() const {
+    Integrator* SceneParser::parse_integrator() const {
         const Json child = get_unique_first_elem(m_scene_json, "integrator");
         const std::string type = parse_string(child, "type");
         if(type=="depth"){
@@ -71,7 +71,7 @@ namespace Caramel{
         }
     }
 
-    Camera *SceneParser::parse_camera() const {
+    Camera* SceneParser::parse_camera() const {
         const Json child = get_unique_first_elem(m_scene_json, "camera");
         const std::string type = parse_string(child, "type");
         if(true /* perspective */){
@@ -87,7 +87,7 @@ namespace Caramel{
         }
     }
 
-    std::vector<Shape *> SceneParser::parse_shapes() const {
+    std::vector<Shape*> SceneParser::parse_shapes() const {
         std::vector<Shape*> shapes;
 
         const Json child = get_unique_first_elem(m_scene_json, "shape");
@@ -99,11 +99,11 @@ namespace Caramel{
         return shapes;
     }
 
-    Light *SceneParser::parse_light() const {
-        // TODO
+    Light* SceneParser::parse_light() const {
+        return nullptr;
     }
 
-    Shape *SceneParser::parse_shape(const SceneParser::Json &shape_json) const {
+    Shape* SceneParser::parse_shape(const SceneParser::Json &shape_json) const {
         const std::string type = parse_string(shape_json, "type");
         if(type=="obj"){
             return Shape::Create<OBJMesh>(parse_string(shape_json, "path"),
@@ -133,12 +133,12 @@ namespace Caramel{
 
     }
 
-    AreaLight *SceneParser::parse_arealight(const SceneParser::Json &shape_json) const {
+    AreaLight* SceneParser::parse_arealight(const SceneParser::Json &shape_json) const {
         const Json child = get_unique_first_elem(shape_json, "arealight");
         return AreaLight::Create(parse_vector3f(child, "radiance"));
     }
 
-    BSDF *SceneParser::parse_bsdf(const SceneParser::Json &bsdf_json) const {
+    BSDF* SceneParser::parse_bsdf(const SceneParser::Json &bsdf_json) const {
         const Json child = get_unique_first_elem(bsdf_json, "bsdf");
         const std::string type = parse_string(child, "type");
         if(type == "diffuse"){
