@@ -23,7 +23,6 @@
 //
 
 #include <iostream>
-#include <memory>
 
 #include <image.h>
 #include <scene.h>
@@ -49,7 +48,7 @@ int main(int argc, char* argv[]) {
 
     Scene scene;
     for(auto s : shapes){
-        scene.add_mesh(std::shared_ptr<Shape>(s));
+        scene.add_mesh(s);
     }
     scene.set_camera(cam);
     {

@@ -41,7 +41,8 @@
 
 namespace Caramel{
 
-    struct Shape{
+    class Shape{
+    public:
         Shape(BSDF *bsdf, AreaLight *arealight);
         virtual ~Shape() = default;
 
@@ -56,17 +57,27 @@ namespace Caramel{
             return m_arealight != nullptr;
         }
 
+        AreaLight *get_arealight() const{
+            return m_arealight;
+        }
+
+        BSDF* get_bsdf() const{
+            return m_bsdf;
+        }
+
         template <typename Type, typename ...Param>
         static Shape* Create(Param ...args){
             return dynamic_cast<Shape*>(new Type(args...));
         }
 
-        std::unique_ptr<BSDF> m_bsdf;
+    private:
+        BSDF *m_bsdf;
         // Shape can have arealight only
-        std::shared_ptr<AreaLight> m_arealight;
+        AreaLight *m_arealight;
     };
 
-    struct Triangle final : Shape{
+    class Triangle final : public Shape{
+    public:
         Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2);
 
         Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2,
@@ -88,7 +99,8 @@ namespace Caramel{
         const bool is_vn_exists;
     };
 
-    struct OBJMesh final : Shape{
+    class OBJMesh final : public Shape{
+    public:
         OBJMesh(const std::filesystem::path &path, BSDF *bsdf, AreaLight *arealight = nullptr, const Matrix44f &transform = Matrix44f::identity());
 
         std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;

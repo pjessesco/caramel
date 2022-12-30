@@ -51,8 +51,8 @@ namespace Caramel{
 
         // traverse recursive ray until non-discrete bsdf is met
         Float recursive_pdf = Float1;
-        while(scene.m_meshes[info.idx]->m_bsdf->is_discrete()){
-            auto [recursive_dir, _, __] = scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
+        while(scene.m_meshes[info.idx]->get_bsdf()->is_discrete()){
+            auto [recursive_dir, _, __] = scene.m_meshes[info.idx]->get_bsdf()->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
             ray = Ray(info.p, recursive_dir);
             if(sampler.sample_1d() < static_cast<Float>(0.95)){
                 std::tie(is_hit, info) = scene.ray_intersect(ray);
@@ -67,10 +67,10 @@ namespace Caramel{
         }
 
         if(scene.m_meshes[info.idx]->is_light()){
-            return scene.m_meshes[info.idx]->m_arealight->radiance();
+            return scene.m_meshes[info.idx]->get_arealight()->radiance();
         }
 
-        auto [world_outgoing, contrib, _] = scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
+        auto [world_outgoing, contrib, _] = scene.m_meshes[info.idx]->get_bsdf()->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
         const Ray recursive_ray(info.p, world_outgoing);
         auto [recursive_is_hit, recursive_info] = scene.ray_intersect(recursive_ray);
 
@@ -78,7 +78,7 @@ namespace Caramel{
             return vec3f_zero;
         }
 
-        Vector3f rad = scene.m_meshes[recursive_info.idx]->m_arealight->radiance();
+        Vector3f rad = scene.m_meshes[recursive_info.idx]->get_arealight()->radiance();
 
         return Peanut::EMult(contrib, rad) / recursive_pdf;
     }
@@ -95,8 +95,8 @@ namespace Caramel{
 
         // traverse recursive ray until non-discrete bsdf is met
         Float recursive_pdf = Float1;
-        while(scene.m_meshes[info.idx]->m_bsdf->is_discrete()){
-            auto [recursive_dir, _, __] = scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
+        while(scene.m_meshes[info.idx]->get_bsdf()->is_discrete()){
+            auto [recursive_dir, _, __] = scene.m_meshes[info.idx]->get_bsdf()->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
             ray = Ray(info.p, recursive_dir);
             if(sampler.sample_1d() < static_cast<Float>(0.95)){
                 std::tie(is_hit, info) = scene.ray_intersect(ray);
@@ -111,7 +111,7 @@ namespace Caramel{
         }
 
         if(scene.m_meshes[info.idx]->is_light()){
-            return scene.m_meshes[info.idx]->m_arealight->radiance();
+            return scene.m_meshes[info.idx]->get_arealight()->radiance();
         }
 
         // Direct light sampling
@@ -122,7 +122,7 @@ namespace Caramel{
         const Vector3f hitpos_to_light_world_normal = hitpos_to_light_world.normalize();
         const Float dist_square = hitpos_to_light_world.dot(hitpos_to_light_world);
 
-        Vector3f fr = scene.m_meshes[info.idx]->m_bsdf->get_reflection(ray.m_d, hitpos_to_light_world.normalize(), info.sh_coord);
+        Vector3f fr = scene.m_meshes[info.idx]->get_bsdf()->get_reflection(ray.m_d, hitpos_to_light_world.normalize(), info.sh_coord);
 
         Float geo = light_n.dot(-1 * hitpos_to_light_world_normal) * info.sh_coord.m_world_n.dot(hitpos_to_light_world_normal) / dist_square;
         Float pdf = light_pdf * light_pos_pdf * recursive_pdf;

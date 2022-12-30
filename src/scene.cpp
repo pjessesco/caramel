@@ -22,7 +22,6 @@
 // SOFTWARE.
 //
 
-#include <memory>
 #include <tuple>
 
 #include <common.h>
@@ -36,8 +35,8 @@ namespace Caramel{
 
     Scene::Scene() : m_cam{nullptr} {}
 
-    void Scene::set_camera(Caramel::Camera *camera) {
-        m_cam = std::unique_ptr<Camera>(camera);
+    void Scene::set_camera(Camera *camera) {
+        m_cam = camera;
     }
 
     std::tuple<bool, RayIntersectInfo> Scene::ray_intersect(const Ray &ray) const{
@@ -59,14 +58,14 @@ namespace Caramel{
         return {is_hit, info};
     }
 
-    void Scene::add_mesh(const std::shared_ptr<Shape>& shape){
+    void Scene::add_mesh(const Shape *shape){
         m_meshes.emplace_back(shape);
         if(shape->is_light()){
-            m_lights.push_back(shape->m_arealight);
+            m_lights.push_back(shape->get_arealight());
         }
     }
 
-    void Scene::add_light(const std::shared_ptr<Light>& light){
+    void Scene::add_light(const Light *light){
         m_lights.emplace_back(light);
     }
 
@@ -83,7 +82,7 @@ namespace Caramel{
         return dist.length() - info.t <= EPSILON;
     }
 
-    std::tuple<std::shared_ptr<Light>, Float> Scene::sample_light(Sampler &sampler) const{
+    std::tuple<const Light*, Float> Scene::sample_light(Sampler &sampler) const{
         const Index idx = static_cast<Index>(sampler.sample_1d() * static_cast<Float>(m_lights.size()));
         return {m_lights[idx], Float1 / static_cast<Float>(m_lights.size())};
     }
