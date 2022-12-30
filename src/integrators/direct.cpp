@@ -36,6 +36,8 @@ namespace Caramel{
                 return brdf_sampling_direct(scene, i, j, sampler);
             case SamplingType::LIGHT:
                 return emitter_sampling_direct(scene, i, j, sampler);
+            default:
+                return vec3f_zero;
         }
     }
 

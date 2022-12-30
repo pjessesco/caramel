@@ -39,6 +39,8 @@ namespace Caramel{
                 return emitter_sampling_path(scene, i, j, sampler);
             case SamplingType::MIS:
                 return mis_sampling_path(scene, i, j, sampler);
+            default:
+                return vec3f_zero;
         }
     }
 
