@@ -131,6 +131,8 @@ namespace Caramel{
             }
         }
 
+        CRM_ERROR("Unsupported shape type : " + type);
+        return nullptr;
     }
 
     AreaLight* SceneParser::parse_arealight(const SceneParser::Json &shape_json) const {
@@ -253,6 +255,8 @@ namespace Caramel{
             }
             return mat;
         }
+        CRM_ERROR("Can not parse matrix : " + to_string(child));
+        return Matrix44f();
     }
 
 }
