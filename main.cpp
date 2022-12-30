@@ -23,11 +23,12 @@
 //
 
 #include <iostream>
+#include <vector>
 
+#include <scene_parser.h>
 #include <image.h>
 #include <scene.h>
 #include <integrators.h>
-#include <scene_parser.h>
 
 using namespace Caramel;
 
