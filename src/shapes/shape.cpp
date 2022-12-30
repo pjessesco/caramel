@@ -127,18 +127,18 @@ namespace Caramel {
         const Float W = _p1[0] * _p0[1] - _p1[1] * _p0[0];
 
         if(U<0 || V<0 || W<0){
-            return {-1, -1, -1};
+            return {-Float1, -Float1, -Float1};
         }
 
         const Float det = U + V + W;
         if(std::abs(det)<EPSILON){
-            return {-1, -1, -1};
+            return {-Float1, -Float1, -Float1};
         }
 
         const Float T = U * _p0[2] + V * _p1[2] + W * _p2[2];
 
         if(T < EPSILON){
-            return {-1, -1, -1};
+            return {-Float1, -Float1, -Float1};
         }
         return {U/det, V/det, T/det};
 

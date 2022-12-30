@@ -40,7 +40,7 @@ namespace Caramel{
         // returns emitted radiance, sampled point, sampled normal, pdf
         virtual std::tuple<Vector3f, Vector3f, Vector3f, Float> sample_contribution(const Scene &scene,
                                                                                     const Vector3f &pos,
-                                                                                    Sampler &sampler) = 0;
+                                                                                    Sampler &sampler) const = 0;
 
         // Arealight is handled in AreaLight::Create
         template <typename Type, typename ...Param>
@@ -57,7 +57,7 @@ namespace Caramel{
         Vector3f radiance() const override;
         std::tuple<Vector3f, Vector3f, Vector3f, Float> sample_contribution(const Scene &scene,
                                                                             const Vector3f &hitpos,
-                                                                            Sampler &sampler) override;
+                                                                            Sampler &sampler) const override;
 
         template <typename ...Param>
         static AreaLight* Create(Param ...args){

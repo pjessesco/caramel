@@ -24,7 +24,6 @@
 
 #pragma once
 
-#include <memory>
 #include <tuple>
 
 #include <common.h>
@@ -41,23 +40,13 @@ namespace Caramel{
         void set_camera(Camera *camera);
 
         std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const;
-        void add_mesh(const std::shared_ptr<Shape>& shape);
-        void add_light(const std::shared_ptr<Light>& light);
+        void add_mesh(const Shape *shape);
+        void add_light(const Light *light);
         bool is_visible(const Vector3f &pos1, const Vector3f &pos2) const;
-        std::tuple<std::shared_ptr<Light>, Float> sample_light(Sampler &sampler) const;
+        std::tuple<const Light*, Float> sample_light(Sampler &sampler) const;
 
-        std::vector<std::shared_ptr<Light>> m_lights;
-        std::vector<std::shared_ptr<Shape>> m_meshes;
-        std::unique_ptr<Camera> m_cam;
+        std::vector<const Light*> m_lights;
+        std::vector<const Shape*> m_meshes;
+        const Camera *m_cam;
     };
-
-    // Will be removed after scene file implemented
-    Scene scene_cbox();
-    Scene scene_cbox2();
-    Scene scene_cbox_complex();
-    Scene scene_ajax();
-    Scene scene_bunny();
-    Scene scene_logo1();
-
-
 }
