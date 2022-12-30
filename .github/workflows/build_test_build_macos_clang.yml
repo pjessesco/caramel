@@ -1,4 +1,4 @@
-name: Build (macOS, Clang)
+name: Build & Test (macOS, Clang)
 
 on:
   push:
