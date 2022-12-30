@@ -39,6 +39,8 @@ namespace Caramel{
                 return emitter_sampling_path(scene, i, j, sampler);
             case SamplingType::MIS:
                 return mis_sampling_path(scene, i, j, sampler);
+            default:
+                return vec3f_zero;
         }
     }
 
@@ -57,11 +59,11 @@ namespace Caramel{
             }
 
             if(scene.m_meshes[info.idx]->is_light()){
-                return Peanut::EMult(current_brdf, scene.m_meshes[info.idx]->m_arealight->radiance());
+                return Peanut::EMult(current_brdf, scene.m_meshes[info.idx]->get_arealight()->radiance());
             }
 
             // brdf sample
-            auto [recursive_dir, sampled_brdf, brdf_pdf] = scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
+            auto [recursive_dir, sampled_brdf, brdf_pdf] = scene.m_meshes[info.idx]->get_bsdf()->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
             current_brdf = Peanut::EMult(current_brdf, sampled_brdf);
 
             ray = Ray(info.p, recursive_dir);
@@ -86,13 +88,13 @@ namespace Caramel{
 
             if(scene.m_meshes[info.idx]->is_light()){
                 if(depth == 0 || from_specular){
-                    ret = ret + Peanut::EMult(scene.m_meshes[info.idx]->m_arealight->radiance(), current_brdf);
+                    ret = ret + Peanut::EMult(scene.m_meshes[info.idx]->get_arealight()->radiance(), current_brdf);
                 }
                 break;
             }
 
             // emiiter sampling
-            const bool is_current_specular = scene.m_meshes[info.idx]->m_bsdf->is_discrete();
+            const bool is_current_specular = scene.m_meshes[info.idx]->get_bsdf()->is_discrete();
             if(!is_current_specular){
                 auto [light, light_pdf] = scene.sample_light(sampler);
                 auto [emitted_rad, light_pos, light_n, light_pos_pdf] = light->sample_contribution(scene, info.p, sampler);
@@ -101,7 +103,7 @@ namespace Caramel{
                 const Vector3f hitpos_to_light_world_normal = hitpos_to_light_world.normalize();
                 const Float dist_square = hitpos_to_light_world.dot(hitpos_to_light_world);
 
-                const Vector3f fr = scene.m_meshes[info.idx]->m_bsdf->get_reflection(ray.m_d, hitpos_to_light_world.normalize(), info.sh_coord);
+                const Vector3f fr = scene.m_meshes[info.idx]->get_bsdf()->get_reflection(ray.m_d, hitpos_to_light_world.normalize(), info.sh_coord);
 
                 const Float geo = light_n.dot(-1 * hitpos_to_light_world_normal) * info.sh_coord.m_world_n.dot(hitpos_to_light_world_normal) / dist_square;
                 const Float pdf = light_pdf * light_pos_pdf;
@@ -110,9 +112,9 @@ namespace Caramel{
             }
 
             // brdf sampling
-            auto [recursive_dir, sampled_brdf, _] = scene.m_meshes[info.idx]->m_bsdf->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
+            auto [recursive_dir, sampled_brdf, _] = scene.m_meshes[info.idx]->get_bsdf()->sample_recursive_dir(ray.m_d, sampler, info.sh_coord);
             current_brdf = Peanut::EMult(current_brdf, sampled_brdf);
-            from_specular = scene.m_meshes[info.idx]->m_bsdf->is_discrete();
+            from_specular = scene.m_meshes[info.idx]->get_bsdf()->is_discrete();
 
             if(depth >= m_rr_depth){
                 const Float rr = current_brdf.max();
