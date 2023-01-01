@@ -31,7 +31,7 @@ namespace Caramel{
 
     Dielectric::Dielectric(Float in_ior, Float ex_ior) : m_in_index_of_refraction{in_ior}, m_ex_index_of_refraction{ex_ior} {}
 
-    std::tuple<Vector3f, Vector3f, Float> Dielectric::sample_recursive_dir(const Vector3f &world_incoming_dir, Sampler &sampler, const Coordinate &coord) {
+    std::tuple<Vector3f, Vector3f, Float> Dielectric::sample_recursive_dir(const Vector3f &world_incoming_dir, Sampler &sampler, const Coordinate &coord) const {
         const Vector3f local_incoming = coord.to_local(world_incoming_dir);
 
         // Multiply -1 to calculate cosine, since we use incoming direction as point-toward direction
@@ -66,7 +66,12 @@ namespace Caramel{
         }
 
     }
-    Vector3f Dielectric::get_reflection(const Vector3f &, const Vector3f &, const Coordinate &) {
+
+    Float Dielectric::pdf(const Vector3f &, const Vector3f &, const Coordinate &) const{
+        return Float0;
+    }
+
+    Vector3f Dielectric::get_reflection(const Vector3f &, const Vector3f &, const Coordinate &) const {
         return vec3f_zero;
     }
 

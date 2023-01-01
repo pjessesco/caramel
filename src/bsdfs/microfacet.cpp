@@ -31,7 +31,7 @@ namespace Caramel{
     Microfacet::Microfacet(Float alpha, Float in_ior, Float ex_ior, const Vector3f &kd)
         : m_alpha{alpha}, m_in_index_of_refraction{in_ior}, m_ex_index_of_refraction{ex_ior}, m_kd(kd), m_ks{Float1 - kd.max()} {}
 
-    std::tuple<Vector3f, Vector3f, Float> Microfacet::sample_recursive_dir(const Vector3f &world_incoming_dir, Sampler &sampler, const Coordinate &coord) {
+    std::tuple<Vector3f, Vector3f, Float> Microfacet::sample_recursive_dir(const Vector3f &world_incoming_dir, Sampler &sampler, const Coordinate &coord) const {
         // from hitpoint to incoming point
         const Vector3f local_incoming = -Float1 * coord.to_local(world_incoming_dir).normalize();
         Vector3f local_outgoing;
@@ -45,18 +45,27 @@ namespace Caramel{
         }
 
         // pdf -------------
+        const Float pdf_ = pdf(world_incoming_dir, coord.to_world(local_outgoing), coord);
+
+        return {coord.to_world(local_outgoing),
+                get_reflection(world_incoming_dir, coord.to_world(local_outgoing), coord) * local_outgoing[2] / pdf_,
+                pdf_};
+    }
+
+    Float Microfacet::pdf(const Vector3f &world_incoming_dir, const Vector3f &world_outgoing_dir, const Coordinate &coord) const{
+        Vector3f local_incoming = -Float1 * coord.to_local(world_incoming_dir).normalize();
+        Vector3f local_outgoing = coord.to_local(world_outgoing_dir).normalize();
+
         const Vector3f wh = Vector3f(local_incoming + local_outgoing).normalize();
         const Float Jh = Float1 / (static_cast<Float>(4) * wh.dot(local_outgoing));
 
         const Float pdf =  (m_ks * sample_beckmann_distrib_pdf(wh, m_alpha) * Jh) +
-                           (Float1 - m_ks) * local_outgoing[2] * PI_INV;
+                          (Float1 - m_ks) * local_outgoing[2] * PI_INV;
 
-        return {coord.to_world(local_outgoing),
-                get_reflection(world_incoming_dir, coord.to_world(local_outgoing), coord) * local_outgoing[2] / pdf,
-                pdf};
+        return pdf;
     }
 
-    Vector3f Microfacet::get_reflection(const Vector3f &world_incoming_dir, const Vector3f &world_outgoing_dir, const Coordinate &coord) {
+    Vector3f Microfacet::get_reflection(const Vector3f &world_incoming_dir, const Vector3f &world_outgoing_dir, const Coordinate &coord) const {
         // from hitpoint to incoming point
         const Vector3f local_incoming = -Float1 * coord.to_local(world_incoming_dir).normalize();
         const Vector3f local_outgoing = coord.to_local(world_outgoing_dir).normalize();
