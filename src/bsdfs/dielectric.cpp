@@ -31,13 +31,11 @@ namespace Caramel{
 
     Dielectric::Dielectric(Float in_ior, Float ex_ior) : m_in_index_of_refraction{in_ior}, m_ex_index_of_refraction{ex_ior} {}
 
-    std::tuple<Vector3f, Vector3f, Float> Dielectric::sample_recursive_dir(const Vector3f &world_incoming_dir, Sampler &sampler, const Coordinate &coord) const {
-        const Vector3f local_incoming = coord.to_local(world_incoming_dir);
-
+    std::tuple<Vector3f, Vector3f, Float> Dielectric::sample_recursive_dir(const Vector3f &local_incoming_dir, Sampler &sampler) const {
         // Multiply -1 to calculate cosine, since we use incoming direction as point-toward direction
         // Values varies on `local_incoming_cos`
         Vector3f n{Float0, Float0, Float1};
-        Float local_incoming_cos = n.dot(-1 * local_incoming);
+        Float local_incoming_cos = n.dot(-1 * local_incoming_dir);
 
         Float ex_ior = m_ex_index_of_refraction;
         Float in_ior = m_in_index_of_refraction;
@@ -53,25 +51,25 @@ namespace Caramel{
         const Float reflect_ratio = fresnel_dielectric(local_incoming_cos, ex_ior, in_ior);
 
         if(sampler.sample_1d() <= reflect_ratio){
-            const Vector3f local_outgoing{local_incoming[0], local_incoming[1], -local_incoming[2]};
-            return {coord.to_world(local_outgoing), vec3f_one, Float0};
+            const Vector3f local_outgoing_dir{local_incoming_dir[0], local_incoming_dir[1], -local_incoming_dir[2]};
+            return {local_outgoing_dir, vec3f_one, Float0};
         }
         else{
             const Float eta_ratio = ex_ior / in_ior;
             const Float sin_i = sqrt(1 - (local_incoming_cos * local_incoming_cos));
             const Float sin_t = snell_get_sin_t(sin_i, ex_ior, in_ior);
             const Float cos_t = sqrt(1 - (sin_t * sin_t));
-            const Vector3f local_outgoing_dir = eta_ratio * local_incoming + (eta_ratio * n.dot(-1 * local_incoming) - cos_t) * n;
-            return {coord.to_world(local_outgoing_dir), vec3f_one /* TODO : Fix */, Float0};
+            const Vector3f local_outgoing_dir = eta_ratio * local_incoming_dir + (eta_ratio * n.dot(-1 * local_incoming_dir) - cos_t) * n;
+            return {local_outgoing_dir, vec3f_one /* TODO : Fix */, Float0};
         }
 
     }
 
-    Float Dielectric::pdf(const Vector3f &, const Vector3f &, const Coordinate &) const{
+    Float Dielectric::pdf(const Vector3f &, const Vector3f &) const{
         return Float0;
     }
 
-    Vector3f Dielectric::get_reflection(const Vector3f &, const Vector3f &, const Coordinate &) const {
+    Vector3f Dielectric::get_reflection(const Vector3f &, const Vector3f &) const {
         return vec3f_zero;
     }
 
