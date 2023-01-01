@@ -29,6 +29,7 @@
 #include <sampler.h>
 #include <scene.h>
 #include <shape.h>
+#include <rayintersectinfo.h>
 
 namespace Caramel{
     AreaLight::AreaLight(const Vector3f &radiance)
@@ -40,22 +41,23 @@ namespace Caramel{
         return m_radiance;
     }
 
-    std::tuple<Vector3f, Vector3f, Vector3f, Float> AreaLight::sample_contribution(const Scene &scene, const Vector3f &hitpos, Sampler &sampler) const{
+    std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> AreaLight::sample_contribution(const Scene &scene, const Vector3f &hitpos, Sampler &sampler) const{
         // Sample point on the shape
         const auto [light_pos, light_normal_world, pos_pdf] = m_shape->sample_point(sampler);
         const Vector3f light_to_hitpos = hitpos - light_pos;
 
         // If hitpoint is behind of a sampled point, zero contribution
         if(light_normal_world.dot(light_to_hitpos) <= 0){
-            return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf};
+            return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf, RayIntersectInfo()};
         }
 
         // If hitpoint and sampled point is not visible to each other, zero contribution
-        if(!scene.is_visible(hitpos, light_pos)){
-            return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf};
+        auto [is_visible, info] = scene.is_visible(hitpos, light_pos);
+        if(!is_visible){
+            return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf, RayIntersectInfo()};
         }
 
-        return {m_radiance, light_pos, light_normal_world, pos_pdf};
+        return {m_radiance, light_pos, light_normal_world, pos_pdf, info};
     }
 
 

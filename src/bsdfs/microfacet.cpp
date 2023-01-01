@@ -31,32 +31,32 @@ namespace Caramel{
     Microfacet::Microfacet(Float alpha, Float in_ior, Float ex_ior, const Vector3f &kd)
         : m_alpha{alpha}, m_in_index_of_refraction{in_ior}, m_ex_index_of_refraction{ex_ior}, m_kd(kd), m_ks{Float1 - kd.max()} {}
 
-    std::tuple<Vector3f, Vector3f, Float> Microfacet::sample_recursive_dir(const Vector3f &world_incoming_dir, Sampler &sampler, const Coordinate &coord) const {
+    std::tuple<Vector3f, Vector3f, Float> Microfacet::sample_recursive_dir(const Vector3f &local_incoming_dir, Sampler &sampler) const {
         // from hitpoint to incoming point
-        const Vector3f local_incoming = -Float1 * coord.to_local(world_incoming_dir).normalize();
+        const Vector3f local_incoming_flipped = -Float1 * local_incoming_dir.normalize();
         Vector3f local_outgoing;
 
         if(sampler.sample_1d() < m_ks){ // specular
             const Vector3f sampled_normal = sample_beckmann_distrib(sampler, m_alpha).first;
-            local_outgoing = (-Float1 * local_incoming) + static_cast<Float>(2) * local_incoming.dot(sampled_normal) * sampled_normal;
+            local_outgoing = (-Float1 * local_incoming_flipped) + static_cast<Float>(2) * local_incoming_flipped.dot(sampled_normal) * sampled_normal;
         }
         else{ // diffuse
             local_outgoing = sample_unit_hemisphere_cosine(sampler).first;
         }
 
         // pdf -------------
-        const Float pdf_ = pdf(world_incoming_dir, coord.to_world(local_outgoing), coord);
+        const Float pdf_ = pdf(local_incoming_dir, local_outgoing);
 
-        return {coord.to_world(local_outgoing),
-                get_reflection(world_incoming_dir, coord.to_world(local_outgoing), coord) * local_outgoing[2] / pdf_,
+        return {local_outgoing,
+                get_reflection(local_incoming_dir, local_outgoing) * local_outgoing[2] / pdf_,
                 pdf_};
     }
 
-    Float Microfacet::pdf(const Vector3f &world_incoming_dir, const Vector3f &world_outgoing_dir, const Coordinate &coord) const{
-        Vector3f local_incoming = -Float1 * coord.to_local(world_incoming_dir).normalize();
-        Vector3f local_outgoing = coord.to_local(world_outgoing_dir).normalize();
+    Float Microfacet::pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const{
+        Vector3f local_incoming_flipped = -Float1 * local_incoming_dir.normalize();
+        Vector3f local_outgoing = local_outgoing_dir.normalize();
 
-        const Vector3f wh = Vector3f(local_incoming + local_outgoing).normalize();
+        const Vector3f wh = Vector3f(local_incoming_flipped + local_outgoing).normalize();
         const Float Jh = Float1 / (static_cast<Float>(4) * wh.dot(local_outgoing));
 
         const Float pdf =  (m_ks * sample_beckmann_distrib_pdf(wh, m_alpha) * Jh) +
@@ -65,22 +65,22 @@ namespace Caramel{
         return pdf;
     }
 
-    Vector3f Microfacet::get_reflection(const Vector3f &world_incoming_dir, const Vector3f &world_outgoing_dir, const Coordinate &coord) const {
+    Vector3f Microfacet::get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const {
         // from hitpoint to incoming point
-        const Vector3f local_incoming = -Float1 * coord.to_local(world_incoming_dir).normalize();
-        const Vector3f local_outgoing = coord.to_local(world_outgoing_dir).normalize();
+        const Vector3f local_incoming_flipped = -Float1 * local_incoming_dir.normalize();
+        const Vector3f local_outgoing = local_outgoing_dir.normalize();
 
-        if(local_incoming[2] < Float0){
+        if(local_incoming_flipped[2] < Float0){
             // Not allow ray from backside
             return vec3f_zero;
         }
 
-        const Vector3f wh = Vector3f(local_incoming + local_outgoing).normalize();
+        const Vector3f wh = Vector3f(local_incoming_flipped + local_outgoing).normalize();
         const Float D = sample_beckmann_distrib_pdf(wh, m_alpha);
-        const Float F = fresnel_dielectric(wh.dot(local_incoming), m_ex_index_of_refraction, m_in_index_of_refraction);
-        const Float G = G1(local_incoming, wh) * G1(local_outgoing, wh);
+        const Float F = fresnel_dielectric(wh.dot(local_incoming_flipped), m_ex_index_of_refraction, m_in_index_of_refraction);
+        const Float G = G1(local_incoming_flipped, wh) * G1(local_outgoing, wh);
 
-        const Float denom = static_cast<Float>(4) * local_incoming[2] * local_outgoing[2] * wh[2];
+        const Float denom = static_cast<Float>(4) * local_incoming_flipped[2] * local_outgoing[2] * wh[2];
         const Float spec_contrib = ((m_ks / denom) * D * F * G);
         return (m_kd * PI_INV) + Vector3f{spec_contrib, spec_contrib, spec_contrib};
     }
