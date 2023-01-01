@@ -84,7 +84,7 @@ namespace Caramel{
 
         Vector3f rad = scene.m_meshes[recursive_info.idx]->get_arealight()->radiance();
 
-        return Peanut::EMult(contrib, rad) / recursive_pdf;
+        return (contrib % rad) / recursive_pdf;
     }
 
     Vector3f DirectIntegrator::emitter_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler) {
@@ -132,6 +132,6 @@ namespace Caramel{
         Float geo = info.sh_coord.to_local(light_n_world).dot(-1 * hitpos_to_light_local_normal) * hitpos_to_light_local_normal[2] / dist_square;
         Float pdf = light_pdf * light_pos_pdf * recursive_pdf;
 
-        return Peanut::EMult(fr, emitted_rad) * geo / pdf;
+        return (fr % emitted_rad) * geo / pdf;
     }
 }
