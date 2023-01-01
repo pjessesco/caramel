@@ -59,13 +59,13 @@ namespace Caramel{
             }
 
             if(scene.m_meshes[info.idx]->is_light()){
-                return Peanut::EMult(current_brdf, scene.m_meshes[info.idx]->get_arealight()->radiance());
+                return current_brdf % scene.m_meshes[info.idx]->get_arealight()->radiance();
             }
 
             // brdf sample
             const Vector3f local_ray_dir = info.sh_coord.to_local(ray.m_d);
             auto [local_recursive_dir, sampled_brdf, brdf_pdf] = scene.m_meshes[info.idx]->get_bsdf()->sample_recursive_dir(local_ray_dir, sampler);
-            current_brdf = Peanut::EMult(current_brdf, sampled_brdf);
+            current_brdf = current_brdf % sampled_brdf;
 
             ray = Ray(info.p, info.sh_coord.to_world(local_recursive_dir));
         }
@@ -91,7 +91,7 @@ namespace Caramel{
 
             if(scene.m_meshes[info.idx]->is_light()){
                 if(depth == 0 || from_specular){
-                    ret = ret + Peanut::EMult(scene.m_meshes[info.idx]->get_arealight()->radiance(), current_brdf);
+                    ret = ret + (scene.m_meshes[info.idx]->get_arealight()->radiance() % current_brdf);
                 }
                 break;
             }
@@ -110,12 +110,12 @@ namespace Caramel{
                 const Float geo = info.sh_coord.to_local(light_n_world).dot(-1 * hitpos_to_light_local) * hitpos_to_light_local[2] / dist_square;
                 const Float pdf = light_pdf * light_pos_pdf;
 
-                ret = ret + Peanut::EMult(Peanut::EMult(fr, emitted_rad), current_brdf) * geo / pdf;
+                ret = ret + (fr % emitted_rad % current_brdf) * geo / pdf;
             }
 
             // brdf sampling
             auto [local_recursive_dir, sampled_brdf, _] = scene.m_meshes[info.idx]->get_bsdf()->sample_recursive_dir(local_ray_dir, sampler);
-            current_brdf = Peanut::EMult(current_brdf, sampled_brdf);
+            current_brdf = current_brdf % sampled_brdf;
             from_specular = scene.m_meshes[info.idx]->get_bsdf()->is_discrete();
 
             if(depth >= m_rr_depth){
