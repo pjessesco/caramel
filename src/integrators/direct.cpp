@@ -121,7 +121,7 @@ namespace Caramel{
 
         // Direct light sampling
         auto [light, light_pdf] = scene.sample_light(sampler);
-        auto [emitted_rad, light_pos, light_n_world, light_pos_pdf, light_info] = light->sample_contribution(scene, info.p, sampler);
+        auto [emitted_rad, light_pos, light_n_world, light_pos_pdf, light_info] = light->sample_direct_contribution(scene, info.p, sampler);
 
         const Vector3f hitpos_to_light_local_normal = info.sh_coord.to_local(light_pos - info.p).normalize();
         const Float dist_square = light_info.t * light_info.t;
