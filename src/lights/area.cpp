@@ -41,7 +41,7 @@ namespace Caramel{
         return m_radiance;
     }
 
-    std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> AreaLight::sample_contribution(const Scene &scene, const Vector3f &hitpos, Sampler &sampler) const{
+    std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> AreaLight::sample_direct_contribution(const Scene &scene, const Vector3f &hitpos, Sampler &sampler) const{
         // Sample point on the shape
         const auto [light_pos, light_normal_world, pos_pdf] = m_shape->sample_point(sampler);
         const Vector3f light_to_hitpos = hitpos - light_pos;
