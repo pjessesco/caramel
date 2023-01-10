@@ -36,12 +36,22 @@ namespace Caramel{
         const Vector3f local_incoming_flipped = -Float1 * local_incoming_dir.normalize();
         Vector3f local_outgoing;
 
+        if(local_incoming_flipped[2] <= Float0){
+            // Not allow ray from backside
+            return {vec3f_zero, vec3f_zero, Float0};
+        }
+
         if(sampler.sample_1d() < m_ks){ // specular
             const Vector3f sampled_normal = sample_beckmann_distrib(sampler, m_alpha).first;
             local_outgoing = (-Float1 * local_incoming_flipped) + static_cast<Float>(2) * local_incoming_flipped.dot(sampled_normal) * sampled_normal;
         }
         else{ // diffuse
             local_outgoing = sample_unit_hemisphere_cosine(sampler).first;
+        }
+
+        if(local_outgoing[2] <= Float0){
+            // Not allow ray from backside
+            return {vec3f_zero, vec3f_zero, Float0};
         }
 
         // pdf -------------
@@ -55,6 +65,11 @@ namespace Caramel{
     Float Microfacet::pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const{
         Vector3f local_incoming_flipped = -Float1 * local_incoming_dir.normalize();
         Vector3f local_outgoing = local_outgoing_dir.normalize();
+
+        if(local_incoming_flipped[2] <= Float0 || local_outgoing_dir[2] <= Float0){
+            // Not allow ray from backside
+            return Float0;
+        }
 
         const Vector3f wh = Vector3f(local_incoming_flipped + local_outgoing).normalize();
         const Float Jh = Float1 / (static_cast<Float>(4) * wh.dot(local_outgoing));
@@ -70,7 +85,7 @@ namespace Caramel{
         const Vector3f local_incoming_flipped = -Float1 * local_incoming_dir.normalize();
         const Vector3f local_outgoing = local_outgoing_dir.normalize();
 
-        if(local_incoming_flipped[2] < Float0){
+        if(local_incoming_flipped[2] <= Float0 || local_outgoing_dir[2] <= Float0){
             // Not allow ray from backside
             return vec3f_zero;
         }
