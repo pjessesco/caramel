@@ -33,7 +33,7 @@ namespace Caramel{
 
     std::tuple<Vector3f, Vector3f, Float> Microfacet::sample_recursive_dir(const Vector3f &local_incoming_dir, Sampler &sampler) const {
         // from hitpoint to incoming point
-        const Vector3f local_incoming_flipped = -Float1 * local_incoming_dir.normalize();
+        const Vector3f local_incoming_flipped = -local_incoming_dir.normalize();
         Vector3f local_outgoing;
 
         if(local_incoming_flipped[2] <= Float0){
@@ -43,7 +43,7 @@ namespace Caramel{
 
         if(sampler.sample_1d() < m_ks){ // specular
             const Vector3f sampled_normal = sample_beckmann_distrib(sampler, m_alpha).first;
-            local_outgoing = (-Float1 * local_incoming_flipped) + static_cast<Float>(2) * local_incoming_flipped.dot(sampled_normal) * sampled_normal;
+            local_outgoing = -local_incoming_flipped + static_cast<Float>(2) * local_incoming_flipped.dot(sampled_normal) * sampled_normal;
         }
         else{ // diffuse
             local_outgoing = sample_unit_hemisphere_cosine(sampler).first;
@@ -63,7 +63,7 @@ namespace Caramel{
     }
 
     Float Microfacet::pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const{
-        Vector3f local_incoming_flipped = -Float1 * local_incoming_dir.normalize();
+        Vector3f local_incoming_flipped = -local_incoming_dir.normalize();
         Vector3f local_outgoing = local_outgoing_dir.normalize();
 
         if(local_incoming_flipped[2] <= Float0 || local_outgoing_dir[2] <= Float0){
@@ -82,7 +82,7 @@ namespace Caramel{
 
     Vector3f Microfacet::get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const {
         // from hitpoint to incoming point
-        const Vector3f local_incoming_flipped = -Float1 * local_incoming_dir.normalize();
+        const Vector3f local_incoming_flipped = -local_incoming_dir.normalize();
         const Vector3f local_outgoing = local_outgoing_dir.normalize();
 
         if(local_incoming_flipped[2] <= Float0 || local_outgoing_dir[2] <= Float0){
