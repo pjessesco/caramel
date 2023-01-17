@@ -58,7 +58,7 @@ namespace Caramel {
 
         return {interpolate(m_p0, m_p1, m_p2, x, y),
                 is_vn_exists ?
-                             interpolate(normal(0), normal(1), normal(2), x, y) :
+                             interpolate(normal(0), normal(1), normal(2), x, y).normalize() :
                              cross(m_p1 - m_p0, m_p2 - m_p0).normalize(),
                 Float1 / get_area()};
     }
