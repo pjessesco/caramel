@@ -30,7 +30,7 @@
 namespace Caramel{
     struct Shape;
     struct RayIntersectInfo {
-        RayIntersectInfo() : t(INF) {}
+        RayIntersectInfo() : p{Float0, Float0, Float0}, sh_coord(), t(INF), u(INF), v(INF), idx(9999) {}
 
         Vector3f p;   // World position where ray hits
         Coordinate sh_coord;// Coordinate initialized using world normal
