@@ -161,6 +161,10 @@ namespace Caramel{
                                             parse_positive_float(child, "ex_ior"),
                                             parse_vector3f(child, "kd"));
         }
+        else if(type=="orennayar"){
+            return BSDF::Create<OrenNayar>(parse_vector3f(child, "albedo"),
+                                           parse_positive_float(child, "sigma"));
+        }
         else{
             CRM_ERROR(type + "bsdf is not supported : "+ to_string(child));
         }

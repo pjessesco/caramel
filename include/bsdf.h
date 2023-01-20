@@ -123,4 +123,19 @@ namespace Caramel{
         Vector3f m_kd;
     };
 
+    // Reference : https://www.pbr-book.org/3ed-2018/Reflection_Models/Microfacet_Models#OrenndashNayarDiffuseReflection
+    class OrenNayar final : public BSDF{
+    public:
+        OrenNayar(const Vector3f &reflection, Float sigma);
+        std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, Sampler &sampler) const override;
+        Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
+        Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
+        bool is_discrete() const override;
+
+    private:
+        Vector3f m_reflection;
+        Float m_A;
+        Float m_B;
+    };
+
 }

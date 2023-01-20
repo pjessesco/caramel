@@ -34,6 +34,7 @@ namespace Caramel{
 
     constexpr Float Float0 = static_cast<Float>(0);
     constexpr Float Float1 = static_cast<Float>(1);
+    constexpr Float Float2 = static_cast<Float>(2);
     constexpr Float Float0_5 = static_cast<Float>(0.5f);
     constexpr Int Int0 = static_cast<Int>(0);
     constexpr Int Int1 = static_cast<Int>(1);
@@ -72,6 +73,28 @@ namespace Caramel{
 
     const Vector3f vec3f_zero = {Float0, Float0, Float0};
     const Vector3f vec3f_one = {Float1, Float1, Float1};
+
+    // returns squared sin value between given normalized vector and (0, 0, 1)
+    inline Float vec_sin_2(const Vector3f &v){
+        return Float1 - (v[2] * v[2]);
+    }
+
+    // returns sin value between given normalized vector and (0, 0, 1)
+    inline Float vec_sin(const Vector3f &v){
+        return static_cast<Float>(vec_sin_2(v));
+    }                                                                                //              ^  Z   ^
+                                                                                     //              |     /!  given v
+    // returns cos value of phi of given vector (in spherical coordinate system)     //              |    / !
+    inline Float vec_cos_phi(const Vector3f &v){                                     //              |   /  !
+        const Float sin = vec_sin(v);                                                //              |  /   !
+        return v[0] / sin;                                                           //              | /    !    v[0]
+    }                                                                                //              |---@--!----.---> X
+                                                                                     //             /  \  @ !   /
+    // returns sin value of phi of given vector (in spherical coordinate system)     //            /     @  !  /
+    inline Float vec_sin_phi(const Vector3f &v){                                     //           /        \! /
+        const Float sin = vec_sin(v);                                                //     v[1] /----------.
+        return v[1] / sin;                                                           //         /
+    }                                                                                //        v   Y
 
     // TODO : Implement in Peanut
     inline Vector3f cross(const Vector3f &a, const Vector3f &b){
