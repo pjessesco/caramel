@@ -17,6 +17,7 @@ set(SOURCES
         src/bsdfs/dielectric.cpp
         src/bsdfs/microfacet.cpp
         src/bsdfs/bsdf.cpp
+        src/bsdfs/orennayar.cpp
         src/camera.cpp
         src/image.cpp
         src/integrators/depth.cpp
