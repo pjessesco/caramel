@@ -37,7 +37,7 @@ namespace Caramel{
     inline std::pair<Vector2f, Float> sample_unit_disk_uniformly(Sampler &sampler){
         const Float sqrt_x = std::sqrt(sampler.sample_1d());
         const Float angle = sampler.sample_1d() * PI_2;
-        return {{sqrt_x * cos(angle), sqrt_x * sin(angle)},
+        return {{sqrt_x * static_cast<Float>(cos(angle)), sqrt_x * static_cast<Float>(sin(angle))},
                  PI_INV};
     }
 
