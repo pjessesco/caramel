@@ -25,12 +25,16 @@
 #include <chrono>
 #include <functional>
 
-#include <image.h>
 #include <integrators.h>
+
+#include <image.h>
 #include <light.h>
 #include <parallel_for.h>
 #include <progress.h>
 #include <scene.h>
+#include <logger.h>
+#include <camera.h>
+#include <sampler.h>
 
 namespace Caramel{
     Integrator::Integrator(Index spp) : m_spp{spp} {}
@@ -40,20 +44,18 @@ namespace Caramel{
             CRM_ERROR("Camera is nullptr;");
         }
 
-        const Index width = scene.m_cam->m_w;
-        const Index height = scene.m_cam->m_h;
+        auto size = scene.m_cam->get_size();
+        Image img(size.first/* width */, size.second/* height */);
 
-        Image img(width, height);
-
-        ProgressBar progress_bar(width);
+        ProgressBar progress_bar(size.first);
 
         CRM_LOG("Render start...");
 
         auto time1 = std::chrono::high_resolution_clock::now();
 
-        parallel_for(0, width, std::function([&](int i){
+        parallel_for(0, size.first, std::function([&](int i){
                          UniformStdSampler sampler(i);
-                         for(int j=0;j<height;j++){
+                         for(int j=0;j<size.second;j++){
                              Vector3f rgb = vec3f_zero;
                              for(Index s=0;s<m_spp;s++){
                                  rgb = rgb + get_pixel_value(scene, i + sampler.sample_1d(), j + sampler.sample_1d(), sampler);

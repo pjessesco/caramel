@@ -25,23 +25,26 @@
 #pragma once
 
 #include <tuple>
+#include <vector>
 
 #include <common.h>
-#include <ray.h>
-#include <shape.h>
-#include <transform.h>
-#include <camera.h>
-#include <light.h>
 
 namespace Caramel{
-    struct Scene{
+    class Camera;
+    class Ray;
+    class RayIntersectInfo;
+    class Shape;
+    class Light;
+    class Sampler;
+
+    class Scene{
+    public:
         Scene();
 
         void set_camera(Camera *camera);
 
         std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const;
         void add_mesh(const Shape *shape);
-        void add_light(const Light *light);
         std::pair<bool, RayIntersectInfo> is_visible(const Vector3f &pos1, const Vector3f &pos2) const;
         std::tuple<const Light*, Float> sample_light(Sampler &sampler) const;
 

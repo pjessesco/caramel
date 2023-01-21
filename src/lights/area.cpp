@@ -24,8 +24,9 @@
 
 #include <tuple>
 
-#include <common.h>
 #include <light.h>
+
+#include <common.h>
 #include <sampler.h>
 #include <scene.h>
 #include <shape.h>

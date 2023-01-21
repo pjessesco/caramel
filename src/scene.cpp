@@ -24,12 +24,15 @@
 
 #include <tuple>
 
+#include <scene.h>
+
 #include <common.h>
 #include <ray.h>
 #include <shape.h>
 #include <camera.h>
 #include <light.h>
-#include <scene.h>
+#include <rayintersectinfo.h>
+#include <sampler.h>
 
 namespace Caramel{
 
@@ -63,10 +66,6 @@ namespace Caramel{
         if(shape->is_light()){
             m_lights.push_back(shape->get_arealight());
         }
-    }
-
-    void Scene::add_light(const Light *light){
-        m_lights.emplace_back(light);
     }
 
     std::pair<bool, RayIntersectInfo> Scene::is_visible(const Vector3f &pos1, const Vector3f &pos2) const{

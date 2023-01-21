@@ -24,6 +24,8 @@
 
 #include <vector>
 
+#include <acceleration.h>
+
 #include <aabb.h>
 #include <common.h>
 #include <ray.h>

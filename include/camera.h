@@ -25,12 +25,13 @@
 #pragma once
 
 #include <common.h>
-#include <ray.h>
 
 namespace Caramel{
+    class Ray;
 
     // Perspective camera
-    struct Camera{
+    class Camera{
+    public:
         Camera(const Vector3f &pos, const Vector3f &dir, const Vector3f &up,
                Index w, Index h, Float fov_x);
 
@@ -41,6 +42,11 @@ namespace Caramel{
             return dynamic_cast<Camera*>(new Type(args...));
         }
 
+        inline std::pair<Index, Index> get_size() const{
+            return {m_w, m_h};
+        }
+
+    private:
         const Vector3f m_pos;
         const Vector3f m_dir;
         const Vector3f m_up;

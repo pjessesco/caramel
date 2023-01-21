@@ -24,8 +24,9 @@
 
 #include <random>
 
-#include <common.h>
 #include <sampler.h>
+
+#include <common.h>
 
 namespace Caramel{
 
