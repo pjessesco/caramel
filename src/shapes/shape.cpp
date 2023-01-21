@@ -26,6 +26,7 @@
 #include <algorithm>
 
 #include <shape.h>
+
 #include <transform.h>
 #include <light.h>
 #include <ray.h>

@@ -24,10 +24,10 @@
 
 #include <filesystem>
 #include <tuple>
-#include <algorithm>
+
+#include <shape.h>
 
 #include <logger.h>
-#include <shape.h>
 #include <transform.h>
 #include <acceleration.h>
 #include <rayintersectinfo.h>

@@ -25,6 +25,7 @@
 #include <vector>
 
 #include <acceleration.h>
+
 #include <aabb.h>
 #include <common.h>
 #include <parallel_for.h>

@@ -23,6 +23,7 @@
 //
 
 #include <camera.h>
+
 #include <common.h>
 #include <ray.h>
 

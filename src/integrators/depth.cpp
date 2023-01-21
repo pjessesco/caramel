@@ -23,6 +23,7 @@
 //
 
 #include <integrators.h>
+
 #include <scene.h>
 #include <ray.h>
 #include <camera.h>

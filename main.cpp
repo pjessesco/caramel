@@ -25,11 +25,12 @@
 #include <iostream>
 #include <vector>
 
+#include <scene.h>
 #include <scene_parser.h>
 #include <image.h>
-#include <scene.h>
 #include <integrators.h>
 #include <logger.h>
+#include <camera.h>
 
 using namespace Caramel;
 

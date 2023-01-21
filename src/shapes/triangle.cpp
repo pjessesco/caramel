@@ -26,6 +26,7 @@
 #include <algorithm>
 
 #include <shape.h>
+
 #include <transform.h>
 #include <sampler.h>
 #include <rayintersectinfo.h>

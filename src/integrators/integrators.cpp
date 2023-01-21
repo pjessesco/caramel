@@ -25,8 +25,9 @@
 #include <chrono>
 #include <functional>
 
-#include <image.h>
 #include <integrators.h>
+
+#include <image.h>
 #include <light.h>
 #include <parallel_for.h>
 #include <progress.h>
