@@ -27,19 +27,22 @@
 #include <vector>
 #include <tuple>
 #include <cmath>
+#include <filesystem>
 
 #include <common.h>
-#include <ray.h>
-#include <aabb.h>
-#include <logger.h>
-#include <rayintersectinfo.h>
-#include <acceleration.h>
-#include <sampler.h>
 #include <distrib1D.h>
-#include <bsdf.h>
-#include <light.h>
+#include <aabb.h>
 
 namespace Caramel{
+    class BSDF;
+    class Light;
+    class AreaLight;
+    class RayIntersectInfo;
+    class AABB;
+    class Ray;
+    class Sampler;
+    class Distrib1D;
+    class AccelerationMesh;
 
     class Shape{
     public:
@@ -53,15 +56,15 @@ namespace Caramel{
         // point, normal, probability
         virtual std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const = 0;
 
-        bool is_light() const{
+        inline bool is_light() const{
             return m_arealight != nullptr;
         }
 
-        AreaLight *get_arealight() const{
+        inline AreaLight *get_arealight() const{
             return m_arealight;
         }
 
-        BSDF* get_bsdf() const{
+        inline BSDF* get_bsdf() const{
             return m_bsdf;
         }
 
@@ -111,7 +114,7 @@ namespace Caramel{
 
         Triangle get_triangle(Index i) const;
 
-        Index get_triangle_num() const{
+        inline Index get_triangle_num() const{
             return m_vertex_indices.size();
         }
 

@@ -29,6 +29,9 @@
 #include <camera.h>
 #include <bsdf.h>
 #include <shape.h>
+#include <logger.h>
+#include <light.h>
+#include <transform.h>
 
 namespace Caramel{
     SceneParser::SceneParser(const std::filesystem::path &path) {

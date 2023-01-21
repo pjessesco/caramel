@@ -27,11 +27,10 @@
 #include <tuple>
 
 #include <common.h>
-#include <ray.h>
-#include <warp_sample.h>
-#include <coordinate.h>
 
 namespace Caramel{
+
+    class Sampler;
 
     // Commonly used functions for bsdfs
 
@@ -41,7 +40,6 @@ namespace Caramel{
 
     // Calculate fresnel reflectance for unpolarized light.
     Float fresnel_dielectric(Float cos_i, Float eta_i, Float eta_t);
-
 
     // Class definitions
     class BSDF{

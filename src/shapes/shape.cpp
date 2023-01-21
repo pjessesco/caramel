@@ -26,7 +26,10 @@
 #include <algorithm>
 
 #include <shape.h>
+
 #include <transform.h>
+#include <light.h>
+#include <ray.h>
 
 namespace Caramel {
     Shape::Shape(BSDF *bsdf, AreaLight *arealight) : m_bsdf{bsdf}, m_arealight{arealight} {

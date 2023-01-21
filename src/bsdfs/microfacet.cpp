@@ -22,10 +22,10 @@
 // SOFTWARE.
 //
 
-#include <common.h>
 #include <bsdf.h>
+
+#include <common.h>
 #include <warp_sample.h>
-#include <coordinate.h>
 
 namespace Caramel{
     Microfacet::Microfacet(Float alpha, Float in_ior, Float ex_ior, const Vector3f &kd)

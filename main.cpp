@@ -22,13 +22,13 @@
 // SOFTWARE.
 //
 
-#include <iostream>
-#include <vector>
-
 #include <scene_parser.h>
-#include <image.h>
+#include <shape.h>
 #include <scene.h>
+#include <image.h>
 #include <integrators.h>
+#include <logger.h>
+#include <camera.h>
 
 using namespace Caramel;
 
