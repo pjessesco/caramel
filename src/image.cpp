@@ -22,8 +22,9 @@
 // SOFTWARE.
 //
 
-#include <common.h>
 #include <image.h>
+
+#include <common.h>
 #include <logger.h>
 
 #define TINYEXR_IMPLEMENTATION

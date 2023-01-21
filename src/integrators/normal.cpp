@@ -23,7 +23,11 @@
 //
 
 #include <integrators.h>
+
 #include <scene.h>
+#include <ray.h>
+#include <camera.h>
+#include <rayintersectinfo.h>
 
 namespace Caramel{
     NormalIntegrator::NormalIntegrator() : Integrator(1) {}

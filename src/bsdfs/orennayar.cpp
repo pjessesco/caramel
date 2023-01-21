@@ -2,10 +2,10 @@
 // Created by Jino Park on 2023/01/20.
 //
 
-#include <common.h>
 #include <bsdf.h>
+
+#include <common.h>
 #include <warp_sample.h>
-#include <coordinate.h>
 
 namespace Caramel{
     OrenNayar::OrenNayar(const Vector3f &reflection, Float sigma) : m_reflection{reflection} {

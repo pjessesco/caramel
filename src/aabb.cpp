@@ -24,8 +24,8 @@
 #include <cmath>
 
 #include <aabb.h>
+
 #include <common.h>
-#include <logger.h>
 #include <ray.h>
 
 namespace Caramel{
