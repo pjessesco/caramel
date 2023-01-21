@@ -22,11 +22,9 @@
 // SOFTWARE.
 //
 
-#include <iostream>
-#include <vector>
-
-#include <scene.h>
 #include <scene_parser.h>
+#include <shape.h>
+#include <scene.h>
 #include <image.h>
 #include <integrators.h>
 #include <logger.h>
