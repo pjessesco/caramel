@@ -27,14 +27,17 @@
 #include <tuple>
 
 #include <common.h>
-#include <ray.h>
-#include <shape.h>
-#include <transform.h>
-#include <camera.h>
-#include <light.h>
 
 namespace Caramel{
-    struct Scene{
+    class Camera;
+    class Ray;
+    class RayIntersectInfo;
+    class Shape;
+    class Light;
+    class Sampler;
+
+    class Scene{
+    public:
         Scene();
 
         void set_camera(Camera *camera);

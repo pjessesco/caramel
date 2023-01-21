@@ -27,6 +27,8 @@
 
 #include <shape.h>
 #include <transform.h>
+#include <sampler.h>
+#include <rayintersectinfo.h>
 
 namespace Caramel {
     Triangle::Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2)

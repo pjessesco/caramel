@@ -25,6 +25,12 @@
 #include <integrators.h>
 #include <light.h>
 #include <scene.h>
+#include <camera.h>
+#include <ray.h>
+#include <shape.h>
+#include <bsdf.h>
+#include <sampler.h>
+#include <rayintersectinfo.h>
 
 namespace Caramel{
     DirectIntegrator::DirectIntegrator(Index spp, SamplingType sampling_type)

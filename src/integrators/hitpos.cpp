@@ -24,6 +24,9 @@
 
 #include <integrators.h>
 #include <scene.h>
+#include <camera.h>
+#include <ray.h>
+#include <rayintersectinfo.h>
 
 namespace Caramel{
     HitPosIntegrator::HitPosIntegrator() : Integrator(1) {}

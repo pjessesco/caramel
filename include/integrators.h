@@ -26,11 +26,14 @@
 
 #include <chrono>
 
-#include <image.h>
 #include <common.h>
-#include <scene.h>
 
 namespace Caramel{
+
+    class Image;
+    class Scene;
+    class Sampler;
+
 
     enum class SamplingType{
         BSDF,

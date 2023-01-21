@@ -25,6 +25,12 @@
 #include <integrators.h>
 #include <light.h>
 #include <scene.h>
+#include <ray.h>
+#include <camera.h>
+#include <shape.h>
+#include <bsdf.h>
+#include <sampler.h>
+#include <rayintersectinfo.h>
 
 namespace Caramel{
     PathIntegrator::PathIntegrator(Index rr_depth, Index max_depth, Index spp, SamplingType sampling_type)

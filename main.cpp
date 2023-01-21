@@ -29,6 +29,7 @@
 #include <image.h>
 #include <scene.h>
 #include <integrators.h>
+#include <logger.h>
 
 using namespace Caramel;
 

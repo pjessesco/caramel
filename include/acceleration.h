@@ -27,14 +27,14 @@
 #include <vector>
 
 #include <common.h>
-#include <shape.h>
-#include <ray.h>
-#include <rayintersectinfo.h>
 #include <aabb.h>
 
 namespace Caramel{
 
-    struct OBJMesh;
+    class OBJMesh;
+    class RayIntersectInfo;
+    class Ray;
+
 
     // Divide a single mesh
     struct AccelerationMesh{

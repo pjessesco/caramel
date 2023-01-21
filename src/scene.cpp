@@ -30,6 +30,8 @@
 #include <camera.h>
 #include <light.h>
 #include <scene.h>
+#include <rayintersectinfo.h>
+#include <sampler.h>
 
 namespace Caramel{
 
