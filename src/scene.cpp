@@ -51,7 +51,7 @@ namespace Caramel{
             auto [hit, tmp_info] = m_meshes[i]->ray_intersect(ray);
             if(hit){
                 is_hit = true;
-                if(info.t > tmp_info.t){
+                if(info.t >= tmp_info.t){
                     info = tmp_info;
                     info.idx = i;
                 }
