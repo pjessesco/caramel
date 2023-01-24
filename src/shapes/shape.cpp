@@ -73,7 +73,7 @@ namespace Caramel {
     }
 
     // https://jcgt.org/published/0002/01/05/paper.pdf
-    std::tuple<Float, Float, Float> waterright_intersection(const Ray &ray, const Vector3f p0, const Vector3f p1, const Vector3f p2){
+    std::tuple<Float, Float, Float> watertight_intersection(const Ray &ray, const Vector3f &p0, const Vector3f &p1, const Vector3f &p2){
 
         // Shift vertices
         Vector3f _p0 = p0 - ray.m_o;
