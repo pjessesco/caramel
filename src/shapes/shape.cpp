@@ -77,9 +77,9 @@ namespace Caramel {
 
         // Calculate dimension where the ray direction is maximal
         Index idx_z = ray.m_d[0] > ray.m_d[1] ? ray.m_d[0] > ray.m_d[2] ? 0 :
-                                                                        2 :
-                      ray.m_d[1] > ray.m_d[2] ? 1 :
-                                              2;
+                                                                          2 :
+                                                ray.m_d[1] > ray.m_d[2] ? 1 :
+                                                                          2;
         Index idx_x = idx_z == 2 ? 0 : idx_z + 1;
         Index idx_y = idx_x == 2 ? 0 : idx_x + 1;
 
@@ -139,7 +139,7 @@ namespace Caramel {
         const Float T = U*az + V*bz + W*cz;
 
         // Assumes backface culling
-        if(T<Float0 || T < ray.m_min_t * det){
+        if(T <= ray.m_min_t * det){
             return {-Float1, -Float1, -Float1};
         }
 
