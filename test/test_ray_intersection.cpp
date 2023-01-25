@@ -36,7 +36,7 @@
 using namespace Caramel;
 #define FLT(x) static_cast<Float>(x)
 
-TEST_CASE("moeller_trumbore()"){
+TEST_CASE("moller_trumbore()"){
     /* Below test is generated using :
      *
      *  std::cout<<"-------------------\n";
@@ -46,7 +46,7 @@ TEST_CASE("moeller_trumbore()"){
      *  std::cout<<"Vector3f p0 = {FLT("<<p0[0]<<"), FLT("<<p0[1]<<"), FLT("<<p0[2]<<")};"<<std::endl;
      *  std::cout<<"Vector3f p1 = {FLT("<<p1[0]<<"), FLT("<<p1[1]<<"), FLT("<<p1[2]<<")};"<<std::endl;
      *  std::cout<<"Vector3f p2 = {FLT("<<p2[0]<<"), FLT("<<p2[1]<<"), FLT("<<p2[2]<<")};"<<std::endl;
-     *  std::cout<<"auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);"<<std::endl;
+     *  std::cout<<"auto [u, v, t] = moller_trumbore(r, p0, p1, p2);"<<std::endl;
      *  std::cout<<"CHECK(u == Catch::Approx(FLT("<<u<<")));"<<std::endl;
      *  std::cout<<"CHECK(v == Catch::Approx(FLT("<<v<<")));"<<std::endl;
      *  std::cout<<"CHECK(t == Catch::Approx(FLT("<<t<<")));"<<std::endl;
@@ -58,7 +58,7 @@ TEST_CASE("moeller_trumbore()"){
             Vector3f p0 = {FLT(-0.24), FLT(1.58), FLT(-0.22)};
             Vector3f p1 = {FLT(0.23), FLT(1.58), FLT(-0.22)};
             Vector3f p2 = {FLT(-0.24), FLT(1.58), FLT(0.16)};
-            auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);
+            auto [u, v, t] = moller_trumbore(r, p0, p1, p2);
             CHECK(u == Catch::Approx(FLT(0.015839)).epsilon(1e-4));
             CHECK(v == Catch::Approx(FLT(0.466487)));
             CHECK(t == Catch::Approx(FLT(1.71235)));
@@ -68,7 +68,7 @@ TEST_CASE("moeller_trumbore()"){
             Vector3f p0 = {FLT(-1.02), FLT(1.59), FLT(-1.04)};
             Vector3f p1 = {FLT(1), FLT(1.59), FLT(-1.04)};
             Vector3f p2 = {FLT(-1.02), FLT(1.59), FLT(0.99)};
-            auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);
+            auto [u, v, t] = moller_trumbore(r, p0, p1, p2);
             CHECK(u == Catch::Approx(FLT(0.512451)));
             CHECK(v == Catch::Approx(FLT(0.4652)));
             CHECK(t == Catch::Approx(FLT(1.46165)));
@@ -78,7 +78,7 @@ TEST_CASE("moeller_trumbore()"){
             Vector3f p0 = {FLT(-1.02), FLT(1.59), FLT(-1.04)};
             Vector3f p1 = {FLT(-1.02), FLT(1.59), FLT(0.99)};
             Vector3f p2 = {FLT(-1.01), FLT(0), FLT(0.99)};
-            auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);
+            auto [u, v, t] = moller_trumbore(r, p0, p1, p2);
             CHECK(u == Catch::Approx(FLT(0.0459288)).epsilon(1e-4));
             CHECK(v == Catch::Approx(FLT(0.0899728)));
             CHECK(t == Catch::Approx(FLT(6.28139)));
@@ -88,7 +88,7 @@ TEST_CASE("moeller_trumbore()"){
             Vector3f p0 = {FLT(-0.24), FLT(1.58), FLT(-0.22)};
             Vector3f p1 = {FLT(0.23), FLT(1.58), FLT(-0.22)};
             Vector3f p2 = {FLT(-0.24), FLT(1.58), FLT(0.16)};
-            auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);
+            auto [u, v, t] = moller_trumbore(r, p0, p1, p2);
             CHECK(u == Catch::Approx(FLT(0.304777)));
             CHECK(v == Catch::Approx(FLT(0.683443)));
             CHECK(t == Catch::Approx(FLT(1.88297)));
@@ -98,7 +98,7 @@ TEST_CASE("moeller_trumbore()"){
             Vector3f p0 = {FLT(0.23), FLT(1.58), FLT(-0.22)};
             Vector3f p1 = {FLT(0.23), FLT(1.58), FLT(0.16)};
             Vector3f p2 = {FLT(-0.24), FLT(1.58), FLT(0.16)};
-            auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);
+            auto [u, v, t] = moller_trumbore(r, p0, p1, p2);
             CHECK(u == Catch::Approx(FLT(0.466941)));
             CHECK(v == Catch::Approx(FLT(0.119686)));
             CHECK(t == Catch::Approx(FLT(1.77651)));
@@ -111,7 +111,7 @@ TEST_CASE("moeller_trumbore()"){
             Vector3f p0 = {FLT(-0.561924), FLT(0.601247), FLT(-0.164723)};
             Vector3f p1 = {FLT(-0.593885), FLT(0.582185), FLT(-0.164723)};
             Vector3f p2 = {FLT(-0.581792), FLT(0.582185), FLT(-0.148418)};
-            auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);
+            auto [u, v, t] = moller_trumbore(r, p0, p1, p2);
             CHECK(u == -1);
             CHECK(v == -1);
             CHECK(t == -1);
@@ -121,7 +121,7 @@ TEST_CASE("moeller_trumbore()"){
             Vector3f p0 = {FLT(-0.603045), FLT(0.601247), FLT(-0.279646)};
             Vector3f p1 = {FLT(-0.602172), FLT(0.601247), FLT(-0.297403)};
             Vector3f p2 = {FLT(-0.62775), FLT(0.582185), FLT(-0.299922)};
-            auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);
+            auto [u, v, t] = moller_trumbore(r, p0, p1, p2);
             CHECK(u == -1);
             CHECK(v == -1);
             CHECK(t == -1);
@@ -131,7 +131,7 @@ TEST_CASE("moeller_trumbore()"){
             Vector3f p0 = {FLT(-0.631466), FLT(0.511284), FLT(-0.107652)};
             Vector3f p1 = {FLT(-0.647315), FLT(0.511284), FLT(-0.129022)};
             Vector3f p2 = {FLT(-0.660994), FLT(0.483838), FLT(-0.119882)};
-            auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);
+            auto [u, v, t] = moller_trumbore(r, p0, p1, p2);
             CHECK(u == -1);
             CHECK(v == -1);
             CHECK(t == -1);
@@ -141,7 +141,7 @@ TEST_CASE("moeller_trumbore()"){
             Vector3f p0 = {FLT(-0.631466), FLT(0.536986), FLT(-0.139612)};
             Vector3f p1 = {FLT(-0.660994), FLT(0.511284), FLT(-0.151843)};
             Vector3f p2 = {FLT(-0.647315), FLT(0.511284), FLT(-0.129022)};
-            auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);
+            auto [u, v, t] = moller_trumbore(r, p0, p1, p2);
             CHECK(u == -1);
             CHECK(v == -1);
             CHECK(t == -1);
@@ -154,7 +154,7 @@ TEST_CASE("moeller_trumbore()"){
             Vector3f p0 = {FLT(-0.99), FLT(0), FLT(-1.04)};
             Vector3f p1 = {FLT(-1.02), FLT(1.59), FLT(-1.04)};
             Vector3f p2 = {FLT(-1.01), FLT(0), FLT(0.99)};
-            auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);
+            auto [u, v, t] = moller_trumbore(r, p0, p1, p2);
             CHECK(u == -1);
             CHECK(v == -1);
             CHECK(t == -1);
@@ -164,7 +164,7 @@ TEST_CASE("moeller_trumbore()"){
             Vector3f p0 = {FLT(-1.02), FLT(1.59), FLT(-1.04)};
             Vector3f p1 = {FLT(1), FLT(1.59), FLT(-1.04)};
             Vector3f p2 = {FLT(-1.02), FLT(1.59), FLT(0.99)};
-            auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);
+            auto [u, v, t] = moller_trumbore(r, p0, p1, p2);
             CHECK(u == -1);
             CHECK(v == -1);
             CHECK(t == -1);
@@ -174,7 +174,7 @@ TEST_CASE("moeller_trumbore()"){
             Vector3f p0 = {FLT(-0.24), FLT(1.58), FLT(-0.22)};
             Vector3f p1 = {FLT(0.23), FLT(1.58), FLT(-0.22)};
             Vector3f p2 = {FLT(-0.24), FLT(1.58), FLT(0.16)};
-            auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);
+            auto [u, v, t] = moller_trumbore(r, p0, p1, p2);
             CHECK(u == -1);
             CHECK(v == -1);
             CHECK(t == -1);
@@ -184,7 +184,7 @@ TEST_CASE("moeller_trumbore()"){
             Vector3f p0 = {FLT(0.23), FLT(1.58), FLT(-0.22)};
             Vector3f p1 = {FLT(0.23), FLT(1.58), FLT(0.16)};
             Vector3f p2 = {FLT(-0.24), FLT(1.58), FLT(0.16)};
-            auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);
+            auto [u, v, t] = moller_trumbore(r, p0, p1, p2);
             CHECK(u == -1);
             CHECK(v == -1);
             CHECK(t == -1);
@@ -194,7 +194,7 @@ TEST_CASE("moeller_trumbore()"){
             Vector3f p0 = {FLT(1), FLT(1.59), FLT(-1.04)};
             Vector3f p1 = {FLT(1), FLT(1.59), FLT(0.99)};
             Vector3f p2 = {FLT(-1.02), FLT(1.59), FLT(0.99)};
-            auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);
+            auto [u, v, t] = moller_trumbore(r, p0, p1, p2);
             CHECK(u == -1);
             CHECK(v == -1);
             CHECK(t == -1);
@@ -207,7 +207,7 @@ TEST_CASE("moeller_trumbore()"){
             Vector3f p0 = {FLT(-0.99), FLT(0), FLT(-1.04)};
             Vector3f p1 = {FLT(-1.02), FLT(1.59), FLT(-1.04)};
             Vector3f p2 = {FLT(-1.01), FLT(0), FLT(0.99)};
-            auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);
+            auto [u, v, t] = moller_trumbore(r, p0, p1, p2);
             CHECK(u == -1);
             CHECK(v == -1);
             CHECK(t == -1);
@@ -217,7 +217,7 @@ TEST_CASE("moeller_trumbore()"){
             Vector3f p0 = {FLT(-0.99), FLT(0), FLT(-1.04)};
             Vector3f p1 = {FLT(-1.02), FLT(1.59), FLT(-1.04)};
             Vector3f p2 = {FLT(-1.01), FLT(0), FLT(0.99)};
-            auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);
+            auto [u, v, t] = moller_trumbore(r, p0, p1, p2);
             CHECK(u == -1);
             CHECK(v == -1);
             CHECK(t == -1);
@@ -227,7 +227,7 @@ TEST_CASE("moeller_trumbore()"){
             Vector3f p0 = {FLT(-0.99), FLT(0), FLT(-1.04)};
             Vector3f p1 = {FLT(-1.02), FLT(1.59), FLT(-1.04)};
             Vector3f p2 = {FLT(-1.01), FLT(0), FLT(0.99)};
-            auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);
+            auto [u, v, t] = moller_trumbore(r, p0, p1, p2);
             CHECK(u == -1);
             CHECK(v == -1);
             CHECK(t == -1);
@@ -237,7 +237,7 @@ TEST_CASE("moeller_trumbore()"){
             Vector3f p0 = {FLT(-0.99), FLT(0), FLT(-1.04)};
             Vector3f p1 = {FLT(-1.02), FLT(1.59), FLT(-1.04)};
             Vector3f p2 = {FLT(-1.01), FLT(0), FLT(0.99)};
-            auto [u, v, t] = moeller_trumbore(r, p0, p1, p2);
+            auto [u, v, t] = moller_trumbore(r, p0, p1, p2);
             CHECK(u == -1);
             CHECK(v == -1);
             CHECK(t == -1);
