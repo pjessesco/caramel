@@ -38,7 +38,7 @@ namespace Caramel {
         }
     }
 
-    std::tuple<Float, Float, Float> moeller_trumbore(const Ray &ray, const Vector3f &p0, const Vector3f &p1, const Vector3f &p2){
+    std::tuple<Float, Float, Float> moller_trumbore(const Ray &ray, const Vector3f &p0, const Vector3f &p1, const Vector3f &p2){
         const Vector3f D = ray.m_d;
 
         const Vector3f T = ray.m_o - p0;
@@ -73,77 +73,79 @@ namespace Caramel {
     }
 
     // https://jcgt.org/published/0002/01/05/paper.pdf
-    std::tuple<Float, Float, Float> waterright_intersection(const Ray &ray, const Vector3f p0, const Vector3f p1, const Vector3f p2){
+    std::tuple<Float, Float, Float> watertight_intersection(const Ray &ray, const Vector3f &p0, const Vector3f &p1, const Vector3f &p2){
 
-        // Shift vertices
-        Vector3f _p0 = p0 - ray.m_o;
-        Vector3f _p1 = p1 - ray.m_o;
-        Vector3f _p2 = p2 - ray.m_o;
+        // Calculate dimension where the ray direction is maximal
+        Index idx_z = ray.m_d[0] > ray.m_d[1] ? ray.m_d[0] > ray.m_d[2] ? 0 :
+                                                                          2 :
+                                                ray.m_d[1] > ray.m_d[2] ? 1 :
+                                                                          2;
+        Index idx_x = idx_z == 2 ? 0 : idx_z + 1;
+        Index idx_y = idx_x == 2 ? 0 : idx_x + 1;
 
-        // Permute to make z value largest.
-        Index largest_idx = ray.m_d[0] > ray.m_d[1] ?
-                                                    ray.m_d[0] > ray.m_d[2] ?
-                                                                            0 :
-                                                                            2
-                                                    : ray.m_d[1] > ray.m_d[2] ?
-                                                                              1 :
-                                                                              2;
-        Index rest1, rest2;
-
-        switch (largest_idx) {
-            case 0:
-                rest1 = 1;
-                rest2 = 2;
-                break;
-            case 1:
-                rest1 = 2;
-                rest2 = 0;
-                break;
-            case 2:
-                rest1 = 0;
-                rest2 = 1;
-                break;
+        // Swap kx and ky dimension to preserve winding direction of triangles
+        if(ray.m_d[idx_z] < Float0){
+            std::swap(idx_x, idx_y);
         }
 
-        _p0 = {_p0[rest1], _p0[rest2], _p0[largest_idx]};
-        _p1 = {_p1[rest1], _p1[rest2], _p1[largest_idx]};
-        _p2 = {_p2[rest1], _p2[rest2], _p2[largest_idx]};
+        // Calculate shear constants
+        const Float sx = ray.m_d[idx_x] / ray.m_d[idx_z];
+        const Float sy = ray.m_d[idx_y] / ray.m_d[idx_z];
+        const Float sz = Float1 / ray.m_d[idx_z];
 
-        // Shear
-        const Float sx = -ray.m_d[0] / ray.m_d[2];
-        const Float sy = -ray.m_d[1] / ray.m_d[2];
-        const Float sz = Float1 / ray.m_d[2];
+        // Calculate vertices relative to ray origin
+        const Vector3f A = p0 - ray.m_o;
+        const Vector3f B = p1 - ray.m_o;
+        const Vector3f C = p2 - ray.m_o;
 
-        _p0[0] += sx * _p0[2];
-        _p0[1] += sy * _p0[2];
-        _p1[0] += sx * _p1[2];
-        _p1[1] += sy * _p1[2];
-        _p2[0] += sx * _p2[2];
-        _p2[1] += sy * _p2[2];
+        // Perform shear and scale of vertices
+        const Float ax = A[idx_x] - sx * A[idx_z];
+        const Float ay = A[idx_y] - sy * A[idx_z];
+        const Float bx = B[idx_x] - sx * B[idx_z];
+        const Float by = B[idx_y] - sy * B[idx_z];
+        const Float cx = C[idx_x] - sx * C[idx_z];
+        const Float cy = C[idx_y] - sy * C[idx_z];
 
-        const Matrix33f M{Float1, Float0, sx,
-                          Float0, Float1, sy,
-                          Float0, Float0, sz};
+        // Calculate scaled barycentric coordinates
+        Float U = cx*by - cy*bx;
+        Float V = ax*cy - ay*cx;
+        Float W = bx*ay - by*ax;
 
-        const Float U = _p2[0] * _p1[1] - _p2[1] * _p1[0];
-        const Float V = _p0[0] * _p2[1] - _p0[1] * _p2[0];
-        const Float W = _p1[0] * _p0[1] - _p1[1] * _p0[0];
+        // Fallback to test against edges using double precision
+        // Note that we are using `Float` keyword instead of standard `float`/`double` in paper.
+        if(U==Float0 || V==Float0 || W==Float0){
+            U = cx*by - cy*bx;
+            V = ax*cy - ay*cx;
+            W = bx*ay - by*ax;
+        }
 
-        if(U<0 || V<0 || W<0){
+        // Perform edge tests. Moving this test before and at the end
+        // of the previous conditional gives higher performances.
+        // Assumes backface culling
+        if(U<Float0 || V<Float0 || W<Float0){
             return {-Float1, -Float1, -Float1};
         }
 
-        const Float det = U + V + W;
-        if(std::abs(det)<EPSILON){
+        // Calculate determinant
+        Float det = U + V + W;
+        if(det == Float0){
             return {-Float1, -Float1, -Float1};
         }
 
-        const Float T = U * _p0[2] + V * _p1[2] + W * _p2[2];
+        // Calculate scaled z-coordinates of vertices and use them to calculate the hit distance
+        const Float az = sz * A[idx_z];
+        const Float bz = sz * B[idx_z];
+        const Float cz = sz * C[idx_z];
+        const Float T = U*az + V*bz + W*cz;
 
-        if(T < EPSILON){
+        // Assumes backface culling
+        if(T <= ray.m_min_t * det){
             return {-Float1, -Float1, -Float1};
         }
-        return {U/det, V/det, T/det};
 
+        // Normalize U, V, W, and T
+        const Float inv_det = Float1 / det;
+        // Return v and to match with trumbore_moeller implementation
+        return {V * inv_det, W * inv_det, T * inv_det};
     }
 }
