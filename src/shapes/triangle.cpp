@@ -77,7 +77,7 @@ namespace Caramel {
     // u, v, t
     std::tuple<bool, RayIntersectInfo> Triangle::ray_intersect(const Ray &ray) const {
 
-        auto [u, v, t] = moeller_trumbore(ray, m_p0, m_p1, m_p2);
+        auto [u, v, t] = watertight_intersection(ray, m_p0, m_p1, m_p2);
 
         if(u==-Float1 && v==-Float1 && t==-Float1){
             return {false, RayIntersectInfo()};
