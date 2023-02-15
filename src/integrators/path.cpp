@@ -60,18 +60,19 @@ namespace Caramel{
         // Note the loop range difference
         for(Index depth=0;depth<=m_max_depth;depth++){
             auto [is_hit, info] = scene.ray_intersect(ray);
+            const Shape *shape = scene.m_meshes[info.idx];
 
             if(!is_hit){
                 return vec3f_zero;
             }
 
-            if(scene.m_meshes[info.idx]->is_light()){
-                return current_brdf % scene.m_meshes[info.idx]->get_arealight()->radiance();
+            if(shape->is_light()){
+                return current_brdf % shape->get_arealight()->radiance();
             }
 
             // brdf sample
             const Vector3f local_ray_dir = info.sh_coord.to_local(ray.m_d);
-            auto [local_recursive_dir, sampled_brdf, brdf_pdf] = scene.m_meshes[info.idx]->get_bsdf()->sample_recursive_dir(local_ray_dir, sampler);
+            auto [local_recursive_dir, sampled_brdf, brdf_pdf] = shape->get_bsdf()->sample_recursive_dir(local_ray_dir, sampler);
             current_brdf = current_brdf % sampled_brdf;
 
             ray = Ray(info.p, info.sh_coord.to_world(local_recursive_dir));
@@ -90,21 +91,23 @@ namespace Caramel{
         for(Index depth=0;depth<m_max_depth;depth++){
             auto [is_hit, info] = scene.ray_intersect(ray);
 
+            const Shape *shape = scene.m_meshes[info.idx];
+            const BSDF *shape_bsdf = shape->get_bsdf();
             const Vector3f local_ray_dir = info.sh_coord.to_local(ray.m_d);
 
             if(!is_hit){
                 break;
             }
 
-            if(scene.m_meshes[info.idx]->is_light()){
+            if(shape->is_light()){
                 if(depth == 0 || from_specular){
-                    ret = ret + (scene.m_meshes[info.idx]->get_arealight()->radiance() % current_brdf);
+                    ret = ret + (shape->get_arealight()->radiance() % current_brdf);
                 }
                 break;
             }
 
             // emiiter sampling
-            const bool is_current_specular = scene.m_meshes[info.idx]->get_bsdf()->is_discrete();
+            const bool is_current_specular = shape_bsdf->is_discrete();
             if(!is_current_specular){
                 auto [light, light_pdf] = scene.sample_light(sampler);
                 auto [emitted_rad, light_pos, light_n_world, light_pos_pdf, light_info] = light->sample_direct_contribution(scene, info.p, sampler);
@@ -112,18 +115,18 @@ namespace Caramel{
                 const Vector3f hitpos_to_light_local = info.sh_coord.to_local(light_pos - info.p).normalize();
                 const Float dist_square = light_info.t * light_info.t;
 
-                const Vector3f fr = scene.m_meshes[info.idx]->get_bsdf()->get_reflection(local_ray_dir, hitpos_to_light_local);
+                const Vector3f fr = shape_bsdf->get_reflection(local_ray_dir, hitpos_to_light_local);
 
-                const Float geo = info.sh_coord.to_local(light_n_world).dot(-1 * hitpos_to_light_local) * hitpos_to_light_local[2] / dist_square;
+                const Float geo = info.sh_coord.to_local(light_n_world).dot(-hitpos_to_light_local) * hitpos_to_light_local[2] / dist_square;
                 const Float pdf = light_pdf * light_pos_pdf;
 
                 ret = ret + (fr % emitted_rad % current_brdf) * geo / pdf;
             }
 
             // brdf sampling
-            auto [local_recursive_dir, sampled_brdf, _] = scene.m_meshes[info.idx]->get_bsdf()->sample_recursive_dir(local_ray_dir, sampler);
+            auto [local_recursive_dir, sampled_brdf, _] = shape_bsdf->sample_recursive_dir(local_ray_dir, sampler);
             current_brdf = current_brdf % sampled_brdf;
-            from_specular = scene.m_meshes[info.idx]->get_bsdf()->is_discrete();
+            from_specular = shape_bsdf->is_discrete();
 
             if(depth >= m_rr_depth){
                 const Float rr = current_brdf.max();
