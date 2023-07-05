@@ -91,13 +91,13 @@ namespace Caramel{
         for(Index depth=0;depth<m_max_depth;depth++){
             auto [is_hit, info] = scene.ray_intersect(ray);
 
-            const Shape *shape = scene.m_meshes[info.idx];
-            const BSDF *shape_bsdf = shape->get_bsdf();
-            const Vector3f local_ray_dir = info.sh_coord.to_local(ray.m_d);
-
             if(!is_hit){
                 break;
             }
+
+            const Shape *shape = scene.m_meshes[info.idx];
+            const BSDF *shape_bsdf = shape->get_bsdf();
+            const Vector3f local_ray_dir = info.sh_coord.to_local(ray.m_d);
 
             if(shape->is_light()){
                 if(depth == 0 || from_specular){
