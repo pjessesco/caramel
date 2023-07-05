@@ -65,10 +65,19 @@ namespace Caramel{
         Float tmin = Float0;
         Float tmax = INF;
         for(Index i=0;i<3;i++){
-            Float t1 = (m_min[i] - ray.m_o[i]) / ray.m_d[i];
-            Float t2 = (m_max[i] - ray.m_o[i]) / ray.m_d[i];
-            tmin = std::min(std::max(t1, tmin), std::max(t2, tmin));
-            tmax = std::max(std::min(t1, tmax), std::min(t2, tmax));
+            const Float t1 = (m_min[i] - ray.m_o[i]) / ray.m_d[i];
+            const Float t2 = (m_max[i] - ray.m_o[i]) / ray.m_d[i];
+            // Using ternary operator seems faster than std::min/max in debug config
+            /* tmin */{
+                const Float a = (t1 > tmin ? t1 : tmin);
+                const Float b = (t2 > tmin ? t2 : tmin);
+                tmin = a > b ? b : a;
+            }
+            /* tmax */{
+                const Float a = (t1 > tmax ? tmax : t1);
+                const Float b = (t2 > tmax ? tmax : t2);
+                tmax = a > b ? a : b;
+            }
         }
         return {tmin <= tmax, tmin, tmax};
     }
