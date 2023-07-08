@@ -49,7 +49,6 @@ namespace Caramel{
         for(auto ti : m_triangle_indices){
             const Triangle tri = shape.get_triangle(ti);
             for(int i=0;i<8;i++){
-                // can be replaced to tri.is_overlab, not using aabb
                 if(m_childs[i].m_aabb.is_overlap(tri.get_aabb())){
                     m_childs[i].m_triangle_indices.push_back(ti);
                 }
