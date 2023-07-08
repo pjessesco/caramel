@@ -96,27 +96,20 @@ namespace Caramel{
     }
 
     std::tuple<bool, RayIntersectInfo> Octree::Node::ray_intersect_branch(const Ray &ray, const OBJMesh &shape){
-        // sort childs
-        using idx_tmin = std::pair<Index, Float>;
-        std::array<idx_tmin, 8> sorted_idx;
-        for(Index i=0;i<8;i++){
-            sorted_idx[i] = {i, std::get<1>(m_childs[i].m_aabb.ray_intersect(ray))};
-        }
+        RayIntersectInfo info;
+        bool is_hit = false;
 
-        std::sort(sorted_idx.begin(), sorted_idx.end(),
-                  [&](const idx_tmin &a, const idx_tmin &b)->bool{
-                      return a.second < b.second;
-                  });
-
-        for(auto i : sorted_idx){
-            auto [is_intersect, tmp_info] = m_childs[i.first].ray_intersect(ray, shape);
+        for(int i=0;i<8;i++){
+            auto [is_intersect, tmp_info] = m_childs[i].ray_intersect(ray, shape);
             if (is_intersect) {
-                return{true, tmp_info};
+                is_hit = true;
+                if (info.t > tmp_info.t) {
+                    info = tmp_info;
+                }
             }
         }
 
-        RayIntersectInfo info;
-        return {false, info};
+        return {is_hit, info};
     }
 
     std::tuple<bool, RayIntersectInfo> Octree::Node::ray_intersect(const Ray &ray, const OBJMesh &shape){
