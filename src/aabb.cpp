@@ -31,13 +31,13 @@
 namespace Caramel{
     AABB::AABB() = default;
     AABB::AABB(const Vector3f &p1, const Vector3f &p2) {
-        m_min = Vector3f{std::min({p1[0], p2[0]}),
-                         std::min({p1[1], p2[1]}),
-                         std::min({p1[2], p2[2]})};
+        m_min = Vector3f{std::min(p1[0], p2[0]),
+                         std::min(p1[1], p2[1]),
+                         std::min(p1[2], p2[2])};
 
-        m_max = Vector3f{std::max({p1[0], p2[0]}),
-                         std::max({p1[1], p2[1]}),
-                         std::max({p1[2], p2[2]})};
+        m_max = Vector3f{std::max(p1[0], p2[0]),
+                         std::max(p1[1], p2[1]),
+                         std::max(p1[2], p2[2])};
     }
 
     bool AABB::is_overlap(const AABB &aabb) const{
