@@ -66,42 +66,24 @@ namespace Caramel {
                 Float1 / get_area()};
     }
 
-    inline Vector3f Triangle::point(Index i) const {
-        return i == 0 ? m_p0 : i == 1 ? m_p1 : m_p2;
-    }
-
-    inline Vector3f Triangle::normal(Index i) const {
-        return i == 0 ? m_n0 : i == 1 ? m_n1 : m_n2;
-    }
-
     // u, v, t
     std::tuple<bool, RayIntersectInfo> Triangle::ray_intersect(const Ray &ray) const {
 
-        auto [u, v, t] = watertight_intersection(ray, m_p0, m_p1, m_p2);
+        auto [u, v, t] = moller_trumbore(ray, m_p0, m_p1, m_p2);
 
         if(u==-Float1 && v==-Float1 && t==-Float1){
             return {false, RayIntersectInfo()};
         }
 
-        // Intersect
-        Vector3f hitpos = interpolate(m_p0, m_p1, m_p2, u, v);
-
-
         RayIntersectInfo ret;
-        ret.p = hitpos;
         ret.t = t;
         ret.u = u;
         ret.v = v;
-
-        if(is_vn_exists){
-            Vector3f shn = interpolate(m_n0, m_n1, m_n2, u, v);
-            ret.sh_coord = Coordinate(shn.normalize());
-        }
-        else{
-            const Vector3f E1 = m_p1 - m_p0;
-            const Vector3f E2 = m_p2 - m_p0;
-            ret.sh_coord = Coordinate(cross(E1, E2).normalize());
-        }
+        ret.p = interpolate(m_p0, m_p1, m_p2, u, v);
+        
+        const Vector3f n = is_vn_exists ? interpolate(m_n0, m_n1, m_n2, u, v).normalize() :
+                                          cross(m_p1 - m_p0, m_p2 - m_p0).normalize();
+        ret.sh_coord = Coordinate(n);
 
         return {true, ret};
     }

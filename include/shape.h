@@ -93,8 +93,12 @@ namespace Caramel{
         // point, normal, probability
         std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;
 
-        inline Vector3f point(Index i) const;
-        inline Vector3f normal(Index i) const;
+        inline Vector3f point(Index i) const{
+            return i == 0 ? m_p0 : i == 1 ? m_p1 : m_p2;
+        }
+        inline Vector3f normal(Index i) const{
+            return i == 0 ? m_n0 : i == 1 ? m_n1 : m_n2;
+        }
 
     private:
         Vector3f m_p0, m_p1, m_p2;
