@@ -64,9 +64,7 @@ namespace Caramel{
             return;
         }
 
-        if(m_triangle_indices.size() > MAX_TRIANGLE_NUM){
-            construct_children(shape);
-        }
+        construct_children(shape);
 
         if(depth == 0 && m_childs.size() == 8){
             parallel_for(0, 8, [&](int i){
@@ -75,7 +73,9 @@ namespace Caramel{
         }
         else{
             for(auto &c : m_childs){
-                c.construct_children_recursively(shape, depth + 1);
+                if(c.m_triangle_indices.size() > MAX_TRIANGLE_NUM){
+                    c.construct_children_recursively(shape, depth + 1);
+                }
             }
         }
     }
