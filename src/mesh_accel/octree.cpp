@@ -49,7 +49,6 @@ namespace Caramel{
         for(auto ti : m_triangle_indices){
             const Triangle tri = shape.get_triangle(ti);
             for(int i=0;i<8;i++){
-                // can be replaced to tri.is_overlab, not using aabb
                 if(m_childs[i].m_aabb.is_overlap(tri.get_aabb())){
                     m_childs[i].m_triangle_indices.push_back(ti);
                 }
@@ -64,9 +63,7 @@ namespace Caramel{
             return;
         }
 
-        if(m_triangle_indices.size() > MAX_TRIANGLE_NUM){
-            construct_children(shape);
-        }
+        construct_children(shape);
 
         if(depth == 0 && m_childs.size() == 8){
             parallel_for(0, 8, [&](int i){
@@ -75,7 +72,9 @@ namespace Caramel{
         }
         else{
             for(auto &c : m_childs){
-                c.construct_children_recursively(shape, depth + 1);
+                if(c.m_triangle_indices.size() > MAX_TRIANGLE_NUM){
+                    c.construct_children_recursively(shape, depth + 1);
+                }
             }
         }
     }
@@ -96,27 +95,20 @@ namespace Caramel{
     }
 
     std::tuple<bool, RayIntersectInfo> Octree::Node::ray_intersect_branch(const Ray &ray, const OBJMesh &shape){
-        // sort childs
-        using idx_tmin = std::pair<Index, Float>;
-        std::array<idx_tmin, 8> sorted_idx;
-        for(Index i=0;i<8;i++){
-            sorted_idx[i] = {i, std::get<1>(m_childs[i].m_aabb.ray_intersect(ray))};
-        }
+        RayIntersectInfo info;
+        bool is_hit = false;
 
-        std::sort(sorted_idx.begin(), sorted_idx.end(),
-                  [&](const idx_tmin &a, const idx_tmin &b)->bool{
-                      return a.second < b.second;
-                  });
-
-        for(auto i : sorted_idx){
-            auto [is_intersect, tmp_info] = m_childs[i.first].ray_intersect(ray, shape);
+        for(int i=0;i<8;i++){
+            auto [is_intersect, tmp_info] = m_childs[i].ray_intersect(ray, shape);
             if (is_intersect) {
-                return{true, tmp_info};
+                is_hit = true;
+                if (info.t > tmp_info.t) {
+                    info = tmp_info;
+                }
             }
         }
 
-        RayIntersectInfo info;
-        return {false, info};
+        return {is_hit, info};
     }
 
     std::tuple<bool, RayIntersectInfo> Octree::Node::ray_intersect(const Ray &ray, const OBJMesh &shape){
