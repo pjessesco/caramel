@@ -117,7 +117,7 @@ namespace Caramel{
 
                 const Vector3f fr = shape_bsdf->get_reflection(local_ray_dir, hitpos_to_light_local);
 
-                const Float geo = info.sh_coord.to_local(light_n_world).dot(-hitpos_to_light_local) * hitpos_to_light_local[2] / dist_square;
+                const Float geo = std::abs(info.sh_coord.to_local(light_n_world).dot(-hitpos_to_light_local) * hitpos_to_light_local[2]) / dist_square;
                 const Float pdf = light_pdf * light_pos_pdf;
 
                 ret = ret + (fr % emitted_rad % current_brdf) * geo / pdf;
