@@ -65,7 +65,7 @@ namespace Caramel {
         }
 
         const Float t = TE1.dot(E2) * denom_inv;
-        if(t <= ray.m_min_t){
+        if(t <= Float0){
             return {-Float1, -Float1, -Float1};
         }
 
@@ -139,9 +139,9 @@ namespace Caramel {
         const Float T = U*az + V*bz + W*cz;
 
         // Assumes backface culling
-        if(T <= ray.m_min_t * det){
-            return {-Float1, -Float1, -Float1};
-        }
+        // if(T <= ray.m_min_t * det){
+        //     return {-Float1, -Float1, -Float1};
+        // }
 
         // Normalize U, V, W, and T
         const Float inv_det = Float1 / det;

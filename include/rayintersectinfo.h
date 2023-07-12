@@ -29,9 +29,12 @@
 
 namespace Caramel{
     struct Shape;
+    class Ray;
 
-    struct RayIntersectInfo {
-        RayIntersectInfo() : p{Float0, Float0, Float0}, sh_coord(), t(INF), u(INF), v(INF), idx(9999) {}
+    class RayIntersectInfo {
+    public:
+        RayIntersectInfo();
+        Ray recursive_ray_to(const Vector3f &local_next_dir);
 
         Vector3f p;   // World position where ray hits
         Coordinate sh_coord; // Coordinate initialized using world normal

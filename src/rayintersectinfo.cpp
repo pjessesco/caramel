@@ -22,25 +22,18 @@
 // SOFTWARE.
 //
 
-// Standard headers
-#include <type_traits>
-
-// caramel headers
 #include <common.h>
+#include <rayintersectinfo.h>
 #include <ray.h>
-#include <shape.h>
 
-// Dependencies headers
-#include "catch_amalgamated.hpp"
+namespace Caramel{
 
-using namespace Caramel;
-#define FLT(x) static_cast<Float>(x)
+    RayIntersectInfo::RayIntersectInfo() : p{Float0, Float0, Float0}, sh_coord(), t(INF), u(INF), v(INF), idx(-1) {}
 
-TEST_CASE("moller_trumbore()"){
+    Ray RayIntersectInfo::recursive_ray_to(const Vector3f &local_next_dir){
+        const Vector3f world_d = sh_coord.to_world(local_next_dir);
 
-}
-
-TEST_CASE("Ray-objmesh intersection"){
+        return {p + (world_d * 1e-3), world_d};
+    }
 
 }
-

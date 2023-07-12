@@ -35,6 +35,8 @@ set(SOURCES
         src/shapes/objmesh.cpp
         src/shapes/shape.cpp
         src/shapes/triangle.cpp
+        src/scene_parser.cpp
+        src/rayintersectinfo.cpp
         )
 
 set(HEADERS
@@ -55,7 +57,7 @@ set(HEADERS
         include/shape.h
         include/transform.h
         include/warp_sample.h
-        include/scene_parser.h src/scene_parser.cpp)
+        include/scene_parser.h)
 
 if(NOT EXCLUDE_TEST)
     add_executable(caramel_test
