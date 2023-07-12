@@ -60,11 +60,12 @@ namespace Caramel{
         // Note the loop range difference
         for(Index depth=0;depth<=m_max_depth;depth++){
             auto [is_hit, info] = scene.ray_intersect(ray);
-            const Shape *shape = scene.m_meshes[info.idx];
 
             if(!is_hit){
                 return vec3f_zero;
             }
+
+            const Shape *shape = scene.m_meshes[info.idx];
 
             if(shape->is_light()){
                 return current_brdf % shape->get_arealight()->radiance();
@@ -75,7 +76,7 @@ namespace Caramel{
             auto [local_recursive_dir, sampled_brdf, brdf_pdf] = shape->get_bsdf()->sample_recursive_dir(local_ray_dir, sampler);
             current_brdf = current_brdf % sampled_brdf;
 
-            ray = Ray(info.p, info.sh_coord.to_world(local_recursive_dir));
+            ray = info.recursive_ray_to(local_recursive_dir);
         }
 
         return ret;
@@ -138,7 +139,7 @@ namespace Caramel{
                 }
             }
 
-            ray = Ray(info.p, info.sh_coord.to_world(local_recursive_dir));
+            ray = info.recursive_ray_to(local_recursive_dir);
         }
         return ret;
     }

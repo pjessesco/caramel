@@ -22,24 +22,18 @@
 // SOFTWARE.
 //
 
-#pragma once
-
 #include <common.h>
-#include <coordinate.h>
+#include <rayintersectinfo.h>
+#include <ray.h>
 
 namespace Caramel{
-    struct Shape;
-    class Ray;
 
-    class RayIntersectInfo {
-    public:
-        RayIntersectInfo();
-        Ray recursive_ray_to(const Vector3f &local_next_dir);
+    RayIntersectInfo::RayIntersectInfo() : p{Float0, Float0, Float0}, sh_coord(), t(INF), u(INF), v(INF), idx(-1) {}
 
-        Vector3f p;   // World position where ray hits
-        Coordinate sh_coord; // Coordinate initialized using world normal
-        Float t;      // Length of the ray from origin to hitpoint
-        Float u, v;   // UV coordinate
-        Index idx;    // Shape index in a scene
-    };
+    Ray RayIntersectInfo::recursive_ray_to(const Vector3f &local_next_dir){
+        const Vector3f world_d = sh_coord.to_world(local_next_dir);
+
+        return {p + (world_d * 1e-3), world_d};
+    }
+
 }
