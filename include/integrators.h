@@ -83,7 +83,7 @@ namespace Caramel{
 
     class DirectIntegrator final : public Integrator{
     public:
-        explicit DirectIntegrator(Index spp, SamplingType sampling_type);
+        DirectIntegrator(Index spp, SamplingType sampling_type);
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
 
     private:
