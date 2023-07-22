@@ -43,6 +43,8 @@ namespace Caramel{
                                                                                                              const Vector3f &pos,
                                                                                                              Sampler &sampler) const = 0;
 
+        virtual Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const = 0;
+
         // Arealight is handled in AreaLight::Create
         template <typename Type, typename ...Param>
         static Light* Create(Param ...args){
@@ -59,6 +61,8 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> sample_direct_contribution(const Scene &scene,
                                                                                                      const Vector3f &hitpos,
                                                                                                      Sampler &sampler) const override;
+
+        Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const override;
 
         template <typename ...Param>
         static AreaLight* Create(Param ...args){
