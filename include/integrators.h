@@ -41,6 +41,8 @@ namespace Caramel{
         MIS
     };
 
+    Float balance_heuristic(Float a, Float b);
+
     class Integrator{
     public:
         explicit Integrator(Index m_spp = 1);
@@ -89,6 +91,7 @@ namespace Caramel{
     private:
         Vector3f brdf_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler);
         Vector3f emitter_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler);
+        Vector3f mis_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler);
 
         SamplingType m_sampling_type;
     };

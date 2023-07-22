@@ -37,6 +37,10 @@
 #include <sampler.h>
 
 namespace Caramel{
+    Float balance_heuristic(Float a, Float b){
+        return a / (a + b);
+    }
+
     Integrator::Integrator(Index spp) : m_spp{spp} {}
 
     Image Integrator::render(const Scene &scene){
