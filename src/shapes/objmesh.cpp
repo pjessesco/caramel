@@ -160,6 +160,15 @@ namespace Caramel {
         return {pos, normal, Float1 / m_area};
     }
 
+    // Similar with `Triangle::pdf_solidangle()`
+    // This implementation assumes that two given points are visible to each other
+    Float OBJMesh::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const{
+        const Vector3f shape_to_hitpos_world = hitpos_world - shapepos_world;
+        const Float cos = std::abs(shape_normal_world.dot(shape_to_hitpos_world.normalize()));
+        const Float dist_squared = shape_to_hitpos_world.dot(shape_to_hitpos_world);
+        return dist_squared / (cos * m_area);
+    }
+
     Triangle OBJMesh::get_triangle(Index i) const {
         if (is_vn_exists){
             return Triangle(m_vertices[m_vertex_indices[i][0]],

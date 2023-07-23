@@ -34,7 +34,7 @@ namespace Caramel{
     class RayIntersectInfo {
     public:
         RayIntersectInfo();
-        Ray recursive_ray_to(const Vector3f &local_next_dir);
+        Ray recursive_ray_to(const Vector3f &local_next_dir) const;
 
         Vector3f p;   // World position where ray hits
         Coordinate sh_coord; // Coordinate initialized using world normal

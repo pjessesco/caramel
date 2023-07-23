@@ -30,7 +30,8 @@ namespace Caramel{
 
     RayIntersectInfo::RayIntersectInfo() : p{Float0, Float0, Float0}, sh_coord(), t(INF), u(INF), v(INF), idx(-1) {}
 
-    Ray RayIntersectInfo::recursive_ray_to(const Vector3f &local_next_dir){
+    // See also `Scene::is_visible()`
+    Ray RayIntersectInfo::recursive_ray_to(const Vector3f &local_next_dir) const{
         const Vector3f world_d = sh_coord.to_world(local_next_dir);
 
         return {p + (world_d * 1e-3), world_d};
