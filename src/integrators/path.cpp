@@ -57,7 +57,6 @@ namespace Caramel{
         Vector3f current_brdf = vec3f_one;
         Vector3f ret = vec3f_zero;
 
-        // Note the loop range difference
         for(Index depth=0;depth<=m_max_depth;depth++){
             auto [is_hit, info] = scene.ray_intersect(ray);
 
@@ -89,7 +88,7 @@ namespace Caramel{
         Vector3f ret = vec3f_zero;
         bool from_specular = true;
 
-        for(Index depth=0;depth<m_max_depth;depth++){
+        for(Index depth=0;depth<=m_max_depth;depth++){
             auto [is_hit, info] = scene.ray_intersect(ray);
 
             if(!is_hit){
@@ -104,6 +103,10 @@ namespace Caramel{
                 if(depth == 0 || from_specular){
                     ret = ret + (shape->get_arealight()->radiance() % current_brdf);
                 }
+                break;
+            }
+
+            if(depth == m_max_depth){
                 break;
             }
 
@@ -127,17 +130,7 @@ namespace Caramel{
             // brdf sampling
             auto [local_recursive_dir, sampled_brdf, _] = shape_bsdf->sample_recursive_dir(local_ray_dir, sampler);
             current_brdf = current_brdf % sampled_brdf;
-            from_specular = shape_bsdf->is_discrete();
-
-            if(depth >= m_rr_depth){
-                const Float rr = current_brdf.max();
-                if(sampler.sample_1d() <= rr){
-                    current_brdf = current_brdf / rr;
-                }
-                else{
-                    break;
-                }
-            }
+            from_specular = is_current_specular;
 
             ray = info.recursive_ray_to(local_recursive_dir);
         }
