@@ -120,7 +120,7 @@ namespace Caramel{
                 const Vector3f fr = shape_bsdf->get_reflection(local_ray_dir, hitpos_to_light_local_normal);
                 const Float pdf_solidangle = light->pdf_solidangle(info.p, light_info.p, light_info.sh_coord.m_world_n);
 
-                ret = ret + (fr % emitted_rad % current_brdf) * hitpos_to_light_local_normal[2] / (light_pdf * pdf_solidangle);
+                ret = ret + (fr % emitted_rad % current_brdf) * std::abs(hitpos_to_light_local_normal[2]) / (light_pdf * pdf_solidangle);
             }
 
             // brdf sampling
