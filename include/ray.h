@@ -28,9 +28,13 @@
 
 namespace Caramel{
     struct Ray{
-        Ray(const Vector3f &o, const Vector3f &d) : m_o{o}, m_d{d.normalize()} {}
-
+    public:
         Vector3f m_o;
         Vector3f m_d;
+    private:
+        friend class RayIntersectInfo;
+        friend class Camera;
+        friend class Scene;
+        Ray(const Vector3f &o, const Vector3f &d) : m_o{o}, m_d{d.normalize()} {}
     };
 }

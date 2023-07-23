@@ -26,6 +26,7 @@
 
 #include <light.h>
 
+#include <ray.h>
 #include <common.h>
 #include <sampler.h>
 #include <scene.h>
@@ -61,5 +62,8 @@ namespace Caramel{
         return {m_radiance, light_pos, light_normal_world, pos_pdf, info};
     }
 
+    Float AreaLight::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const{
+        return m_shape->pdf_solidangle(hitpos_world, lightpos_world, light_normal_world);
+    }
 
 }

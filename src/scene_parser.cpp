@@ -61,7 +61,7 @@ namespace Caramel{
         }
         else if(type=="direct"){
             return Integrator::Create<DirectIntegrator>(parse_positive_int(child, "spp"),
-                                                        SamplingType::LIGHT);
+                                                        SamplingType::MIS);
         }
         else if(type=="path"){
             return Integrator::Create<PathIntegrator>(parse_positive_int(child, "depth_rr"),

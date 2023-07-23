@@ -55,6 +55,7 @@ namespace Caramel{
         virtual Float get_area() const = 0;
         // point, normal, probability
         virtual std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const = 0;
+        virtual Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const = 0;
 
         inline bool is_light() const{
             return m_arealight != nullptr;
@@ -92,6 +93,7 @@ namespace Caramel{
         Float get_area() const override;
         // point, normal, probability
         std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;
+        Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const override;
 
         inline Vector3f point(Index i) const{
             return i == 0 ? m_p0 : i == 1 ? m_p1 : m_p2;
@@ -115,6 +117,7 @@ namespace Caramel{
         Float get_area() const override;
         // point, normal, probability
         std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;
+        Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const override;
 
         Triangle get_triangle(Index i) const;
 
