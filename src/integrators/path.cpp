@@ -115,11 +115,15 @@ namespace Caramel{
                 auto [light, light_pdf] = scene.sample_light(sampler);
                 auto [emitted_rad, light_pos, light_n_world, light_pos_pdf, light_info] = light->sample_direct_contribution(scene, info.p, sampler);
 
-                const Vector3f hitpos_to_light_local_normal = info.sh_coord.to_local(light_pos - info.p).normalize();
-                const Vector3f fr = shape_bsdf->get_reflection(local_ray_dir, hitpos_to_light_local_normal);
-                const Float pdf_solidangle = light->pdf_solidangle(info.p, light_info.p, light_info.sh_coord.m_world_n);
+                const Vector3f hitpos_to_light_local = info.sh_coord.to_local(light_pos - info.p).normalize();
+                const Float dist_square = light_info.t * light_info.t;
 
-                ret = ret + (fr % emitted_rad % current_brdf) * std::abs(hitpos_to_light_local_normal[2]) / (light_pdf * pdf_solidangle);
+                const Vector3f fr = shape_bsdf->get_reflection(local_ray_dir, hitpos_to_light_local);
+
+                const Float geo = std::abs(info.sh_coord.to_local(light_n_world).dot(-hitpos_to_light_local) * hitpos_to_light_local[2]) / dist_square;
+                const Float pdf = light_pdf * light_pos_pdf;
+
+                ret = ret + (fr % emitted_rad % current_brdf) * geo / pdf;
             }
 
             // brdf sampling
