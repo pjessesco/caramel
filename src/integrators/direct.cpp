@@ -69,14 +69,22 @@ namespace Caramel{
         const Ray recursive_ray = info.recursive_ray_to(local_outgoing);
         auto [recursive_is_hit, recursive_info] = scene.ray_intersect(recursive_ray);
 
+        if(!recursive_is_hit){
+            return vec3f_zero;
+        }
+
         const auto recursive_mesh = scene.m_meshes[recursive_info.idx];
 
-        if(!recursive_is_hit || !recursive_mesh->is_light()){
+        if(!recursive_mesh->is_light()){
+            return vec3f_zero;
+        }
+
+        // Return zero if recursive ray hits light from backward
+        if(recursive_info.sh_coord.m_world_n.dot(-recursive_ray.m_d) <= Float0){
             return vec3f_zero;
         }
 
         const Vector3f rad = recursive_mesh->get_arealight()->radiance();
-
         return contrib % rad;
     }
 
@@ -104,7 +112,7 @@ namespace Caramel{
         const Vector3f fr = mesh->get_bsdf()->get_reflection(local_ray_dir, hitpos_to_light_local_normal);
         const Float pdf_solidangle = light->pdf_solidangle(info.p, light_info.p, light_info.sh_coord.m_world_n);
 
-        return (fr % emitted_rad) * hitpos_to_light_local_normal[2] / (light_pdf * pdf_solidangle);
+        return (fr % emitted_rad) * std::abs(hitpos_to_light_local_normal[2]) / (light_pdf * pdf_solidangle);
     }
 
     Vector3f DirectIntegrator::mis_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler) {
@@ -138,7 +146,7 @@ namespace Caramel{
 
                 // MIS for light sampling
                 const Float bsdf_pdf = mesh->get_bsdf()->pdf(local_ray_dir, hitpos_to_light_local_normal);
-                L1 = (fr % emitted_rad) * hitpos_to_light_local_normal[2] * balance_heuristic(light_pdf * pdf_solidangle, bsdf_pdf) / (light_pdf * pdf_solidangle);
+                L1 = (fr % emitted_rad) * std::abs(hitpos_to_light_local_normal[2]) * balance_heuristic(light_pdf * pdf_solidangle, bsdf_pdf) / (light_pdf * pdf_solidangle);
             }
         }
 
@@ -162,6 +170,11 @@ namespace Caramel{
             // TODO : consider environment map
             const auto recursive_mesh = scene.m_meshes[recursive_info.idx];
             if(!recursive_mesh->is_light()){
+                return L1;
+            }
+
+            // Return zero if recursive ray hits light from backward
+            if(recursive_info.sh_coord.m_world_n.dot(-recursive_ray.m_d) <= Float0){
                 return L1;
             }
 
