@@ -39,16 +39,17 @@ namespace Caramel{
 
     // Different with albedo precisely...
     Vector3f PathIntegrator::get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) {
-        switch (m_sampling_type) {
-            case SamplingType::BSDF:
-                return brdf_sampling_path(scene, i, j, sampler);
-            case SamplingType::LIGHT:
-                return emitter_sampling_path(scene, i, j, sampler);
-            case SamplingType::MIS:
-                return mis_sampling_path(scene, i, j, sampler);
-            default:
-                return vec3f_zero;
-        }
+        return brdf_sampling_path(scene, i, j, sampler);
+        //        switch (m_sampling_type) {
+//            case SamplingType::BSDF:
+//                return brdf_sampling_path(scene, i, j, sampler);
+//            case SamplingType::LIGHT:
+//                return emitter_sampling_path(scene, i, j, sampler);
+//            case SamplingType::MIS:
+//                return mis_sampling_path(scene, i, j, sampler);
+//            default:
+//                return vec3f_zero;
+//        }
     }
 
     Vector3f PathIntegrator::brdf_sampling_path(const Scene &scene, Float i, Float j, Sampler &sampler){
@@ -67,7 +68,7 @@ namespace Caramel{
             const Shape *shape = scene.m_meshes[info.idx];
 
             if(shape->is_light()){
-                return current_brdf % shape->get_arealight()->radiance();
+                return current_brdf % shape->get_arealight()->radiance(ray.m_o, info.p, info.sh_coord.m_world_n);
             }
 
             // brdf sample
@@ -100,7 +101,7 @@ namespace Caramel{
 
             if(shape->is_light()){
                 if(depth == 0 || from_specular){
-                    ret = ret + (shape->get_arealight()->radiance() % current_brdf);
+                    ret = ret + (shape->get_arealight()->radiance(ray.m_o, info.p, info.sh_coord.m_world_n) % current_brdf);
                 }
                 break;
             }
@@ -160,7 +161,7 @@ namespace Caramel{
                 const Float pdf_solidangle = light->pdf_solidangle(ray.m_o, info.p, info.sh_coord.m_world_n);
                 const Float pdf_pick_light = Float1 / static_cast<Float>(scene.m_lights.size());
                 const Float weight = balance_heuristic(prev_brdf_pdf, pdf_pick_light * pdf_solidangle);
-                const Vector3f contrib = shape->get_arealight()->radiance() % current_brdf;
+                const Vector3f contrib = shape->get_arealight()->radiance(ray.m_o, info.p, info.sh_coord.m_world_n) % current_brdf;
                 if(depth==0 || from_specular){
                     ret = ret + contrib;
                 }

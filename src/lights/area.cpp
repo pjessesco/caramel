@@ -39,7 +39,10 @@ namespace Caramel{
 
     AreaLight::~AreaLight() = default;
 
-    Vector3f AreaLight::radiance() const{
+    Vector3f AreaLight::radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f light_normal_world) const{
+        if(light_normal_world.dot(hitpos - lightpos) <= 0){
+            return vec3f_zero;
+        }
         return m_radiance;
     }
 

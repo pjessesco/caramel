@@ -36,7 +36,7 @@ public:
         const float done_ratio = m_current * m_total_inv;
         std::string done_str(static_cast<int>(m_len * done_ratio), '=');
         std::string remain_str(static_cast<int>(m_len * (1 - done_ratio)), '-');
-        std::cout<<"["<<done_str << remain_str << "] " << done_ratio * 100 << " %\r";
+        std::cout<<"["<<done_str << remain_str << "] " << done_ratio * 100 << " %\n";
         std::cout.flush();
         m_lock.unlock();
     }

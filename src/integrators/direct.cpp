@@ -38,16 +38,18 @@ namespace Caramel{
         : Integrator(spp), m_sampling_type(sampling_type) {}
 
     Vector3f DirectIntegrator::get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) {
-        switch (m_sampling_type) {
-            case SamplingType::BSDF:
-                return brdf_sampling_direct(scene, i, j, sampler);
-            case SamplingType::LIGHT:
-                return emitter_sampling_direct(scene, i, j, sampler);
-            case SamplingType::MIS:
-                return mis_sampling_direct(scene, i, j, sampler);
-            default:
-                return vec3f_zero;
-        }
+        return mis_sampling_direct(scene, i, j, sampler);
+
+//        switch (m_sampling_type) {
+//            case SamplingType::BSDF:
+//                return brdf_sampling_direct(scene, i, j, sampler);
+//            case SamplingType::LIGHT:
+//                return emitter_sampling_direct(scene, i, j, sampler);
+//            case SamplingType::MIS:
+//                return mis_sampling_direct(scene, i, j, sampler);
+//            default:
+//                return vec3f_zero;
+//        }
     }
 
     Vector3f DirectIntegrator::brdf_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler) {
@@ -60,7 +62,7 @@ namespace Caramel{
 
         const auto mesh = scene.m_meshes[info.idx];
         if(mesh->is_light()){
-            return mesh->get_arealight()->radiance();
+            return mesh->get_arealight()->radiance(ray.m_o, info.p, info.sh_coord.m_world_n);
         }
 
         const Vector3f local_ray_dir = info.sh_coord.to_local(ray.m_d);
@@ -79,12 +81,7 @@ namespace Caramel{
             return vec3f_zero;
         }
 
-        // Return zero if recursive ray hits light from backward
-        if(recursive_info.sh_coord.m_world_n.dot(-recursive_ray.m_d) <= Float0){
-            return vec3f_zero;
-        }
-
-        const Vector3f rad = recursive_mesh->get_arealight()->radiance();
+        const Vector3f rad = recursive_mesh->get_arealight()->radiance(recursive_ray.m_o, recursive_info.p, recursive_info.sh_coord.m_world_n);
         return contrib % rad;
     }
 
@@ -99,7 +96,7 @@ namespace Caramel{
         const auto mesh = scene.m_meshes[info.idx];
 
         if(mesh->is_light()){
-            return mesh->get_arealight()->radiance();
+            return mesh->get_arealight()->radiance(ray.m_o, info.p, info.sh_coord.m_world_n);
         }
 
         // Direct light sampling
@@ -127,7 +124,7 @@ namespace Caramel{
         const Vector3f local_ray_dir = info.sh_coord.to_local(ray.m_d);
 
         if(mesh->is_light()){
-            return mesh->get_arealight()->radiance();
+            return mesh->get_arealight()->radiance(ray.m_o, info.p, info.sh_coord.m_world_n);
         }
 
         auto [light, light_pdf] = scene.sample_light(sampler);
@@ -173,13 +170,9 @@ namespace Caramel{
                 return L1;
             }
 
-            // Return zero if recursive ray hits light from backward
-            if(recursive_info.sh_coord.m_world_n.dot(-recursive_ray.m_d) <= Float0){
-                return L1;
-            }
-
             const Float light_pdf_solidangle = recursive_mesh->get_arealight()->pdf_solidangle(info.p, recursive_info.p, recursive_info.sh_coord.m_world_n);
-            L2 = contrib % recursive_mesh->get_arealight()->radiance() * balance_heuristic(bsdf_pdf, light_pdf_solidangle * light_pdf);
+            L2 = contrib % recursive_mesh->get_arealight()->radiance(recursive_ray.m_o, recursive_info.p, recursive_info.sh_coord.m_world_n)
+                 * balance_heuristic(bsdf_pdf, light_pdf_solidangle * light_pdf);
         }
 
         return L1 + L2;
