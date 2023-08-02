@@ -69,14 +69,22 @@ namespace Caramel{
         const Ray recursive_ray = info.recursive_ray_to(local_outgoing);
         auto [recursive_is_hit, recursive_info] = scene.ray_intersect(recursive_ray);
 
+        if(!recursive_is_hit){
+            return vec3f_zero;
+        }
+
         const auto recursive_mesh = scene.m_meshes[recursive_info.idx];
 
-        if(!recursive_is_hit || !recursive_mesh->is_light()){
+        if(!recursive_mesh->is_light()){
+            return vec3f_zero;
+        }
+
+        // Return zero if recursive ray hits light from backward
+        if(recursive_info.sh_coord.m_world_n.dot(-recursive_ray.m_d) <= Float0){
             return vec3f_zero;
         }
 
         const Vector3f rad = recursive_mesh->get_arealight()->radiance();
-
         return contrib % rad;
     }
 
@@ -162,6 +170,11 @@ namespace Caramel{
             // TODO : consider environment map
             const auto recursive_mesh = scene.m_meshes[recursive_info.idx];
             if(!recursive_mesh->is_light()){
+                return L1;
+            }
+
+            // Return zero if recursive ray hits light from backward
+            if(recursive_info.sh_coord.m_world_n.dot(-recursive_ray.m_d) <= Float0){
                 return L1;
             }
 
