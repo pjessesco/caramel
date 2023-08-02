@@ -147,11 +147,6 @@ namespace Caramel{
             }
         }
 
-        // BRDF sampling is not possible if brdf is discrete
-        if(mesh->get_bsdf()->is_discrete()){
-            return L1;
-        }
-
         /* BRDF sampling */{
             // Spawn ray using BRDF sampling
             auto [local_outgoing, contrib, bsdf_pdf] = mesh->get_bsdf()->sample_recursive_dir(local_ray_dir, sampler);
@@ -170,9 +165,14 @@ namespace Caramel{
                 return L1;
             }
 
-            const Float light_pdf_solidangle = recursive_mesh->get_arealight()->pdf_solidangle(info.p, recursive_info.p, recursive_info.sh_coord.m_world_n);
-            L2 = contrib % recursive_mesh->get_arealight()->radiance(recursive_ray.m_o, recursive_info.p, recursive_info.sh_coord.m_world_n)
-                 * balance_heuristic(bsdf_pdf, light_pdf_solidangle * light_pdf);
+            // BRDF sampling is not possible if brdf is discrete
+            if(mesh->get_bsdf()->is_discrete()){
+                L2 = contrib % recursive_mesh->get_arealight()->radiance(recursive_ray.m_o, recursive_info.p, recursive_info.sh_coord.m_world_n);
+            }
+            else /* BRDF sampling */{
+                const Float light_pdf_solidangle = recursive_mesh->get_arealight()->pdf_solidangle(info.p, recursive_info.p, recursive_info.sh_coord.m_world_n);
+                L2 = contrib % recursive_mesh->get_arealight()->radiance(recursive_ray.m_o, recursive_info.p, recursive_info.sh_coord.m_world_n) * balance_heuristic(bsdf_pdf, light_pdf_solidangle * light_pdf);
+            }
         }
 
         return L1 + L2;
