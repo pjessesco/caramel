@@ -107,7 +107,7 @@ namespace Caramel{
 
         const Vector3f local_ray_dir = info.sh_coord.to_local(ray.m_d);
         const Vector3f fr = mesh->get_bsdf()->get_reflection(local_ray_dir, hitpos_to_light_local_normal);
-        const Float pdf_solidangle = light->pdf_solidangle(info.p, light_info.p, light_info.sh_coord.m_world_n);
+        const Float pdf_solidangle = light->pdf_solidangle(info.p, light_pos, light_info.sh_coord.m_world_n);
 
         return (fr % emitted_rad) * std::abs(hitpos_to_light_local_normal[2]) / (light_pdf * pdf_solidangle);
     }
@@ -139,7 +139,7 @@ namespace Caramel{
             if(emitted_rad.max() > Float0){
                 const Vector3f hitpos_to_light_local_normal = info.sh_coord.to_local(light_pos - info.p).normalize();
                 const Vector3f fr = mesh->get_bsdf()->get_reflection(local_ray_dir, hitpos_to_light_local_normal);
-                const Float pdf_solidangle = light->pdf_solidangle(info.p, light_info.p, light_info.sh_coord.m_world_n);
+                const Float pdf_solidangle = light->pdf_solidangle(info.p, light_pos, light_info.sh_coord.m_world_n);
 
                 // MIS for light sampling
                 const Float bsdf_pdf = mesh->get_bsdf()->pdf(local_ray_dir, hitpos_to_light_local_normal);

@@ -183,7 +183,7 @@ namespace Caramel{
 
                 const Vector3f hitpos_to_light_local_normal = info.sh_coord.to_local(light_pos - info.p).normalize();
                 const Vector3f fr = shape_bsdf->get_reflection(local_ray_dir, hitpos_to_light_local_normal);
-                const Float pdf_solidangle = light->pdf_solidangle(info.p, light_info.p, light_info.sh_coord.m_world_n);
+                const Float pdf_solidangle = light->pdf_solidangle(info.p, light_pos, light_info.sh_coord.m_world_n);
 
                 // MIS for light sampling
                 const Float bsdf_pdf = shape->get_bsdf()->pdf(local_ray_dir, hitpos_to_light_local_normal);
