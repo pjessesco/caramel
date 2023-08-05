@@ -39,7 +39,7 @@ namespace Caramel{
         Vector3f p;   // World position where ray hits
         Coordinate sh_coord; // Coordinate initialized using world normal
         Float t;      // Length of the ray from origin to hitpoint
-        Float u, v;   // UV coordinate
         Index idx;    // Shape index in a scene
+        Vector2f tex_uv; // Texture coordinate
     };
 }
