@@ -206,12 +206,20 @@ namespace Caramel{
         CRM_ERROR("Can not parse string : " + to_string(child));
     }
 
+    Float SceneParser::parse_float(const SceneParser::Json &parent, const std::string &key) const {
+        const Json child = get_unique_first_elem(parent, key);
+        if(child.is_number()){
+            return static_cast<Float>(child);
+        }
+        CRM_ERROR("Can not parse float : " + to_string(child));
+    }
+
     Float SceneParser::parse_positive_float(const SceneParser::Json &parent, const std::string &key) const {
         const Json child = get_unique_first_elem(parent, key);
         if(child.is_number() && child > Float0){
             return static_cast<Float>(child);
         }
-        CRM_ERROR("Can not parse float : " + to_string(child));
+        CRM_ERROR("Can not parse positive float : " + to_string(child));
     }
 
     Index SceneParser::parse_positive_int(const SceneParser::Json &parent, const std::string &key) const {
@@ -248,13 +256,13 @@ namespace Caramel{
                     mat = scale(val[0], val[1], val[2]) * mat;
                 }
                 else if(key=="rotate_x"){
-                    mat = rotate_x(parse_positive_float(e, "degree")) * mat;
+                    mat = rotate_x(parse_float(e, "degree")) * mat;
                 }
                 else if(key=="rotate_y"){
-                    mat = rotate_y(parse_positive_float(e, "degree")) * mat;
+                    mat = rotate_y(parse_float(e, "degree")) * mat;
                 }
                 else if(key=="rotate_z"){
-                    mat = rotate_z(parse_positive_float(e, "degree")) * mat;
+                    mat = rotate_z(parse_float(e, "degree")) * mat;
                 }
                 else{
                     CRM_ERROR("Can not parse transform : " + to_string(e));
