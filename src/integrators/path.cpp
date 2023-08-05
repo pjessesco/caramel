@@ -116,15 +116,16 @@ namespace Caramel{
                 auto [light, light_pdf] = scene.sample_light(sampler);
                 auto [emitted_rad, light_pos, light_n_world, light_pos_pdf, light_info] = light->sample_direct_contribution(scene, info.p, sampler);
 
-                const Vector3f hitpos_to_light_local = info.sh_coord.to_local(light_pos - info.p).normalize();
-                const Float dist_square = light_info.t * light_info.t;
+                // Continue if light sampling succeed
+                if(!is_zero(emitted_rad)) {
+                    const Vector3f hitpos_to_light_local = info.sh_coord.to_local(light_pos - info.p).normalize();
+                    const Float dist_square = light_info.t * light_info.t;
+                    const Vector3f fr = shape_bsdf->get_reflection(local_ray_dir, hitpos_to_light_local);
+                    const Float geo = std::abs(info.sh_coord.to_local(light_n_world).dot(-hitpos_to_light_local) * hitpos_to_light_local[2]) / dist_square;
+                    const Float pdf = light_pdf * light_pos_pdf;
 
-                const Vector3f fr = shape_bsdf->get_reflection(local_ray_dir, hitpos_to_light_local);
-
-                const Float geo = std::abs(info.sh_coord.to_local(light_n_world).dot(-hitpos_to_light_local) * hitpos_to_light_local[2]) / dist_square;
-                const Float pdf = light_pdf * light_pos_pdf;
-
-                ret = ret + (fr % emitted_rad % current_brdf) * geo / pdf;
+                    ret = ret + (fr % emitted_rad % current_brdf) * geo / pdf;
+                }
             }
 
             // brdf sampling
@@ -162,12 +163,8 @@ namespace Caramel{
                 const Float pdf_pick_light = Float1 / static_cast<Float>(scene.m_lights.size());
                 const Float weight = balance_heuristic(prev_brdf_pdf, pdf_pick_light * pdf_solidangle);
                 const Vector3f contrib = shape->get_arealight()->radiance(ray.m_o, info.p, info.sh_coord.m_world_n) % current_brdf;
-                if(depth==0 || from_specular){
-                    ret = ret + contrib;
-                }
-                else{
-                    ret = ret + contrib * weight;
-                }
+
+                ret = ret + ((depth==0 || from_specular) ? contrib : contrib * weight);
                 break;
             }
 
@@ -181,14 +178,17 @@ namespace Caramel{
                 auto [light, light_pick_pdf] = scene.sample_light(sampler);
                 auto [emitted_rad, light_pos, light_n_world, light_pos_pdf, light_info] = light->sample_direct_contribution(scene, info.p, sampler);
 
-                const Vector3f hitpos_to_light_local_normal = info.sh_coord.to_local(light_pos - info.p).normalize();
-                const Vector3f fr = shape_bsdf->get_reflection(local_ray_dir, hitpos_to_light_local_normal);
-                const Float pdf_solidangle = light->pdf_solidangle(info.p, light_pos, light_info.sh_coord.m_world_n);
+                // Continue if light sampling succeed
+                if(!is_zero(emitted_rad)){
+                    const Vector3f hitpos_to_light_local_normal = info.sh_coord.to_local(light_pos - info.p).normalize();
+                    const Vector3f fr = shape_bsdf->get_reflection(local_ray_dir, hitpos_to_light_local_normal);
+                    const Float pdf_solidangle = light->pdf_solidangle(info.p, light_pos, light_info.sh_coord.m_world_n);
 
-                // MIS for light sampling
-                const Float bsdf_pdf = shape->get_bsdf()->pdf(local_ray_dir, hitpos_to_light_local_normal);
-                const Float light_pdf = light_pick_pdf * pdf_solidangle;
-                ret = ret + (fr % emitted_rad % current_brdf) * std::abs(hitpos_to_light_local_normal[2]) * balance_heuristic(light_pdf, bsdf_pdf) / light_pdf;
+                    // MIS for light sampling
+                    const Float bsdf_pdf = shape->get_bsdf()->pdf(local_ray_dir, hitpos_to_light_local_normal);
+                    const Float light_pdf = light_pick_pdf * pdf_solidangle;
+                    ret = ret + (fr % emitted_rad % current_brdf) * std::abs(hitpos_to_light_local_normal[2]) * balance_heuristic(light_pdf, bsdf_pdf) / light_pdf;
+                }
             }
 
             /* brdf sampling */{

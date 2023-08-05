@@ -103,13 +103,18 @@ namespace Caramel{
         auto [light, light_pdf] = scene.sample_light(sampler);
         auto [emitted_rad, light_pos, light_n_world, light_pos_pdf, light_info] = light->sample_direct_contribution(scene, info.p, sampler);
 
-        const Vector3f hitpos_to_light_local_normal = info.sh_coord.to_local(light_pos - info.p).normalize();
+        // Continue if light sampling succeed
+        if(!is_zero(emitted_rad)) {
+            const Vector3f hitpos_to_light_local_normal = info.sh_coord.to_local(light_pos - info.p).normalize();
+            const Vector3f local_ray_dir = info.sh_coord.to_local(ray.m_d);
+            const Vector3f fr = mesh->get_bsdf()->get_reflection(local_ray_dir, hitpos_to_light_local_normal);
+            const Float pdf_solidangle = light->pdf_solidangle(info.p, light_pos, light_info.sh_coord.m_world_n);
 
-        const Vector3f local_ray_dir = info.sh_coord.to_local(ray.m_d);
-        const Vector3f fr = mesh->get_bsdf()->get_reflection(local_ray_dir, hitpos_to_light_local_normal);
-        const Float pdf_solidangle = light->pdf_solidangle(info.p, light_pos, light_info.sh_coord.m_world_n);
-
-        return (fr % emitted_rad) * std::abs(hitpos_to_light_local_normal[2]) / (light_pdf * pdf_solidangle);
+            return (fr % emitted_rad) * std::abs(hitpos_to_light_local_normal[2]) / (light_pdf * pdf_solidangle);
+        }
+        else{
+            return vec3f_zero;
+        }
     }
 
     Vector3f DirectIntegrator::mis_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler) {
@@ -136,7 +141,7 @@ namespace Caramel{
             auto [emitted_rad, light_pos, light_n_world, light_pos_pdf, light_info] = light->sample_direct_contribution(scene, info.p, sampler);
 
             // Continue if light sampling succeed
-            if(emitted_rad.max() > Float0){
+            if(!is_zero(emitted_rad)) {
                 const Vector3f hitpos_to_light_local_normal = info.sh_coord.to_local(light_pos - info.p).normalize();
                 const Vector3f fr = mesh->get_bsdf()->get_reflection(local_ray_dir, hitpos_to_light_local_normal);
                 const Float pdf_solidangle = light->pdf_solidangle(info.p, light_pos, light_info.sh_coord.m_world_n);
