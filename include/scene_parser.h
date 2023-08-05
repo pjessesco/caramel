@@ -75,6 +75,8 @@ namespace Caramel{
 
         Float parse_positive_float(const Json &parent, const std::string &key) const;
 
+        Float parse_float(const Json &parent, const std::string &key) const;
+
         Index parse_positive_int(const Json &parent, const std::string &key) const;
 
         Matrix44f parse_matrix44f(const Json &parent, const std::string &key) const;
