@@ -79,6 +79,8 @@ namespace Caramel{
 
         Index parse_positive_int(const Json &parent, const std::string &key) const;
 
+        Index parse_nonnegative_int(const Json &parent, const std::string &key) const;
+
         Matrix44f parse_matrix44f(const Json &parent, const std::string &key) const;
 
         Json m_scene_json;
