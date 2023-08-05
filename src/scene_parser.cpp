@@ -64,10 +64,10 @@ namespace Caramel{
                                                         SamplingType::MIS);
         }
         else if(type=="path"){
-            return Integrator::Create<PathIntegrator>(parse_positive_int(child, "depth_rr"),
-                                                      parse_positive_int(child, "depth_max"),
+            return Integrator::Create<PathIntegrator>(parse_nonnegative_int(child, "depth_rr"),
+                                                      parse_nonnegative_int(child, "depth_max"),
                                                       parse_positive_int(child, "spp"),
-                                                      SamplingType::LIGHT);
+                                                      SamplingType::MIS);
         }
         else{
             CRM_ERROR(type + "integrator is not supported : "+ to_string(child));
@@ -228,6 +228,14 @@ namespace Caramel{
             return static_cast<Index>(child);
         }
         CRM_ERROR("Can not parse non-negative int : " + to_string(child));
+    }
+
+    Index SceneParser::parse_nonnegative_int(const SceneParser::Json &parent, const std::string &key) const {
+        const Json child = get_unique_first_elem(parent, key);
+        if(child.is_number_integer() && child >= 0){
+            return static_cast<Index>(child);
+        }
+        CRM_ERROR("Can not parse negative int : " + to_string(child));
     }
 
     Matrix44f SceneParser::parse_matrix44f(const SceneParser::Json &parent, const std::string &key) const {

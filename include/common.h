@@ -107,4 +107,10 @@ namespace Caramel{
     inline T interpolate(const T &a, const T &b, const T &c, Float u, Float v){
         return (a*(Float1-u-v)) + (b*u) + (c*v);
     }
+
+    inline bool is_zero(const Vector3f &v){
+        return v[0] == Float0 &&
+               v[1] == Float0 &&
+               v[2] == Float0;
+    }
 }
