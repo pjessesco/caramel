@@ -67,7 +67,7 @@ namespace Caramel{
             return Integrator::Create<PathIntegrator>(parse_nonnegative_int(child, "depth_rr"),
                                                       parse_nonnegative_int(child, "depth_max"),
                                                       parse_positive_int(child, "spp"),
-                                                      SamplingType::LIGHT);
+                                                      SamplingType::MIS);
         }
         else{
             CRM_ERROR(type + "integrator is not supported : "+ to_string(child));

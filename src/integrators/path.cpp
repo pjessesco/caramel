@@ -39,17 +39,16 @@ namespace Caramel{
 
     // Different with albedo precisely...
     Vector3f PathIntegrator::get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) {
-        return brdf_sampling_path(scene, i, j, sampler);
-        //        switch (m_sampling_type) {
-//            case SamplingType::BSDF:
-//                return brdf_sampling_path(scene, i, j, sampler);
-//            case SamplingType::LIGHT:
-//                return emitter_sampling_path(scene, i, j, sampler);
-//            case SamplingType::MIS:
-//                return mis_sampling_path(scene, i, j, sampler);
-//            default:
-//                return vec3f_zero;
-//        }
+        switch (m_sampling_type) {
+            case SamplingType::BSDF:
+                return brdf_sampling_path(scene, i, j, sampler);
+            case SamplingType::LIGHT:
+                return emitter_sampling_path(scene, i, j, sampler);
+            case SamplingType::MIS:
+                return mis_sampling_path(scene, i, j, sampler);
+            default:
+                return vec3f_zero;
+        }
     }
 
     Vector3f PathIntegrator::brdf_sampling_path(const Scene &scene, Float i, Float j, Sampler &sampler){
@@ -71,11 +70,21 @@ namespace Caramel{
                 return current_brdf % shape->get_arealight()->radiance(ray.m_o, info.p, info.sh_coord.m_world_n);
             }
 
-            // brdf sample
+            /* Russian roulette */{
+                if(depth >= m_rr_depth){
+                    if(current_brdf.max() > sampler.sample_1d()){
+                        current_brdf = current_brdf / current_brdf.max();
+                    }
+                    else{
+                        break;
+                    }
+                }
+            }
+
+            // brdf sampling
             const Vector3f local_ray_dir = info.sh_coord.to_local(ray.m_d);
             auto [local_recursive_dir, sampled_brdf, brdf_pdf] = shape->get_bsdf()->sample_recursive_dir(local_ray_dir, sampler);
             current_brdf = current_brdf % sampled_brdf;
-
             ray = info.recursive_ray_to(local_recursive_dir);
         }
 
@@ -128,11 +137,21 @@ namespace Caramel{
                 }
             }
 
+            /* Russian roulette */{
+                if(depth >= m_rr_depth){
+                    if(current_brdf.max() > sampler.sample_1d()){
+                        current_brdf = current_brdf / current_brdf.max();
+                    }
+                    else{
+                        break;
+                    }
+                }
+            }
+
             // brdf sampling
             auto [local_recursive_dir, sampled_brdf, _] = shape_bsdf->sample_recursive_dir(local_ray_dir, sampler);
             current_brdf = current_brdf % sampled_brdf;
             from_specular = is_current_specular;
-
             ray = info.recursive_ray_to(local_recursive_dir);
         }
         return ret;
@@ -188,6 +207,17 @@ namespace Caramel{
                     const Float bsdf_pdf = shape->get_bsdf()->pdf(local_ray_dir, hitpos_to_light_local_normal);
                     const Float light_pdf = light_pick_pdf * pdf_solidangle;
                     ret = ret + (fr % emitted_rad % current_brdf) * std::abs(hitpos_to_light_local_normal[2]) * balance_heuristic(light_pdf, bsdf_pdf) / light_pdf;
+                }
+            }
+
+            /* Russian roulette */{
+                if(depth >= m_rr_depth){
+                    if(current_brdf.max() > sampler.sample_1d()){
+                        current_brdf = current_brdf / current_brdf.max();
+                    }
+                    else{
+                        break;
+                    }
                 }
             }
 

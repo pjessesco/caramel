@@ -38,18 +38,16 @@ namespace Caramel{
         : Integrator(spp), m_sampling_type(sampling_type) {}
 
     Vector3f DirectIntegrator::get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) {
-        return mis_sampling_direct(scene, i, j, sampler);
-
-//        switch (m_sampling_type) {
-//            case SamplingType::BSDF:
-//                return brdf_sampling_direct(scene, i, j, sampler);
-//            case SamplingType::LIGHT:
-//                return emitter_sampling_direct(scene, i, j, sampler);
-//            case SamplingType::MIS:
-//                return mis_sampling_direct(scene, i, j, sampler);
-//            default:
-//                return vec3f_zero;
-//        }
+        switch (m_sampling_type) {
+            case SamplingType::BSDF:
+                return brdf_sampling_direct(scene, i, j, sampler);
+            case SamplingType::LIGHT:
+                return emitter_sampling_direct(scene, i, j, sampler);
+            case SamplingType::MIS:
+                return mis_sampling_direct(scene, i, j, sampler);
+            default:
+                return vec3f_zero;
+        }
     }
 
     Vector3f DirectIntegrator::brdf_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler) {
