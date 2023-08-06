@@ -47,64 +47,17 @@ namespace Caramel{
         m_data.resize(width*height*CHANNEL_NUM);
     }
 
-    Image Image::from_jpg(const std::string &filename){
+    Image::Image(const std::string &filename) {
         if(!filename.ends_with(".jpg")){
-            CRM_ERROR("Given filename is not .jpg format : " + filename);
+            CRM_LOG("Load .jpg image");
+            from_png(filename);
         }
-        int width, height, channel;
-        float *data = stbi_loadf(filename.c_str(), &width, &height, &channel, 0);
-
-        if(channel != CHANNEL_NUM){
-            CRM_ERROR("Support " + std::to_string(CHANNEL_NUM) + "channel images only");
-        }
-
-        std::vector<Float> data_dst;
-        data_dst.resize(width * height * channel);
-        memcpy(&data_dst[0], data, width * height * channel * sizeof(Float));
-
-        stbi_image_free(data);
-        return Image(width, height, data_dst);
-    }
-
-    Image Image::from_png(const std::string &filename){
-        if(!filename.ends_with(".png")){
-            CRM_ERROR("Given filename is not .png format : " + filename);
-        }
-        int width, height, channel;
-        float *data = stbi_loadf(filename.c_str(), &width, &height, &channel, 0);
-
-        if(channel == 4){
-            CRM_WARNING("Given image's alpha value will be multiplied");
-            std::vector<Float> data_dst;
-            data_dst.resize(width * height * 3);
-            int j = 0;
-            for(int i=0;i<width*height*channel;i++){
-                if(i%4==3){
-                    data_dst[j-3] *= data[i];
-                    data_dst[j-2] *= data[i];
-                    data_dst[j-1] *= data[i];
-                    continue;
-                }
-                else{
-                    data_dst[j] = data[i];
-                    j++;
-                }
-            }
-
-            stbi_image_free(data);
-            return Image(width, height, data_dst);
-        }
-        else if(channel == CHANNEL_NUM){
-            std::vector<Float> data_dst;
-            data_dst.resize(width * height * channel);
-            memcpy(&data_dst[0], data, width * height * channel * sizeof(Float));
-
-            stbi_image_free(data);
-            return Image(width, height, data_dst);
+        else if(!filename.ends_with(".png")){
+            CRM_LOG("Load .png image");
+            from_png(filename);
         }
         else{
-            CRM_ERROR("Support " + std::to_string(CHANNEL_NUM) + "channel images only");
-            return Image(0, 0);
+            CRM_ERROR("Given filename is not supported format : " + filename);
         }
     }
 
@@ -181,5 +134,68 @@ namespace Caramel{
 
     Image::Image(unsigned int width, unsigned int height, const std::vector<Float> &data)
     : m_width{width}, m_height{height}, m_data{data} {}
+
+    void Image::from_jpg(const std::string &filename){
+        int width, height, channel;
+        float *data = stbi_loadf(filename.c_str(), &width, &height, &channel, 0);
+
+        if(channel != CHANNEL_NUM){
+            CRM_ERROR("Support " + std::to_string(CHANNEL_NUM) + "channel images only");
+        }
+
+        std::vector<Float> data_dst;
+        data_dst.resize(width * height * channel);
+        memcpy(&data_dst[0], data, width * height * channel * sizeof(Float));
+
+        stbi_image_free(data);
+
+        m_width = width;
+        m_height = height;
+        m_data = data_dst;
+    }
+
+    void Image::from_png(const std::string &filename){
+        int width, height, channel;
+        float *data = stbi_loadf(filename.c_str(), &width, &height, &channel, 0);
+
+        if(channel == 4){
+            CRM_WARNING("Given image's alpha value will be multiplied");
+            std::vector<Float> data_dst;
+            data_dst.resize(width * height * 3);
+            int j = 0;
+            for(int i=0;i<width*height*channel;i++){
+                if(i%4==3){
+                    data_dst[j-3] *= data[i];
+                    data_dst[j-2] *= data[i];
+                    data_dst[j-1] *= data[i];
+                    continue;
+                }
+                else{
+                    data_dst[j] = data[i];
+                    j++;
+                }
+            }
+
+            stbi_image_free(data);
+
+            m_width = width;
+            m_height = height;
+            m_data = data_dst;
+        }
+        else if(channel == CHANNEL_NUM){
+            std::vector<Float> data_dst;
+            data_dst.resize(width * height * channel);
+            memcpy(&data_dst[0], data, width * height * channel * sizeof(Float));
+
+            stbi_image_free(data);
+
+            m_width = width;
+            m_height = height;
+            m_data = data_dst;
+        }
+        else{
+            CRM_ERROR("Not supported image channel");
+        }
+    }
 
 }

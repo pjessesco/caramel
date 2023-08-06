@@ -1,7 +1,7 @@
 //
 // This software is released under the MIT license.
 //
-// Copyright (c) 2022 Jino Park
+// Copyright (c) 2023 Jino Park
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,31 +25,37 @@
 #pragma once
 
 #include <vector>
+#include <tuple>
+#include <cmath>
+#include <filesystem>
 #include <string>
 
 #include <common.h>
 
-namespace Caramel {
-    // Caramel considers only RGB(BGR) 3 channel image.
-    struct Image {
-        static constexpr int CHANNEL_NUM = 3;
+namespace Caramel{
+    class Image;
 
-        Image(unsigned int width, unsigned int height);
-        Image(const std::string &filename);
-        void write_exr(const std::string &filename) const;
+    class Texture{
+    public:
+        Texture() = default;
+        virtual ~Texture() = default;
 
-        void set_pixel_value(int w, int h, Float r, Float g, Float b);
-        Vector3f get_pixel_value(int w, int h) const;
+        virtual Vector3f get_val(const Vector2f &uv) const = 0;
 
-        unsigned int m_width;
-        unsigned int m_height;
-        std::vector<Float> m_data;
+        template <typename Type, typename ...Param>
+        static Texture* Create(Param ...args){
+            return dynamic_cast<Texture*>(new Type(args...));
+        }
+    };
+
+    class ImageTexture : public Texture{
+    public:
+        ImageTexture(const std::string &path);
+        virtual ~ImageTexture();
+        Vector3f get_val(const Vector2f &uv) const override;
 
     private:
-        Image(unsigned int width, unsigned int height, const std::vector<Float> &m_data);
-
-        // Called in constructor
-        void from_jpg(const std::string &filename);
-        void from_png(const std::string &filename);
+        Image *m_img;
     };
+
 }

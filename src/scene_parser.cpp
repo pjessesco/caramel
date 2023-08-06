@@ -31,6 +31,7 @@
 #include <shape.h>
 #include <logger.h>
 #include <light.h>
+#include <textures.h>
 #include <transform.h>
 
 namespace Caramel{
@@ -147,9 +148,9 @@ namespace Caramel{
         const Json child = get_unique_first_elem(bsdf_json, "bsdf");
         const std::string type = parse_string(child, "type");
         if(type == "diffuse"){
-            return child.contains("albedo") ?
-                                            BSDF::Create<Diffuse>(parse_vector3f(child, "albedo")) :
-                                            BSDF::Create<Diffuse>();
+            return child.contains("albedo") ? BSDF::Create<Diffuse>(parse_vector3f(child, "albedo")) :
+                   child.contains("texture") ? BSDF::Create<Diffuse>(parse_texture(child)) :
+                                              BSDF::Create<Diffuse>();
         }
         else if(type=="mirror"){
             return BSDF::Create<Mirror>();
@@ -170,6 +171,15 @@ namespace Caramel{
         }
         else{
             CRM_ERROR(type + "bsdf is not supported : "+ to_string(child));
+        }
+
+    }
+
+    Texture* SceneParser::parse_texture(const Json &texture_json) const{
+        const Json child = get_unique_first_elem(texture_json, "bsdf");
+        const std::string type = parse_string(child, "type");
+        if(type=="image"){
+            return Texture::Create<ImageTexture>(parse_string(child, "path"));
         }
 
     }
