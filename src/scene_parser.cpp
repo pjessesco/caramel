@@ -176,12 +176,12 @@ namespace Caramel{
     }
 
     Texture* SceneParser::parse_texture(const Json &texture_json) const{
-        const Json child = get_unique_first_elem(texture_json, "bsdf");
+        const Json child = get_unique_first_elem(texture_json, "texture");
         const std::string type = parse_string(child, "type");
         if(type=="image"){
             return Texture::Create<ImageTexture>(parse_string(child, "path"));
         }
-
+        CRM_ERROR("Can not parse texture : " + to_string(child));
     }
 
     SceneParser::Json SceneParser::get_unique_first_elem(const SceneParser::Json &parent, const std::string &key) const {
