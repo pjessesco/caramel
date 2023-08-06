@@ -15,10 +15,10 @@ namespace Caramel{
         m_B = static_cast<Float>(0.45) * s_2 / (s_2 + static_cast<Float>(0.09));
     }
 
-    std::tuple<Vector3f, Vector3f, Float> OrenNayar::sample_recursive_dir(const Vector3f &local_incoming_dir, Sampler &sampler) const {
+    std::tuple<Vector3f, Vector3f, Float> OrenNayar::sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &sampler) const {
         auto [local_outgoing_dir, pdf] = sample_unit_hemisphere_cosine(sampler);
         return {local_outgoing_dir,
-                get_reflection(local_incoming_dir, local_outgoing_dir) * local_outgoing_dir[2] / pdf,
+                get_reflection(local_incoming_dir, local_outgoing_dir, Vector2f(/*dummy*/)) * local_outgoing_dir[2] / pdf,
                 pdf};
     }
 
@@ -26,7 +26,7 @@ namespace Caramel{
         return sample_unit_hemisphere_cosine_pdf(local_outgoing_dir);
     }
 
-    Vector3f OrenNayar::get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const {
+    Vector3f OrenNayar::get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const {
         const Vector3f local_incoming_flipped = -local_incoming_dir.normalize();
 
         Float cos_d = Float0;
