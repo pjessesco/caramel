@@ -55,6 +55,7 @@ namespace Caramel{
             }
         }
 
+        m_childs.erase(std::remove_if(m_childs.begin(), m_childs.end(), [](const Octree::Node &node){return node.m_triangle_indices.empty();}), m_childs.end());
         m_triangle_indices.clear();
     }
 
