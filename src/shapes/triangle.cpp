@@ -93,6 +93,10 @@ namespace Caramel {
         RayIntersectInfo ret;
         ret.t = t;
         ret.tex_uv = is_tx_exists ? interpolate(m_uv0, m_uv1, m_uv2, u, v) : Vector2f{u, v};
+
+        ret.tex_uv[0] -= floor(ret.tex_uv[0]);
+        ret.tex_uv[1] -= floor(ret.tex_uv[1]);
+
         ret.p = interpolate(m_p0, m_p1, m_p2, u, v);
         
         const Vector3f n = is_vn_exists ? interpolate(m_n0, m_n1, m_n2, u, v).normalize() :

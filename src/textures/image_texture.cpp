@@ -19,7 +19,7 @@ namespace Caramel{
     Vector3f ImageTexture::get_val(const Vector2f &uv) const{
 
         return m_img->get_pixel_value(m_img->m_width * uv[0],
-                                      m_img->m_height * uv[1]);
+                                      m_img->m_height * (Float1 - uv[1]));
     }
 
 
