@@ -87,6 +87,10 @@ namespace Caramel{
         Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2,
                  const Vector3f &n0, const Vector3f &n1, const Vector3f &n2);
 
+        Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2,
+                 const Vector3f &n0, const Vector3f &n1, const Vector3f &n2,
+                 const Vector2f &uv0, const Vector2f &uv1, const Vector2f &uv2);
+
         // u, v, t
         std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
         AABB get_aabb() const override;
@@ -105,7 +109,9 @@ namespace Caramel{
     private:
         Vector3f m_p0, m_p1, m_p2;
         Vector3f m_n0, m_n1, m_n2;
+        Vector2f m_uv0, m_uv1, m_uv2;
         const bool is_vn_exists;
+        const bool is_tx_exists;
     };
 
     class OBJMesh final : public Shape{
@@ -130,6 +136,7 @@ namespace Caramel{
         Float m_area;
         AABB m_aabb;
         bool is_vn_exists;
+        bool is_tx_exists;
         std::unique_ptr<AccelerationMesh> m_accel;
         std::vector<Vector3f> m_vertices;
         std::vector<Vector3f> m_normals;

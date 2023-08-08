@@ -1,7 +1,7 @@
 //
 // This software is released under the MIT license.
 //
-// Copyright (c) 2022 Jino Park
+// Copyright (c) 2023 Jino Park
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,22 +24,38 @@
 
 #pragma once
 
+#include <vector>
+#include <tuple>
+#include <cmath>
+#include <filesystem>
+#include <string>
+
 #include <common.h>
-#include <coordinate.h>
 
 namespace Caramel{
-    struct Shape;
-    class Ray;
+    class Image;
 
-    class RayIntersectInfo {
+    class Texture{
     public:
-        RayIntersectInfo();
-        Ray recursive_ray_to(const Vector3f &local_next_dir) const;
+        Texture() = default;
+        virtual ~Texture() = default;
 
-        Vector3f p;   // World position where ray hits
-        Coordinate sh_coord; // Coordinate initialized using world normal
-        Float t;      // Length of the ray from origin to hitpoint
-        Index idx;    // Shape index in a scene
-        Vector2f tex_uv; // Texture coordinate
+        virtual Vector3f get_val(const Vector2f &uv) const = 0;
+
+        template <typename Type, typename ...Param>
+        static Texture* Create(Param ...args){
+            return dynamic_cast<Texture*>(new Type(args...));
+        }
     };
+
+    class ImageTexture : public Texture{
+    public:
+        ImageTexture(const std::string &path);
+        virtual ~ImageTexture();
+        Vector3f get_val(const Vector2f &uv) const override;
+
+    private:
+        Image *m_img;
+    };
+
 }

@@ -25,6 +25,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 #include <common.h>
 
@@ -34,13 +35,21 @@ namespace Caramel {
         static constexpr int CHANNEL_NUM = 3;
 
         Image(unsigned int width, unsigned int height);
-        void write_exr(const std::string &filename);
+        Image(const std::string &filename);
+        void write_exr(const std::string &filename) const;
 
         void set_pixel_value(int w, int h, Float r, Float g, Float b);
-
+        Vector3f get_pixel_value(int w, int h) const;
 
         unsigned int m_width;
         unsigned int m_height;
         std::vector<Float> m_data;
+
+    private:
+        Image(unsigned int width, unsigned int height, const std::vector<Float> &m_data);
+
+        // Called in constructor
+        void from_jpg(const std::string &filename);
+        void from_png(const std::string &filename);
     };
 }
