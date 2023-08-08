@@ -83,7 +83,7 @@ namespace Caramel{
 
             // brdf sampling
             const Vector3f local_ray_dir = info.sh_coord.to_local(ray.m_d);
-            auto [local_recursive_dir, sampled_brdf, brdf_pdf] = shape->get_bsdf()->sample_recursive_dir(local_ray_dir, sampler);
+            auto [local_recursive_dir, sampled_brdf, brdf_pdf] = shape->get_bsdf()->sample_recursive_dir(local_ray_dir, info.tex_uv, sampler);
             current_brdf = current_brdf % sampled_brdf;
             ray = info.recursive_ray_to(local_recursive_dir);
         }
@@ -129,7 +129,7 @@ namespace Caramel{
                 if(!is_zero(emitted_rad)) {
                     const Vector3f hitpos_to_light_local = info.sh_coord.to_local(light_pos - info.p).normalize();
                     const Float dist_square = light_info.t * light_info.t;
-                    const Vector3f fr = shape_bsdf->get_reflection(local_ray_dir, hitpos_to_light_local);
+                    const Vector3f fr = shape_bsdf->get_reflection(local_ray_dir, hitpos_to_light_local, info.tex_uv);
                     const Float geo = std::abs(info.sh_coord.to_local(light_n_world).dot(-hitpos_to_light_local) * hitpos_to_light_local[2]) / dist_square;
                     const Float pdf = light_pdf * light_pos_pdf;
 
@@ -149,7 +149,7 @@ namespace Caramel{
             }
 
             // brdf sampling
-            auto [local_recursive_dir, sampled_brdf, _] = shape_bsdf->sample_recursive_dir(local_ray_dir, sampler);
+            auto [local_recursive_dir, sampled_brdf, _] = shape_bsdf->sample_recursive_dir(local_ray_dir, info.tex_uv, sampler);
             current_brdf = current_brdf % sampled_brdf;
             from_specular = is_current_specular;
             ray = info.recursive_ray_to(local_recursive_dir);
@@ -200,7 +200,7 @@ namespace Caramel{
                 // Continue if light sampling succeed
                 if(!is_zero(emitted_rad)){
                     const Vector3f hitpos_to_light_local_normal = info.sh_coord.to_local(light_pos - info.p).normalize();
-                    const Vector3f fr = shape_bsdf->get_reflection(local_ray_dir, hitpos_to_light_local_normal);
+                    const Vector3f fr = shape_bsdf->get_reflection(local_ray_dir, hitpos_to_light_local_normal, info.tex_uv);
                     const Float pdf_solidangle = light->pdf_solidangle(info.p, light_pos, light_info.sh_coord.m_world_n);
 
                     // MIS for light sampling
@@ -222,7 +222,7 @@ namespace Caramel{
             }
 
             /* brdf sampling */{
-                auto [local_recursive_dir, sampled_brdf, bsdf_pdf] = shape_bsdf->sample_recursive_dir(local_ray_dir, sampler);
+                auto [local_recursive_dir, sampled_brdf, bsdf_pdf] = shape_bsdf->sample_recursive_dir(local_ray_dir, info.tex_uv, sampler);
                 current_brdf = current_brdf % sampled_brdf;
                 from_specular = is_current_specular;
                 ray = info.recursive_ray_to(local_recursive_dir);

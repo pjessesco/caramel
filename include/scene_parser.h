@@ -44,6 +44,7 @@ namespace Caramel{
     struct Camera;
     class Light;
     class AreaLight;
+    class Texture;
 
     class SceneParser{
         using Json = nlohmann::json;
@@ -66,6 +67,8 @@ namespace Caramel{
         AreaLight* parse_arealight(const Json &shape_json) const;
 
         BSDF* parse_bsdf(const Json &bsdf_json) const;
+
+        Texture* parse_texture(const Json &texture_json) const;
 
         Json get_unique_first_elem(const Json &parent, const std::string &key) const;
 

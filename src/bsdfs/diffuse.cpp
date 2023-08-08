@@ -26,22 +26,30 @@
 
 #include <common.h>
 #include <warp_sample.h>
+#include <textures.h>
 
 namespace Caramel{
     Diffuse::Diffuse(const Vector3f &albedo)
-        : m_albedo{albedo} {}
+        : m_albedo{albedo}, m_texture{nullptr} {}
 
-    std::tuple<Vector3f, Vector3f, Float> Diffuse::sample_recursive_dir(const Vector3f &, Sampler &sampler) const {
+    Diffuse::Diffuse(Texture *texture)
+        : m_texture{texture}, m_albedo{vec3f_zero} {}
+
+    Diffuse::~Diffuse(){
+        delete m_texture;
+    }
+
+    std::tuple<Vector3f, Vector3f, Float> Diffuse::sample_recursive_dir(const Vector3f &, const Vector2f &uv, Sampler &sampler) const {
         auto [local_outgoing, dir_pdf] = sample_unit_hemisphere_cosine(sampler);
-        return {local_outgoing, m_albedo, dir_pdf};
+        return {local_outgoing, m_texture == nullptr ? m_albedo : m_texture->get_val(uv), dir_pdf};
     }
 
     Float Diffuse::pdf(const Vector3f &, const Vector3f &local_outgoing_dir) const{
         return sample_unit_hemisphere_cosine_pdf(local_outgoing_dir);
     }
 
-    Vector3f Diffuse::get_reflection(const Vector3f &, const Vector3f &) const {
-        return m_albedo * PI_INV;
+    Vector3f Diffuse::get_reflection(const Vector3f &, const Vector3f &, const Vector2f &uv) const {
+        return (m_texture == nullptr ? m_albedo : m_texture->get_val(uv)) * PI_INV;
     }
 
     bool Diffuse::is_discrete() const{

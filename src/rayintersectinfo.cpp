@@ -28,7 +28,7 @@
 
 namespace Caramel{
 
-    RayIntersectInfo::RayIntersectInfo() : p{Float0, Float0, Float0}, sh_coord(), t(INF), u(INF), v(INF), idx(-1) {}
+    RayIntersectInfo::RayIntersectInfo() : p{Float0, Float0, Float0}, sh_coord(), t(INF), tex_uv{INF, INF}, idx(-1) {}
 
     // See also `Scene::is_visible()`
     Ray RayIntersectInfo::recursive_ray_to(const Vector3f &local_next_dir) const{

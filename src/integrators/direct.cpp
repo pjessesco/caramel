@@ -64,7 +64,7 @@ namespace Caramel{
         }
 
         const Vector3f local_ray_dir = info.sh_coord.to_local(ray.m_d);
-        auto [local_outgoing, contrib, _] = mesh->get_bsdf()->sample_recursive_dir(local_ray_dir, sampler);
+        auto [local_outgoing, contrib, _] = mesh->get_bsdf()->sample_recursive_dir(local_ray_dir, info.tex_uv, sampler);
 
         const Ray recursive_ray = info.recursive_ray_to(local_outgoing);
         auto [recursive_is_hit, recursive_info] = scene.ray_intersect(recursive_ray);
@@ -105,7 +105,7 @@ namespace Caramel{
         if(!is_zero(emitted_rad)) {
             const Vector3f hitpos_to_light_local_normal = info.sh_coord.to_local(light_pos - info.p).normalize();
             const Vector3f local_ray_dir = info.sh_coord.to_local(ray.m_d);
-            const Vector3f fr = mesh->get_bsdf()->get_reflection(local_ray_dir, hitpos_to_light_local_normal);
+            const Vector3f fr = mesh->get_bsdf()->get_reflection(local_ray_dir, hitpos_to_light_local_normal, info.tex_uv);
             const Float pdf_solidangle = light->pdf_solidangle(info.p, light_pos, light_info.sh_coord.m_world_n);
 
             return (fr % emitted_rad) * std::abs(hitpos_to_light_local_normal[2]) / (light_pdf * pdf_solidangle);
@@ -141,7 +141,7 @@ namespace Caramel{
             // Continue if light sampling succeed
             if(!is_zero(emitted_rad)) {
                 const Vector3f hitpos_to_light_local_normal = info.sh_coord.to_local(light_pos - info.p).normalize();
-                const Vector3f fr = mesh->get_bsdf()->get_reflection(local_ray_dir, hitpos_to_light_local_normal);
+                const Vector3f fr = mesh->get_bsdf()->get_reflection(local_ray_dir, hitpos_to_light_local_normal, info.tex_uv);
                 const Float pdf_solidangle = light->pdf_solidangle(info.p, light_pos, light_info.sh_coord.m_world_n);
 
                 // MIS for light sampling
@@ -152,7 +152,7 @@ namespace Caramel{
 
         /* BRDF sampling */{
             // Spawn ray using BRDF sampling
-            auto [local_outgoing, contrib, bsdf_pdf] = mesh->get_bsdf()->sample_recursive_dir(local_ray_dir, sampler);
+            auto [local_outgoing, contrib, bsdf_pdf] = mesh->get_bsdf()->sample_recursive_dir(local_ray_dir, info.tex_uv, sampler);
             const Ray recursive_ray = info.recursive_ray_to(local_outgoing);
 
             // BRDF sampling is not possible if spawned ray doesn't hit

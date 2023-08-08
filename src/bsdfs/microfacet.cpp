@@ -31,7 +31,7 @@ namespace Caramel{
     Microfacet::Microfacet(Float alpha, Float in_ior, Float ex_ior, const Vector3f &kd)
         : m_alpha{alpha}, m_in_index_of_refraction{in_ior}, m_ex_index_of_refraction{ex_ior}, m_kd(kd), m_ks{Float1 - kd.max()} {}
 
-    std::tuple<Vector3f, Vector3f, Float> Microfacet::sample_recursive_dir(const Vector3f &local_incoming_dir, Sampler &sampler) const {
+    std::tuple<Vector3f, Vector3f, Float> Microfacet::sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &sampler) const {
         // from hitpoint to incoming point
         const Vector3f local_incoming_flipped = -local_incoming_dir.normalize();
         Vector3f local_outgoing;
@@ -58,7 +58,7 @@ namespace Caramel{
         const Float pdf_ = pdf(local_incoming_dir, local_outgoing);
 
         return {local_outgoing,
-                get_reflection(local_incoming_dir, local_outgoing) * local_outgoing[2] / pdf_,
+                get_reflection(local_incoming_dir, local_outgoing, Vector2f(/*dummy*/)) * local_outgoing[2] / pdf_,
                 pdf_};
     }
 
@@ -80,7 +80,7 @@ namespace Caramel{
         return pdf;
     }
 
-    Vector3f Microfacet::get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const {
+    Vector3f Microfacet::get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const {
         // from hitpoint to incoming point
         const Vector3f local_incoming_flipped = -local_incoming_dir.normalize();
         const Vector3f local_outgoing = local_outgoing_dir.normalize();

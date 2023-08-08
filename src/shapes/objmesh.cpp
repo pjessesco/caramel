@@ -70,6 +70,7 @@ namespace Caramel {
         CRM_LOG(" - # of texture coordinates : " + std::to_string(attrib.texcoords.size()));
 
         is_vn_exists = !attrib.normals.empty();
+        is_tx_exists = !attrib.texcoords.empty();
 
         // Used for aabb
         Float min_x = INF,  min_y = INF,  min_z = INF,
@@ -171,6 +172,17 @@ namespace Caramel {
 
     Triangle OBJMesh::get_triangle(Index i) const {
         if (is_vn_exists){
+            if(is_tx_exists){
+                return Triangle(m_vertices[m_vertex_indices[i][0]],
+                                m_vertices[m_vertex_indices[i][1]],
+                                m_vertices[m_vertex_indices[i][2]],
+                                m_normals[m_normal_indices[i][0]],
+                                m_normals[m_normal_indices[i][1]],
+                                m_normals[m_normal_indices[i][2]],
+                                m_tex_coords[m_tex_coord_indices[i][0]],
+                                m_tex_coords[m_tex_coord_indices[i][1]],
+                                m_tex_coords[m_tex_coord_indices[i][2]]);
+            }
             return Triangle(m_vertices[m_vertex_indices[i][0]],
                             m_vertices[m_vertex_indices[i][1]],
                             m_vertices[m_vertex_indices[i][2]],
