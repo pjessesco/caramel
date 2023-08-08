@@ -70,9 +70,9 @@ namespace Caramel{
             void construct_children(const OBJMesh &shape);
             void construct_children_recursively(const OBJMesh &shape, int depth);
 
-            std::tuple<bool, RayIntersectInfo> ray_intersect_leaf(const Ray &ray, const OBJMesh &shape);
-            std::tuple<bool, RayIntersectInfo> ray_intersect_branch(const Ray &ray, const OBJMesh &shape);
-            std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray, const OBJMesh &shape);
+            std::tuple<bool, RayIntersectInfo> ray_intersect_leaf(const Ray &ray, const OBJMesh &shape) const;
+            std::tuple<bool, RayIntersectInfo> ray_intersect_branch(const Ray &ray, const OBJMesh &shape) const;
+            std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray, const OBJMesh &shape) const;
             bool is_leaf() const;
 
             AABB m_aabb;
