@@ -37,6 +37,7 @@ set(SOURCES
         src/shapes/triangle.cpp
         src/scene_parser.cpp
         src/rayintersectinfo.cpp
+        src/textures/image_texture.cpp
         )
 
 set(HEADERS
@@ -57,7 +58,8 @@ set(HEADERS
         include/shape.h
         include/transform.h
         include/warp_sample.h
-        include/scene_parser.h)
+        include/scene_parser.h
+        include/textures.h)
 
 if(NOT EXCLUDE_TEST)
     add_executable(caramel_test
