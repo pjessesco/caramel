@@ -30,7 +30,7 @@
 #include <rayintersectinfo.h>
 
 namespace Caramel{
-    UVIntegrator::UVIntegrator() : Integrator(1) {}
+    UVIntegrator::UVIntegrator() : MCIntegrator(1) {}
 
     Vector3f UVIntegrator::get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) {
         const Ray ray = scene.m_cam->sample_ray(i, j);

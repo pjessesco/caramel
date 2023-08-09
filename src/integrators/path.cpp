@@ -35,7 +35,7 @@
 
 namespace Caramel{
     PathIntegrator::PathIntegrator(Index rr_depth, Index max_depth, Index spp, SamplingType sampling_type)
-        : Integrator(spp), m_rr_depth{rr_depth}, m_max_depth{max_depth}, m_sampling_type(sampling_type) {}
+        : MCIntegrator(spp), m_rr_depth{rr_depth}, m_max_depth{max_depth}, m_sampling_type(sampling_type) {}
 
     // Different with albedo precisely...
     Vector3f PathIntegrator::get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) {
