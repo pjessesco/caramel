@@ -48,13 +48,21 @@ namespace Caramel{
     }
 
     Image::Image(const std::string &filename) {
-        if(!filename.ends_with(".jpg")){
+        if(filename.ends_with(".jpg")){
             CRM_LOG("Load .jpg image");
-            from_png(filename);
+            read_from_jpg(filename);
         }
-        else if(!filename.ends_with(".png")){
+        else if(filename.ends_with(".png")){
             CRM_LOG("Load .png image");
-            from_png(filename);
+            read_from_png(filename);
+        }
+        else if(filename.ends_with(".exr")){
+            CRM_LOG("Load .exr image");
+            read_from_exr(filename);
+        }
+        else if(filename.ends_with(".hdr")){
+            CRM_LOG("load .hdr image");
+            read_from_hdr(filename);
         }
         else{
             CRM_ERROR("Given filename is not supported format : " + filename);
@@ -135,7 +143,7 @@ namespace Caramel{
     Image::Image(unsigned int width, unsigned int height, const std::vector<Float> &data)
     : m_width{width}, m_height{height}, m_data{data} {}
 
-    void Image::from_jpg(const std::string &filename){
+    void Image::read_from_jpg(const std::string &filename){
         int width, height, channel;
         float *data = stbi_loadf(filename.c_str(), &width, &height, &channel, 0);
 
@@ -154,7 +162,7 @@ namespace Caramel{
         m_data = data_dst;
     }
 
-    void Image::from_png(const std::string &filename){
+    void Image::read_from_png(const std::string &filename){
         int width, height, channel;
         float *data = stbi_loadf(filename.c_str(), &width, &height, &channel, 0);
 
@@ -196,6 +204,39 @@ namespace Caramel{
         else{
             CRM_ERROR("Not supported image channel");
         }
+    }
+
+    void Image::read_from_exr(const std::string &filename){
+        Float *out;
+        int width;
+        int height;
+        const char *err;
+        int ret = LoadEXR(&out, &width, &height, filename.c_str(), &err);
+
+        if(ret == TINYEXR_SUCCESS){
+            std::vector<Float> data_dst;
+            m_data.resize(width*height*3);
+
+            m_width = width;
+            m_height = height;
+
+            for(int i=0;i<width;i++){
+                for(int j=0;j<height;j++){
+                    // Ignore alpha
+                    set_pixel_value(i, j, out[(i + j * m_width)*4], out[(i + j * m_width)*4 + 1], out[(i + j * m_width)*4 + 2]);
+                }
+            }
+
+            free(out);
+        }
+        else{
+            CRM_ERROR("EXR read fail : " + std::string(err));
+        }
+
+    }
+
+    void Image::read_from_hdr(const std::string &filename){
+        // TODO
     }
 
 }
