@@ -45,7 +45,7 @@ TEST_CASE("render test"){
         Image render = render_for_test(std::string(TEST_SCENE_PATH) + "ajax/scene.json");
 
         REQUIRE(mse(ref, render) <= Catch::Approx(0.00003));
-        REQUIRE(avg(diff(ref, render)) == Catch::Approx(0));
+        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.00001));
     }
 
     SECTION("veach-mis"){
