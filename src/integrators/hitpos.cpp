@@ -30,7 +30,7 @@
 #include <rayintersectinfo.h>
 
 namespace Caramel{
-    HitPosIntegrator::HitPosIntegrator() : Integrator(1) {}
+    HitPosIntegrator::HitPosIntegrator() : MCIntegrator(1) {}
 
     Vector3f HitPosIntegrator::get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) {
         const Ray ray = scene.m_cam->sample_ray(i, j);
