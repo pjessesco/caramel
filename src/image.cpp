@@ -47,6 +47,9 @@ namespace Caramel{
         m_data.resize(width*height*CHANNEL_NUM);
     }
 
+    Image::Image(unsigned int width, unsigned int height, const std::vector<Float> &data)
+        : m_width{width}, m_height{height}, m_data{data} {}
+
     Image::Image(const std::string &filename) {
         if(filename.ends_with(".jpg")){
             CRM_LOG("Load .jpg image");
@@ -140,9 +143,6 @@ namespace Caramel{
                 m_data[(w + h * m_width)*3 + 2]};
     }
 
-    Image::Image(unsigned int width, unsigned int height, const std::vector<Float> &data)
-    : m_width{width}, m_height{height}, m_data{data} {}
-
     void Image::read_from_jpg(const std::string &filename){
         int width, height, channel;
         float *data = stbi_loadf(filename.c_str(), &width, &height, &channel, 0);
@@ -235,8 +235,24 @@ namespace Caramel{
 
     }
 
+    // Implementation is same with `read_from_jpg()`
     void Image::read_from_hdr(const std::string &filename){
-        // TODO
+        int width, height, channel;
+        float *data = stbi_loadf(filename.c_str(), &width, &height, &channel, 0);
+
+        if(channel != CHANNEL_NUM){
+            CRM_ERROR("Support " + std::to_string(CHANNEL_NUM) + "channel images only");
+        }
+
+        std::vector<Float> data_dst;
+        data_dst.resize(width * height * channel);
+        memcpy(&data_dst[0], data, width * height * channel * sizeof(Float));
+
+        stbi_image_free(data);
+
+        m_width = width;
+        m_height = height;
+        m_data = data_dst;
     }
 
 }
