@@ -20,10 +20,10 @@ set(SOURCES
         src/bsdfs/orennayar.cpp
         src/camera.cpp
         src/image.cpp
+        src/integrators/MCIntegrator.cpp
         src/integrators/depth.cpp
         src/integrators/direct.cpp
         src/integrators/hitpos.cpp
-        src/integrators/integrators.cpp
         src/integrators/normal.cpp
         src/integrators/uv.cpp
         src/integrators/path.cpp

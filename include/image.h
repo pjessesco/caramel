@@ -31,7 +31,8 @@
 
 namespace Caramel {
     // Caramel considers only RGB(BGR) 3 channel image.
-    struct Image {
+    class Image {
+    public:
         static constexpr int CHANNEL_NUM = 3;
 
         Image(unsigned int width, unsigned int height);

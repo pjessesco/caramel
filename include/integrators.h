@@ -29,11 +29,9 @@
 #include <common.h>
 
 namespace Caramel{
-
     class Image;
     class Scene;
     class Sampler;
-
 
     enum class SamplingType{
         BSDF,
@@ -41,49 +39,61 @@ namespace Caramel{
         MIS
     };
 
-    Float balance_heuristic(Float a, Float b);
+    inline Float balance_heuristic(Float a, Float b){
+        return a / (a + b);
+    }
 
     class Integrator{
     public:
-        explicit Integrator(Index m_spp = 1);
-        Image render(const Scene &scene);
+        Integrator() = default;
+        virtual void pre_process(const Scene &scene) = 0;
+        virtual Image render(const Scene &scene) = 0;
+        virtual void post_process(const Scene &scene) = 0;
 
         template <typename Type, typename ...Param>
         static Integrator* Create(Param ...args){
             return dynamic_cast<Integrator*>(new Type(args...));
         }
+    };
+
+    class MCIntegrator : public Integrator{
+    public:
+        explicit MCIntegrator(Index m_spp = 1);
+        void pre_process(const Scene &scene) override;
+        Image render(const Scene &scene) override;
+        void post_process(const Scene &scene) override;
 
     protected:
         virtual Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) = 0;
         Index m_spp;
     };
 
-    class DepthIntegrator final : public Integrator{
+    class DepthIntegrator final : public MCIntegrator{
     public:
         DepthIntegrator();
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
 
     };
 
-    class UVIntegrator final : public Integrator{
+    class UVIntegrator final : public MCIntegrator{
     public:
         UVIntegrator();
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
     };
 
-    class HitPosIntegrator final : public Integrator{
+    class HitPosIntegrator final : public MCIntegrator{
     public:
         HitPosIntegrator();
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
     };
 
-    class NormalIntegrator final : public Integrator{
+    class NormalIntegrator final : public MCIntegrator{
     public:
         NormalIntegrator();
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
     };
 
-    class DirectIntegrator final : public Integrator{
+    class DirectIntegrator final : public MCIntegrator{
     public:
         DirectIntegrator(Index spp, SamplingType sampling_type);
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
@@ -96,7 +106,7 @@ namespace Caramel{
         SamplingType m_sampling_type;
     };
 
-    class PathIntegrator final : public Integrator{
+    class PathIntegrator final : public MCIntegrator{
     public:
         PathIntegrator(Index rr_depth, Index max_depth, Index spp, SamplingType sampling_type);
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
