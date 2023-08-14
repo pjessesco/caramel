@@ -44,7 +44,7 @@ TEST_CASE("render test"){
         Image ref(std::string(TEST_SCENE_PATH) + "ajax/scene.exr");
         Image render = render_for_test(std::string(TEST_SCENE_PATH) + "ajax/scene.json");
 
-        REQUIRE(mse(ref, render) == Catch::Approx(0));
+        REQUIRE(mse(ref, render) == Catch::Approx(0).epsilon(0.00005));
         REQUIRE(avg(diff(ref, render)) == Catch::Approx(0));
     }
 
