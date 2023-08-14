@@ -41,9 +41,8 @@ namespace Caramel {
 
         void set_pixel_value(int w, int h, Float r, Float g, Float b);
         Vector3f get_pixel_value(int w, int h) const;
+        Vector2ui size() const;
 
-        unsigned int m_width;
-        unsigned int m_height;
     private:
         Image(unsigned int width, unsigned int height, const std::vector<Float> &m_data);
 
@@ -53,6 +52,8 @@ namespace Caramel {
         void read_from_exr(const std::string &filename);
         void read_from_hdr(const std::string &filename);
 
+        unsigned int m_width;
+        unsigned int m_height;
         std::vector<Float> m_data;
     };
 }
