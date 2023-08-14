@@ -258,5 +258,4 @@ namespace Caramel{
         m_height = height;
         m_data = data_dst;
     }
-
 }

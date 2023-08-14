@@ -70,7 +70,8 @@ if(NOT EXCLUDE_TEST)
             test/catch_amalgamated.cpp
 
             test/test_ray_intersection.cpp
-            )
+            test/utils.cpp
+    )
 
     target_include_directories(caramel_test PUBLIC ../include)
 endif()

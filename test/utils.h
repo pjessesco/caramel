@@ -30,33 +30,15 @@
 #include <common.h>
 
 namespace Caramel {
-    // Caramel considers only RGB(BGR) 3 channel image.
-    class Image {
-    public:
-        static constexpr int CHANNEL_NUM = 3;
+    class Image;
 
-        Image(Index width, Index height);
-        Image(const std::string &filename);
-        void write_exr(const std::string &filename) const;
+    // img1 - img2
+    Image diff(const Image &img1, const Image &img2);
+    // img^2
+    Image square(const Image &img);
+    // Average pixel value
+    Float avg(const Image &img);
+    Float mse(const Image &img1, const Image &img2);
+    Float rmse(const Image &img1, const Image &img2);
 
-        void set_pixel_value(int w, int h, Float r, Float g, Float b);
-        Vector3f get_pixel_value(int w, int h) const;
-        Vector2ui size() const;
-
-    private:
-        Image(Index width, Index height, const std::vector<Float> &m_data);
-
-        // Called in constructor
-        void read_from_jpg(const std::string &filename);
-        void read_from_png(const std::string &filename);
-        void read_from_exr(const std::string &filename);
-        void read_from_hdr(const std::string &filename);
-
-        static Float mse(const Image &img1, const Image &img2);
-        static Float rmse(const Image &img1, const Image &img2);
-
-        Index m_width;
-        Index m_height;
-        std::vector<Float> m_data;
-    };
 }
