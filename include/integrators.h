@@ -42,7 +42,6 @@ namespace Caramel{
         Integrator() = default;
         virtual void pre_process(const Scene &scene) = 0;
         virtual Image render(const Scene &scene) = 0;
-        virtual void post_process(const Scene &scene) = 0;
 
         template <typename Type, typename ...Param>
         static Integrator* Create(Param ...args){
@@ -55,7 +54,6 @@ namespace Caramel{
         explicit MCIntegrator(Index m_spp = 1);
         void pre_process(const Scene &scene) override;
         Image render(const Scene &scene) override;
-        void post_process(const Scene &scene) override;
 
     protected:
         virtual Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) = 0;
