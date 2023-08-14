@@ -9,31 +9,35 @@
 Caramel is a physically-based offline renderer for studying myself based on [Peanut](https://github.com/pjessesco/peanut). 
 
 ## Features
-- Path tracing (bsdf sampling, light sampling)
+- Path tracing (with multiple importance sampling)
 - Area light
 - `.obj` format meshes
 - Perspective camera
 - Octree acceleration structure
 - Möller–Trumbore ray tracing
-
-
-## TODO
-- Scene file input
-- Other bsdfs
-- Watertight intersection ([link](https://jcgt.org/published/0002/01/05/paper.pdf))
-- Other integrators
-- Other mesh formats
-
+- End-to-end render test
 
 ## Gallery
 
-<table>
-  <tr>
-    <td>Cornell box</td>
-  </tr>
-  <tr>
-    <td><img src="https://user-images.githubusercontent.com/11532321/195075825-1128a782-3cad-48b7-8ed3-0e8c4d82f3cf.png" width=300 height=300></td>
-  </tr>
- </table>
+#### ajax
 
-To-be added more
+<img src="scenes/ajax/scene.png" height=300/>
+
+#### Cornell box
+
+<img src="scenes/cbox/scene.png" height=300/>
+
+#### Diamonds
+
+<img src="scenes/diamonds/scene.png" height=300/>
+
+#### veach-mis
+
+<img src="scenes/veach_mis/scene.png" height=300/>
+
+#### stormtrooper
+
+<img src="scenes/stormtrooper/scene.png" height=300/>
+
+
+
