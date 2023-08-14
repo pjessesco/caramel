@@ -37,13 +37,9 @@
 #include <sampler.h>
 
 namespace Caramel{
-    Float balance_heuristic(Float a, Float b){
-        return a / (a + b);
-    }
+    MCIntegrator::MCIntegrator(Index spp) : Integrator(), m_spp{spp} {}
 
-    Integrator::Integrator(Index spp) : m_spp{spp} {}
-
-    Image Integrator::render(const Scene &scene){
+    Image MCIntegrator::render(const Scene &scene){
         if(scene.m_cam == nullptr){
             CRM_ERROR("Camera is nullptr;");
         }
@@ -76,4 +72,7 @@ namespace Caramel{
 
         return img;
     }
+
+    void MCIntegrator::pre_process(const Scene &scene) {}
+    void MCIntegrator::post_process(const Scene &scene) {}
 }

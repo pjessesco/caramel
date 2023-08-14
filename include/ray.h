@@ -27,7 +27,7 @@
 #include <common.h>
 
 namespace Caramel{
-    struct Ray{
+    class Ray{
     public:
         Vector3f m_o;
         Vector3f m_d;

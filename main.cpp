@@ -53,7 +53,9 @@ int main(int argc, char* argv[]) {
     }
     scene.set_camera(cam);
     {
+        integrator->pre_process(scene);
         Image img = integrator->render(scene);
+        integrator->post_process(scene);
         img.write_exr(scene_path.stem().string() + ".exr");
     }
 

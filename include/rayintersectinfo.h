@@ -28,7 +28,7 @@
 #include <coordinate.h>
 
 namespace Caramel{
-    struct Shape;
+    class Shape;
     class Ray;
 
     class RayIntersectInfo {

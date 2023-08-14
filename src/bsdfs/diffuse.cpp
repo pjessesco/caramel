@@ -33,7 +33,7 @@ namespace Caramel{
         : m_albedo{albedo}, m_texture{nullptr} {}
 
     Diffuse::Diffuse(Texture *texture)
-        : m_texture{texture}, m_albedo{vec3f_zero} {}
+        : m_albedo{vec3f_zero}, m_texture{texture} {}
 
     Diffuse::~Diffuse(){
         delete m_texture;
