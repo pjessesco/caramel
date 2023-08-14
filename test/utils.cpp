@@ -30,8 +30,34 @@
 #include <common.h>
 #include <image.h>
 #include <logger.h>
+#include <scene_parser.h>
+#include <shape.h>
+#include <scene.h>
+#include <image.h>
+#include <integrators.h>
 
 namespace Caramel {
+
+    Image render_for_test(const std::filesystem::path &scene_path){
+        // Set current path
+        std::filesystem::current_path(scene_path.parent_path());
+
+        SceneParser parser(scene_path);
+        Integrator *integrator = parser.parse_integrator();
+        Camera *cam = parser.parse_camera();
+        std::vector<Shape*> shapes = parser.parse_shapes();
+
+        Scene scene;
+        for(auto s : shapes){
+            scene.add_mesh(s);
+        }
+        scene.set_camera(cam);
+
+        integrator->pre_process(scene);
+        Image img = integrator->render(scene);
+
+        return img;
+    }
 
     Image diff(const Image &img1, const Image &img2){
         if((img1.size()[0] != img2.size()[0]) || (img1.size()[1] != img2.size()[1])){
@@ -78,7 +104,7 @@ namespace Caramel {
                 sum += (val[0] + val[1] + val[2]);
             }
         }
-        return sum / (w * h);
+        return sum / (w * h * 3);
     }
 
     Float mse(const Image &img1, const Image &img2){

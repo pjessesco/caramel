@@ -26,11 +26,14 @@
 
 #include <vector>
 #include <string>
+#include <filesystem>
 
 #include <common.h>
 
 namespace Caramel {
     class Image;
+
+    Image render_for_test(const std::filesystem::path &scene_path);
 
     // img1 - img2
     Image diff(const Image &img1, const Image &img2);

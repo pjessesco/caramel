@@ -62,14 +62,15 @@ set(HEADERS
         include/textures.h)
 
 if(NOT EXCLUDE_TEST)
+    include_directories(test)
+
     add_executable(caramel_test
             ${SOURCES}
             ${HEADERS}
 
             test/catch_amalgamated.hpp
             test/catch_amalgamated.cpp
-
-            test/test_ray_intersection.cpp
+            test/render_test.cpp
             test/utils.cpp
     )
 

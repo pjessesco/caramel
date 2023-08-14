@@ -29,18 +29,38 @@
 #include <common.h>
 #include <ray.h>
 #include <shape.h>
+#include <image.h>
+
+#include <utils.h>
 
 // Dependencies headers
 #include "catch_amalgamated.hpp"
 
 using namespace Caramel;
-#define FLT(x) static_cast<Float>(x)
 
-TEST_CASE("moller_trumbore()"){
+TEST_CASE("render test"){
+
+    const auto curpath = std::filesystem::current_path();
+
+    SECTION("ajax"){
+        std::filesystem::current_path();
+        Image ref(std::filesystem::current_path().append("../scenes/ajax/scene.exr"));
+        Image render = render_for_test(std::filesystem::current_path().append("../scenes/ajax/scene.json"));
+
+        REQUIRE(mse(ref, render) == Catch::Approx(0));
+        REQUIRE(avg(diff(ref, render)) == Catch::Approx(0));
+    }
+
+    SECTION("veach-mis"){
+        Image ref(std::filesystem::current_path().append("../scenes/veach_mis/scene.exr"));
+        Image render = render_for_test(std::filesystem::current_path().append("../scenes/veach_mis/scene.json"));
+
+        REQUIRE(mse(ref, render) <= Catch::Approx(0.3));
+        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.0006));
+    }
+
+    std::filesystem::current_path(curpath);
 
 }
 
-TEST_CASE("Ray-objmesh intersection"){
-
-}
 
