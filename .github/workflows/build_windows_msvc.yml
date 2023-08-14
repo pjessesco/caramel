@@ -1,4 +1,4 @@
-name: Build (Windows, MSVC)
+name: Build & Test (Windows, MSVC)
 
 on:
   push:
@@ -27,3 +27,6 @@ jobs:
     - name: Build
       # Build your program with the given configuration
       run: cmake --build ./build --config Debug
+
+    - name : Test
+      run : ${{github.workspace}}/build/caramel_test

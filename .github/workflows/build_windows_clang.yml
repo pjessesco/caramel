@@ -1,4 +1,4 @@
-name: Build (Windows, Clang)
+name: Build & Test(Windows, Clang)
 
 on:
   push:
@@ -28,4 +28,5 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ./build --config Debug
 
-      
+    - name : Test
+      run : ${{github.workspace}}/build/caramel_test      
