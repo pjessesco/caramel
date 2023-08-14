@@ -44,13 +44,15 @@ namespace Caramel {
 
         unsigned int m_width;
         unsigned int m_height;
-        std::vector<Float> m_data;
-
     private:
         Image(unsigned int width, unsigned int height, const std::vector<Float> &m_data);
 
         // Called in constructor
-        void from_jpg(const std::string &filename);
-        void from_png(const std::string &filename);
+        void read_from_jpg(const std::string &filename);
+        void read_from_png(const std::string &filename);
+        void read_from_exr(const std::string &filename);
+        void read_from_hdr(const std::string &filename);
+
+        std::vector<Float> m_data;
     };
 }
