@@ -1,0 +1,63 @@
+{
+    "integrator": {
+        "type": "path",
+        "depth_rr" : 0,
+        "depth_max" : 5,
+        "spp" : 1000
+    },
+
+    "camera": {
+        "type" : "perspective(NOT_USED)",
+        "pos" : [-0.2, -0.5, 5.5],
+        "dir" : [0.08149219,  0.03621875, -0.99601567],
+        "up" : [0, 1, 0],
+        "width" : 1280,
+        "height" : 640,
+        "fov" : 60
+    },
+
+    "shape" : [
+        {
+            "type" : "obj",
+            "path" : "frame.obj",
+            "bsdf" : {
+                "type" : "microfacet",
+                "alpha" : 0.005,
+                "in_ior" : 1.5,
+                "ex_ior" : 1,
+                "kd" : [0.05, 0.05, 0.05]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "light.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            },
+            "arealight" : {
+                "radiance" : [10, 10, 10]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "helmets.obj",
+            "bsdf" : {
+                "type" : "microfacet",
+                "alpha" : 0.005,
+                "in_ior" : 1.5,
+                "ex_ior" : 1,
+                "kd" : [0.8, 0.8, 0.8]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "box.obj",
+            "bsdf" : {
+                "type" : "mirror"
+            }
+        }
+    ]
+}
+
+
+
