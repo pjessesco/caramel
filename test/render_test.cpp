@@ -22,47 +22,39 @@
 // SOFTWARE.
 //
 
-#include <scene_parser.h>
+// Standard headers
+#include <type_traits>
+
+// caramel headers
+#include <common.h>
+#include <ray.h>
 #include <shape.h>
-#include <scene.h>
 #include <image.h>
-#include <integrators.h>
-#include <logger.h>
-#include <camera.h>
+
+#include <utils.h>
+
+// Dependencies headers
+#include "catch_amalgamated.hpp"
 
 using namespace Caramel;
 
-Image render(const std::filesystem::path &scene_path){
-    // Set current path
-    std::filesystem::current_path(scene_path.parent_path());
+TEST_CASE("render test"){
+    SECTION("ajax"){
+        std::filesystem::current_path();
+        Image ref(std::string(TEST_SCENE_PATH) + "ajax/scene.exr");
+        Image render = render_for_test(std::string(TEST_SCENE_PATH) + "ajax/scene.json");
 
-    SceneParser parser(scene_path);
-    Integrator *integrator = parser.parse_integrator();
-    Camera *cam = parser.parse_camera();
-    std::vector<Shape*> shapes = parser.parse_shapes();
-
-    Scene scene;
-    for(auto s : shapes){
-        scene.add_mesh(s);
-    }
-    scene.set_camera(cam);
-
-    integrator->pre_process(scene);
-    Image img = integrator->render(scene);
-
-    return img;
-}
-
-int main(int argc, char* argv[]) {
-
-    if(argc <= 1){
-        CRM_ERROR("Usage : ./caramel [path to scene file]")
+        REQUIRE(mse(ref, render) <= Catch::Approx(0.00003));
+        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.00001));
     }
 
-    const std::filesystem::path scene_path((std::string(argv[1])));
+    SECTION("veach-mis"){
+        Image ref(std::string(TEST_SCENE_PATH) + "veach_mis/scene.exr");
+        Image render = render_for_test(std::string(TEST_SCENE_PATH) + "veach_mis/scene.json");
 
-    Image img = render(scene_path);
-    img.write_exr(scene_path.stem().string() + ".exr");
-
-    return 0;
+        REQUIRE(mse(ref, render) <= Catch::Approx(0.3));
+        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.0006));
+    }
 }
+
+

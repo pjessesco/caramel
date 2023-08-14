@@ -74,5 +74,4 @@ namespace Caramel{
     }
 
     void MCIntegrator::pre_process(const Scene &scene) {}
-    void MCIntegrator::post_process(const Scene &scene) {}
 }
