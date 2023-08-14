@@ -33,12 +33,6 @@ namespace Caramel{
     class Scene;
     class Sampler;
 
-    enum class SamplingType{
-        BSDF,
-        LIGHT,
-        MIS
-    };
-
     inline Float balance_heuristic(Float a, Float b){
         return a / (a + b);
     }
@@ -95,30 +89,23 @@ namespace Caramel{
 
     class DirectIntegrator final : public MCIntegrator{
     public:
-        DirectIntegrator(Index spp, SamplingType sampling_type);
+        DirectIntegrator(Index spp);
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
 
     private:
-        Vector3f brdf_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler);
-        Vector3f emitter_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler);
         Vector3f mis_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler);
-
-        SamplingType m_sampling_type;
     };
 
     class PathIntegrator final : public MCIntegrator{
     public:
-        PathIntegrator(Index rr_depth, Index max_depth, Index spp, SamplingType sampling_type);
+        PathIntegrator(Index rr_depth, Index max_depth, Index spp);
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
 
     private:
-        Vector3f brdf_sampling_path(const Scene &scene, Float i, Float j, Sampler &sampler);
-        Vector3f emitter_sampling_path(const Scene &scene, Float i, Float j, Sampler &sampler);
         Vector3f mis_sampling_path(const Scene &scene, Float i, Float j, Sampler &sampler);
 
         Index m_rr_depth;
         Index m_max_depth;
-        SamplingType m_sampling_type;
     };
 
 
