@@ -71,6 +71,8 @@ namespace Caramel{
     using Vector2i = Peanut::Matrix<Int, 2, 1>;
     using Vector3i = Peanut::Matrix<Int, 3, 1>;
 
+    using Vector2ui = Peanut::Matrix<Index, 2, 1>;
+
     const Vector3f vec3f_zero = {Float0, Float0, Float0};
     const Vector3f vec3f_one = {Float1, Float1, Float1};
 

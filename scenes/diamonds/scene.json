@@ -1,0 +1,150 @@
+{
+    "integrator": {
+        "type": "path",
+        "depth_rr" : 5,
+        "depth_max" : 50,
+        "spp" : 1000
+    },
+
+    "camera": {
+        "type" : "perspective(NOT_USED)",
+        "pos" : [-12.5227, 39.4969, 159.38],
+        "dir" : [0.0158, -0.1601, -0.987],
+        "up" : [0, 1, 0],
+        "width" : 1280,
+        "height" : 640,
+        "fov" : 40
+    },
+
+    "shape" : [
+        {
+            "type" : "obj",
+            "path" : "meshes/light.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            },
+            "arealight" : {
+                "radiance" : [100, 100, 100]
+            },
+            "to_world" : [
+                {
+                    "type" : "scale",
+                    "value" : [15, 15, 15]
+                }
+            ]
+        },
+        {
+            "type" : "obj",
+            "path" : "meshes/floor.obj",
+            "bsdf" : {
+                "type" : "microfacet",
+                "alpha" : 0.08,
+                "in_ior" : 1.5,
+                "ex_ior" : 1,
+                "kd" : [0.4, 0.3, 0.3]
+            },
+            "to_world" : [
+                {
+                    "type" : "scale",
+                    "value" : [15, 15, 15]
+                }
+            ]
+        },
+        {
+            "type" : "obj",
+            "path" : "meshes/diamond1.obj",
+            "bsdf" : {
+                "type" : "dielectric",
+                "in_ior" : 2.42,
+                "ex_ior" : 1
+            },
+            "to_world" : [
+                {
+                    "type" : "scale",
+                    "value" : [15, 15, 15]
+                }
+            ]
+        },
+        {
+            "type" : "obj",
+            "path" : "meshes/diamond2.obj",
+            "bsdf" : {
+                "type" : "dielectric",
+                "in_ior" : 2.42,
+                "ex_ior" : 1
+            },
+            "to_world" : [
+                {
+                    "type" : "scale",
+                    "value" : [15, 15, 15]
+                }
+            ]
+        },
+        {
+            "type" : "obj",
+            "path" : "meshes/diamond3.obj",
+            "bsdf" : {
+                "type" : "dielectric",
+                "in_ior" : 2.42,
+                "ex_ior" : 1
+            },
+            "to_world" : [
+                {
+                    "type" : "scale",
+                    "value" : [15, 15, 15]
+                }
+            ]
+        },
+        {
+            "type" : "obj",
+            "path" : "meshes/diamond4.obj",
+            "bsdf" : {
+                "type" : "dielectric",
+                "in_ior" : 2.42,
+                "ex_ior" : 1
+            },
+            "to_world" : [
+                {
+                    "type" : "scale",
+                    "value" : [15, 15, 15]
+                }
+            ]
+        },
+        {
+            "type" : "obj",
+            "path" : "meshes/diamond5.obj",
+            "bsdf" : {
+                "type" : "dielectric",
+                "in_ior" : 2.42,
+                "ex_ior" : 1
+            },
+            "to_world" : [
+                {
+                    "type" : "scale",
+                    "value" : [15, 15, 15]
+                }
+            ]
+        },
+        {
+            "type" : "obj",
+            "path" : "meshes/diamond6.obj",
+            "bsdf" : {
+                "type" : "dielectric",
+                "in_ior" : 2.42,
+                "ex_ior" : 1
+            },
+            "to_world" : [
+                {
+                    "type" : "scale",
+                    "value" : [15, 15, 15]
+                }
+            ]
+        }
+    ]
+
+
+    
+}
+
+
+

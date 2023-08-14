@@ -32,15 +32,9 @@
 
 using namespace Caramel;
 
-int main(int argc, char* argv[]) {
-
-    if(argc <= 1){
-        CRM_ERROR("Usage : ./caramel [path to scene file]")
-    }
-
-    const std::filesystem::path scene_path((std::string(argv[1])));
+Image render(const std::filesystem::path &scene_path){
+    // Set current path
     std::filesystem::current_path(scene_path.parent_path());
-    const std::string scene_filename = scene_path.stem().string();
 
     SceneParser parser(scene_path);
     Integrator *integrator = parser.parse_integrator();
@@ -52,12 +46,23 @@ int main(int argc, char* argv[]) {
         scene.add_mesh(s);
     }
     scene.set_camera(cam);
-    {
-        integrator->pre_process(scene);
-        Image img = integrator->render(scene);
-        integrator->post_process(scene);
-        img.write_exr(scene_path.stem().string() + ".exr");
+
+    integrator->pre_process(scene);
+    Image img = integrator->render(scene);
+
+    return img;
+}
+
+int main(int argc, char* argv[]) {
+
+    if(argc <= 1){
+        CRM_ERROR("Usage : ./caramel [path to scene file]")
     }
+
+    const std::filesystem::path scene_path((std::string(argv[1])));
+
+    Image img = render(scene_path);
+    img.write_exr(scene_path.stem().string() + ".exr");
 
     return 0;
 }
