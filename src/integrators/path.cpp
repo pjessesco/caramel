@@ -95,6 +95,17 @@ namespace Caramel{
                 }
             }
 
+            /* Russian roulette */{
+                if(depth >= m_rr_depth){
+                    if(current_brdf.max() > sampler.sample_1d()){
+                        current_brdf = current_brdf / current_brdf.max();
+                    }
+                    else{
+                        break;
+                    }
+                }
+            }
+
             /* brdf sampling */{
                 auto [local_recursive_dir, sampled_brdf, bsdf_pdf] = shape_bsdf->sample_recursive_dir(local_ray_dir, info.tex_uv, sampler);
                 current_brdf = current_brdf % sampled_brdf;
