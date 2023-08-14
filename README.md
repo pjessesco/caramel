@@ -17,19 +17,14 @@ Caramel is a physically-based offline renderer for studying myself based on [Pea
 - Möller–Trumbore ray tracing
 - End-to-end render test
 
-
 ## Gallery
 
-<table>
-  <tr>
-    <td>ajax</td>
-    <td>cbox</td>
-    <td>diamonds</td>
-  </tr>
-  <tr>
-    <td><img src="scenes/ajax/scene.png" width=300 height=300></td>
-    <td><img src="scenes/cbox/scene.png" width=300 height=300></td>
-    <td><img src="scenes/diamonds/scene.png" width=300 height=300></td>
-  </tr>
- </table>
+
+![ajax](scenes/ajax/scene.png)
+
+![cbox](scenes/cbox/scene.png)
+
+![diamonds](scenes/diamonds/scene.png)
+
+
 
