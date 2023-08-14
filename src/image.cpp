@@ -143,6 +143,10 @@ namespace Caramel{
                 m_data[(w + h * m_width)*3 + 2]};
     }
 
+    Vector2ui Image::size() const{
+        return {m_width, m_height};
+    }
+
     void Image::read_from_jpg(const std::string &filename){
         int width, height, channel;
         float *data = stbi_loadf(filename.c_str(), &width, &height, &channel, 0);
@@ -254,5 +258,4 @@ namespace Caramel{
         m_height = height;
         m_data = data_dst;
     }
-
 }

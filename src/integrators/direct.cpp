@@ -34,85 +34,12 @@
 #include <rayintersectinfo.h>
 
 namespace Caramel{
-    DirectIntegrator::DirectIntegrator(Index spp, SamplingType sampling_type)
-        : MCIntegrator(spp), m_sampling_type(sampling_type) {}
+    DirectIntegrator::DirectIntegrator(Index spp)
+        : MCIntegrator(spp) {}
 
     Vector3f DirectIntegrator::get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) {
-        switch (m_sampling_type) {
-            case SamplingType::BSDF:
-                return brdf_sampling_direct(scene, i, j, sampler);
-            case SamplingType::LIGHT:
-                return emitter_sampling_direct(scene, i, j, sampler);
-            case SamplingType::MIS:
-                return mis_sampling_direct(scene, i, j, sampler);
-            default:
-                return vec3f_zero;
-        }
-    }
-
-    Vector3f DirectIntegrator::brdf_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler) {
-        const Ray ray = scene.m_cam->sample_ray(i, j);
-        const auto [is_hit, info] = scene.ray_intersect(ray);
-
-        if(!is_hit){
-            return vec3f_zero;
-        }
-
-        const auto mesh = scene.m_meshes[info.idx];
-        if(mesh->is_light()){
-            return mesh->get_arealight()->radiance(ray.m_o, info.p, info.sh_coord.m_world_n);
-        }
-
-        const Vector3f local_ray_dir = info.sh_coord.to_local(ray.m_d);
-        auto [local_outgoing, contrib, _] = mesh->get_bsdf()->sample_recursive_dir(local_ray_dir, info.tex_uv, sampler);
-
-        const Ray recursive_ray = info.recursive_ray_to(local_outgoing);
-        auto [recursive_is_hit, recursive_info] = scene.ray_intersect(recursive_ray);
-
-        if(!recursive_is_hit){
-            return vec3f_zero;
-        }
-
-        const auto recursive_mesh = scene.m_meshes[recursive_info.idx];
-
-        if(!recursive_mesh->is_light()){
-            return vec3f_zero;
-        }
-
-        const Vector3f rad = recursive_mesh->get_arealight()->radiance(recursive_ray.m_o, recursive_info.p, recursive_info.sh_coord.m_world_n);
-        return contrib % rad;
-    }
-
-    Vector3f DirectIntegrator::emitter_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler) {
-        const Ray ray = scene.m_cam->sample_ray(i, j);
-        const auto [is_hit, info] = scene.ray_intersect(ray);
-
-        if(!is_hit) {
-            return vec3f_zero;
-        }
-
-        const auto mesh = scene.m_meshes[info.idx];
-
-        if(mesh->is_light()){
-            return mesh->get_arealight()->radiance(ray.m_o, info.p, info.sh_coord.m_world_n);
-        }
-
-        // Direct light sampling
-        auto [light, light_pdf] = scene.sample_light(sampler);
-        auto [emitted_rad, light_pos, light_n_world, light_pos_pdf, light_info] = light->sample_direct_contribution(scene, info.p, sampler);
-
-        // Continue if light sampling succeed
-        if(!is_zero(emitted_rad)) {
-            const Vector3f hitpos_to_light_local_normal = info.sh_coord.to_local(light_pos - info.p).normalize();
-            const Vector3f local_ray_dir = info.sh_coord.to_local(ray.m_d);
-            const Vector3f fr = mesh->get_bsdf()->get_reflection(local_ray_dir, hitpos_to_light_local_normal, info.tex_uv);
-            const Float pdf_solidangle = light->pdf_solidangle(info.p, light_pos, light_info.sh_coord.m_world_n);
-
-            return (fr % emitted_rad) * std::abs(hitpos_to_light_local_normal[2]) / (light_pdf * pdf_solidangle);
-        }
-        else{
-            return vec3f_zero;
-        }
+        // See previous commits for brdf sampling / light sampling only
+        return mis_sampling_direct(scene, i, j, sampler);
     }
 
     Vector3f DirectIntegrator::mis_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler) {

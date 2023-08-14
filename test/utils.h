@@ -22,25 +22,26 @@
 // SOFTWARE.
 //
 
-// Standard headers
-#include <type_traits>
+#pragma once
 
-// caramel headers
+#include <vector>
+#include <string>
+#include <filesystem>
+
 #include <common.h>
-#include <ray.h>
-#include <shape.h>
 
-// Dependencies headers
-#include "catch_amalgamated.hpp"
+namespace Caramel {
+    class Image;
 
-using namespace Caramel;
-#define FLT(x) static_cast<Float>(x)
+    Image render_for_test(const std::filesystem::path &scene_path);
 
-TEST_CASE("moller_trumbore()"){
+    // img1 - img2
+    Image diff(const Image &img1, const Image &img2);
+    // img^2
+    Image square(const Image &img);
+    // Average pixel value
+    Float avg(const Image &img);
+    Float mse(const Image &img1, const Image &img2);
+    Float rmse(const Image &img1, const Image &img2);
 
 }
-
-TEST_CASE("Ray-objmesh intersection"){
-
-}
-
