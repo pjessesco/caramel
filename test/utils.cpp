@@ -112,7 +112,7 @@ namespace Caramel {
     }
 
     Float rmse(const Image &img1, const Image &img2){
-
+        return Float0;
     }
 
 }
