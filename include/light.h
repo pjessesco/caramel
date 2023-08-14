@@ -30,7 +30,7 @@
 
 namespace Caramel{
     struct Scene;
-    struct Shape;
+    class Shape;
     class Sampler;
     class RayIntersectInfo;
 

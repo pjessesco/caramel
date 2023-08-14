@@ -40,8 +40,8 @@ namespace Caramel{
 
     class BSDF;
     class Integrator;
-    struct Shape;
-    struct Camera;
+    class Shape;
+    class Camera;
     class Light;
     class AreaLight;
     class Texture;
