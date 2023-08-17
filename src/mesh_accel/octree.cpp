@@ -30,6 +30,7 @@
 #include <common.h>
 #include <parallel_for.h>
 #include <ray.h>
+#include <logger.h>
 #include <rayintersectinfo.h>
 #include <shape.h>
 
@@ -100,11 +101,13 @@ namespace Caramel{
         bool is_hit = false;
 
         for(const auto &child : m_childs){
-            const auto &[is_intersect, tmp_info] = child.ray_intersect(ray, shape);
-            if (is_intersect) {
-                is_hit = true;
-                if (info.t > tmp_info.t) {
-                    info = tmp_info;
+            if(get<1>(child.m_aabb.ray_intersect(ray)) <= info.t) {
+                const auto &[is_intersect, tmp_info] = child.ray_intersect(ray, shape);
+                if (is_intersect) {
+                    is_hit = true;
+                    if (info.t > tmp_info.t) {
+                        info = tmp_info;
+                    }
                 }
             }
         }
