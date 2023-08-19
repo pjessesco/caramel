@@ -47,6 +47,10 @@ Image render(const std::filesystem::path &scene_path){
     }
     scene.set_camera(cam);
 
+    if(scene.m_lights.empty()){
+        CRM_WARNING("There is no lights in the scene.");
+    }
+
     integrator->pre_process(scene);
     Image img = integrator->render(scene);
 
