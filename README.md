@@ -39,5 +39,8 @@ Caramel is a physically-based offline renderer for studying myself based on [Pea
 
 <img src="scenes/stormtrooper/scene.png" height=300/>
 
+#### shaderball
+
+<img src="scenes/shaderball/scene.png" height=300/>
 
 
