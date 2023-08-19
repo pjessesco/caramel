@@ -39,8 +39,12 @@ namespace Caramel{
     // Calculate `sin_t` using above equation.
     Float snell_get_sin_t(Float sin_i, Float eta_i, Float eta_t);
 
-    // Calculate fresnel reflectance for unpolarized light.
+    // Calculate fresnel reflectance for dielectric <-> dielectric.
+    // This is special case of `fresnel_conductor()` with k=0.
     Float fresnel_dielectric(Float cos_i, Float eta_i, Float eta_t);
+
+    // Calculate fresnel reflectance for dielectric <-> conductor
+    Vector3f fresnel_conductor(Float cos_i, const Vector3f &eta_i, const Vector3f &eta_t, const Vector3f &k);
 
     // Class definitions
     class BSDF{
