@@ -56,9 +56,9 @@ namespace Caramel{
         }
         else{
             const Float eta_ratio = ex_ior / in_ior;
-            const Float sin_i = sqrt(1 - (local_incoming_cos * local_incoming_cos));
+            const Float sin_i = std::sqrt(1 - (local_incoming_cos * local_incoming_cos));
             const Float sin_t = snell_get_sin_t(sin_i, ex_ior, in_ior);
-            const Float cos_t = sqrt(1 - (sin_t * sin_t));
+            const Float cos_t = std::sqrt(1 - (sin_t * sin_t));
             const Vector3f local_outgoing_dir = eta_ratio * local_incoming_dir + (eta_ratio * n.dot(-1 * local_incoming_dir) - cos_t) * n;
             return {local_outgoing_dir, vec3f_one /* TODO : Fix */, Float0};
         }
