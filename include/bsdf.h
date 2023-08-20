@@ -25,6 +25,7 @@
 #pragma once
 
 #include <tuple>
+#include <unordered_map>
 
 #include <common.h>
 
@@ -39,8 +40,24 @@ namespace Caramel{
     // Calculate `sin_t` using above equation.
     Float snell_get_sin_t(Float sin_i, Float eta_i, Float eta_t);
 
-    // Calculate fresnel reflectance for unpolarized light.
-    Float fresnel_dielectric(Float cos_i, Float eta_i, Float eta_t);
+    // Calculate fresnel reflectance for dielectric <-> dielectric.
+    // This is special case of `fresnel_conductor()` with k=0.
+    Float fresnel_dielectric(Float cos_i, Float eta_i/* ex */, Float eta_t/* in */);
+
+    // Calculate fresnel reflectance for dielectric <-> conductor
+    Vector3f fresnel_conductor(Float cos_i, const Vector3f &eta_i/* ex */, const Vector3f &eta_t/* in */, const Vector3f eta_t_k);
+
+    struct IOR{
+        static constexpr Float VACUUM       = static_cast<Float>(1.0);
+        static constexpr Float ICE          = static_cast<Float>(1.31);
+        static constexpr Float FUSED_QUARTZ = static_cast<Float>(1.46);
+        static constexpr Float GLASS        = static_cast<Float>(1.55);
+        static constexpr Float SAPPHIRE     = static_cast<Float>(1.77);
+        static constexpr Float DIAMOND      = static_cast<Float>(2.42);
+
+        static const std::unordered_map<std::string, Vector3f> eta_map;
+        static const std::unordered_map<std::string, Vector3f> k_map;
+    };
 
     // Class definitions
     class BSDF{
@@ -89,14 +106,7 @@ namespace Caramel{
 
     class Dielectric final : public BSDF{
     public:
-        static constexpr Float IOR_VACUUM       = static_cast<Float>(1.0);
-        static constexpr Float IOR_ICE          = static_cast<Float>(1.31);
-        static constexpr Float IOR_FUSED_QUARTZ = static_cast<Float>(1.46);
-        static constexpr Float IOR_GLASS        = static_cast<Float>(1.55);
-        static constexpr Float IOR_SAPPHIRE     = static_cast<Float>(1.77);
-        static constexpr Float IOR_DIAMOND      = static_cast<Float>(2.42);
-
-        Dielectric(Float in_ior = IOR_GLASS, Float ex_ior = IOR_VACUUM);
+        Dielectric(Float in_ior = IOR::GLASS, Float ex_ior = IOR::VACUUM);
         std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &) const override;
         Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
         Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const override;
@@ -105,6 +115,20 @@ namespace Caramel{
     private:
         Float m_in_index_of_refraction;
         Float m_ex_index_of_refraction;
+    };
+
+    class Conductor final : public BSDF{
+    public:
+        Conductor(const std::string &mat, Float ex_ior);
+        std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &) const override;
+        Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
+        Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const override;
+        bool is_discrete() const override;
+
+    private:
+        Vector3f m_in_ior;
+        Vector3f m_in_ior_img; // Conductor has complex number IOR
+        Float m_ex_ior;
     };
 
     class Microfacet final : public BSDF{
