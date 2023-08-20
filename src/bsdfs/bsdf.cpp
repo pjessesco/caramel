@@ -28,6 +28,13 @@
 #include <logger.h>
 
 namespace Caramel{
+    // Debug from mitsuba3 rgb mode
+    const std::unordered_map<std::string, Vector3f> IOR::eta_map{
+        {"Au", {static_cast<Float>(0.143035978), static_cast<Float>(0.375307083), static_cast<Float>(1.44204533)}},
+    };
+    const std::unordered_map<std::string, Vector3f> IOR::k_map{
+        {"Au", {static_cast<Float>(3.98299694), static_cast<Float>(2.38555646), static_cast<Float>(1.60335922)}}
+    };
 
     // Snell's Law : eta_i * sin_i = eta_t * sin_t
     // Calculate `sin_t` using above equation.
@@ -38,7 +45,7 @@ namespace Caramel{
 
     // Calculate fresnel reflectance for dielectric <-> dielectric.
     // This is special case of `fresnel_conductor()` with k=0.
-    Float fresnel_dielectric(Float _cos_i, Float eta_i, Float eta_t) {
+    Float fresnel_dielectric(Float _cos_i, Float eta_i/* ex */, Float eta_t/* in */) {
         Float cos_i = _cos_i;
         if(_cos_i < Float0){
             cos_i = Float0;
@@ -69,7 +76,7 @@ namespace Caramel{
     }
 
     // Calculate fresnel reflectance for dielectric <-> conductor
-    Vector3f fresnel_conductor(Float _cos_i, const Vector3f &eta_i, const Vector3f &eta_t, const Vector3f &eta_t_img){
+    Vector3f fresnel_conductor(Float _cos_i, const Vector3f &eta_i/* ex */, const Vector3f &eta_t/* in */, const Vector3f eta_t_k){
         Float cos_i = _cos_i;
         if(_cos_i < Float0){
             cos_i = Float0;
@@ -82,7 +89,7 @@ namespace Caramel{
 
         // eta + ik = nt / ni
         const Vector3f eta = div(eta_t, eta_i);
-        const Vector3f etak = div(eta_t_img, eta_i);
+        const Vector3f etak = div(eta_t_k, eta_i);
 
         const Float cos_i_sq = cos_i * cos_i;
         const Float _sin_i_sq = Float1 - cos_i_sq;

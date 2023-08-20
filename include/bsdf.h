@@ -41,10 +41,10 @@ namespace Caramel{
 
     // Calculate fresnel reflectance for dielectric <-> dielectric.
     // This is special case of `fresnel_conductor()` with k=0.
-    Float fresnel_dielectric(Float cos_i, Float eta_i, Float eta_t);
+    Float fresnel_dielectric(Float cos_i, Float eta_i/* ex */, Float eta_t/* in */);
 
     // Calculate fresnel reflectance for dielectric <-> conductor
-    Vector3f fresnel_conductor(Float cos_i, const Vector3f &eta_i, const Vector3f &eta_t, const Vector3f &k);
+    Vector3f fresnel_conductor(Float cos_i, const Vector3f &eta_i/* ex */, const Vector3f &eta_t/* in */, const Vector3f eta_t_k);
 
     struct IOR{
         static constexpr Float VACUUM       = static_cast<Float>(1.0);
@@ -53,6 +53,9 @@ namespace Caramel{
         static constexpr Float GLASS        = static_cast<Float>(1.55);
         static constexpr Float SAPPHIRE     = static_cast<Float>(1.77);
         static constexpr Float DIAMOND      = static_cast<Float>(2.42);
+
+        static const std::unordered_map<std::string, Vector3f> eta_map;
+        static const std::unordered_map<std::string, Vector3f> k_map;
     };
 
     // Class definitions
@@ -115,7 +118,7 @@ namespace Caramel{
 
     class Conductor final : public BSDF{
     public:
-        Conductor(const Vector3f &eta_i, const Vector3f &eta_t, const Vector3f &eta_t_img);
+        Conductor(const std::string &mat, Float ex_ior);
         std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &) const override;
         Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
         Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const override;
@@ -123,8 +126,8 @@ namespace Caramel{
 
     private:
         Vector3f m_in_ior;
-        Vector3f m_ex_ior;
-        Vector3f m_ex_ior_img; // Conductor has complex number IOR
+        Vector3f m_in_ior_img; // Conductor has complex number IOR
+        Float m_ex_ior;
     };
 
     class Microfacet final : public BSDF{

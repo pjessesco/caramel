@@ -167,6 +167,10 @@ namespace Caramel{
             return BSDF::Create<OrenNayar>(parse_vector3f(child, "albedo"),
                                            parse_positive_float(child, "sigma"));
         }
+        else if(type=="conductor"){
+            return BSDF::Create<Conductor>(parse_string(child, "material"),
+                                           parse_positive_float(child, "ex_ior"));
+        }
         else{
             CRM_ERROR(type + "bsdf is not supported : "+ to_string(child));
         }
