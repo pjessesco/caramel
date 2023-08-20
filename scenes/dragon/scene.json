@@ -1,0 +1,146 @@
+{
+    "integrator": {
+        "type": "path",
+        "depth_rr" : 5,
+        "depth_max" : 13,
+        "spp" : 100
+    },
+
+    "camera": {
+        "type" : "perspective(NOT_USED)",
+        "pos" : [58.206, 24.9284, 52.9501],
+        "dir" : [-0.7155, -0.2284, -0.6602],
+        "up" : [-0.167853, 0.973571, -0.154871],
+        "width" : 1280,
+        "height" : 720,
+        "fov" : 35
+    },
+
+    "shape" : [
+        {
+            "type" : "obj",
+            "path" : "models/light.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            },
+            "arealight" : {
+                "radiance" : [10, 10, 10]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh000.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh001.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh002.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh003.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh004.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh005.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh006.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh007.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh008.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh009.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh010.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh011.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh012.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh013.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh014.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh015.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        }
+    ]
+}
+
+
+
