@@ -46,6 +46,15 @@ namespace Caramel{
     // Calculate fresnel reflectance for dielectric <-> conductor
     Vector3f fresnel_conductor(Float cos_i, const Vector3f &eta_i, const Vector3f &eta_t, const Vector3f &k);
 
+    struct IOR{
+        static constexpr Float VACUUM       = static_cast<Float>(1.0);
+        static constexpr Float ICE          = static_cast<Float>(1.31);
+        static constexpr Float FUSED_QUARTZ = static_cast<Float>(1.46);
+        static constexpr Float GLASS        = static_cast<Float>(1.55);
+        static constexpr Float SAPPHIRE     = static_cast<Float>(1.77);
+        static constexpr Float DIAMOND      = static_cast<Float>(2.42);
+    };
+
     // Class definitions
     class BSDF{
     public:
@@ -93,14 +102,7 @@ namespace Caramel{
 
     class Dielectric final : public BSDF{
     public:
-        static constexpr Float IOR_VACUUM       = static_cast<Float>(1.0);
-        static constexpr Float IOR_ICE          = static_cast<Float>(1.31);
-        static constexpr Float IOR_FUSED_QUARTZ = static_cast<Float>(1.46);
-        static constexpr Float IOR_GLASS        = static_cast<Float>(1.55);
-        static constexpr Float IOR_SAPPHIRE     = static_cast<Float>(1.77);
-        static constexpr Float IOR_DIAMOND      = static_cast<Float>(2.42);
-
-        Dielectric(Float in_ior = IOR_GLASS, Float ex_ior = IOR_VACUUM);
+        Dielectric(Float in_ior = IOR::GLASS, Float ex_ior = IOR::VACUUM);
         std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &) const override;
         Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
         Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const override;
@@ -109,6 +111,20 @@ namespace Caramel{
     private:
         Float m_in_index_of_refraction;
         Float m_ex_index_of_refraction;
+    };
+
+    class Conductor final : public BSDF{
+    public:
+        Conductor(const Vector3f &eta_i, const Vector3f &eta_t, const Vector3f &eta_t_img);
+        std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &) const override;
+        Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
+        Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const override;
+        bool is_discrete() const override;
+
+    private:
+        Vector3f m_in_ior;
+        Vector3f m_ex_ior;
+        Vector3f m_ex_ior_img; // Conductor has complex number IOR
     };
 
     class Microfacet final : public BSDF{

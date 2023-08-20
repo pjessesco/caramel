@@ -69,7 +69,7 @@ namespace Caramel{
     }
 
     // Calculate fresnel reflectance for dielectric <-> conductor
-    Vector3f fresnel_conductor(Float _cos_i, const Vector3f &eta_i, const Vector3f &eta_t, const Vector3f &k){
+    Vector3f fresnel_conductor(Float _cos_i, const Vector3f &eta_i, const Vector3f &eta_t, const Vector3f &eta_t_img){
         Float cos_i = _cos_i;
         if(_cos_i < Float0){
             cos_i = Float0;
@@ -82,7 +82,7 @@ namespace Caramel{
 
         // eta + ik = nt / ni
         const Vector3f eta = div(eta_t, eta_i);
-        const Vector3f etak = div(k, eta_i);
+        const Vector3f etak = div(eta_t_img, eta_i);
 
         const Float cos_i_sq = cos_i * cos_i;
         const Float _sin_i_sq = Float1 - cos_i_sq;
