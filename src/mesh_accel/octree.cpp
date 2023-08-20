@@ -30,7 +30,6 @@
 #include <common.h>
 #include <parallel_for.h>
 #include <ray.h>
-#include <logger.h>
 #include <rayintersectinfo.h>
 #include <shape.h>
 
