@@ -84,7 +84,7 @@ namespace Caramel{
         void build() override;
         std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) override;
 
-        static constexpr Index MAX_DEPTH = 10;
+        static constexpr Index MAX_DEPTH = 7;
         static constexpr Index MAX_TRIANGLE_NUM = 30;
         Node m_head;
     };
