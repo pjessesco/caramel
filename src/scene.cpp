@@ -48,12 +48,14 @@ namespace Caramel{
         RayIntersectInfo info = RayIntersectInfo();
 
         for(int i=0;i<m_meshes.size();i++){
-            auto [hit, tmp_info] = m_meshes[i]->ray_intersect(ray);
-            if(hit){
-                is_hit = true;
-                if(info.t >= tmp_info.t){
-                    info = tmp_info;
-                    info.idx = i;
+            if(get<1>(m_meshes[i]->get_aabb().ray_intersect(ray)) <= info.t){
+                auto [hit, tmp_info] = m_meshes[i]->ray_intersect(ray);
+                if(hit){
+                    is_hit = true;
+                    if(info.t >= tmp_info.t){
+                        info = tmp_info;
+                        info.idx = i;
+                    }
                 }
             }
         }
