@@ -49,6 +49,10 @@ namespace Caramel{
         return eta_i * sin_i / eta_t;
     }
 
+    Vector3f reflect(const Vector3f &local_incoming_dir, const Vector3f &normal){
+        return local_incoming_dir + static_cast<Float>(2) * -local_incoming_dir.dot(normal) * normal;
+    }
+
     // Calculate fresnel reflectance for dielectric <-> dielectric.
     // This is special case of `fresnel_conductor()` with k=0.
     Float fresnel_dielectric(Float _cos_i, Float eta_i/* ex */, Float eta_t/* in */) {
