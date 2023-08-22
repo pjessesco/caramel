@@ -35,7 +35,7 @@ namespace Caramel{
         // Multiply -1 to calculate cosine, since we use incoming direction as point-toward direction
         // Values varies on `local_incoming_cos`
         Vector3f n{Float0, Float0, Float1};
-        Float local_incoming_cos = n.dot(-1 * local_incoming_dir);
+        Float local_incoming_cos = n.dot(-local_incoming_dir);
 
         Float ex_ior = m_ex_index_of_refraction;
         Float in_ior = m_in_index_of_refraction;
@@ -44,7 +44,7 @@ namespace Caramel{
         if(local_incoming_cos < Float0){
             in_ior = m_ex_index_of_refraction;
             ex_ior = m_in_index_of_refraction;
-            n = -1 * n;
+            n = -n;
             local_incoming_cos *= -1;
         }
 
@@ -55,11 +55,7 @@ namespace Caramel{
             return {local_outgoing_dir, vec3f_one, Float0};
         }
         else{
-            const Float eta_ratio = ex_ior / in_ior;
-            const Float sin_i = std::sqrt(1 - (local_incoming_cos * local_incoming_cos));
-            const Float sin_t = snell_get_sin_t(sin_i, ex_ior, in_ior);
-            const Float cos_t = std::sqrt(1 - (sin_t * sin_t));
-            const Vector3f local_outgoing_dir = eta_ratio * local_incoming_dir + (eta_ratio * n.dot(-1 * local_incoming_dir) - cos_t) * n;
+            const Vector3f local_outgoing_dir = refract(local_incoming_dir, n, in_ior, ex_ior);
             return {local_outgoing_dir, vec3f_one /* TODO : Fix */, Float0};
         }
 
