@@ -1,0 +1,436 @@
+{
+    "integrator": {
+        "type": "path",
+        "depth_rr" : 0,
+        "depth_max" : 30,
+        "spp" : 10
+    },
+
+    "camera": {
+        "type" : "perspective(NOT_USED)",
+        "pos" : [-1.35, 2.35, -2.25],
+        "dir" : [0.27, -0.475, 0.45],
+        "up" : [0, 1, 0],
+        "width" : 1200,
+        "height" : 900,
+        "fov" : 34
+    },
+
+    "shape" : [      
+        {
+            "type" : "obj",
+            "path" : "meshes/Base.obj",
+            "bsdf" : {
+                "type" : "mirror"
+            },
+            "to_world" : [
+                        {
+                            "type" : "translate",
+                            "value" : [-0.12999999999999998, 0, 0.5800000000000001]
+                        }
+                    ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/OuterShape.obj",
+            "bsdf" : {
+                "type" : "mirror"
+            },
+            "to_world" : [
+                        {
+                            "type" : "translate",
+                            "value" : [-0.12999999999999998, 0, 0.5800000000000001]
+                        }
+                    ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/InnerShape.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
+            },
+            "to_world" : [
+                    {
+                        "type" : "translate",
+                        "value" : [-0.12999999999999998, 0, 0.5800000000000001]
+                    }
+                ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/Base.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.2, 0.3, 0.5]
+            },
+            "to_world" : [
+                        {
+                            "type" : "translate",
+                            "value" : [-0.35, 0, 0.2]
+                        }
+                    ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/OuterShape.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.2, 0.3, 0.5]
+            },
+            "to_world" : [
+                        {
+                            "type" : "translate",
+                            "value" : [-0.35, 0, 0.2]
+                        }
+                    ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/InnerShape.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
+            },
+            "to_world" : [
+                    {
+                        "type" : "translate",
+                        "value" : [-0.35, 0, 0.2]
+                    }
+                ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/Base.obj",
+            "bsdf" : {
+                "type" : "orennayar",
+                "albedo" : [0.5, 0.3, 0.2],
+                "sigma" : 0.3
+            },
+            "to_world" : [
+                        {
+                            "type" : "translate",
+                            "value" : [-0.57, 0, -0.18]
+                        }
+                    ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/OuterShape.obj",
+            "bsdf" : {
+                "type" : "orennayar",
+                "albedo" : [0.5, 0.3, 0.2],
+                "sigma" : 0.3
+            },
+            "to_world" : [
+                        {
+                            "type" : "translate",
+                            "value" : [-0.57, 0, -0.18]
+                        }
+                    ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/InnerShape.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
+            },
+            "to_world" : [
+                    {
+                        "type" : "translate",
+                        "value" : [-0.57, 0, -0.18]
+                    }
+                ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/Base.obj",
+            "bsdf" : {
+                "type" : "conductor",
+                "material" : "Cu",
+                "ex_ior" : 1.0
+            },
+            "to_world" : [
+                        {
+                            "type" : "translate",
+                            "value" : [0.22, 0, 0.38]
+                        }
+                    ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/OuterShape.obj",
+            "bsdf" : {
+                "type" : "conductor",
+                "material" : "Cu",
+                "ex_ior" : 1.0
+            },
+            "to_world" : [
+                        {
+                            "type" : "translate",
+                            "value" : [0.22, 0, 0.38]
+                        }
+                    ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/InnerShape.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
+            },
+            "to_world" : [
+                    {
+                        "type" : "translate",
+                        "value" : [0.22, 0, 0.38]
+                    }
+                ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/Base.obj",
+            "bsdf" : {
+                "type" : "conductor",
+                "material" : "Ag",
+                "ex_ior" : 1.0
+            },
+            "to_world" : [
+                        {
+                            "type" : "translate",
+                            "value" : [0.0, 0, -0.0]
+                        }
+                    ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/OuterShape.obj",
+            "bsdf" : {
+                "type" : "conductor",
+                "material" : "Ag",
+                "ex_ior" : 1.0
+            },
+            "to_world" : [
+                        {
+                            "type" : "translate",
+                            "value" : [0.0, 0, -0.0]
+                        }
+                    ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/InnerShape.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
+            },
+            "to_world" : [
+                    {
+                        "type" : "translate",
+                        "value" : [0.0, 0, -0.0]
+                    }
+                ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/Base.obj",
+            "bsdf" : {
+                "type" : "conductor",
+                "material" : "Au",
+                "ex_ior" : 1.0
+            },
+            "to_world" : [
+                        {
+                            "type" : "translate",
+                            "value" : [-0.22, 0, -0.38]
+                        }
+                    ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/OuterShape.obj",
+            "bsdf" : {
+                "type" : "conductor",
+                "material" : "Au",
+                "ex_ior" : 1.0
+            },
+            "to_world" : [
+                        {
+                            "type" : "translate",
+                            "value" : [-0.22, 0, -0.38]
+                        }
+                    ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/InnerShape.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
+            },
+            "to_world" : [
+                    {
+                        "type" : "translate",
+                        "value" : [-0.22, 0, -0.38]
+                    }
+                ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/Base.obj",
+            "bsdf" : {
+                "type" : "dielectric",
+                "in_ior" : 1.31,
+                "ex_ior" : 1
+            },
+            "to_world" : [
+                        {
+                            "type" : "translate",
+                            "value" : [0.57, 0, 0.18]
+                        }
+                    ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/OuterShape.obj",
+            "bsdf" : {
+                "type" : "dielectric",
+                "in_ior" : 1.31,
+                "ex_ior" : 1
+            },
+            "to_world" : [
+                        {
+                            "type" : "translate",
+                            "value" : [0.57, 0, 0.18]
+                        }
+                    ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/InnerShape.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
+            },
+            "to_world" : [
+                    {
+                        "type" : "translate",
+                        "value" : [0.57, 0, 0.18]
+                    }
+                ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/Base.obj",
+            "bsdf" : {
+                "type" : "dielectric",
+                "in_ior" : 1.55,
+                "ex_ior" : 1
+            },
+            "to_world" : [
+                        {
+                            "type" : "translate",
+                            "value" : [0.35, 0, -0.2]
+                        }
+                    ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/OuterShape.obj",
+            "bsdf" : {
+                "type" : "dielectric",
+                "in_ior" : 1.55,
+                "ex_ior" : 1
+            },
+            "to_world" : [
+                        {
+                            "type" : "translate",
+                            "value" : [0.35, 0, -0.2]
+                        }
+                    ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/InnerShape.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
+            },
+            "to_world" : [
+                    {
+                        "type" : "translate",
+                        "value" : [0.35, 0, -0.2]
+                    }
+                ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/Base.obj",
+            "bsdf" : {
+                "type" : "dielectric",
+                "in_ior" : 2.42,
+                "ex_ior" : 1
+            },
+            "to_world" : [
+                        {
+                            "type" : "translate",
+                            "value" : [0.12999999999999998, 0, -0.5800000000000001]
+                        }
+                    ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/OuterShape.obj",
+            "bsdf" : {
+                "type" : "dielectric",
+                "in_ior" : 2.42,
+                "ex_ior" : 1
+            },
+            "to_world" : [
+                        {
+                            "type" : "translate",
+                            "value" : [0.12999999999999998, 0, -0.5800000000000001]
+                        }
+                    ]
+        },
+        {
+                    "type" : "obj",
+            "path" : "meshes/InnerShape.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
+            },
+            "to_world" : [
+                    {
+                        "type" : "translate",
+                        "value" : [0.12999999999999998, 0, -0.5800000000000001]
+                    }
+                ]
+        },
+        {
+            "type" : "obj",
+            "path" : "meshes/Plane.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "texture" : {
+                    "type" : "image",
+                    "path" : "textures/wood.jpg"
+                }
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "meshes/light.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            },
+            "arealight" : {
+                "radiance" : [4, 4, 4]
+            }
+        }
+        
+    ]
+}
+
+
+

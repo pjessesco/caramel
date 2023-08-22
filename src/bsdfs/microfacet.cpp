@@ -41,9 +41,9 @@ namespace Caramel{
             return {vec3f_zero, vec3f_zero, Float0};
         }
 
-        if(sampler.sample_1d() < m_ks){ // specular
+        if(sampler.sample_1d() < m_ks) /* reflect */{
             const Vector3f sampled_normal = sample_beckmann_distrib(sampler, m_alpha).first;
-            local_outgoing = -local_incoming_flipped + static_cast<Float>(2) * local_incoming_flipped.dot(sampled_normal) * sampled_normal;
+            local_outgoing = reflect(-local_incoming_flipped, sampled_normal);
         }
         else{ // diffuse
             local_outgoing = sample_unit_hemisphere_cosine(sampler).first;

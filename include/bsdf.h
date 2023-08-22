@@ -47,6 +47,12 @@ namespace Caramel{
     // Calculate fresnel reflectance for dielectric <-> conductor
     Vector3f fresnel_conductor(Float cos_i, const Vector3f &eta_i/* ex */, const Vector3f &eta_t/* in */, const Vector3f eta_t_k);
 
+    // perfect reflect
+    Vector3f reflect(const Vector3f &local_incoming_dir, const Vector3f &normal);
+
+    // refract using snell's law
+    Vector3f refract(const Vector3f &wi, const Vector3f &n, Float in_ior, Float ex_ior);
+
     struct IOR{
         static constexpr Float VACUUM       = static_cast<Float>(1.0);
         static constexpr Float ICE          = static_cast<Float>(1.31);
