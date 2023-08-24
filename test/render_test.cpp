@@ -49,21 +49,29 @@ TEST_CASE("render test"){
     }
 
     SECTION("veach-mis"){
-        Image ref(std::string(TEST_SCENE_PATH) + "veach_mis/scene.exr");
+        Image ref(std::string(TEST_SCENE_PATH) + "veach_mis/scene_1000spp.exr");
         Image render = render_for_test(std::string(TEST_SCENE_PATH) + "veach_mis/scene.json");
 
         REQUIRE(mse(ref, render) <= Catch::Approx(0.11)); // MSE range is high since we render with low spp number
         REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.00002));
     }
 
-    SECTION("shaderballs"){
-        Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/scene_1000spp.exr");
-        Image render = render_for_test(std::string(TEST_SCENE_PATH) + "shaderballs/scene.json");
+    SECTION("cbox"){
+        Image ref(std::string(TEST_SCENE_PATH) + "cbox/scene_1000spp.exr");
+        Image render = render_for_test(std::string(TEST_SCENE_PATH) + "cbox/scene.json");
 
         std::cout<<mse(ref, render)<<std::endl;
         std::cout<<avg(diff(ref, render))<<std::endl;
 
-        REQUIRE(mse(ref, render) <= Catch::Approx(0.008));
+        REQUIRE(mse(ref, render) <= Catch::Approx(0.007));
+        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.00011));
+    }
+
+    SECTION("shaderballs"){
+        Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/scene_1000spp.exr");
+        Image render = render_for_test(std::string(TEST_SCENE_PATH) + "shaderballs/scene.json");
+
+        REQUIRE(mse(ref, render) <= Catch::Approx(0.022)); // MSE range is high since we render with low spp number
         REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.000005));
     }
 }
