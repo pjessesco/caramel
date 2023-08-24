@@ -35,6 +35,10 @@ Caramel is a physically-based offline renderer for studying myself based on [Pea
 
 <img src="scenes/veach_mis/gt.png" height=300/>
 
+#### veach-door
+
+<img src="scenes/veach_door/gt.png" height=300/>
+
 #### stormtrooper
 
 <img src="scenes/stormtrooper/gt.png" height=300/>
