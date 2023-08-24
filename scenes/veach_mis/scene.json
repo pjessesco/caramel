@@ -3,7 +3,7 @@
         "type": "path",
         "depth_rr" : 1,
         "depth_max" : 5,
-        "spp" : 30
+        "spp" : 100
     },
 
     "camera": {

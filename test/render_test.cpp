@@ -54,7 +54,7 @@ TEST_CASE("render test"){
 
         std::cout<<avg(diff(ref, render))<<std::endl;
 
-        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.062));
+        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.042));
     }
 
     SECTION("cbox"){
@@ -65,19 +65,20 @@ TEST_CASE("render test"){
         std::cout<<avg(diff(ref, render))<<std::endl;
 
         // MSE range is high since we render with low spp number & resolution
-        REQUIRE(mse(ref, render) <= Catch::Approx(0.025));
-        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.036));
+        REQUIRE(mse(ref, render) <= Catch::Approx(0.008));
+        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.023));
     }
 
     SECTION("shaderballs"){
         Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/scene_test_gt.exr");
         Image render = render_for_test(std::string(TEST_SCENE_PATH) + "shaderballs/scene.json", 175, 100);
 
+        std::cout<<mse(ref, render)<<std::endl;
         std::cout<<avg(diff(ref, render))<<std::endl;
 
         // MSE range is high since we render with low spp number & resolution
-        REQUIRE(mse(ref, render) <= Catch::Approx(0.022));
-        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.05));
+        REQUIRE(mse(ref, render) <= Catch::Approx(0.0035));
+        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.028));
     }
 }
 
