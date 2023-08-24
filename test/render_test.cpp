@@ -22,9 +22,6 @@
 // SOFTWARE.
 //
 
-// Standard headers
-#include <type_traits>
-
 // caramel headers
 #include <common.h>
 #include <ray.h>
@@ -52,17 +49,12 @@ TEST_CASE("render test"){
         Image ref(std::string(TEST_SCENE_PATH) + "veach_mis/gt_test.exr");
         Image render = render_for_test(std::string(TEST_SCENE_PATH) + "veach_mis/scene.json", 150, 100);
 
-        std::cout<<avg(diff(ref, render))<<std::endl;
-
         REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.042));
     }
 
     SECTION("cbox"){
         Image ref(std::string(TEST_SCENE_PATH) + "cbox/gt_test.exr");
         Image render = render_for_test(std::string(TEST_SCENE_PATH) + "cbox/scene.json", 100, 75);
-
-        std::cout<<mse(ref, render)<<std::endl;
-        std::cout<<avg(diff(ref, render))<<std::endl;
 
         // MSE range is high since we render with low spp number & resolution
         REQUIRE(mse(ref, render) <= Catch::Approx(0.008));
@@ -72,9 +64,6 @@ TEST_CASE("render test"){
     SECTION("shaderballs"){
         Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/gt_test.exr");
         Image render = render_for_test(std::string(TEST_SCENE_PATH) + "shaderballs/scene.json", 175, 100);
-
-        std::cout<<mse(ref, render)<<std::endl;
-        std::cout<<avg(diff(ref, render))<<std::endl;
 
         // MSE range is high since we render with low spp number & resolution
         REQUIRE(mse(ref, render) <= Catch::Approx(0.0035));
