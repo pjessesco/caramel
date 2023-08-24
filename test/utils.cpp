@@ -22,8 +22,6 @@
 // SOFTWARE.
 //
 
-#pragma once
-
 #include <vector>
 #include <string>
 
@@ -35,16 +33,21 @@
 #include <scene.h>
 #include <image.h>
 #include <integrators.h>
+#include <camera.h>
 
 namespace Caramel {
 
-    Image render_for_test(const std::filesystem::path &scene_path){
+    Image render_for_test(const std::filesystem::path &scene_path, Index w, Index h){
         // Set current path
         std::filesystem::current_path(scene_path.parent_path());
 
         SceneParser parser(scene_path);
         Integrator *integrator = parser.parse_integrator();
         Camera *cam = parser.parse_camera();
+        if(w!=0 && h!=0){
+            CRM_LOG("Set resolution manually");
+            cam->set_size(w, h);
+        }
         std::vector<Shape*> shapes = parser.parse_shapes();
 
         Scene scene;
@@ -59,6 +62,7 @@ namespace Caramel {
         return img;
     }
 
+    // abs
     Image diff(const Image &img1, const Image &img2){
         if((img1.size()[0] != img2.size()[0]) || (img1.size()[1] != img2.size()[1])){
             CRM_ERROR("size diff");
@@ -73,7 +77,7 @@ namespace Caramel {
                 const Vector3f val1 = img1.get_pixel_value(i, j);
                 const Vector3f val2 = img2.get_pixel_value(i, j);
                 const Vector3f diff = val1 - val2;
-                img.set_pixel_value(i, j, diff[0], diff[1], diff[2]);
+                img.set_pixel_value(i, j, abs(diff[0]), abs(diff[1]), abs(diff[2]));
             }
         }
         return img;

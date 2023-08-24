@@ -46,13 +46,19 @@ namespace Caramel{
             return {m_w, m_h};
         }
 
+        // Used for test
+        inline void set_size(Index width, Index height){
+            m_w = width;
+            m_h = height;
+        }
+
     private:
         const Vector3f m_pos;
         const Vector3f m_dir;
         const Vector3f m_up;
         Vector3f m_left;
-        const Index m_w, m_h;
         const Float m_fov_x;
+        Index m_w, m_h;
         Float m_cam_space_dir_z;
         Float m_ratio;
         Matrix44f m_cam_to_world;
