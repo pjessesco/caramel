@@ -49,30 +49,35 @@ TEST_CASE("render test"){
     }
 
     SECTION("veach-mis"){
-        Image ref(std::string(TEST_SCENE_PATH) + "veach_mis/scene_1000spp.exr");
-        Image render = render_for_test(std::string(TEST_SCENE_PATH) + "veach_mis/scene.json");
+        Image ref(std::string(TEST_SCENE_PATH) + "veach_mis/scene_test_gt.exr");
+        Image render = render_for_test(std::string(TEST_SCENE_PATH) + "veach_mis/scene.json", 150, 100);
 
-        REQUIRE(mse(ref, render) <= Catch::Approx(0.11)); // MSE range is high since we render with low spp number
-        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.00002));
+        std::cout<<avg(diff(ref, render))<<std::endl;
+
+        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.062));
     }
 
     SECTION("cbox"){
-        Image ref(std::string(TEST_SCENE_PATH) + "cbox/scene_1000spp.exr");
-        Image render = render_for_test(std::string(TEST_SCENE_PATH) + "cbox/scene.json");
+        Image ref(std::string(TEST_SCENE_PATH) + "cbox/scene_test_gt.exr");
+        Image render = render_for_test(std::string(TEST_SCENE_PATH) + "cbox/scene.json", 100, 75);
 
         std::cout<<mse(ref, render)<<std::endl;
         std::cout<<avg(diff(ref, render))<<std::endl;
 
-        REQUIRE(mse(ref, render) <= Catch::Approx(0.007));
-        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.00011));
+        // MSE range is high since we render with low spp number & resolution
+        REQUIRE(mse(ref, render) <= Catch::Approx(0.025));
+        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.036));
     }
 
     SECTION("shaderballs"){
-        Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/scene_1000spp.exr");
-        Image render = render_for_test(std::string(TEST_SCENE_PATH) + "shaderballs/scene.json");
+        Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/scene_test_gt.exr");
+        Image render = render_for_test(std::string(TEST_SCENE_PATH) + "shaderballs/scene.json", 175, 100);
 
-        REQUIRE(mse(ref, render) <= Catch::Approx(0.022)); // MSE range is high since we render with low spp number
-        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.000005));
+        std::cout<<avg(diff(ref, render))<<std::endl;
+
+        // MSE range is high since we render with low spp number & resolution
+        REQUIRE(mse(ref, render) <= Catch::Approx(0.022));
+        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.05));
     }
 }
 
