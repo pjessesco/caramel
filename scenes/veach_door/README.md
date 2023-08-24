@@ -1,0 +1,1 @@
+Manually converted by [pjessesco](https://github.com/pjessesco) from [Benedikt Bitterli's rendering resource](https://benedikt-bitterli.me/resources/).

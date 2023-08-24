@@ -1,0 +1,238 @@
+{
+    "integrator": {
+        "type": "path",
+        "depth_rr" : 5,
+        "depth_max" : 13,
+        "spp" : 1000
+    },
+
+    "camera": {
+        "type" : "perspective(NOT_USED)",
+        "pos" : [4.05402, 1.61647, -2.30652],
+        "dir" : [-0.99, -0.0323, -0.13721],
+        "up" : [0, 1, 0],
+        "width" : 1280,
+        "height" : 720,
+        "fov" : 60
+    },
+
+    "shape" : [
+        {
+            "type" : "obj",
+            "path" : "models/light.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            },
+            "arealight" : {
+                "radiance" : [400, 400, 400]
+            },
+            "to_world" : [
+                0.730445, 0, 0, -4.4391,                 
+			    0, -1.32136, -1.42138e-007, 1.50656,     
+				0, 1.42138e-007, -1.93037, -4.44377,      
+				0, 0, 0, 1
+            ]
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh000.obj",
+            "bsdf" : {
+                "type" : "conductor",
+                "material" : "Au",
+                "ex_ior" : 1
+            },
+            "to_world" : [
+                -0.0757886, 0, -0.0468591, -1.95645, 
+                0, 0.0891049, 0, 0.648205, 
+                0.0468591, 0, -0.0757886, -1.77687, 
+                0, 0, 0, 1
+            ]
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh000.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.6, 0.3, 0.3]
+            },
+            "to_world" :  [-0.0891049, 0, 7.7898e-009, -1.95645, 0, 0.0891049, 0, 0.648205, -7.7898e-009, 0, -0.0891049, -2.67687, 0, 0, 0, 1]
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh000.obj",
+            "bsdf" : {
+                "type" : "dielectric",
+                "in_ior" : 1.5,
+                "ex_ior" : 1
+            },
+            "to_world" : [-0.0837611, 0, 0.0303939, -1.95645, 0, 0.0891049, 0, 0.651268, -0.0303939, 0, -0.0837611, -3.57687, 0, 0, 0, 1]
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh001.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.8, 0.8, 0.8]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh002.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.8, 0.8, 0.8]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh003.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.8, 0.8, 0.8]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh004.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "texture" : {
+                    "type" : "image",
+                    "path" : "textures/Good Textures_005844.jpg"
+                }
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh005.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.247059, 0.168627, 0.0901961]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh006.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "texture" : {
+                    "type" : "image",
+                    "path" : "textures/cherry-wood-texture.jpg"
+                }
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh007.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.8, 0.8, 0.8]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh008.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "texture" : {
+                    "type" : "image",
+                    "path" : "textures/landscape-with-a-lake.jpg"
+                }
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh009.obj",
+            "bsdf" : {
+                "type" : "conductor",
+                "material" : "Au",
+                "ex_ior" : 1
+            },
+            "to_world" : [
+                -0.0757886, 0, -0.0468591, -1.95645, 
+                0, 0.0891049, 0, 0.648205, 
+                0.0468591, 0, -0.0757886, -1.77687, 
+                0, 0, 0, 1]
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh009.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.6, 0.3, 0.3]
+            },
+            "to_world" : [-0.0891049, 0, 7.7898e-009, -1.95645, 0, 0.0891049, 0, 0.648205, -7.7898e-009, 0, -0.0891049, -2.67687, 0, 0, 0, 1]
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh009.obj",
+            "bsdf" : {
+                "type" : "dielectric",
+                "in_ior" : 1.5,
+                "ex_ior" : 1
+            },
+            "to_world" : [
+                -0.0837611, 0, 0.0303939, -1.95645, 0, 0.0891049, 0, 0.651268, -0.0303939, 0, -0.0837611, -3.57687, 0, 0, 0, 1]
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh010.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh011.obj",
+            "bsdf" : {
+                "type" : "microfacet",
+                "alpha" : 0.08,
+                "in_ior" : 1.5,
+                "ex_ior" : 1,
+                "kd" : [0.1, 0.1, 0.1]
+            },
+            "to_world" : [1.8, 0, 0, 2.3, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh012.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh013.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.258824, 0.207843, 0.145098]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh014.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.8, 0.8, 0.8]
+            },
+            "to_world" : [1.8, 0, 0, 2.3, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh015.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "models/Mesh016.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        }
+    ]
+}
+
+
+
