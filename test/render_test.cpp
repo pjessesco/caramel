@@ -38,7 +38,7 @@ using namespace Caramel;
 TEST_CASE("render test"){
     SECTION("ajax"){
         std::filesystem::current_path();
-        Image ref(std::string(TEST_SCENE_PATH) + "ajax/gt_test.exr");
+        Image ref(std::string(TEST_SCENE_PATH) + "ajax/gt.exr");
         Image render = render_for_test(std::string(TEST_SCENE_PATH) + "ajax/scene.json");
 
         REQUIRE(mse(ref, render) <= Catch::Approx(0.00003));
