@@ -21,28 +21,28 @@ Caramel is a physically-based offline renderer for studying myself based on [Pea
 
 #### ajax
 
-<img src="scenes/ajax/scene.png" height=300/>
+<img src="scenes/ajax/gt.png" height=300/>
 
 #### Cornell box
 
-<img src="scenes/cbox/scene.png" height=300/>
+<img src="scenes/cbox/gt.png" height=300/>
 
 #### Diamonds
 
-<img src="scenes/diamonds/scene.png" height=300/>
+<img src="scenes/diamonds/gt.png" height=300/>
 
 #### veach-mis
 
-<img src="scenes/veach_mis/scene.png" height=300/>
+<img src="scenes/veach_mis/gt.png" height=300/>
 
 #### stormtrooper
 
-<img src="scenes/stormtrooper/scene.png" height=300/>
+<img src="scenes/stormtrooper/gt.png" height=300/>
 
 #### shaderballs
 
-<img src="scenes/shaderballs/scene.png" height=300/>
+<img src="scenes/shaderballs/gt.png" height=300/>
 
 #### dragon
 
-<img src="scenes/dragon/scene.png" height=300/>
+<img src="scenes/dragon/gt.png" height=300/>

@@ -33,7 +33,7 @@
 namespace Caramel {
     class Image;
 
-    Image render_for_test(const std::filesystem::path &scene_path);
+    Image render_for_test(const std::filesystem::path &scene_path, Index w=0, Index h=0);
 
     // img1 - img2
     Image diff(const Image &img1, const Image &img2);
