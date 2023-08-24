@@ -41,7 +41,7 @@ using namespace Caramel;
 TEST_CASE("render test"){
     SECTION("ajax"){
         std::filesystem::current_path();
-        Image ref(std::string(TEST_SCENE_PATH) + "ajax/scene.exr");
+        Image ref(std::string(TEST_SCENE_PATH) + "ajax/gt_test.exr");
         Image render = render_for_test(std::string(TEST_SCENE_PATH) + "ajax/scene.json");
 
         REQUIRE(mse(ref, render) <= Catch::Approx(0.00003));
@@ -49,7 +49,7 @@ TEST_CASE("render test"){
     }
 
     SECTION("veach-mis"){
-        Image ref(std::string(TEST_SCENE_PATH) + "veach_mis/scene_test_gt.exr");
+        Image ref(std::string(TEST_SCENE_PATH) + "veach_mis/gt_test.exr");
         Image render = render_for_test(std::string(TEST_SCENE_PATH) + "veach_mis/scene.json", 150, 100);
 
         std::cout<<avg(diff(ref, render))<<std::endl;
@@ -58,7 +58,7 @@ TEST_CASE("render test"){
     }
 
     SECTION("cbox"){
-        Image ref(std::string(TEST_SCENE_PATH) + "cbox/scene_test_gt.exr");
+        Image ref(std::string(TEST_SCENE_PATH) + "cbox/gt_test.exr");
         Image render = render_for_test(std::string(TEST_SCENE_PATH) + "cbox/scene.json", 100, 75);
 
         std::cout<<mse(ref, render)<<std::endl;
@@ -70,7 +70,7 @@ TEST_CASE("render test"){
     }
 
     SECTION("shaderballs"){
-        Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/scene_test_gt.exr");
+        Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/gt_test.exr");
         Image render = render_for_test(std::string(TEST_SCENE_PATH) + "shaderballs/scene.json", 175, 100);
 
         std::cout<<mse(ref, render)<<std::endl;
