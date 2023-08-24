@@ -57,11 +57,14 @@ TEST_CASE("render test"){
     }
 
     SECTION("shaderballs"){
-        Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/scene.exr");
+        Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/scene_1000spp.exr");
         Image render = render_for_test(std::string(TEST_SCENE_PATH) + "shaderballs/scene.json");
 
-        REQUIRE(mse(ref, render) <= Catch::Approx(0.015));
-        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.00005));
+        std::cout<<mse(ref, render)<<std::endl;
+        std::cout<<avg(diff(ref, render))<<std::endl;
+
+        REQUIRE(mse(ref, render) <= Catch::Approx(0.008));
+        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.000005));
     }
 }
 
