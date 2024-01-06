@@ -1,0 +1,60 @@
+<scene version="0.5.0">
+	<integrator type="path">
+		<integer name="max_depth" value="30"/>
+	</integrator>
+
+	<sensor type="perspective">
+        <float name="fov" value="37"/>
+        <float name="near_clip" value="0.0001"/>
+		<float name="far_clip" value="2800"/>
+		<transform name="to_world">
+			<lookat target="0.103267, -0.025916, 0.258244" origin="-0.217523, 0.387315, -0.594008" up="0.145571, 0.910626, 0.386741"/>
+		</transform>
+		
+		<sampler type="independent">
+			<integer name="sample_count" value="10"/>
+		</sampler>
+
+		<film type="hdrfilm">
+			<integer name="height" value="600"/>
+			<integer name="width" value="600"/>
+
+			<rfilter type="box"/>
+		</film>
+	</sensor>
+
+	<shape type="obj">
+		<string name="filename" value="meshes/light.obj"/>
+
+		<bsdf type="diffuse">
+			<rgb name="reflectance" value="0, 0, 0"/>
+		</bsdf>
+
+		<emitter type="area">
+			<rgb name="radiance" value="9.5, 9.5, 9.5"/>
+		</emitter>
+	</shape>
+
+	<shape type="obj">
+		<string name="filename" value="meshes/Base.obj"/>
+	</shape>
+
+	<shape type="obj">
+		<string name="filename" value="meshes/InnerShape.obj"/>
+	</shape>
+
+	<shape type="obj">
+		<string name="filename" value="meshes/OuterShape.obj"/>
+	</shape>
+
+	<shape type="obj">
+		<string name="filename" value="meshes/Plane.obj"/>
+
+		<bsdf type="diffuse">
+			<texture name="reflectance" type="bitmap">
+				<string name="filename" value="textures/wood.jpg"/>
+				<string name="filter_type" value="bilinear"/>
+			</texture>
+		</bsdf>
+	</shape>
+</scene>

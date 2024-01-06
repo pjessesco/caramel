@@ -8,9 +8,9 @@
 
     "camera": {
         "type" : "perspective(NOT_USED)",
-        "pos" : [-0.3, 0.5, -0.5],
-        "dir" : [0.3, -0.425, 0.5],
-        "up" : [0, 1, 0],
+        "pos" : [-0.217523, 0.387315, -0.594008],
+        "dir" : [0.32079, -0.413231, 0.852252],
+        "up" : [0.145571, 0.910626, 0.386741],
         "width" : 600,
         "height" : 600,
         "fov" : 37
@@ -24,13 +24,7 @@
                 "type" : "diffuse"
             }
         },
-        {
-            "type" : "obj",
-            "path" : "meshes/Equation.obj",
-            "bsdf" : {
-                "type" : "diffuse"
-            }
-        },
+        
         {
             "type" : "obj",
             "path" : "meshes/InnerShape.obj",
