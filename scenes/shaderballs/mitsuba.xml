@@ -1,0 +1,96 @@
+<scene version="3.0.0">
+    <integrator type="path">
+        <integer name="max_depth" value="30"/>
+    </integrator>
+
+    <sensor type="perspective">
+        <float name="near_clip" value="0.0001"/>
+        <float name="far_clip" value="2800"/>
+        <float name="fov" value="45"/>
+        <transform name="to_world">
+            <lookat origin="-1.5, 2.35, -2.1"
+                    target="-1.23, 1.865, -1.65"
+                    up    ="  0,   1,    0"/>
+        </transform>
+        <sampler type="independent">  <!-- ldsampler -->
+            <integer name="sample_count" value="10"/>
+        </sampler>
+        <film type="hdrfilm">
+            <integer name="width" value="1400"/>
+            <integer name="height" value="800"/>
+            <rfilter type="box"/>
+        </film>
+    </sensor>
+    
+     <shape type="obj">
+        <string name="filename" value="meshes/light.obj"/>
+        <bsdf type="diffuse">
+            <rgb name="reflectance" value="0, 0, 0"/>
+        </bsdf>
+        <transform name="to_world">
+            <translate x="-0.48" y="0" z="0.78"/>
+        </transform>
+        <emitter type="area">
+			<rgb name="radiance" value="10, 10, 10"/>
+		</emitter>
+    </shape>
+    
+    <shape type="obj">
+        <string name="filename" value="meshes/Base.obj"/>
+        <bsdf type="diffuse">
+            <texture name="reflectance" type="bitmap">
+                <string name="filename" value="textures/texture.png"/>
+            </texture>
+        </bsdf>
+        <transform name="to_world">
+            <translate x="-0.48" y="0" z="0.78"/>
+        </transform>
+    </shape>
+    
+    <shape type="obj">
+        <string name="filename" value="meshes/InnerShape.obj"/>
+        <bsdf type="diffuse">
+            <texture name="reflectance" type="bitmap">
+                <string name="filename" value="textures/texture.png"/>
+            </texture>
+        </bsdf>
+        <transform name="to_world">
+            <translate x="-0.48" y="0" z="0.78"/>
+        </transform>
+    </shape>
+
+    <shape type="obj">
+        <string name="filename" value="meshes/OuterShape.obj"/>
+        <bsdf type="diffuse">
+            <texture name="reflectance" type="bitmap">
+                <string name="filename" value="textures/texture.png"/>
+            </texture>
+        </bsdf>
+        <transform name="to_world">
+            <translate x="-0.48" y="0" z="0.78"/>
+        </transform>
+    </shape>
+
+
+
+    <!-- <transform name="to_world">
+        <translate x="0" y="-0.5" z="0"/>
+    </transform>
+
+    <bsdf type="dielectric" id="GlassBSDF">
+		<float name="int_ior" value="1.5" />
+		<float name="ext_ior" value="1" />
+	</bsdf>
+
+    <bsdf type="diffuse">
+        <rgb name="reflectance" value="0, 0, 0" />
+    </bsdf>
+    
+    <bsdf type="diffuse">
+        <texture name="reflectance" type="bitmap">
+            <string name="filename" value="textures/Label.png" />
+            <string name="filter_type" value="bilinear" />
+        </texture>
+    </bsdf> -->
+
+</scene>
