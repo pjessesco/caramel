@@ -3,7 +3,7 @@
         "type": "path",
         "depth_rr" : 5,
         "depth_max" : 13,
-        "spp" : 1000
+        "spp" : 100
     },
 
     "camera": {
@@ -178,18 +178,16 @@
             "type" : "obj",
             "path" : "models/Mesh010.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
             "type" : "obj",
             "path" : "models/Mesh011.obj",
             "bsdf" : {
-                "type" : "microfacet",
-                "alpha" : 0.08,
-                "in_ior" : 1.5,
-                "ex_ior" : 1,
-                "kd" : [0.1, 0.1, 0.1]
+                "type" : "diffuse",
+                "albedo" : [0.3, 0.3, 0.3]
             },
             "to_world" : [1.8, 0, 0, 2.3, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
         },
@@ -197,7 +195,8 @@
             "type" : "obj",
             "path" : "models/Mesh012.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
@@ -221,14 +220,16 @@
             "type" : "obj",
             "path" : "models/Mesh015.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
             "type" : "obj",
             "path" : "models/Mesh016.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         }
     ]
