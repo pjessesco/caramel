@@ -50,7 +50,7 @@ namespace Caramel{
         bool from_specular = true;
         Float prev_brdf_pdf = Float1;
 
-        for(Index depth=0;depth<=m_max_depth;depth++){
+        for(Index depth=1;depth<=m_max_depth;depth++){
             auto [is_hit, info] = scene.ray_intersect(ray);
 
             if(!is_hit){
