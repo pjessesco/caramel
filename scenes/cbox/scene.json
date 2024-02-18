@@ -3,7 +3,7 @@
         "type": "path",
         "depth_rr" : 0,
         "depth_max" : 6,
-        "spp" : 100
+        "spp" : 10
     },
 
     "camera": {
@@ -69,40 +69,31 @@
             "type" : "obj",
             "path" : "meshes/walls3.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.725, 0.71, 0.68]
             }
         },
         {
             "type" : "obj",
             "path" : "meshes/rightwall.obj",
             "bsdf" : {
-                "type" : "microfacet",
-                "alpha" : 0.005,
-                "in_ior" : 1.5,
-                "ex_ior" : 1,
-                "kd" : [0.161, 0.133, 0.427]
+                "type" : "diffuse",
+                "albedo" : [0.161, 0.133, 0.427]
             }
         },
         {
             "type" : "obj",
             "path" : "meshes/leftwall.obj",
             "bsdf" : {
-                "type" : "microfacet",
-                "alpha" : 0.1,
-                "in_ior" : 1.5,
-                "ex_ior" : 1,
-                "kd" : [0.630, 0.065, 0.05]
+                "type" : "diffuse",
+                "albedo" : [0.630, 0.065, 0.05]
             }
         },
         {
             "type" : "obj",
             "path" : "meshes/sphere1.obj",
             "bsdf" : {
-                "type" : "microfacet",
-                "alpha" : 0.005,
-                "in_ior" : 1.5,
-                "ex_ior" : 1,
-                "kd" : [0.2, 0.2, 0.4]
+                "type" : "mirror"
             }
         },
         {

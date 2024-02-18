@@ -2,7 +2,7 @@
     "integrator": {
         "type": "path",
         "depth_rr" : 0,
-        "depth_max" : 5,
+        "depth_max" : 6,
         "spp" : 50
     },
 

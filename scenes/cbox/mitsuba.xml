@@ -1,0 +1,104 @@
+<scene version="3.0.0">
+    <integrator type="path">
+        <integer name="max_depth" value="6"/>
+    </integrator>
+
+    <sensor type="perspective">
+        <float name="near_clip" value="0.0001"/>
+        <float name="far_clip" value="2800"/>
+        <float name="fov" value="27.7856"/>
+        <transform name="to_world">
+            <lookat origin="0, 0.919769, 5.41159"
+                    target="0, 0.893051, 4.41198"
+                    up    ="  0,   1,    0"/>
+        </transform>
+        <sampler type="independent">  <!-- ldsampler -->
+            <integer name="sample_count" value="10"/>
+        </sampler>
+        <film type="hdrfilm">
+            <integer name="width" value="800"/>
+            <integer name="height" value="600"/>
+            <rfilter type="box"/>
+        </film>
+    </sensor>
+    
+     <shape type="obj">
+        <string name="filename" value="meshes/light.obj"/>
+        <bsdf type="diffuse">
+            <rgb name="reflectance" value="0, 0, 0"/>
+        </bsdf>
+        <transform name="to_world">
+            <translate x="0.5" y="-0.2" z="0"/>
+        </transform>
+        <emitter type="area">
+			<rgb name="radiance" value="40, 40, 40"/>
+		</emitter>
+    </shape>
+
+    <shape type="obj">
+        <string name="filename" value="meshes/light2.obj"/>
+        <bsdf type="diffuse">
+            <rgb name="reflectance" value="0, 0, 0"/>
+        </bsdf>
+        <transform name="to_world">
+            <translate x="-0.3" y="-0.2" z="0"/>
+        </transform>
+        <emitter type="area">
+			<rgb name="radiance" value="20, 20, 20"/>
+		</emitter>
+    </shape>
+    
+    <shape type="obj">
+        <string name="filename" value="meshes/walls1.obj"/>
+        <bsdf type="diffuse">
+            <rgb name="reflectance" value="0.725, 0.71, 0.68"/>
+        </bsdf>
+    </shape>
+
+    <shape type="obj">
+        <string name="filename" value="meshes/walls2.obj"/>
+        <bsdf type="diffuse">
+            <rgb name="reflectance" value="0.725, 0.71, 0.68"/>
+        </bsdf>
+    </shape>
+
+    <shape type="obj">
+        <string name="filename" value="meshes/walls3.obj"/>
+        <bsdf type="diffuse">
+            <rgb name="reflectance" value="0.725, 0.71, 0.68"/>
+        </bsdf>
+    </shape>
+   
+    <shape type="obj">
+        <string name="filename" value="meshes/rightwall.obj"/>
+        <bsdf type="diffuse">
+            <rgb name="reflectance" value="0.161, 0.133, 0.427"/>
+        </bsdf>
+    </shape>
+
+    <shape type="obj">
+        <string name="filename" value="meshes/leftwall.obj"/>
+        <bsdf type="diffuse">
+            <rgb name="reflectance" value="0.630, 0.065, 0.05"/>
+        </bsdf>
+    </shape>
+
+    <shape type="obj">
+        <string name="filename" value="meshes/sphere1.obj"/>
+        <bsdf type="conductor">
+            <string name="material" value="none"/>
+        </bsdf>
+    </shape>
+
+    <shape type="obj">
+        <string name="filename" value="meshes/sphere2.obj"/>
+        <bsdf type="dielectric">
+            <float name="int_ior" value="1.5"/>
+            <float name="ext_ior" value="1"/>
+        </bsdf>
+        <transform name="to_world">
+            <translate x="0" y="0" z="-0.6"/>
+        </transform>
+    </shape>
+
+</scene>
