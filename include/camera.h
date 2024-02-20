@@ -55,12 +55,15 @@ namespace Caramel{
     private:
         const Vector3f m_pos;
         const Vector3f m_dir;
-        const Vector3f m_up;
+        Vector3f m_up;
         Vector3f m_left;
         const Float m_fov_x;
         Index m_w, m_h;
         Float m_cam_space_dir_z;
         Float m_ratio;
+        Float m_near;
+        Float m_far;
+        Matrix44f m_sample_to_camera;
         Matrix44f m_cam_to_world;
     };
 }
