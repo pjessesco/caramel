@@ -36,15 +36,26 @@
 	</shape>
 
 	<shape type="obj">
-		<string name="filename" value="meshes/Base.obj"/>
+		<bsdf type="dielectric">
+			<float name="int_ior" value="1.5"/>
+			<float name="ext_ior" value="1.0"/>
+		</bsdf>
 	</shape>
 
 	<shape type="obj">
 		<string name="filename" value="meshes/InnerShape.obj"/>
+		<bsdf type="dielectric">
+			<float name="int_ior" value="1.5"/>
+			<float name="ext_ior" value="1.0"/>
+		</bsdf>
 	</shape>
 
 	<shape type="obj">
 		<string name="filename" value="meshes/OuterShape.obj"/>
+		<bsdf type="dielectric">
+			<float name="int_ior" value="1.5"/>
+			<float name="ext_ior" value="1.0"/>
+		</bsdf>
 	</shape>
 
 	<shape type="obj">

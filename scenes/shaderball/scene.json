@@ -21,7 +21,9 @@
             "type" : "obj",
             "path" : "meshes/Base.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "in_ior" : 1.5,
+                "ex_ior" : 1
             }
         },
         
@@ -29,14 +31,18 @@
             "type" : "obj",
             "path" : "meshes/InnerShape.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "in_ior" : 1.5,
+                "ex_ior" : 1
             }
         },
         {
             "type" : "obj",
             "path" : "meshes/OuterShape.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "in_ior" : 1.5,
+                "ex_ior" : 1
             }
         },
         {
