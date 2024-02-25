@@ -2,7 +2,7 @@
     "integrator": {
         "type": "path",
         "depth_rr" : 0,
-        "depth_max" : 6,
+        "depth_max" : 4,
         "spp" : 10
     },
 
@@ -93,16 +93,18 @@
             "type" : "obj",
             "path" : "meshes/sphere1.obj",
             "bsdf" : {
-                "type" : "mirror"
+                "type" : "dielectric",
+                "in_ior" : 1.5,
+                "ex_ior" : 1
             }
         },
         {
             "type" : "obj",
             "path" : "meshes/sphere2.obj",
             "bsdf" : {
-                "type" : "dielectric",
-                "in_ior" : 1.5,
-                "ex_ior" : 1
+                "type" : "conductor",
+                "material" : "Au",
+                "ex_ior" : 1.0
             },
             "to_world" : [
                 {

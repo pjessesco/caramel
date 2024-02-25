@@ -1,6 +1,6 @@
 <scene version="3.0.0">
     <integrator type="path">
-        <integer name="max_depth" value="6"/>
+        <integer name="max_depth" value="4"/>
     </integrator>
 
     <sensor type="perspective">
@@ -13,7 +13,7 @@
                     up    ="  0,   1,    0"/>
         </transform>
         <sampler type="independent">  <!-- ldsampler -->
-            <integer name="sample_count" value="10"/>
+            <integer name="sample_count" value="300"/>
         </sampler>
         <film type="hdrfilm">
             <integer name="width" value="800"/>
@@ -85,16 +85,16 @@
 
     <shape type="obj">
         <string name="filename" value="meshes/sphere1.obj"/>
-        <bsdf type="conductor">
-            <string name="material" value="none"/>
+        <bsdf type="dielectric">
+            <float name="int_ior" value="1.5"/>
+            <float name="ext_ior" value="1"/>
         </bsdf>
     </shape>
 
     <shape type="obj">
         <string name="filename" value="meshes/sphere2.obj"/>
-        <bsdf type="dielectric">
-            <float name="int_ior" value="1.5"/>
-            <float name="ext_ior" value="1"/>
+        <bsdf type="conductor">
+            <string name="material" value="Au"/>
         </bsdf>
         <transform name="to_world">
             <translate x="0" y="0" z="-0.6"/>
