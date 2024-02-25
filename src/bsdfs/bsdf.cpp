@@ -134,7 +134,7 @@ namespace Caramel{
         const Vector3f r_parallel = r_perpendicular % div((cos_i_sq * a2b2) + sin_i_4 - (Float2 * cos_i * a % sin_i_sq),
                                                           (cos_i_sq * a2b2) + sin_i_4 + (Float2 * cos_i * a % sin_i_sq));
 
-        return ((r_parallel % r_parallel) + (r_perpendicular % r_perpendicular)) * Float0_5;
+        return (r_parallel + r_perpendicular) * Float0_5;
     }
 
 

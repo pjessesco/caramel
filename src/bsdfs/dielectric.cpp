@@ -56,7 +56,9 @@ namespace Caramel{
         }
         else{
             const Vector3f local_outgoing_dir = refract(local_incoming_dir, n, in_ior, ex_ior);
-            return {local_outgoing_dir, vec3f_one /* TODO : Fix */, Float0};
+            // https://www.pbr-book.org/4ed/Reflection_Models/Dielectric_BSDF#Non-SymmetricScatteringandRefraction
+            const Float tmp = (ex_ior/in_ior);
+            return {local_outgoing_dir, {tmp, tmp, tmp}, Float0};
         }
 
     }
