@@ -31,14 +31,20 @@ public:
     explicit ProgressBar(int total) : m_current(0), m_total_inv(1.0f / static_cast<float>(total)) {}
 
     void increase(){
-        m_lock.lock();
+        static int done_len = 0;
+        std::lock_guard<std::mutex> lock_guard(m_lock);
         m_current++;
         const float done_ratio = m_current * m_total_inv;
-        std::string done_str(static_cast<int>(m_len * done_ratio), '=');
-        std::string remain_str(static_cast<int>(m_len * (1 - done_ratio)), '-');
-        std::cout<<"["<<done_str << remain_str << "] " << done_ratio * 100 << " %\r";
+        const int new_done_len = done_ratio * m_len;
+        if(new_done_len == done_len){
+            return;
+        }
+        done_len = new_done_len;
+
+        std::string done_str(static_cast<int>(done_len), '=');
+        std::string remain_str(static_cast<int>(m_len - done_len), '-');
+        std::cout<<"["<<done_str << remain_str << "] " << static_cast<int>(done_ratio * 100) << " %\r";
         std::cout.flush();
-        m_lock.unlock();
     }
 
 private:
