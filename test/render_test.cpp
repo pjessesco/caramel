@@ -40,35 +40,30 @@ TEST_CASE("ajax render test") {
     Image ref(std::string(TEST_SCENE_PATH) + "ajax/gt.exr");
     Image render = render_for_test(std::string(TEST_SCENE_PATH) + "ajax/scene.json");
 
-    REQUIRE(mse(ref, render) <= Catch::Approx(0.00003));
-    REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.00002));
+    CHECK(mse(ref, render) <= Catch::Approx(0.00003));
+    CHECK(avg(diff(ref, render)) <= Catch::Approx(0.00002));
 }
 
 TEST_CASE("veach-mis render test"){
     Image ref(std::string(TEST_SCENE_PATH) + "veach_mis/gt.exr");
     Image render = render_for_test(std::string(TEST_SCENE_PATH) + "veach_mis/scene.json", 768,512);
-    std::cout<<"veach-mis absolute err : " <<avg(diff(ref, render))<<"\n";
-    REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.041));
+    CHECK(avg(diff(ref, render)) <= Catch::Approx(0.041));
 }
 
 TEST_CASE("cbox render test"){
     Image ref(std::string(TEST_SCENE_PATH) + "cbox/gt.exr");
     Image render = render_for_test(std::string(TEST_SCENE_PATH) + "cbox/scene.json", 800, 600);
 
-    std::cout<<"cbox absolute err : " <<avg(diff(ref, render))<<" mse : "<<mse(ref, render)<<"\n";
-    // MSE range is high since we render with low spp number & resolution
-    REQUIRE(mse(ref, render) <= Catch::Approx(0.006));
-    REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.022));
+    CHECK(mse(ref, render) <= Catch::Approx(0.006));
+    CHECK(avg(diff(ref, render)) <= Catch::Approx(0.022));
 }
 
 TEST_CASE("shaderballs render test"){
     Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/gt.exr");
     Image render = render_for_test(std::string(TEST_SCENE_PATH) + "shaderballs/scene.json", 1400, 800);
-
-    std::cout<<"shaderballs absolute err : " <<avg(diff(ref, render))<<" mse : "<<mse(ref, render)<<"\n";
-    // MSE range is high since we render with low spp number & resolution
-    REQUIRE(mse(ref, render) <= Catch::Approx(0.015));
-    REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.05));
+    
+    CHECK(mse(ref, render) <= Catch::Approx(0.015));
+    CHECK(avg(diff(ref, render)) <= Catch::Approx(0.045));
 }
 
 
