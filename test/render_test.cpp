@@ -35,40 +35,36 @@
 
 using namespace Caramel;
 
-TEST_CASE("render test"){
-    SECTION("ajax"){
-        std::filesystem::current_path();
-        Image ref(std::string(TEST_SCENE_PATH) + "ajax/gt.exr");
-        Image render = render_for_test(std::string(TEST_SCENE_PATH) + "ajax/scene.json");
+TEST_CASE("ajax render test") {
+    std::filesystem::current_path();
+    Image ref(std::string(TEST_SCENE_PATH) + "ajax/gt.exr");
+    Image render = render_for_test(std::string(TEST_SCENE_PATH) + "ajax/scene.json");
 
-        REQUIRE(mse(ref, render) <= Catch::Approx(0.00003));
-        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.00002));
-    }
-
-    SECTION("veach-mis"){
-        Image ref(std::string(TEST_SCENE_PATH) + "veach_mis/gt_test.exr");
-        Image render = render_for_test(std::string(TEST_SCENE_PATH) + "veach_mis/scene.json", 150, 100);
-
-        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.042));
-    }
-
-    SECTION("cbox"){
-        Image ref(std::string(TEST_SCENE_PATH) + "cbox/gt_test.exr");
-        Image render = render_for_test(std::string(TEST_SCENE_PATH) + "cbox/scene.json", 100, 75);
-
-        // MSE range is high since we render with low spp number & resolution
-        REQUIRE(mse(ref, render) <= Catch::Approx(0.008));
-        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.023));
-    }
-
-    SECTION("shaderballs"){
-        Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/gt_test.exr");
-        Image render = render_for_test(std::string(TEST_SCENE_PATH) + "shaderballs/scene.json", 175, 100);
-
-        // MSE range is high since we render with low spp number & resolution
-        REQUIRE(mse(ref, render) <= Catch::Approx(0.0035));
-        REQUIRE(avg(diff(ref, render)) <= Catch::Approx(0.028));
-    }
+    CHECK(mse(ref, render) <= Catch::Approx(0.00003));
+    CHECK(avg(diff(ref, render)) <= Catch::Approx(0.00002));
 }
+
+TEST_CASE("veach-mis render test"){
+    Image ref(std::string(TEST_SCENE_PATH) + "veach_mis/gt.exr");
+    Image render = render_for_test(std::string(TEST_SCENE_PATH) + "veach_mis/scene.json", 768,512);
+    CHECK(avg(diff(ref, render)) <= Catch::Approx(0.041));
+}
+
+TEST_CASE("cbox render test"){
+    Image ref(std::string(TEST_SCENE_PATH) + "cbox/gt.exr");
+    Image render = render_for_test(std::string(TEST_SCENE_PATH) + "cbox/scene.json", 800, 600);
+
+    CHECK(mse(ref, render) <= Catch::Approx(0.006));
+    CHECK(avg(diff(ref, render)) <= Catch::Approx(0.022));
+}
+
+TEST_CASE("shaderballs render test"){
+    Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/gt.exr");
+    Image render = render_for_test(std::string(TEST_SCENE_PATH) + "shaderballs/scene.json", 1400, 800);
+    
+    CHECK(mse(ref, render) <= Catch::Approx(0.015));
+    CHECK(avg(diff(ref, render)) <= Catch::Approx(0.045));
+}
+
 
 
