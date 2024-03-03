@@ -45,6 +45,8 @@ namespace Caramel{
 
         virtual Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const = 0;
 
+        virtual bool is_delta() const = 0;
+
         // Arealight is handled in AreaLight::Create
         template <typename Type, typename ...Param>
         static Light* Create(Param ...args){
@@ -63,6 +65,8 @@ namespace Caramel{
                                                                                                      Sampler &sampler) const override;
 
         Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const override;
+
+        bool is_delta() const override;
 
         template <typename ...Param>
         static AreaLight* Create(Param ...args){

@@ -69,4 +69,8 @@ namespace Caramel{
         return m_shape->pdf_solidangle(hitpos_world, lightpos_world, light_normal_world);
     }
 
+    bool AreaLight::is_delta() const {
+        return false;
+    }
+
 }
