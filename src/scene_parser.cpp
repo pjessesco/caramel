@@ -101,6 +101,18 @@ namespace Caramel{
         return shapes;
     }
 
+    std::vector<Light*> SceneParser::parse_lights() const{
+        std::vector<Light*> lights;
+
+        const Json child = get_unique_first_elem(m_scene_json, "light");
+        if(child.is_array()){
+            for(const auto &ch : child){
+                lights.push_back(parse_light(ch));
+            }
+        }
+        return lights;
+    }
+
     Light* SceneParser::parse_light() const {
         return nullptr;
     }
@@ -131,6 +143,17 @@ namespace Caramel{
                                                parse_vector3f(shape_json, "p1"),
                                                parse_vector3f(shape_json, "p2"));
             }
+        }
+
+        CRM_ERROR("Unsupported shape type : " + type);
+        return nullptr;
+    }
+
+    Light* SceneParser::parse_light(const SceneParser::Json &light_json) const {
+        const std::string type = parse_string(light_json, "type");
+        if(type=="point"){
+            return Light::Create<PointLight>(parse_vector3f(light_json, "pos"),
+                                             parse_vector3f(light_json, "radiance"));
         }
 
         CRM_ERROR("Unsupported shape type : " + type);
