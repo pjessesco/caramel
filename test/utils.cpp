@@ -52,7 +52,7 @@ namespace Caramel {
 
         Scene scene;
         for(auto s : shapes){
-            scene.add_mesh(s);
+            scene.add_mesh_and_arealight(s);
         }
         scene.set_camera(cam);
 
