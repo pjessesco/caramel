@@ -89,7 +89,7 @@ namespace Caramel{
 
     class Diffuse final : public BSDF{
     public:
-        explicit Diffuse(const Vector3f &albedo = Vector3f{Float0_5, Float0_5, Float0_5});
+        explicit Diffuse(const Vector3f &albedo = Vector3f{Float0, Float0, Float0});
         explicit Diffuse(Texture *texture);
         virtual ~Diffuse();
         std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &, const Vector2f &uv, Sampler &sampler) const override;

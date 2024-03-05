@@ -40,10 +40,14 @@ Image render(const std::filesystem::path &scene_path){
     Integrator *integrator = parser.parse_integrator();
     Camera *cam = parser.parse_camera();
     std::vector<Shape*> shapes = parser.parse_shapes();
+    std::vector<Light*> lights = parser.parse_lights();
 
     Scene scene;
     for(auto s : shapes){
-        scene.add_mesh(s);
+        scene.add_mesh_and_arealight(s);
+    }
+    for(auto l : lights){
+        scene.add_light(l);
     }
     scene.set_camera(cam);
 

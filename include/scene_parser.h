@@ -58,10 +58,14 @@ namespace Caramel{
 
         std::vector<Shape*> parse_shapes() const;
 
+        std::vector<Light*> parse_lights() const;
+
         Light* parse_light() const;
 
     private:
         Shape* parse_shape(const Json &shape_json) const;
+
+        Light* parse_light(const Json &light_json) const;
 
         // Other lights are handled in `parse_light()`
         AreaLight* parse_arealight(const Json &shape_json) const;
