@@ -39,7 +39,7 @@ namespace Caramel{
 
     AreaLight::~AreaLight() = default;
 
-    Vector3f AreaLight::radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f light_normal_world) const{
+    Vector3f AreaLight::radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const{
         if(light_normal_world.dot(hitpos - lightpos) <= 0){
             return vec3f_zero;
         }
@@ -67,6 +67,10 @@ namespace Caramel{
 
     Float AreaLight::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const{
         return m_shape->pdf_solidangle(hitpos_world, lightpos_world, light_normal_world);
+    }
+
+    bool AreaLight::is_delta() const {
+        return false;
     }
 
 }

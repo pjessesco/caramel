@@ -37,13 +37,15 @@ namespace Caramel{
     class Light{
     public:
         Light() {}
-        virtual Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f light_normal_world) const = 0;
+        virtual Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const = 0;
         // returns emitted radiance, sampled point, sampled normal, pdf
         virtual std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> sample_direct_contribution(const Scene &scene,
                                                                                                              const Vector3f &pos,
                                                                                                              Sampler &sampler) const = 0;
 
         virtual Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const = 0;
+
+        virtual bool is_delta() const = 0;
 
         // Arealight is handled in AreaLight::Create
         template <typename Type, typename ...Param>
@@ -52,17 +54,37 @@ namespace Caramel{
         }
     };
 
+    class PointLight final : public Light{
+    public:
+        PointLight(const Vector3f &pos, const Vector3f &radiance);
+        ~PointLight();
+
+        Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &) const override;
+        std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> sample_direct_contribution(const Scene &scene,
+                                                                                                     const Vector3f &hitpos,
+                                                                                                     Sampler &) const override;
+
+        Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const override;
+
+        bool is_delta() const override;
+
+        Vector3f m_pos;
+        Vector3f m_radiance;
+    };
+
     class AreaLight final : public Light{
     public:
         AreaLight(const Vector3f &radiance);
         ~AreaLight();
         
-        Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f light_normal_world) const override;
+        Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const override;
         std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> sample_direct_contribution(const Scene &scene,
                                                                                                      const Vector3f &hitpos,
                                                                                                      Sampler &sampler) const override;
 
         Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const override;
+
+        bool is_delta() const override;
 
         template <typename ...Param>
         static AreaLight* Create(Param ...args){
