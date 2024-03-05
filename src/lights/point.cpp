@@ -34,43 +34,35 @@
 #include <rayintersectinfo.h>
 
 namespace Caramel{
-    AreaLight::AreaLight(const Vector3f &radiance)
-        : m_radiance{radiance} {}
+    PointLight::PointLight(const Vector3f &pos, const Vector3f &radiance)
+        : m_pos{pos}, m_radiance{radiance} {}
 
-    AreaLight::~AreaLight() = default;
+    PointLight::~PointLight() = default;
 
-    Vector3f AreaLight::radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const{
-        if(light_normal_world.dot(hitpos - lightpos) <= 0){
-            return vec3f_zero;
-        }
-        return m_radiance;
+    Vector3f PointLight::radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &) const{
+        return vec3f_zero;
     }
 
-    std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> AreaLight::sample_direct_contribution(const Scene &scene, const Vector3f &hitpos, Sampler &sampler) const{
-        // Sample point on the shape
-        const auto [light_pos, light_normal_world, pos_pdf] = m_shape->sample_point(sampler);
-        const Vector3f light_to_hitpos = hitpos - light_pos;
-
-        // If hitpoint is behind of a sampled point, zero contribution
-        if(light_normal_world.dot(light_to_hitpos) <= 0){
-            return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf, RayIntersectInfo()};
-        }
-
+    std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> PointLight::sample_direct_contribution(const Scene &scene, const Vector3f &hitpos, Sampler &) const{
         // If hitpoint and sampled point is not visible to each other, zero contribution
-        auto [is_visible, info] = scene.is_visible(hitpos, light_pos);
+        auto [is_visible, info] = scene.is_visible(m_pos, hitpos);
+
         if(!is_visible){
-            return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf, RayIntersectInfo()};
+            return {vec3f_zero, vec3f_zero, vec3f_zero, Float1, RayIntersectInfo()};
         }
 
-        return {m_radiance, light_pos, light_normal_world, pos_pdf, info};
+        const Vector3f light_to_hitpos = hitpos - m_pos;
+        const Float dist = light_to_hitpos.length();
+
+        return {m_radiance / (dist * dist), m_pos, light_to_hitpos.normalize(), Float1, info};
     }
 
-    Float AreaLight::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const{
-        return m_shape->pdf_solidangle(hitpos_world, lightpos_world, light_normal_world);
+    Float PointLight::pdf_solidangle(const Vector3f &, const Vector3f &, const Vector3f &) const{
+        return Float0;
     }
 
-    bool AreaLight::is_delta() const {
-        return false;
+    bool PointLight::is_delta() const {
+        return true;
     }
 
 }

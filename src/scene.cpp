@@ -63,11 +63,15 @@ namespace Caramel{
         return {is_hit, info};
     }
 
-    void Scene::add_mesh(const Shape *shape){
+    void Scene::add_mesh_and_arealight(const Shape *shape){
         m_meshes.emplace_back(shape);
         if(shape->is_light()){
             m_lights.push_back(shape->get_arealight());
         }
+    }
+
+    void Scene::add_light(const Light *light){
+        m_lights.push_back(light);
     }
 
     // Similar with `RayIntersectInfo::recursive_ray_to()`
