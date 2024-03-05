@@ -2,7 +2,7 @@
     "integrator": {
         "type": "path",
         "depth_rr" : 0,
-        "depth_max" : 4,
+        "depth_max" : 10,
         "spp" : 50
     },
 
@@ -16,6 +16,14 @@
         "fov" : 27.7856
     },
 
+    "light" : [
+        {
+            "type" : "point",
+            "pos" : [0, 1.2, -0.3],
+            "radiance" : [1, 1, 0]
+        }
+    ],
+
     "shape" : [
         {
             "type" : "obj",
@@ -24,7 +32,7 @@
                 "type" : "diffuse"
             },
             "arealight" : {
-                "radiance" : [40, 40, 40]
+                "radiance" : [10, 0, 10]
             },
             "to_world" : [
                 {
@@ -40,7 +48,7 @@
                 "type" : "diffuse"
             },
             "arealight" : {
-                "radiance" : [20, 20, 20]
+                "radiance" : [0, 10, 10]
             },
             "to_world" : [
                 {

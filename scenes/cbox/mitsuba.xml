@@ -1,6 +1,6 @@
 <scene version="3.0.0">
     <integrator type="path">
-        <integer name="max_depth" value="4"/>
+        <integer name="max_depth" value="10"/>
     </integrator>
 
     <sensor type="perspective">
@@ -22,6 +22,11 @@
         </film>
     </sensor>
     
+    <emitter type="point">
+        <rgb name="intensity" value="1, 1, 0"/>
+        <point name="position" x="0" y="1.2" z="-0.3"/>
+    </emitter>
+
      <shape type="obj">
         <string name="filename" value="meshes/light.obj"/>
         <bsdf type="diffuse">
@@ -31,7 +36,7 @@
             <translate x="0.5" y="-0.2" z="0"/>
         </transform>
         <emitter type="area">
-			<rgb name="radiance" value="40, 40, 40"/>
+			<rgb name="radiance" value="10, 0, 10"/>
 		</emitter>
     </shape>
 
@@ -44,7 +49,7 @@
             <translate x="-0.3" y="-0.2" z="0"/>
         </transform>
         <emitter type="area">
-			<rgb name="radiance" value="20, 20, 20"/>
+			<rgb name="radiance" value="0, 10, 10"/>
 		</emitter>
     </shape>
     
