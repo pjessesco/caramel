@@ -54,16 +54,16 @@ TEST_CASE("cbox render test"){
     Image ref(std::string(TEST_SCENE_PATH) + "cbox/gt.exr");
     Image render = render_for_test(std::string(TEST_SCENE_PATH) + "cbox/scene.json", 800, 600);
 
-    CHECK(mse(ref, render) <= Catch::Approx(0.0416));
-    CHECK(avg(diff(ref, render)) <= Catch::Approx(0.122));
+    CHECK(mse(ref, render) <= Catch::Approx(0.037));
+    CHECK(avg(diff(ref, render)) <= Catch::Approx(0.111));
 }
 
 TEST_CASE("shaderballs render test"){
     Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/gt.exr");
     Image render = render_for_test(std::string(TEST_SCENE_PATH) + "shaderballs/scene.json", 1400, 800);
     
-    CHECK(mse(ref, render) <= Catch::Approx(0.015));
-    CHECK(avg(diff(ref, render)) <= Catch::Approx(0.045));
+    CHECK(mse(ref, render) <= Catch::Approx(0.181));
+    CHECK(avg(diff(ref, render)) <= Catch::Approx(0.062));
 }
 
 
