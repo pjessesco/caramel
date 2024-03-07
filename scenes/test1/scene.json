@@ -1,0 +1,36 @@
+{
+    "integrator": {
+        "type": "normal"
+    },
+
+    "camera": {
+        "type" : "perspective(NOT_USED)",
+        "pos" : [0, 0, 0],
+        "dir" : [0, 0, 1],
+        "up" : [0, 1, 0],
+        "width" : 800,
+        "height" : 600,
+        "fov" : 60
+    },
+
+    "light" : [
+        {
+            "type" : "point",
+            "pos" : [0, 1.2, -0.3],
+            "radiance" : [1, 1, 0]
+        }
+    ],
+
+    "shape" : [
+        {
+            "type" : "obj",
+            "path" : "sphere.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            }
+        }
+    ]
+}
+
+
+
