@@ -101,7 +101,7 @@ namespace Caramel{
             }
 
             /* Russian roulette */{
-                if(depth >= m_rr_depth){
+                if(!from_specular && depth >= m_rr_depth){
                     if(current_brdf.max() > sampler.sample_1d()){
                         current_brdf = current_brdf / current_brdf.max();
                     }

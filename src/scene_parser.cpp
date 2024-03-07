@@ -104,17 +104,13 @@ namespace Caramel{
     std::vector<Light*> SceneParser::parse_lights() const{
         std::vector<Light*> lights;
 
-        const Json child = get_unique_first_elem(m_scene_json, "light");
+        const Json child = get_unique_first_elem(m_scene_json, "light", true/*optional*/);
         if(child.is_array()){
             for(const auto &ch : child){
                 lights.push_back(parse_light(ch));
             }
         }
         return lights;
-    }
-
-    Light* SceneParser::parse_light() const {
-        return nullptr;
     }
 
     Shape* SceneParser::parse_shape(const SceneParser::Json &shape_json) const {
@@ -209,9 +205,14 @@ namespace Caramel{
         CRM_ERROR("Can not parse texture : " + to_string(child));
     }
 
-    SceneParser::Json SceneParser::get_unique_first_elem(const SceneParser::Json &parent, const std::string &key) const {
+    SceneParser::Json SceneParser::get_unique_first_elem(const SceneParser::Json &parent, const std::string &key, bool optional) const {
         if(!parent.contains(key)){
-            CRM_ERROR("Can not found " + key + " in json : "+ to_string(parent));
+            if(optional){
+                return {};
+            }
+            else{
+                CRM_ERROR("Can not found " + key + " in json : "+ to_string(parent));
+            }
         }
         if(parent.count(key) > 1){
             CRM_WARNING("Duplicated key " + key + "is found in json : " + to_string(parent));
