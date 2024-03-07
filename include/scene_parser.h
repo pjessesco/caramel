@@ -74,7 +74,7 @@ namespace Caramel{
 
         Texture* parse_texture(const Json &texture_json) const;
 
-        Json get_unique_first_elem(const Json &parent, const std::string &key) const;
+        Json get_unique_first_elem(const Json &parent, const std::string &key, bool optional=false) const;
 
         Vector3f parse_vector3f(const Json &parent, const std::string &key) const;
 
