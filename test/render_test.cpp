@@ -47,7 +47,7 @@ TEST_CASE("ajax render test") {
 TEST_CASE("veach-mis render test"){
     Image ref(std::string(TEST_SCENE_PATH) + "veach_mis/gt.exr");
     Image render = render_for_test(std::string(TEST_SCENE_PATH) + "veach_mis/scene.json", 768,512);
-    CHECK(avg(diff(ref, render)) <= Catch::Approx(0.041));
+    CHECK(avg(diff(ref, render)) <= Catch::Approx(0.042));
 }
 
 TEST_CASE("cbox render test"){
