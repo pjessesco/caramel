@@ -40,6 +40,7 @@ set(SOURCES
         src/scene_parser.cpp
         src/rayintersectinfo.cpp
         src/textures/image_texture.cpp
+        src/render.cpp
         )
 
 set(HEADERS
@@ -61,7 +62,8 @@ set(HEADERS
         include/transform.h
         include/warp_sample.h
         include/scene_parser.h
-        include/textures.h)
+        include/textures.h
+        include/render.h)
 
 if(NOT EXCLUDE_TEST)
     include_directories(test)
@@ -72,7 +74,8 @@ if(NOT EXCLUDE_TEST)
 
             test/catch_amalgamated.hpp
             test/catch_amalgamated.cpp
-            test/render_test.cpp
+            test/complex_render_test.cpp
+            test/simple_render_test.cpp
             test/utils.cpp
     )
 
