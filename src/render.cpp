@@ -22,22 +22,39 @@
 // SOFTWARE.
 //
 
-#include <render.h>
+#include <scene_parser.h>
+#include <shape.h>
+#include <scene.h>
 #include <image.h>
+#include <integrators.h>
 #include <logger.h>
+#include <camera.h>
+#include <image.h>
 
-using namespace Caramel;
+namespace Caramel{
 
-int main(int argc, char* argv[]) {
+    Image render(const std::filesystem::path &scene_path){
+        // Set current path
+        std::filesystem::current_path(scene_path.parent_path());
 
-    if(argc <= 1){
-        CRM_ERROR("Usage : ./caramel [path to scene file]")
+        SceneParser parser(scene_path);
+        Integrator *integrator = parser.parse_integrator();
+        Camera *cam = parser.parse_camera();
+        std::vector<Shape*> shapes = parser.parse_shapes();
+        std::vector<Light*> lights = parser.parse_lights();
+
+        Scene scene;
+        for(auto s : shapes){
+            scene.add_mesh_and_arealight(s);
+        }
+        for(auto l : lights){
+            scene.add_light(l);
+        }
+        scene.set_camera(cam);
+
+        integrator->pre_process(scene);
+        Image img = integrator->render(scene);
+
+        return img;
     }
-
-    const std::filesystem::path scene_path((std::string(argv[1])));
-
-    Image img = render(scene_path);
-    img.write_exr(scene_path.stem().string() + ".exr");
-
-    return 0;
 }

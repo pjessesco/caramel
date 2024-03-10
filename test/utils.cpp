@@ -36,32 +36,7 @@
 #include <camera.h>
 
 namespace Caramel {
-
-    Image render_for_test(const std::filesystem::path &scene_path, Index w, Index h){
-        // Set current path
-        std::filesystem::current_path(scene_path.parent_path());
-
-        SceneParser parser(scene_path);
-        Integrator *integrator = parser.parse_integrator();
-        Camera *cam = parser.parse_camera();
-        if(w!=0 && h!=0){
-            CRM_LOG("Set resolution manually");
-            cam->set_size(w, h);
-        }
-        std::vector<Shape*> shapes = parser.parse_shapes();
-
-        Scene scene;
-        for(auto s : shapes){
-            scene.add_mesh_and_arealight(s);
-        }
-        scene.set_camera(cam);
-
-        integrator->pre_process(scene);
-        Image img = integrator->render(scene);
-
-        return img;
-    }
-
+    
     // abs
     Image diff(const Image &img1, const Image &img2){
         if((img1.size()[0] != img2.size()[0]) || (img1.size()[1] != img2.size()[1])){

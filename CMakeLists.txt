@@ -40,6 +40,7 @@ set(SOURCES
         src/scene_parser.cpp
         src/rayintersectinfo.cpp
         src/textures/image_texture.cpp
+        src/render.cpp
         )
 
 set(HEADERS
@@ -61,7 +62,8 @@ set(HEADERS
         include/transform.h
         include/warp_sample.h
         include/scene_parser.h
-        include/textures.h)
+        include/textures.h
+        include/render.h)
 
 if(NOT EXCLUDE_TEST)
     include_directories(test)

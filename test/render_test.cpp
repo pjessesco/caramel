@@ -27,6 +27,7 @@
 #include <ray.h>
 #include <shape.h>
 #include <image.h>
+#include <render.h>
 
 #include <utils.h>
 
@@ -38,32 +39,32 @@ using namespace Caramel;
 TEST_CASE("ajax render test") {
     std::filesystem::current_path();
     Image ref(std::string(TEST_SCENE_PATH) + "ajax/gt.exr");
-    Image render = render_for_test(std::string(TEST_SCENE_PATH) + "ajax/scene.json");
+    Image rendered = render(std::string(TEST_SCENE_PATH) + "ajax/scene.json");
 
-    CHECK(mse(ref, render) <= Catch::Approx(0.00003));
-    CHECK(avg(diff(ref, render)) <= Catch::Approx(0.00002));
+    CHECK(mse(ref, rendered) <= Catch::Approx(0.00003));
+    CHECK(avg(diff(ref, rendered)) <= Catch::Approx(0.00002));
 }
 
 TEST_CASE("veach-mis render test"){
     Image ref(std::string(TEST_SCENE_PATH) + "veach_mis/gt.exr");
-    Image render = render_for_test(std::string(TEST_SCENE_PATH) + "veach_mis/scene.json", 768,512);
-    CHECK(avg(diff(ref, render)) <= Catch::Approx(0.042));
+    Image rendered = render(std::string(TEST_SCENE_PATH) + "veach_mis/scene.json");
+    CHECK(avg(diff(ref, rendered)) <= Catch::Approx(0.042));
 }
 
 TEST_CASE("cbox render test"){
     Image ref(std::string(TEST_SCENE_PATH) + "cbox/gt.exr");
-    Image render = render_for_test(std::string(TEST_SCENE_PATH) + "cbox/scene.json", 800, 600);
+    Image rendered = render(std::string(TEST_SCENE_PATH) + "cbox/scene.json");
 
-    CHECK(mse(ref, render) <= Catch::Approx(0.037));
-    CHECK(avg(diff(ref, render)) <= Catch::Approx(0.111));
+    CHECK(mse(ref, rendered) <= Catch::Approx(0.037));
+    CHECK(avg(diff(ref, rendered)) <= Catch::Approx(0.111));
 }
 
 TEST_CASE("shaderballs render test"){
     Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/gt.exr");
-    Image render = render_for_test(std::string(TEST_SCENE_PATH) + "shaderballs/scene.json", 1400, 800);
+    Image rendered = render(std::string(TEST_SCENE_PATH) + "shaderballs/scene.json");
     
-    CHECK(mse(ref, render) <= Catch::Approx(0.181));
-    CHECK(avg(diff(ref, render)) <= Catch::Approx(0.062));
+    CHECK(mse(ref, rendered) <= Catch::Approx(0.181));
+    CHECK(avg(diff(ref, rendered)) <= Catch::Approx(0.062));
 }
 
 
