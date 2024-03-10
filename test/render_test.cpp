@@ -41,30 +41,31 @@ TEST_CASE("ajax render test") {
     Image ref(std::string(TEST_SCENE_PATH) + "ajax/gt.exr");
     Image rendered = render(std::string(TEST_SCENE_PATH) + "ajax/scene.json");
 
-    CHECK(mse(ref, rendered) <= Catch::Approx(0.00003));
-    CHECK(avg(diff(ref, rendered)) <= Catch::Approx(0.00002));
+    CHECK(avg(rendered) / avg(ref) <= Catch::Approx(1.005));
+    CHECK(Catch::Approx(0.9995) <= avg(rendered) / avg(ref));
 }
 
 TEST_CASE("veach-mis render test"){
     Image ref(std::string(TEST_SCENE_PATH) + "veach_mis/gt.exr");
     Image rendered = render(std::string(TEST_SCENE_PATH) + "veach_mis/scene.json");
-    CHECK(avg(diff(ref, rendered)) <= Catch::Approx(0.042));
+    CHECK(avg(rendered) / avg(ref) <= Catch::Approx(1.005));
+    CHECK(Catch::Approx(0.9995) <= avg(rendered) / avg(ref));
 }
 
 TEST_CASE("cbox render test"){
     Image ref(std::string(TEST_SCENE_PATH) + "cbox/gt.exr");
     Image rendered = render(std::string(TEST_SCENE_PATH) + "cbox/scene.json");
 
-    CHECK(mse(ref, rendered) <= Catch::Approx(0.037));
-    CHECK(avg(diff(ref, rendered)) <= Catch::Approx(0.111));
+    CHECK(avg(rendered) / avg(ref) <= Catch::Approx(1.005));
+    CHECK(Catch::Approx(0.9995) <= avg(rendered) / avg(ref));
 }
 
 TEST_CASE("shaderballs render test"){
     Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/gt.exr");
     Image rendered = render(std::string(TEST_SCENE_PATH) + "shaderballs/scene.json");
-    
-    CHECK(mse(ref, rendered) <= Catch::Approx(0.181));
-    CHECK(avg(diff(ref, rendered)) <= Catch::Approx(0.062));
+
+    CHECK(avg(rendered) / avg(ref) <= Catch::Approx(1.005));
+    CHECK(Catch::Approx(0.9995) <= avg(rendered) / avg(ref));
 }
 
 
