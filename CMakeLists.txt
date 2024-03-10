@@ -74,7 +74,8 @@ if(NOT EXCLUDE_TEST)
 
             test/catch_amalgamated.hpp
             test/catch_amalgamated.cpp
-            test/render_test.cpp
+            test/complex_render_test.cpp
+            test/simple_render_test.cpp
             test/utils.cpp
     )
 
