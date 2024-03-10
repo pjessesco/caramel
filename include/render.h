@@ -22,22 +22,11 @@
 // SOFTWARE.
 //
 
-#include <render.h>
-#include <image.h>
-#include <logger.h>
+#pragma once
 
-using namespace Caramel;
+#include <filesystem>
 
-int main(int argc, char* argv[]) {
-
-    if(argc <= 1){
-        CRM_ERROR("Usage : ./caramel [path to scene file]")
-    }
-
-    const std::filesystem::path scene_path((std::string(argv[1])));
-
-    Image img = render(scene_path);
-    img.write_exr(scene_path.stem().string() + ".exr");
-
-    return 0;
+namespace Caramel{
+    class Image;
+    Image render(const std::filesystem::path &scene_path);
 }
