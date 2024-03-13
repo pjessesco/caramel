@@ -11,18 +11,11 @@
         "pos" : [0, 6, -2],
         "dir" : [0, -1, 0.32],
         "up" : [0, 0, 1],
-        "width" : 800,
+        "width" : 600,
         "height" : 600,
-        "fov" : 32
+        "fov" : 20
     },
 
-    "light" : [
-        {
-            "type" : "point",
-            "pos" : [0, 1.2, -0.3],
-            "radiance" : [1, 1, 0]
-        }
-    ],
 
     "shape" : [
         {
@@ -41,7 +34,40 @@
                 "albedo" : [0, 0, 0]
             },
             "arealight" : {
-                "radiance" : [10, 10, 10]
+                "radiance" : [8, 8, 8]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "rightwall2.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0, 0, 0]
+            },
+            "arealight" : {
+                "radiance" : [8, 8, 8]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "rightwall3.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0, 0, 0]
+            },
+            "arealight" : {
+                "radiance" : [8, 8, 8]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "rightwall4.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0, 0, 0]
+            },
+            "arealight" : {
+                "radiance" : [8, 8, 8]
             }
         },
         {
@@ -52,7 +78,7 @@
                 "albedo" : [0, 0, 0]
             },
             "arealight" : {
-                "radiance" : [10, 10, 10]
+                "radiance" : [8, 8, 8]
             }
         }
     ]

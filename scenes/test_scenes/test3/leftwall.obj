@@ -2,10 +2,10 @@
 # www.blender.org
 mtllib leftwall.mtl
 o leftWall
-v -1.50000 0.3 -0.3
-v -1.50000 0.3 0.3
-v -1.50000 0 0.3
-v -1.50000 0 -0.3
+v -1 0.3 -0.3
+v -1 0.3 0.3
+v -1 0 0.3
+v -1 0 -0.3
 vt 0.000000 1.000000
 usemtl leftWall
 s 1
