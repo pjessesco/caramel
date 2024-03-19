@@ -63,6 +63,15 @@ TEST_CASE("test3 render test") {
     CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
 }
 
+TEST_CASE("test4 render test") {
+    std::filesystem::current_path();
+    Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test4/gt.exr");
+    Image rendered = render(std::string(TEST_SCENE_PATH) + "test_scenes/test4/scene.json");
+
+    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
+    CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
+}
+
 
 
 
