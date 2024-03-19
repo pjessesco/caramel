@@ -72,7 +72,38 @@ TEST_CASE("test4 render test") {
     CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
 }
 
+TEST_CASE("test5 render test") {
+    std::filesystem::current_path();
 
+    SECTION("Conductor"){
+        Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_conductor.exr");
+        Image rendered = render(std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_conductor.json");
+
+        CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
+        CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
+    }
+    SECTION("Dielectric"){
+        Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_dielectric.exr");
+        Image rendered = render(std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_dielectric.json");
+
+        CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.001));
+        CHECK(Catch::Approx(0.999) <= avg(rendered)/avg(ref));
+    }
+    SECTION("Diffuse"){
+        Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_diffuse.exr");
+        Image rendered = render(std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_diffuse.json");
+
+        CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
+        CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
+    }
+    SECTION("Mirror"){
+        Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_mirror.exr");
+        Image rendered = render(std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_mirror.json");
+
+        CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
+        CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
+    }
+}
 
 
 
