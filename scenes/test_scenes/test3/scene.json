@@ -28,7 +28,7 @@
         },
         {
             "type" : "obj",
-            "path" : "rightwall.obj",
+            "path" : "rightwall1.obj",
             "bsdf" : {
                 "type" : "diffuse",
                 "albedo" : [0, 0, 0]
