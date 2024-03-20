@@ -1,0 +1,88 @@
+{
+    "integrator": {
+        "type": "path",
+        "depth_max" : 5,
+        "depth_rr" : 0,
+        "spp" : 100
+    },
+
+    "camera": {
+        "type" : "perspective(NOT_USED)",
+        "pos" : [0, 6, -2],
+        "dir" : [0, -1, 0.32],
+        "up" : [0, 0, 1],
+        "width" : 600,
+        "height" : 600,
+        "fov" : 20
+    },
+
+
+    "shape" : [
+        {
+            "type" : "obj",
+            "path" : "floor.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "rightwall1.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0, 0, 0]
+            },
+            "arealight" : {
+                "radiance" : [8, 8, 8]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "rightwall2.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0, 0, 0]
+            },
+            "arealight" : {
+                "radiance" : [8, 8, 8]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "rightwall3.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0, 0, 0]
+            },
+            "arealight" : {
+                "radiance" : [8, 8, 8]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "rightwall4.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0, 0, 0]
+            },
+            "arealight" : {
+                "radiance" : [8, 8, 8]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "leftwall.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0, 0, 0]
+            },
+            "arealight" : {
+                "radiance" : [8, 8, 8]
+            }
+        }
+    ]
+}
+
+
+

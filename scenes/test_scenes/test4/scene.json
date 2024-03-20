@@ -1,0 +1,63 @@
+{
+    "integrator": {
+        "type": "path",
+        "depth_max" : 5,
+        "depth_rr" : 0,
+        "spp" : 100
+    },
+
+    "camera": {
+        "type" : "perspective(NOT_USED)",
+        "pos" : [0, 5, 0],
+        "dir" : [0, -1, 0],
+        "up" : [0, 0, 1],
+        "width" : 600,
+        "height" : 600,
+        "fov" : 140
+    },
+
+
+    "shape" : [
+        {
+            "type" : "obj",
+            "path" : "floor.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.6, 0.6, 0.6]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "cube.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.6, 0.6, 0.6]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "light1.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0, 0, 0]
+            },
+            "arealight" : {
+                "radiance" : [50, 50, 50]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "light2.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0, 0, 0]
+            },
+            "arealight" : {
+                "radiance" : [0.5, 0.5, 0.5]
+            }
+        }
+    ]
+}
+
+
+

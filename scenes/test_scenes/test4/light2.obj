@@ -1,0 +1,10 @@
+# Blender v2.72 (sub 0) OBJ File: ''
+# www.blender.org
+mtllib walls.mtl
+o floor
+v 10 10 -10
+v -10 10 -10
+v -10 10 10
+v 10 10 10
+f 3 2 1
+f 3 1 4
