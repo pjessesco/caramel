@@ -77,12 +77,20 @@ namespace Caramel{
         const Json child = get_unique_first_elem(m_scene_json, "camera");
         const std::string type = parse_string(child, "type");
         if(true /* perspective */){
-            return Camera::Create<Camera>(parse_vector3f(child, "pos"),
-                                          parse_vector3f(child, "dir"),
-                                          parse_vector3f(child, "up"),
-                                          parse_positive_int(child, "width"),
-                                          parse_positive_int(child, "height"),
-                                          parse_positive_float(child, "fov"));
+            if(child.contains("pos")){
+                return Camera::Create<Camera>(parse_vector3f(child, "pos"),
+                                              parse_vector3f(child, "dir"),
+                                              parse_vector3f(child, "up"),
+                                              parse_positive_int(child, "width"),
+                                              parse_positive_int(child, "height"),
+                                              parse_positive_float(child, "fov"));
+            }
+            else{
+                return Camera::Create<Camera>(parse_matrix44f(child, "matrix"),
+                                              parse_positive_int(child, "width"),
+                                              parse_positive_int(child, "height"),
+                                              parse_positive_float(child, "fov"));
+            }
         }
         else{
             CRM_ERROR(type + "camera is not supported : "+ to_string(child));
