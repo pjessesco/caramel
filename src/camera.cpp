@@ -31,18 +31,40 @@
 namespace Caramel{
 
     // Perspective camera
+    Camera::Camera(const Matrix44f &cam_to_world, Index w, Index h, Float fov_x)
+    : m_cam_to_world{cam_to_world}, m_w{w}, m_h{h}, m_fov_x{fov_x}, m_near{1e-4}, m_far{1000} {
+        m_ratio = static_cast<Float>(m_w) / static_cast<Float>(m_h);
+
+        const Float tmp1 = Float1 / (m_far - m_near);
+        const Float cot = Float1 / tan(deg_to_rad(m_fov_x * Float0_5));
+
+        const Matrix44f perspective{   cot, Float0,       Float0,                 Float0,
+                                    Float0,    cot,       Float0,                 Float0,
+                                    Float0, Float0, m_far * tmp1, -m_near * m_far * tmp1,
+                                    Float0, Float0,       Float1,                 Float0};
+
+        const Matrix44f camera_to_sample = scale(-Float0_5, -Float0_5 * m_ratio, Float1) *
+                                           translate(-Float1, -Float1/m_ratio, Float0) *
+                                           perspective;
+
+        m_sample_to_camera = Inverse(camera_to_sample).eval();
+        m_pos = Block<0,0,3,1>(m_cam_to_world * Vector4f{0.0f, 0.0f, 0.0f, 1.0f});
+    }
+
     Camera::Camera(const Vector3f &pos, const Vector3f &dir, const Vector3f &up,
                    Index w, Index h, Float fov_x)
-        : m_pos{pos}, m_dir{dir.normalize()}, m_up(up.normalize()), m_w{w}, m_h{h}, m_fov_x{fov_x}, m_near{1e-4}, m_far{1000} {
+        : m_pos{pos}, m_w{w}, m_h{h}, m_fov_x{fov_x}, m_near{1e-4}, m_far{1000} {
+        Vector3f _dir = dir.normalize();
+        Vector3f _up = up.normalize();
         // right-handed coord
-        m_left = cross(m_up, m_dir);
-        m_up = cross(m_dir, m_left);
+        Vector3f left = cross(_up, _dir);
+        _up = cross(_dir, left);
 
         m_cam_to_world = Matrix44f::from_cols(
-                Vector4f{m_left[0], m_left[1], m_left[2], Float0},
-                Vector4f{  m_up[0],   m_up[1],   m_up[2], Float0},
-                Vector4f{ m_dir[0],  m_dir[1],  m_dir[2], Float0},
-                Vector4f{   pos[0],    pos[1],    pos[2], Float1}
+                Vector4f{left[0], left[1], left[2], Float0},
+                Vector4f{ _up[0],  _up[1],  _up[2], Float0},
+                Vector4f{_dir[0], _dir[1], _dir[2], Float0},
+                Vector4f{ pos[0],  pos[1],  pos[2], Float1}
         );
 
         m_ratio = static_cast<Float>(m_w) / static_cast<Float>(m_h);
