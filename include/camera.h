@@ -34,6 +34,7 @@ namespace Caramel{
     public:
         Camera(const Vector3f &pos, const Vector3f &dir, const Vector3f &up,
                Index w, Index h, Float fov_x);
+        Camera(const Matrix44f &cam_to_world, Index w, Index h, Float fov_x);
 
         [[nodiscard]] Ray sample_ray(Float w, Float h) const;
 
@@ -53,13 +54,9 @@ namespace Caramel{
         }
 
     private:
-        const Vector3f m_pos;
-        const Vector3f m_dir;
-        Vector3f m_up;
-        Vector3f m_left;
+        Vector3f m_pos;
         const Float m_fov_x;
         Index m_w, m_h;
-        Float m_cam_space_dir_z;
         Float m_ratio;
         Float m_near;
         Float m_far;
