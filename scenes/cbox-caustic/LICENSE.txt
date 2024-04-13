@@ -1,0 +1,3 @@
+License : [CC0](https://creativecommons.org/publicdomain/zero/1.0/)
+
+Manually converted by [pjessesco](https://github.com/pjessesco) from [Benedikt Bitterli's rendering resource](https://benedikt-bitterli.me/resources/).
