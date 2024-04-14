@@ -60,6 +60,9 @@ namespace Caramel{
         Cu/*Copper*/
     };
 
+    // Masking function using Smith's approximation for beckmann distribution
+    Float G1_beckmann(const Vector3f &wv, const Vector3f &wh, Float alpha);
+
     struct IOR{
         static constexpr Float VACUUM       = static_cast<Float>(1.0);
         static constexpr Float ICE          = static_cast<Float>(1.31);
@@ -163,14 +166,24 @@ namespace Caramel{
         Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const override;
         bool is_discrete() const override;
 
-    private:
-        Float G1(const Vector3f &wv, const Vector3f &wh) const;
-
         Float m_alpha;
         Float m_in_index_of_refraction;
         Float m_ex_index_of_refraction;
         Float m_ks;
         Vector3f m_kd;
+    };
+
+    class RoughDielectric final : public BSDF{
+    public:
+        RoughDielectric(Float alpha, Float in_ior, Float ex_ior);
+        std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &) const override;
+        Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
+        Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const override;
+        bool is_discrete() const override;
+
+        Float m_alpha;
+        Float m_in_index_of_refraction;
+        Float m_ex_index_of_refraction;
     };
 
     // Reference : https://www.pbr-book.org/3ed-2018/Reflection_Models/Microfacet_Models#OrenndashNayarDiffuseReflection

@@ -124,6 +124,20 @@ namespace Caramel{
     }
 
 
+    Float G1_beckmann(const Vector3f &wv, const Vector3f &wh, Float alpha) {
+        const Vector3f n = Vector3f{Float0, Float0, Float1};
+        if(wv.dot(wh) / wv[2] <= 0){
+            return Float0;
+        }
 
+        const Float b = Float1 / (alpha * wv[2]);
+        if(b >= static_cast<Float>(1.6)){
+            return Float1;
+        }
+
+        const Float b_2 = b * b;
+        return (static_cast<Float>(3.535) * b + static_cast<Float>(2.181) * (b_2)) /
+               (Float1 + static_cast<Float>(2.276) * b + static_cast<Float>(2.577) * b_2);
+    }
 
 }
