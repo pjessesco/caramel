@@ -1,7 +1,7 @@
 //
 // This software is released under the MIT license.
 //
-// Copyright (c) 2022-2025 Jino Park
+// Copyright (c) 2022-2023 Jino Park
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,10 +28,10 @@
 #include <warp_sample.h>
 
 namespace Caramel{
-    Microfacet::Microfacet(Float alpha, Float in_ior, Float ex_ior, const Vector3f &kd)
-        : m_alpha{alpha}, m_in_index_of_refraction{in_ior}, m_ex_index_of_refraction{ex_ior}, m_kd(kd), m_ks{Float1 - kd.max()} {}
+    RoughDielectric::RoughDielectric(Float alpha, Float in_ior, Float ex_ior)
+    : m_alpha{alpha}, m_in_index_of_refraction{in_ior}, m_ex_index_of_refraction{ex_ior} {}
 
-    std::tuple<Vector3f, Vector3f, Float> Microfacet::sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &sampler) const {
+    std::tuple<Vector3f, Vector3f, Float> RoughDielectric::sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &sampler) const {
         // from hitpoint to incoming point
         const Vector3f local_incoming_flipped = -local_incoming_dir.normalize();
         Vector3f local_outgoing;
@@ -41,12 +41,17 @@ namespace Caramel{
             return {vec3f_zero, vec3f_zero, Float0};
         }
 
-        if(sampler.sample_1d() < m_ks) /* reflect */{
-            const Vector3f sampled_normal = sample_beckmann_distrib(sampler, m_alpha).first;
-            local_outgoing = reflect(-local_incoming_flipped, sampled_normal);
+        const Vector3f sampled_normal = sample_beckmann_distrib(sampler, m_alpha).first;
+        const Float reflect_ratio = fresnel_dielectric(-local_incoming_dir.dot(sampled_normal), m_ex_index_of_refraction, m_in_index_of_refraction);
+
+        if(sampler.sample_1d() < reflect_ratio){
+            // reflection
+            return {reflect(local_incoming_dir, sampled_normal), vec3f_one, Float0};
         }
-        else{ // diffuse
-            local_outgoing = sample_unit_hemisphere_cosine(sampler).first;
+        else{
+            // refraction
+
+
         }
 
         if(local_outgoing[2] <= Float0){
@@ -62,7 +67,7 @@ namespace Caramel{
                 pdf_};
     }
 
-    Float Microfacet::pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const{
+    Float RoughDielectric::pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const{
         Vector3f local_incoming_flipped = -local_incoming_dir.normalize();
         Vector3f local_outgoing = local_outgoing_dir.normalize();
 
@@ -80,7 +85,7 @@ namespace Caramel{
         return pdf;
     }
 
-    Vector3f Microfacet::get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const {
+    Vector3f RoughDielectric::get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const {
         // from hitpoint to incoming point
         const Vector3f local_incoming_flipped = -local_incoming_dir.normalize();
         const Vector3f local_outgoing = local_outgoing_dir.normalize();
