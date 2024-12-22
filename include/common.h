@@ -83,20 +83,46 @@ namespace Caramel{
 
     // returns sin value between given normalized vector and (0, 0, 1)
     inline Float vec_sin(const Vector3f &v){
-        return static_cast<Float>(vec_sin_2(v));
-    }                                                                                //              ^  Z   ^
-                                                                                     //              |     /!  given v
-    // returns cos value of phi of given vector (in spherical coordinate system)     //              |    / !
-    inline Float vec_cos_phi(const Vector3f &v){                                     //              |   /  !
-        const Float sin = vec_sin(v);                                                //              |  /   !
-        return v[0] / sin;                                                           //              | /    !    v[0]
-    }                                                                                //              |---@--!----.---> X
-                                                                                     //             /  \  @ !   /
-    // returns sin value of phi of given vector (in spherical coordinate system)     //            /     @  !  /
-    inline Float vec_sin_phi(const Vector3f &v){                                     //           /        \! /
-        const Float sin = vec_sin(v);                                                //     v[1] /----------.
-        return v[1] / sin;                                                           //         /
-    }                                                                                //        v   Y
+        return static_cast<Float>(std::sqrt(vec_sin_2(v)));
+    }
+
+    // returns sin value between given normalized vector and (0, 0, 1)
+    inline Float vec_tan(const Vector3f &v){
+        return vec_sin(v) / v[2];
+    }
+
+    // returns cos value of phi of given vector (in spherical coordinate system)     //              ^  Z   ^
+    inline Float vec_cos_phi(const Vector3f &v){                                     //              |     /!  given v
+        const Float sin = vec_sin(v);                                                //              |    / !
+        return v[0] / sin;                                                           //              |   /  !
+    }                                                                                //              |  /   !
+                                                                                     //              | /    !    v[0]
+    // returns sin value of phi of given vector (in spherical coordinate system)     //              |---@--!----.---> X
+    inline Float vec_sin_phi(const Vector3f &v){                                     //             /  \  @ !   /
+        const Float sin = vec_sin(v);                                                //            /     @  !  /
+        return v[1] / sin;                                                           //           /        \! /
+    }                                                                                //     v[1] /----------.
+                                                                                     //         /
+    // TODO : Implement in Peanut                                                    //        v   Y
+    inline Vector3f cross(const Vector3f &a, const Vector3f &b){
+        return {a[1] * b[2] - a[2] * b[1],
+                a[2] * b[0] - a[0] * b[2],
+                a[0] * b[1] - a[1] * b[0]};
+    }
+
+    // TODO : Implement in Peanut
+    inline Vector3f div(const Vector3f &a, const Vector3f &b){
+        return {a[0]/b[0], a[1]/b[1], a[2]/b[2]};
+    }
+
+    // TODO : Implement in Peanut
+    inline Vector3f sqrt(const Vector3f &a){
+        return {std::sqrt(a[0]), std::sqrt(a[1]), std::sqrt(a[2])};
+    }
+
+    inline Float L2(const Vector3f &a, const Vector3f &b) {
+        return std::sqrt((a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1]) + (a[2] - b[2]) * (a[2] - b[2]));
+    }
 
     template <typename T>
     T interpolate(const T &a, const T &b, const T &c, Float u, Float v){
@@ -107,6 +133,7 @@ namespace Caramel{
         return std::abs(v[0] - Float0) < 1e-7 &&
                std::abs(v[1] - Float0) < 1e-7;
     }
+
 
     inline bool is_zero(const Vector3f &v){
         return std::abs(v[0] - Float0) < 1e-7 &&
@@ -137,6 +164,5 @@ namespace Caramel{
         // Note that it is different with `sample_unit_sphere_uniformly()` or similar functions
         return {sin_theta * sin_phi, cos_theta, -sin_theta * cos_phi};
     }
-
 
 }
