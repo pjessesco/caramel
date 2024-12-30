@@ -28,6 +28,7 @@
 #include <vector>
 
 #include <common.h>
+#include <aabb.h>
 
 namespace Caramel{
     class Camera;
@@ -51,6 +52,9 @@ namespace Caramel{
 
         std::vector<const Light*> m_lights;
         std::vector<const Shape*> m_meshes;
+        Vector3f m_sceneCenterPos;
+        Float m_sceneRadius;
+        AABB m_aabb;
         const Camera *m_cam;
     };
 }
