@@ -33,10 +33,12 @@
 #include <light.h>
 #include <rayintersectinfo.h>
 #include <sampler.h>
+#include <aabb.h>
 
 namespace Caramel{
 
-    Scene::Scene() : m_cam{nullptr} {}
+    Scene::Scene()
+    : m_cam{nullptr}, m_aabb{Vector3f::zeros(), Vector3f::zeros()}, m_sceneRadius{0.0f}, m_sceneCenterPos{Vector3f::zeros()} {}
 
     void Scene::set_camera(Camera *camera) {
         m_cam = camera;
@@ -68,6 +70,11 @@ namespace Caramel{
         if(shape->is_light()){
             m_lights.push_back(shape->get_arealight());
         }
+
+        m_aabb = m_meshes.empty() ? shape->get_aabb() :
+                                    AABB::merge(m_aabb, shape->get_aabb());
+        m_sceneCenterPos = (m_aabb.m_max + m_aabb.m_min) * 0.5f;
+        m_sceneRadius = L2(m_sceneCenterPos, m_aabb.m_max);
     }
 
     void Scene::add_light(const Light *light){
