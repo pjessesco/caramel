@@ -115,6 +115,10 @@ namespace Caramel{
         return {std::sqrt(a[0]), std::sqrt(a[1]), std::sqrt(a[2])};
     }
 
+    inline Float L2(const Vector3f &a, const Vector3f &b) {
+        return std::sqrt((a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1]) + (a[2] - b[2]) * (a[2] - b[2]));
+    }
+
     template <typename T>
     inline T interpolate(const T &a, const T &b, const T &c, Float u, Float v){
         return (a*(Float1-u-v)) + (b*u) + (c*v);
