@@ -73,8 +73,8 @@ namespace Caramel{
 
     using Vector2ui = Peanut::Matrix<Index, 2, 1>;
 
-    const Vector3f vec3f_zero = {Float0, Float0, Float0};
-    const Vector3f vec3f_one = {Float1, Float1, Float1};
+    static const Vector3f vec3f_zero{Float0, Float0, Float0};
+    static const Vector3f vec3f_one{Float1, Float1, Float1};
 
     // returns squared sin value between given normalized vector and (0, 0, 1)
     inline Float vec_sin_2(const Vector3f &v){
