@@ -30,16 +30,16 @@
 
 namespace Caramel{
 
-    inline auto transform_point(const Vector3f &p, const Matrix44f &mat){
-        return Block<0,0,3,1>(mat * Vector4f{p[0], p[1], p[2], Float1}).eval();
+    inline Vector3f transform_point(const Vector3f &p, const Matrix44f &mat){
+        return Block<0,0,3,1>(mat * Vector4f{p[0], p[1], p[2], Float1});
     }
 
-    inline auto transform_vector(const Vector3f &v, const Matrix44f &mat){
-        return Block<0,0,3,1>(mat * Vector4f{v[0], v[1], v[2], Float0}).eval();
+    inline Vector3f transform_vector(const Vector3f &v, const Matrix44f &mat){
+        return Block<0,0,3,1>(mat * Vector4f{v[0], v[1], v[2], Float0});
     }
 
-    inline auto transform_normal(const Vector3f &n, const Matrix44f &mat){
-        return Block<0, 0, 3, 1>(Inverse(T(mat)) * Vector4f{n[0], n[1], n[2], Float0}).eval();
+    inline Vector3f transform_normal(const Vector3f &n, const Matrix44f &mat){
+        return Block<0, 0, 3, 1>(Inverse(T(mat)) * Vector4f{n[0], n[1], n[2], Float0});
     }
 
     inline Matrix44f scale(Float x, Float y, Float z){

@@ -35,6 +35,6 @@ namespace Caramel{
     Vector3f NormalIntegrator::get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) {
         const Ray ray = scene.m_cam->sample_ray(i, j);
         auto [is_hit, info] = scene.ray_intersect(ray);
-        return is_hit ? Vector3f(info.sh_coord.m_world_n[0], info.sh_coord.m_world_n[1], info.sh_coord.m_world_n[2]) : Vector3f();
+        return is_hit ? Vector3f(info.sh_coord.m_world_n[0], info.sh_coord.m_world_n[1], info.sh_coord.m_world_n[2]) : vec3f_zero;
     }
 }

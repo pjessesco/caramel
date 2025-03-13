@@ -38,7 +38,7 @@
 namespace Caramel{
 
     Scene::Scene()
-    : m_cam{nullptr}, m_aabb{Vector3f::zeros(), Vector3f::zeros()}, m_sceneRadius{0.0f}, m_sceneCenterPos{Vector3f::zeros()} {}
+    : m_cam{nullptr}, m_aabb{vec3f_zero, vec3f_zero}, m_sceneRadius{0.0f}, m_sceneCenterPos{vec3f_zero} {}
 
     void Scene::set_camera(Camera *camera) {
         m_cam = camera;
