@@ -47,7 +47,7 @@ namespace Caramel{
                                            translate(-Float1, -Float1/m_ratio, Float0) *
                                            perspective;
 
-        m_sample_to_camera = Inverse(camera_to_sample).eval();
+        m_sample_to_camera = Inverse(camera_to_sample);
         m_pos = Block<0,0,3,1>(m_cam_to_world * Vector4f{0.0f, 0.0f, 0.0f, 1.0f});
     }
 
@@ -81,7 +81,7 @@ namespace Caramel{
                                            translate(-Float1, -Float1/m_ratio, Float0) *
                                            perspective;
 
-        m_sample_to_camera = Inverse(camera_to_sample).eval();
+        m_sample_to_camera = Inverse(camera_to_sample);
     }
 
     [[nodiscard]] Ray Camera::sample_ray(Float w, Float h) const{

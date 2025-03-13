@@ -323,7 +323,7 @@ namespace Caramel{
             return mat;
         }
         CRM_ERROR("Can not parse matrix : " + to_string(child));
-        return Matrix44f();
+        return Matrix44f::identity();
     }
 
 }
