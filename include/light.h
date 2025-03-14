@@ -38,15 +38,23 @@ namespace Caramel{
     class Light{
     public:
         Light() {}
-        virtual Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const = 0;
-        // returns emitted radiance, sampled point, sampled normal, pdf
+
+        // Sample a point on the light from given pos
+        // returns emitted radiance, sampled point on the light, normal at the sampled point, and its pdf
         virtual std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> sample_direct_contribution(const Scene &scene,
                                                                                                              const Vector3f &pos,
                                                                                                              Sampler &sampler) const = 0;
 
+        // Probability of hitpos_world sampled from hitpos_world respect to solid angle
+        // This function should not be used from delta lights since they don't have to be sampled
         virtual Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const = 0;
 
+        // Returns emitted radiance
+        // This function should not be used from delta lights, since they can't be captured by recursive ray from brdf sampling
+        virtual Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const = 0;
+
         virtual bool is_delta() const = 0;
+        virtual bool is_envlight() const = 0;
 
         // Arealight is handled in AreaLight::Create
         template <typename Type, typename ...Param>
@@ -68,6 +76,7 @@ namespace Caramel{
         Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const override;
 
         bool is_delta() const override;
+        bool is_envlight() const override;
 
         Vector3f m_pos;
         Vector3f m_radiance;
@@ -86,6 +95,7 @@ namespace Caramel{
         Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const override;
 
         bool is_delta() const override;
+        bool is_envlight() const override;
 
         template <typename ...Param>
         static AreaLight* Create(Param ...args){
@@ -97,7 +107,11 @@ namespace Caramel{
     };
 
     class EnvmapLight final : public Light {
-        EnvmapLight(const std::string &path, const Matrix44f &transform = Matrix44f::identity());
+    public:
+        EnvmapLight(const Vector3f &radiance,
+                    Float scale,
+                    const Vector3f &sceneCenter,
+                    Float sceneRadius);
 
         Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const override;
         std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> sample_direct_contribution(const Scene &scene,
@@ -107,10 +121,13 @@ namespace Caramel{
         Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const override;
 
         bool is_delta() const override;
+        bool is_envlight() const override;
 
-        Vector3f m_sceneCenter;
-        Vector3f m_sceneRadius;
-        const Matrix44f &m_transform;
+        const Vector3f m_sceneCenter;
+        const Float m_sceneRadius;
+
+        const Float m_scale;
+        const Vector3f m_radiance;
         Image *m_image;
     };
 

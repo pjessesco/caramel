@@ -37,6 +37,7 @@ namespace Caramel{
     class Shape;
     class Light;
     class Sampler;
+    class EnvmapLight;
 
     class Scene{
     public:
@@ -51,6 +52,7 @@ namespace Caramel{
         std::tuple<const Light*, Float> sample_light(Sampler &sampler) const;
 
         std::vector<const Light*> m_lights;
+        EnvmapLight* m_envmap_light;
         std::vector<const Shape*> m_meshes;
         Vector3f m_sceneCenterPos;
         Float m_sceneRadius;

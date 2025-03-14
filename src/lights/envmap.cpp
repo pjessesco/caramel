@@ -33,22 +33,24 @@
 #include <transform.h>
 #include <image.h>
 #include <rayintersectinfo.h>
+#include <warp_sample.h>
+
 
 namespace Caramel{
-    EnvmapLight::EnvmapLight(const std::string &path, const Matrix44f &transform)
-        : m_image(new Image(path)), m_transform(transform) {}
+    EnvmapLight::EnvmapLight(const Vector3f &radiance,
+                             Float scale,
+                             const Vector3f &sceneCenter,
+                             Float sceneRadius)
+        : m_radiance(radiance), m_scale(scale), m_sceneCenter(sceneCenter), m_sceneRadius(sceneRadius) {}
 
     Vector3f EnvmapLight::radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const{
-        const Vector3f dir = transform_vector(lightpos - hitpos, m_transform).normalize();
-        const Vector2f uv {std::atan2(dir[0], -dir[2]) * PI_2_INV,
-                           std::acos(dir[1]) * PI_INV};
-        const auto size = m_image->size();
-        return m_image->get_pixel_value(uv[0] * size[0], uv[1] * size[1]);
+        return m_radiance;
     }
 
     std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> EnvmapLight::sample_direct_contribution(const Scene &scene, const Vector3f &hitpos, Sampler &sampler) const{
-
-
+        auto [light_dir, pos_pdf] = sample_unit_sphere_uniformly(sampler);
+        Vector3f light_pos = (light_dir * scene.m_sceneRadius) + scene.m_sceneCenterPos;
+            ???
     }
 
     Float EnvmapLight::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const{
@@ -57,6 +59,10 @@ namespace Caramel{
 
     bool EnvmapLight::is_delta() const {
         return false;
+    }
+
+    bool PointLight::is_envlight() const {
+        return true;
     }
 
 }

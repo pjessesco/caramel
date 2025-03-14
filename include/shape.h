@@ -55,6 +55,7 @@ namespace Caramel{
         virtual Float get_area() const = 0;
         // point, normal, probability
         virtual std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const = 0;
+        // Probability to sample shapepos_world at hitpos_world respect to solid angle
         virtual Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const = 0;
 
         inline bool is_light() const{
