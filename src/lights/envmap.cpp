@@ -37,11 +37,8 @@
 
 
 namespace Caramel{
-    EnvmapLight::EnvmapLight(const Vector3f &radiance,
-                             Float scale,
-                             const Vector3f &sceneCenter,
-                             Float sceneRadius)
-        : m_radiance(radiance), m_scale(scale), m_sceneCenter(sceneCenter), m_sceneRadius(sceneRadius) {}
+    EnvmapLight::EnvmapLight(const Vector3f &radiance, Float scale)
+        : m_radiance(radiance), m_scale(scale) {}
 
     Vector3f EnvmapLight::radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const{
         return m_radiance;

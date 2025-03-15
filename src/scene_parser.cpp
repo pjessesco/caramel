@@ -112,9 +112,16 @@ namespace Caramel{
     std::vector<Light*> SceneParser::parse_lights() const{
         std::vector<Light*> lights;
 
+        bool is_envmap_parsed = false;
+
         const Json child = get_unique_first_elem(m_scene_json, "light", true/*optional*/);
         if(child.is_array()){
             for(const auto &ch : child){
+                auto light = parse_light(ch);
+                if (light->is_envlight() && !is_envmap_parsed) {
+                    CRM_ERROR("Environment map can't be more than 2");
+                }
+                is_envmap_pa rsed |= light->is_envlight();
                 lights.push_back(parse_light(ch));
             }
         }
@@ -158,6 +165,10 @@ namespace Caramel{
         if(type=="point"){
             return Light::Create<PointLight>(parse_vector3f(light_json, "pos"),
                                              parse_vector3f(light_json, "radiance"));
+        }
+        else if(type=="environment"){
+            return Light::Create<EnvmapLight>(parse_vector3f(light_json, "radiance")/*will be replaced soon*/,
+                                              parse_positive_float(light_json, "scale"));
         }
 
         CRM_ERROR("Unsupported shape type : " + type);

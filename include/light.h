@@ -108,10 +108,7 @@ namespace Caramel{
 
     class EnvmapLight final : public Light {
     public:
-        EnvmapLight(const Vector3f &radiance,
-                    Float scale,
-                    const Vector3f &sceneCenter,
-                    Float sceneRadius);
+        EnvmapLight(const Vector3f &radiance, Float scale);
 
         Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const override;
         std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> sample_direct_contribution(const Scene &scene,
@@ -122,9 +119,6 @@ namespace Caramel{
 
         bool is_delta() const override;
         bool is_envlight() const override;
-
-        const Vector3f m_sceneCenter;
-        const Float m_sceneRadius;
 
         const Float m_scale;
         const Vector3f m_radiance;
