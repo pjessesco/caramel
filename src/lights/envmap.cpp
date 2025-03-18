@@ -30,43 +30,41 @@
 #include <common.h>
 #include <sampler.h>
 #include <scene.h>
-#include <shape.h>
+#include <transform.h>
+#include <image.h>
 #include <rayintersectinfo.h>
+#include <warp_sample.h>
+
 
 namespace Caramel{
-    PointLight::PointLight(const Vector3f &pos, const Vector3f &radiance)
-        : m_pos{pos}, m_radiance{radiance} {}
+    ConstantEnvLight::ConstantEnvLight(const Vector3f &radiance, Float scale)
+        : m_radiance(radiance), m_scale(scale) {}
 
-    PointLight::~PointLight() = default;
-
-    Vector3f PointLight::radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &) const{
-        return vec3f_zero;
+    Vector3f ConstantEnvLight::radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const{
+        return m_radiance;
     }
 
-    std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> PointLight::sample_direct_contribution(const Scene &scene, const Vector3f &hitpos, Sampler &) const{
-        // If hitpoint and sampled point is not visible to each other, zero contribution
-        auto [is_visible, info] = scene.is_visible(m_pos, hitpos);
-
+    std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> ConstantEnvLight::sample_direct_contribution(const Scene &scene, const Vector3f &hitpos, Sampler &sampler) const{
+        auto [light_dir, pos_pdf] = sample_unit_sphere_uniformly(sampler);
+        const Vector3f lightpos = hitpos + (light_dir * scene.m_sceneRadius * 2);
+        auto [is_visible, info] = scene.is_visible(hitpos, lightpos);
         if(!is_visible){
-            return {vec3f_zero, vec3f_zero, vec3f_zero, Float1, RayIntersectInfo()};
+            return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf, RayIntersectInfo()};
         }
 
-        const Vector3f light_to_hitpos = hitpos - m_pos;
-        const Float dist = light_to_hitpos.length();
-
-        return {m_radiance / (dist * dist), m_pos, light_to_hitpos.normalize(), Float1, info};
+        return {m_radiance, lightpos, -light_dir, pos_pdf, info};
     }
 
-    Float PointLight::pdf_solidangle(const Vector3f &, const Vector3f &, const Vector3f &) const{
-        return Float0;
+    Float ConstantEnvLight::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const{
+        return PI_4_INV;
     }
 
-    bool PointLight::is_delta() const {
-        return true;
-    }
-
-    bool PointLight::is_envlight() const {
+    bool ConstantEnvLight::is_delta() const {
         return false;
+    }
+
+    bool ConstantEnvLight::is_envlight() const {
+        return true;
     }
 
 }
