@@ -65,4 +65,8 @@ namespace Caramel{
         return true;
     }
 
+    bool PointLight::is_envlight() const {
+        return false;
+    }
+
 }

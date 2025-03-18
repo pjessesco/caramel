@@ -13,7 +13,7 @@
                     up    ="  0,   1,    0"/>
         </transform>
         <sampler type="independent">  <!-- ldsampler -->
-            <integer name="sample_count" value="300"/>
+            <integer name="sample_count" value="200"/>
         </sampler>
         <film type="hdrfilm">
             <integer name="width" value="800"/>
@@ -25,6 +25,10 @@
     <emitter type="point">
         <rgb name="intensity" value="1, 1, 0"/>
         <point name="position" x="0" y="1.2" z="-0.3"/>
+    </emitter>
+    
+    <emitter type="constant">
+        <rgb name="radiance" value="1.0"/>
     </emitter>
 
      <shape type="obj">
