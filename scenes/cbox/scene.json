@@ -3,7 +3,7 @@
         "type": "path",
         "depth_rr" : 0,
         "depth_max" : 5,
-        "spp" : 100
+        "spp" : 200
     },
 
     "camera": {
@@ -21,6 +21,11 @@
             "type" : "point",
             "pos" : [0, 1.2, -0.3],
             "radiance" : [1, 1, 0]
+        },
+        {
+            "type" : "constant_env",
+            "radiance" : [1, 1, 1],
+            "scale" : 1
         }
     ],
 
