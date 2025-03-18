@@ -54,6 +54,11 @@ namespace Caramel{
             auto [is_hit, info] = scene.ray_intersect(ray);
 
             if(!is_hit){
+                if (auto envmap_light = scene.m_envmap_light; envmap_light) {
+                    // We might use brdf sampling & MIS here, but light sampling itself is efficient enough
+                    const Vector3f contrib = envmap_light->radiance(ray.m_o, info.p, info.sh_coord.m_world_n) % current_brdf;
+                    ret = ret + contrib;
+                }
                 break;
             }
 
@@ -66,7 +71,7 @@ namespace Caramel{
                 const Float pdf_solidangle = light->pdf_solidangle(ray.m_o, info.p, info.sh_coord.m_world_n);
                 const Float pdf_pick_light = Float1 / static_cast<Float>(scene.m_lights.size());
                 const Float weight = balance_heuristic(prev_brdf_pdf, pdf_pick_light * pdf_solidangle);
-                const Vector3f contrib = shape->get_arealight()->radiance(ray.m_o, info.p, info.sh_coord.m_world_n) % current_brdf;
+                const Vector3f contrib = light->radiance(ray.m_o, info.p, info.sh_coord.m_world_n) % current_brdf;
 
                 ret = ret + ((depth==0 || from_specular) ? contrib : contrib * weight);
                 break;
@@ -87,7 +92,8 @@ namespace Caramel{
                     const Vector3f hitpos_to_light_local_normal = info.sh_coord.to_local(light_pos - info.p).normalize();
                     const Vector3f fr = shape_bsdf->get_reflection(local_ray_dir, hitpos_to_light_local_normal, info.tex_uv);
 
-                    if(light->is_delta()){
+                    if(light->is_delta() || light->is_envlight()){
+                        // We don't perform MIS for delta light
                         ret = ret + (fr % emitted_rad % current_brdf) * std::abs(hitpos_to_light_local_normal[2]) / light_pick_pdf;
                     }
                     else{

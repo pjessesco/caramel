@@ -90,11 +90,15 @@ namespace Caramel{
             // BRDF sampling is not possible if spawned ray doesn't hit
             const auto [recursive_hit, recursive_info] = scene.ray_intersect(recursive_ray);
             if(!recursive_hit){
-                return L1;
+                Vector3f envmap;
+                if (auto envmap_light = scene.m_envmap_light; envmap_light) {
+                    // We might use brdf sampling & MIS here, but light sampling itself is efficient enough
+                    envmap = envmap_light->radiance(ray.m_o, info.p, info.sh_coord.m_world_n) % contrib;
+                }
+                return L1 + envmap;
             }
 
             // BRDF sampling is meaningless if spawned ray doesn't hit light
-            // TODO : consider environment map
             const auto recursive_mesh = scene.m_meshes[recursive_info.idx];
             if(!recursive_mesh->is_light()){
                 return L1;
