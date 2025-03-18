@@ -38,7 +38,7 @@
 namespace Caramel{
 
     Scene::Scene()
-    : m_cam{nullptr}, m_aabb{vec3f_zero, vec3f_zero}, m_sceneRadius{0.0f}, m_sceneCenterPos{vec3f_zero} {}
+    : m_cam{nullptr}, m_aabb{vec3f_zero, vec3f_zero}, m_sceneRadius{0.0f}, m_sceneCenterPos{vec3f_zero}, m_envmap_light{nullptr} {}
 
     void Scene::set_camera(Camera *camera) {
         m_cam = camera;
@@ -77,8 +77,11 @@ namespace Caramel{
         m_sceneRadius = L2(m_sceneCenterPos, m_aabb.m_max);
     }
 
-    void Scene::add_light(const Light *light){
+    void Scene::add_light(Light *light){
         m_lights.push_back(light);
+        if (light->is_envlight()) {
+            m_envmap_light = light;
+        }
     }
 
     // Similar with `RayIntersectInfo::recursive_ray_to()`

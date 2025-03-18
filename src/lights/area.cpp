@@ -73,4 +73,8 @@ namespace Caramel{
         return false;
     }
 
+    bool AreaLight::is_envlight() const {
+        return false;
+    }
+
 }
