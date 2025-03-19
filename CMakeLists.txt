@@ -30,6 +30,7 @@ set(SOURCES
         src/integrators/path.cpp
         src/lights/area.cpp
         src/lights/point.cpp
+        src/lights/imageEnvLight.cpp
         src/lights/constantEnvLight.cpp
         src/mesh_accel/naive.cpp
         src/mesh_accel/octree.cpp
