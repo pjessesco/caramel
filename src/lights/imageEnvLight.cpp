@@ -58,6 +58,7 @@ namespace Caramel{
 
     std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> ImageEnvLight::sample_direct_contribution(const Scene &scene, const Vector3f &hitpos, Sampler &sampler) const{
         auto [light_dir, pos_pdf] = sample_unit_sphere_uniformly(sampler);
+        // TODO : we're not using it for now... fixme
         return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf, RayIntersectInfo()};
     }
 

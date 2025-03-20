@@ -85,6 +85,7 @@ namespace Caramel{
             const bool is_current_specular = shape_bsdf->is_discrete();
             if(!is_current_specular){
                 auto [light, light_pick_pdf] = scene.sample_light(sampler);
+                // TODO : we're not using contribution from envmap here... fixme
                 auto [emitted_rad, light_pos, light_n_world, light_pos_pdf, light_info] = light->sample_direct_contribution(scene, info.p, sampler);
 
                 // Continue if light sampling succeed
