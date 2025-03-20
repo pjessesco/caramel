@@ -8,6 +8,15 @@
 
 Caramel is a physically-based offline renderer for studying myself based on [Peanut](https://github.com/pjessesco/peanut). 
 
+## Features
+- Path tracing (with multiple importance sampling)
+- Area light, Image and constant environment light 
+- `.obj` format meshes
+- Perspective camera
+- Octree acceleration structure
+- Möller–Trumbore ray tracing
+- End-to-end render test
+
 ## Gallery
 
 #### shaderballs
