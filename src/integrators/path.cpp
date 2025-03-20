@@ -56,7 +56,7 @@ namespace Caramel{
             if(!is_hit){
                 if (auto envmap_light = scene.m_envmap_light; envmap_light) {
                     // We might use brdf sampling & MIS here, but light sampling itself is efficient enough
-                    const Vector3f contrib = envmap_light->radiance(ray.m_o, info.p, info.sh_coord.m_world_n) % current_brdf;
+                    const Vector3f contrib = envmap_light->radiance(ray.m_o, ray.m_o + (ray.m_d * scene.m_sceneRadius * 2), -ray.m_d) % current_brdf;
                     ret = ret + contrib;
                 }
                 break;
@@ -85,6 +85,7 @@ namespace Caramel{
             const bool is_current_specular = shape_bsdf->is_discrete();
             if(!is_current_specular){
                 auto [light, light_pick_pdf] = scene.sample_light(sampler);
+                // TODO : we're not using contribution from envmap here... fixme
                 auto [emitted_rad, light_pos, light_n_world, light_pos_pdf, light_info] = light->sample_direct_contribution(scene, info.p, sampler);
 
                 // Continue if light sampling succeed

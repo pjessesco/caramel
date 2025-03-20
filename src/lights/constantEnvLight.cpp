@@ -46,13 +46,8 @@ namespace Caramel{
 
     std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> ConstantEnvLight::sample_direct_contribution(const Scene &scene, const Vector3f &hitpos, Sampler &sampler) const{
         auto [light_dir, pos_pdf] = sample_unit_sphere_uniformly(sampler);
-        const Vector3f lightpos = hitpos + (light_dir * scene.m_sceneRadius * 2);
-        auto [is_visible, info] = scene.is_visible(hitpos, lightpos);
-        if(!is_visible){
-            return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf, RayIntersectInfo()};
-        }
-
-        return {m_radiance, lightpos, -light_dir, pos_pdf, info};
+        // TODO : we're not using it for now... fixme
+        return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf, RayIntersectInfo()};
     }
 
     Float ConstantEnvLight::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const{

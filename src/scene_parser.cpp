@@ -170,6 +170,14 @@ namespace Caramel{
             return Light::Create<ConstantEnvLight>(parse_vector3f(light_json, "radiance")/*will be replaced soon*/,
                                               parse_positive_float(light_json, "scale"));
         }
+        else if(type=="image_env"){
+            return light_json.contains("to_world") ? Light::Create<ImageEnvLight>(parse_string(light_json, "path"),
+                                                                                  parse_positive_float(light_json, "scale"),
+                                                                                  parse_matrix44f(light_json, "to_world"))
+                                                   : Light::Create<ImageEnvLight>(parse_string(light_json, "path"),
+                                                                                  parse_positive_float(light_json, "scale"),
+                                                                                  Matrix44f::identity());
+        }
 
         CRM_ERROR("Unsupported shape type : " + type);
         return nullptr;
