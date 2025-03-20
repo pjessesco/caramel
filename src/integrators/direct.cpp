@@ -93,7 +93,7 @@ namespace Caramel{
                 Vector3f envmap;
                 if (auto envmap_light = scene.m_envmap_light; envmap_light) {
                     // We might use brdf sampling & MIS here, but light sampling itself is efficient enough
-                    envmap = envmap_light->radiance(ray.m_o, info.p, info.sh_coord.m_world_n) % contrib;
+                    envmap = envmap_light->radiance(ray.m_o, ray.m_o + (ray.m_d * scene.m_sceneRadius * 2), -ray.m_d) % contrib;
                 }
                 return L1 + envmap;
             }
