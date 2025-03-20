@@ -122,7 +122,25 @@ namespace Caramel{
 
         const Float m_scale;
         const Vector3f m_radiance;
-        Image *m_image;
+    };
+
+    class ImageEnvLight final : public Light {
+    public:
+        ImageEnvLight(const std::string &path, Float scale, const Matrix44f &transform);
+
+        Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const override;
+        std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> sample_direct_contribution(const Scene &scene,
+                                                                                                     const Vector3f &hitpos,
+                                                                                                     Sampler &sampler) const override;
+
+        Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const override;
+
+        bool is_delta() const override;
+        bool is_envlight() const override;
+
+        const Float m_scale;
+        const Image *m_image;
+        const Matrix44f m_transform;
     };
 
 }
