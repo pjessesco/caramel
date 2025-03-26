@@ -63,7 +63,7 @@ namespace Caramel{
         Vector3f L2 = vec3f_zero;
 
         /* Light sampling */{
-            auto [emitted_rad, light_pos, light_n_world, light_pos_pdf, light_info] = light->sample_direct_contribution(scene, info.p, sampler);
+            auto [emitted_rad, light_pos, light_n_world, light_pos_pdf, light_info] = light->sample_direct_contribution(scene, info, sampler);
 
             // Continue if light sampling succeed
             if(!is_zero(emitted_rad)) {
