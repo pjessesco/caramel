@@ -40,7 +40,7 @@ namespace Caramel{
     ImageEnvLight::ImageEnvLight(const std::string &path, Float scale, const Matrix44f &transform)
         : m_image(new Image(path)), m_scale(scale), m_transform(transform) {}
 
-    Vector3f ImageEnvLight::radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const{
+    Vector3f ImageEnvLight::radiance(const Vector3f &, const Vector3f &, const Vector3f &light_normal_world) const{
         const Vector3f dir = transform_vector(-light_normal_world, m_transform).normalize();
         Vector2f uv {std::atan2(dir[0], -dir[2]) * PI_2_INV,
                      std::acos(dir[1]) * PI_INV};
@@ -56,10 +56,17 @@ namespace Caramel{
         return m_image->get_pixel_value(uv[0] * size[0], uv[1] * size[1]);
     }
 
-    std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> ImageEnvLight::sample_direct_contribution(const Scene &scene, const Vector3f &hitpos, Sampler &sampler) const{
-        auto [light_dir, pos_pdf] = sample_unit_sphere_uniformly(sampler);
-        // TODO : we're not using it for now... fixme
-        return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf, RayIntersectInfo()};
+    std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> ImageEnvLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &sampler) const{
+        auto [pos_to_light_dir_local, pos_pdf] = sample_unit_sphere_uniformly(sampler);
+        auto pos_to_light_dir_world = hitpos_info.sh_coord.to_world(pos_to_light_dir_local);
+
+        const Vector3f light_pos = hitpos_info.p + (pos_to_light_dir_world * scene.m_sceneRadius * 2);
+        auto [visible, info] = scene.is_visible(light_pos, hitpos_info.p);
+        if (!visible) {
+            return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf, RayIntersectInfo()};
+        }
+
+        return {radiance(hitpos_info.p, light_pos, -pos_to_light_dir_world), light_pos, -pos_to_light_dir_world, PI_4_INV, RayIntersectInfo()/*TODO?*/};
     }
 
     Float ImageEnvLight::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const{

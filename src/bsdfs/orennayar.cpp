@@ -27,7 +27,13 @@ namespace Caramel{
     }
 
     Vector3f OrenNayar::get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const {
+        // from hitpoint to incoming point
         const Vector3f local_incoming_flipped = -local_incoming_dir.normalize();
+
+        if(local_incoming_flipped[2] <= Float0 || local_outgoing_dir[2] <= Float0){
+            // Not allow ray from backside
+            return vec3f_zero;
+        }
 
         Float cos_d = Float0;
         const Float sin_wo = vec_sin(local_outgoing_dir);

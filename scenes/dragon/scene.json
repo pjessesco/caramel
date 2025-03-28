@@ -31,112 +31,128 @@
             "type" : "obj",
             "path" : "models/Mesh000.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
             "type" : "obj",
             "path" : "models/Mesh001.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
             "type" : "obj",
             "path" : "models/Mesh002.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
             "type" : "obj",
             "path" : "models/Mesh003.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
             "type" : "obj",
             "path" : "models/Mesh004.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
             "type" : "obj",
             "path" : "models/Mesh005.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
             "type" : "obj",
             "path" : "models/Mesh006.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
             "type" : "obj",
             "path" : "models/Mesh007.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
             "type" : "obj",
             "path" : "models/Mesh008.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
             "type" : "obj",
             "path" : "models/Mesh009.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
             "type" : "obj",
             "path" : "models/Mesh010.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
             "type" : "obj",
             "path" : "models/Mesh011.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
             "type" : "obj",
             "path" : "models/Mesh012.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
             "type" : "obj",
             "path" : "models/Mesh013.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
             "type" : "obj",
             "path" : "models/Mesh014.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
             "type" : "obj",
             "path" : "models/Mesh015.obj",
             "bsdf" : {
-                "type" : "diffuse"
+                "type" : "diffuse",
+                "albedo" : [0.5, 0.5, 0.5]
             }
         }
     ]
