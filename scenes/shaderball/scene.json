@@ -22,8 +22,7 @@
             "path" : "meshes/Base.obj",
             "bsdf" : {
                 "type" : "diffuse",
-                "in_ior" : 1.5,
-                "ex_ior" : 1
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         
@@ -32,8 +31,7 @@
             "path" : "meshes/InnerShape.obj",
             "bsdf" : {
                 "type" : "diffuse",
-                "in_ior" : 1.5,
-                "ex_ior" : 1
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
@@ -41,8 +39,7 @@
             "path" : "meshes/OuterShape.obj",
             "bsdf" : {
                 "type" : "diffuse",
-                "in_ior" : 1.5,
-                "ex_ior" : 1
+                "albedo" : [0.5, 0.5, 0.5]
             }
         },
         {
