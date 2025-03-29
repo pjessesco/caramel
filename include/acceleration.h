@@ -25,6 +25,7 @@
 #pragma once
 
 #include <vector>
+#include <optional>
 
 #include <common.h>
 #include <aabb.h>
@@ -72,7 +73,7 @@ namespace Caramel{
 
             std::tuple<bool, RayIntersectInfo> ray_intersect_leaf(const Ray &ray, const OBJMesh &shape) const;
             std::tuple<bool, RayIntersectInfo> ray_intersect_branch(const Ray &ray, const OBJMesh &shape) const;
-            std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray, const OBJMesh &shape) const;
+            std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray, const OBJMesh &shape, std::optional<bool> is_intersect) const;
             bool is_leaf() const;
 
             AABB m_aabb;
