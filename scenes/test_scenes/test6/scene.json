@@ -1,0 +1,64 @@
+{
+    "integrator": {
+        "type": "path",
+        "depth_rr" : 0,
+        "depth_max" : 5,
+        "spp" : 100
+    },
+
+    "camera": {
+        "type" : "perspective(NOT_USED)",
+        "pos" : [0, 0.919769, 5.41159],
+        "dir" : [0.0, -0.026718, -0.99961],
+        "up" : [0.0, 1.0, 0.0],
+        "width" : 800,
+        "height" : 600,
+        "fov" : 27.7856
+    },
+
+    "light" : [
+        {
+            "type" : "image_env",
+            "path" : "envmap.exr",
+            "scale" : 1
+        }
+    ],
+
+    "shape" : [
+        {
+            "type" : "obj",
+            "path" : "meshes/light.obj",
+            "bsdf" : {
+                "type" : "diffuse"
+            },
+            "arealight" : {
+                "radiance" : [5, 5, 5]
+            },
+            "to_world" : [
+                {
+                    "type" : "translate",
+                    "value" : [0.5, -0.2, 0]
+                }
+            ]
+        },
+        {
+            "type" : "obj",
+            "path" : "meshes/walls2.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.725, 0.71, 0.68]
+            }
+        },
+        {
+            "type" : "obj",
+            "path" : "meshes/walls3.obj",
+            "bsdf" : {
+                "type" : "diffuse",
+                "albedo" : [0.725, 0.71, 0.68]
+            }
+        }
+    ]
+}
+
+
+
