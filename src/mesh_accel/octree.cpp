@@ -102,17 +102,19 @@ namespace Caramel{
         info.t = INF;
         bool is_hit = false;
 
-        std::vector<std::pair<Index, Float>> idx_mint_pair;
+        std::array<std::pair<Index, Float>, 8> idx_mint_pair;
+        Index hit_count = 0;
         for(Index i=0;i<m_childs.size();i++){
             const auto child_aabb_intersect = m_childs[i].m_aabb.ray_intersect(ray);
             if(get<0>(child_aabb_intersect)) {
-                idx_mint_pair.emplace_back(i, get<1>(child_aabb_intersect));
+                idx_mint_pair[hit_count++] = {i, get<1>(child_aabb_intersect)};
             }
         }
 
-        std::sort(idx_mint_pair.begin(), idx_mint_pair.end(), [&](const auto &a, const auto &b){return a.second < b.second;});
+        std::sort(idx_mint_pair.begin(), idx_mint_pair.begin() + hit_count, [&](const auto &a, const auto &b){return a.second < b.second;});
 
-        for(const auto &[idx, mint] : idx_mint_pair){
+        for(int i=0;i<hit_count;i++){
+            const auto &[idx, mint] = idx_mint_pair[i];
             if(mint > info.t) {
                 break;
             }
