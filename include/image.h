@@ -43,6 +43,8 @@ namespace Caramel {
         Vector3f get_pixel_value(int w, int h) const;
         Vector2ui size() const;
 
+        std::vector<std::vector<Float>> get_data_for_sampling(bool sin_weight) const;
+
     private:
         Image(Index width, Index height, const std::vector<Float> &m_data);
 

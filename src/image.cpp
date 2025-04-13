@@ -143,6 +143,34 @@ namespace Caramel{
                 m_data[(w + h * m_width)*3 + 2]};
     }
 
+    /*
+     *              width
+     *   --------------------------------------
+     *   |                                    |
+     *   |   oooooooooooooooooooooooooooooo   |
+     *   |                                    |  height
+     *   |   oooooooooooooooooooooooooooooo   |
+     *   |                                    |
+     *   |   oooooooooooooooooooooooooooooo   |
+     *   |                                    |
+     *   --------------------------------------
+     */
+    std::vector<std::vector<Float>> Image::get_data_for_sampling(bool sin_weight) const {
+        std::vector<std::vector<Float>> data;
+        data.reserve(m_height);
+        for (int j=0;j<m_height;j++) {
+            std::vector<Float> temp;
+            const Float multiply = sin_weight ? std::sin(Float(j) / Float(m_height) * PI) : Float1;
+            temp.reserve(m_width);
+            for (int i=0;i<m_width;i++) {
+                const auto val = m_data[(i + j * m_width)*3] + m_data[(i + j * m_width)*3 + 1] + m_data[(i + j * m_width)*3 + 2];
+                temp.emplace_back(val * multiply);
+            }
+            data.emplace_back(std::move(temp));
+        }
+        return data;
+    }
+
     Vector2ui Image::size() const{
         return {m_width, m_height};
     }
