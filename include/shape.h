@@ -29,9 +29,9 @@
 #include <cmath>
 #include <filesystem>
 
-#include <common.h>
-#include <distrib1D.h>
 #include <aabb.h>
+#include <common.h>
+#include <distribution.h>
 
 namespace Caramel{
     class BSDF;

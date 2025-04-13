@@ -42,17 +42,9 @@ namespace Caramel{
 
     Vector3f ImageEnvLight::radiance(const Vector3f &, const Vector3f &, const Vector3f &light_normal_world) const{
         const Vector3f dir = transform_vector(-light_normal_world, m_transform).normalize();
-        Vector2f uv {std::atan2(dir[0], -dir[2]) * PI_2_INV,
-                     std::acos(dir[1]) * PI_INV};
+        Vector2f uv = vec_to_uv(dir);
+
         const auto size = m_image->size();
-
-        if(uv[0] < 0){
-            uv[0] += 1;
-        }
-        if(uv[1] < 0){
-            uv[1] += 1;
-        }
-
         return m_image->get_pixel_value(uv[0] * size[0], uv[1] * size[1]);
     }
 
