@@ -142,9 +142,7 @@ namespace Caramel{
         if(uv[0] < 0){
             uv[0] += 1;
         }
-        if(uv[1] < 0){
-            uv[1] += 1;
-        }
+        
         return uv;
     }
 
