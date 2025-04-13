@@ -52,7 +52,7 @@ set(HEADERS
         include/camera.h
         include/common.h
         include/coordinate.h
-        include/distrib1D.h
+        include/distribution.h
         include/image.h
         include/integrators.h
         include/light.h

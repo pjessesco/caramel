@@ -37,6 +37,7 @@
 #pragma once
 
 #include <vector>
+#include <numeric>
 
 #include <common.h>
 
@@ -69,13 +70,40 @@ namespace Caramel{
             return m_pdf[i];
         }
 
-        Float cdf(Index i) const{
-            return m_cdf[i];
-        }
-
     private:
 
         std::vector<Float> m_pdf;
         std::vector<Float> m_cdf;
+    };
+
+    class Distrib2D{
+    public:
+        Distrib2D() = default;
+        explicit Distrib2D(const std::vector<std::vector<Float>> &vec){
+            std::vector<Float> width_vals;
+            for (const auto &w : vec) {
+                width_vals.push_back(std::reduce(w.begin(), w.end()));
+                m_height_distrib_list.emplace_back(w);
+            }
+            m_width_distrib = Distrib1D(width_vals);
+        }
+
+        Vector2ui sample(const Vector2f &_sample) const{
+            const Index w = m_width_distrib.sample(_sample[0]);
+            return {w, m_height_distrib_list[w].sample(_sample[1])};
+        }
+
+        Vector2ui sample(Float x, Float y) const {
+            const Index w = m_width_distrib.sample(x);
+            return {w, m_height_distrib_list[w].sample(y)};
+        }
+
+        Float pdf(Index i, Index j) const{
+            return m_width_distrib.pdf(i) * m_height_distrib_list[i].pdf(j);
+        }
+
+    private:
+        Distrib1D m_width_distrib;
+        std::vector<Distrib1D> m_height_distrib_list;
     };
 }
