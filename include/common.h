@@ -124,9 +124,28 @@ namespace Caramel{
         return (a*(Float1-u-v)) + (b*u) + (c*v);
     }
 
+    inline bool is_zero(const Vector2f &v){
+        return std::abs(v[0] - Float0) < 1e-7 &&
+               std::abs(v[1] - Float0) < 1e-7;
+    }
+
     inline bool is_zero(const Vector3f &v){
-        return v[0] == Float0 &&
-               v[1] == Float0 &&
-               v[2] == Float0;
+        return std::abs(v[0] - Float0) < 1e-7 &&
+               std::abs(v[1] - Float0) < 1e-7 &&
+               std::abs(v[2] - Float0) < 1e-7;
+    }
+
+    inline Vector2f vec_to_uv(const Vector3f &vec) {
+        Vector2f uv {std::atan2(vec[0], -vec[2]) * PI_2_INV,
+                     std::acos(vec[1]) * PI_INV};
+
+        if(uv[0] < 0){
+            uv[0] += 1;
+        }
+        if(uv[1] < 0){
+            uv[1] += 1;
+        }
+        return uv;
+    }
     }
 }
