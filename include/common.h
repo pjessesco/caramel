@@ -147,5 +147,19 @@ namespace Caramel{
         }
         return uv;
     }
+
+    inline Vector3f uv_to_vec(const Vector2f &uv) {
+        const Float phi = PI_2 * uv[0];
+        const Float theta = uv[1] * PI;
+
+        const Float sin_theta = std::sin(theta);
+        const Float cos_theta = std::cos(theta);
+        const Float sin_phi = std::sin(phi);
+        const Float cos_phi = std::cos(phi);
+
+        // Note that it is different with `sample_unit_sphere_uniformly()` or similar functions
+        return {sin_theta * sin_phi, cos_theta, -sin_theta * cos_phi};
     }
+
+
 }

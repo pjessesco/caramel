@@ -78,6 +78,7 @@ if(NOT EXCLUDE_TEST)
             test/catch_amalgamated.cpp
             test/complex_render_test.cpp
             test/simple_render_test.cpp
+            test/unit_tests.cpp
             test/utils.cpp
     )
 
