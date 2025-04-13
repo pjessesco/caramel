@@ -22,43 +22,21 @@
 // SOFTWARE.
 //
 
-#pragma once
-
-#include <vector>
-#include <string>
-
+// caramel headers
 #include <common.h>
 
-namespace Caramel {
-    // Caramel considers only RGB(BGR) 3 channel image.
-    class Image {
-    public:
-        static constexpr int CHANNEL_NUM = 3;
+#include <utils.h>
+#include <image.h>
 
-        Image(Index width, Index height);
-        Image(const std::string &filename);
-        void write_exr(const std::string &filename) const;
+// Dependencies headers
+#include "catch_amalgamated.hpp"
 
-        void set_pixel_value(int w, int h, Float r, Float g, Float b);
-        Vector3f get_pixel_value(int w, int h) const;
-        Vector2ui size() const;
+using namespace Caramel;
 
-        std::vector<std::vector<Float>> get_data_for_sampling(bool sin_weight) const;
-
-    private:
-        Image(Index width, Index height, const std::vector<Float> &m_data);
-
-        // Called in constructor
-        void read_from_jpg(const std::string &filename);
-        void read_from_png(const std::string &filename);
-        void read_from_exr(const std::string &filename);
-        void read_from_hdr(const std::string &filename);
-
-        static Float mse(const Image &img1, const Image &img2);
-        static Float rmse(const Image &img1, const Image &img2);
-
-        Index m_width;
-        Index m_height;
-        std::vector<Float> m_data;
-    };
+TEST_CASE("uv <-> vector mapping test") {
+    for(Float u = 0.05f; u <= 0.98f; u += 0.1f){
+        for(Float v = 0.05f; v <= 0.98f; v += 0.1f){
+            CHECK(is_zero(vec_to_uv(uv_to_vec({u, v})) - Vector2f{u, v}));
+        }
+    }
 }
