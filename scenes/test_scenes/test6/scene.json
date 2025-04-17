@@ -2,7 +2,7 @@
     "integrator": {
         "type": "path",
         "depth_rr" : 0,
-        "depth_max" : 5,
+        "depth_max" : 4,
         "spp" : 100
     },
 
@@ -25,22 +25,6 @@
     ],
 
     "shape" : [
-        {
-            "type" : "obj",
-            "path" : "meshes/light.obj",
-            "bsdf" : {
-                "type" : "diffuse"
-            },
-            "arealight" : {
-                "radiance" : [5, 5, 5]
-            },
-            "to_world" : [
-                {
-                    "type" : "translate",
-                    "value" : [0.5, -0.2, 0]
-                }
-            ]
-        },
         {
             "type" : "obj",
             "path" : "meshes/walls2.obj",
