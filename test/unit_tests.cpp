@@ -36,7 +36,7 @@ using namespace Caramel;
 TEST_CASE("uv <-> vector mapping test") {
     for(Float u = 0.05f; u <= 0.98f; u += 0.1f){
         for(Float v = 0.05f; v <= 0.98f; v += 0.1f){
-            CHECK(is_zero(vec_to_uv(uv_to_vec({u, v})) - Vector2f{u, v}));
+            CHECK(is_zero(vec_to_normalized_uv(normalized_uv_to_vec({u, v})) - Vector2f{u, v}));
         }
     }
 }
