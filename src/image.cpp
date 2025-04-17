@@ -146,24 +146,24 @@ namespace Caramel{
     /*
      *              width
      *   --------------------------------------
-     *   |                                    |
-     *   |   oooooooooooooooooooooooooooooo   |
-     *   |                                    |  height
-     *   |   oooooooooooooooooooooooooooooo   |
-     *   |                                    |
-     *   |   oooooooooooooooooooooooooooooo   |
-     *   |                                    |
+     *   |    _      _      _      _     _    |
+     *   |   | |    | |    | |    | |   | |   |
+     *   |   | |    | |    | |    | |   | |   |  height
+     *   |   | |    | |    | |    | |   | |   |
+     *   |   | |    | |    | |    | |   | |   |
+     *   |   | |    | |    | |    | |   | |   |
+     *   |    -      -      -      -     -    |
      *   --------------------------------------
      */
     std::vector<std::vector<Float>> Image::get_data_for_sampling(bool sin_weight) const {
         std::vector<std::vector<Float>> data;
-        data.reserve(m_height);
-        for (int j=0;j<m_height;j++) {
+        data.reserve(m_width);
+        for (int w=0;w<m_width;w++) {
             std::vector<Float> temp;
-            const Float multiply = sin_weight ? std::sin(Float(j) / Float(m_height) * PI) : Float1;
-            temp.reserve(m_width);
-            for (int i=0;i<m_width;i++) {
-                const auto val = m_data[(i + j * m_width)*3] + m_data[(i + j * m_width)*3 + 1] + m_data[(i + j * m_width)*3 + 2];
+            temp.reserve(m_height);
+            for (int h=0;h<m_height;h++) {
+                const Float multiply = sin_weight ? std::sin(Float(h) / Float(m_height) * PI) : Float1;
+                const auto val = m_data[(w + h * m_width)*3] + m_data[(w + h * m_width)*3 + 1] + m_data[(w + h * m_width)*3 + 2];
                 temp.emplace_back(val * multiply);
             }
             data.emplace_back(std::move(temp));

@@ -54,7 +54,7 @@ namespace Caramel{
 
             if(!is_hit){
                 if (auto envmap_light = scene.m_envmap_light; envmap_light) {
-                    const Float pdf_solidangle = envmap_light->pdf_solidangle(ray.m_o, info.p, info.sh_coord.m_world_n);
+                    const Float pdf_solidangle = envmap_light->pdf_solidangle(ray.m_o, ray.m_o + ray.m_d * scene.m_sceneRadius * 2, info.sh_coord.m_world_n);
                     const Float pdf_pick_light = Float1 / static_cast<Float>(scene.m_lights.size());
                     const Float weight = balance_heuristic(prev_brdf_pdf, pdf_pick_light * pdf_solidangle);
                     const Vector3f contrib = envmap_light->radiance(ray.m_o, ray.m_o + (ray.m_d * scene.m_sceneRadius * 2), -ray.m_d) % current_brdf;
