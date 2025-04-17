@@ -57,7 +57,20 @@ namespace Caramel{
 
         const Vector3f light_pos = hitpos_info.p + (pos_to_light_world * scene.m_sceneRadius * 2);
 
-        const auto pdf = m_width_height * m_imageDistrib.pdf(sampled_uv[0], sampled_uv[1]) / (2 * PI * PI * std::sin(static_cast<Float>((sampled_uv[1] + Float0_5) / m_height) * PI));
+        // 1.
+        // (i,j) (discrete) -> (u, v) (continuous)
+        // P(i, j) = p(u, v) * du * dv ~= p(u, v) * 1/width * 1/height
+        // p(u, v) = P(i, j) * width * height
+        //
+        // 2.
+        // (u, v) -> (theta, phi)
+        // (theta, phi) =  (v * PI, u * 2 * PI), |j| = 2 * PI^2
+        //
+        // 3.
+        // (theta, phi) -> (x, y, z) (solid angle vector)
+        // |j| is known as sin(theta)
+        //
+        const auto pdf = m_width_height * m_imageDistrib.pdf/*technically it's pmf*/(sampled_uv[0], sampled_uv[1]) / (2 * PI * PI * std::sin(static_cast<Float>((sampled_uv[1] + Float0_5) / m_height) * PI));
 
         auto [visible, info] = scene.is_visible(light_pos, hitpos_info.p);
         if (!visible) {
