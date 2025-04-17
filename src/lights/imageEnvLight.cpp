@@ -37,32 +37,49 @@
 
 
 namespace Caramel{
-    ImageEnvLight::ImageEnvLight(const std::string &path, Float scale, const Matrix44f &transform)
-        : m_image(new Image(path)), m_scale(scale), m_transform(transform) {}
+    ImageEnvLight::ImageEnvLight(const std::string &path, Float scale)
+        : m_image(new Image(path)), m_scale(scale), m_imageDistrib(m_image->get_data_for_sampling(true)),
+          m_width(m_image->size()[0]), m_height(m_image->size()[1]), m_width_height(m_width * m_height) {
+
+    }
 
     Vector3f ImageEnvLight::radiance(const Vector3f &, const Vector3f &, const Vector3f &light_normal_world) const{
-        const Vector3f dir = transform_vector(-light_normal_world, m_transform).normalize();
-        Vector2f uv = vec_to_uv(dir);
+        const Vector3f dir = -light_normal_world.normalize();
+        Vector2f uv = vec_to_normalized_uv(dir);
 
         const auto size = m_image->size();
         return m_image->get_pixel_value(uv[0] * size[0], uv[1] * size[1]);
     }
 
     std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> ImageEnvLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &sampler) const{
-        auto [pos_to_light_dir_local, pos_pdf] = sample_unit_sphere_uniformly(sampler);
-        auto pos_to_light_dir_world = hitpos_info.sh_coord.to_world(pos_to_light_dir_local);
+        const auto sampled_uv = m_imageDistrib.sample(sampler.sample_1d(), sampler.sample_1d());
+        const auto pos_to_light_world = normalized_uv_to_vec(Vector2f{static_cast<Float>(sampled_uv[0] + Float0_5) / m_width, static_cast<Float>(sampled_uv[1] + Float0_5) / m_height});
 
-        const Vector3f light_pos = hitpos_info.p + (pos_to_light_dir_world * scene.m_sceneRadius * 2);
+        const Vector3f light_pos = hitpos_info.p + (pos_to_light_world * scene.m_sceneRadius * 2);
+
+        const auto pdf = m_width_height * m_imageDistrib.pdf(sampled_uv[0], sampled_uv[1]) / (2 * PI * PI * std::sin(static_cast<Float>((sampled_uv[1] + Float0_5) / m_height) * PI));
+
         auto [visible, info] = scene.is_visible(light_pos, hitpos_info.p);
         if (!visible) {
-            return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf, RayIntersectInfo()};
+            return {vec3f_zero, vec3f_zero, vec3f_zero, pdf, RayIntersectInfo()};
         }
 
-        return {radiance(hitpos_info.p, light_pos, -pos_to_light_dir_world), light_pos, -pos_to_light_dir_world, PI_4_INV, RayIntersectInfo()/*TODO?*/};
+        return {radiance(hitpos_info.p, light_pos, -pos_to_light_world), light_pos, -pos_to_light_world, pdf, RayIntersectInfo()/*TODO?*/};
     }
 
     Float ImageEnvLight::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const{
-        return PI_4_INV;
+        const auto dir = Vector3f(lightpos_world - hitpos_world).normalize();
+        const Vector2f uv = vec_to_normalized_uv(dir);
+        if (std::abs(uv[1] - Float1) < 1e-6 || std::abs(uv[1] - Float0) < 1e-6) {
+            return 0;
+        }
+
+        Vector2i pixel_idx(static_cast<int>(uv[0] * m_width), static_cast<int>(uv[1] * m_height));
+        if (pixel_idx[0] >=  m_width) {
+            pixel_idx[0] -= m_width;
+        }
+
+        return m_width_height * m_imageDistrib.pdf(pixel_idx[0], pixel_idx[1]) / (2 * PI * PI * std::sin(uv[1] * PI)); // ???
     }
 
     bool ImageEnvLight::is_delta() const {

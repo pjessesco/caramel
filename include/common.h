@@ -135,7 +135,7 @@ namespace Caramel{
                std::abs(v[2] - Float0) < 1e-7;
     }
 
-    inline Vector2f vec_to_uv(const Vector3f &vec) {
+    inline Vector2f vec_to_normalized_uv(const Vector3f &vec) {
         Vector2f uv {std::atan2(vec[0], -vec[2]) * PI_2_INV,
                      std::acos(vec[1]) * PI_INV};
 
@@ -146,7 +146,7 @@ namespace Caramel{
         return uv;
     }
 
-    inline Vector3f uv_to_vec(const Vector2f &uv) {
+    inline Vector3f normalized_uv_to_vec(const Vector2f &uv) {
         const Float phi = PI_2 * uv[0];
         const Float theta = uv[1] * PI;
 
