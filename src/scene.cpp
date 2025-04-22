@@ -44,7 +44,7 @@ namespace Caramel{
         m_cam = camera;
     }
 
-    std::tuple<bool, RayIntersectInfo> Scene::ray_intersect(const Ray &ray) const{
+    std::pair<bool, RayIntersectInfo> Scene::ray_intersect(const Ray &ray) const{
 
         bool is_hit = false;
         RayIntersectInfo info = RayIntersectInfo();
@@ -99,7 +99,7 @@ namespace Caramel{
         return {std::abs(vec3_1_to_2.length() - info.t) <= 1.1e-3, info};
     }
 
-    std::tuple<const Light*, Float> Scene::sample_light(Sampler &sampler) const{
+    std::pair<const Light*, Float> Scene::sample_light(Sampler &sampler) const{
         const Index idx = static_cast<Index>(sampler.sample_1d() * static_cast<Float>(m_lights.size()));
         return {m_lights[idx], Float1 / static_cast<Float>(m_lights.size())};
     }

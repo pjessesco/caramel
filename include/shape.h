@@ -50,7 +50,7 @@ namespace Caramel{
         virtual ~Shape() = default;
 
         // u, v, t
-        virtual std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const = 0;
+        virtual std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const = 0;
         virtual AABB get_aabb() const = 0;
         virtual Float get_area() const = 0;
         // point, normal, probability
@@ -93,7 +93,7 @@ namespace Caramel{
                  const Vector2f &uv0, const Vector2f &uv1, const Vector2f &uv2);
 
         // u, v, t
-        std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
+        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
         AABB get_aabb() const override;
         Float get_area() const override;
         // point, normal, probability
@@ -119,7 +119,7 @@ namespace Caramel{
     public:
         OBJMesh(const std::filesystem::path &path, BSDF *bsdf, AreaLight *arealight = nullptr, const Matrix44f &transform = Matrix44f::identity());
 
-        std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
+        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
         AABB get_aabb() const override;
         Float get_area() const override;
         // point, normal, probability

@@ -37,7 +37,7 @@ namespace Caramel{
 
     void Naive::build() {}
 
-    std::tuple<bool, RayIntersectInfo> Naive::ray_intersect(const Ray &ray) {
+    std::pair<bool, RayIntersectInfo> Naive::ray_intersect(const Ray &ray) {
         if(!(std::get<0>(m_shape.get_aabb().ray_intersect(ray)))){
             return {false, RayIntersectInfo()};
         }

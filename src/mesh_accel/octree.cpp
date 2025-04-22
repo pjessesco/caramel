@@ -81,7 +81,7 @@ namespace Caramel{
         }
     }
 
-    std::tuple<bool, RayIntersectInfo> Octree::Node::ray_intersect_leaf(const Ray &ray, const OBJMesh &shape) const{
+    std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect_leaf(const Ray &ray, const OBJMesh &shape) const{
         RayIntersectInfo info;
         info.t = INF;
         bool is_hit = false;
@@ -97,7 +97,7 @@ namespace Caramel{
         return {is_hit, info};
     }
 
-    std::tuple<bool, RayIntersectInfo> Octree::Node::ray_intersect_branch(const Ray &ray, const OBJMesh &shape) const{
+    std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect_branch(const Ray &ray, const OBJMesh &shape) const{
         RayIntersectInfo info;
         info.t = INF;
         bool is_hit = false;
@@ -131,7 +131,7 @@ namespace Caramel{
         return {is_hit, info};
     }
 
-    std::tuple<bool, RayIntersectInfo> Octree::Node::ray_intersect(const Ray &ray, const OBJMesh &shape, std::optional<bool> is_intersect) const{
+    std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect(const Ray &ray, const OBJMesh &shape, std::optional<bool> is_intersect) const{
         const bool intersect = is_intersect.has_value() ? is_intersect.value() : std::get<0>(m_aabb.ray_intersect(ray));
 
         if(intersect){
@@ -166,7 +166,7 @@ namespace Caramel{
         m_head.construct_children_recursively(m_shape, 0);
     }
 
-    std::tuple<bool, RayIntersectInfo> Octree::ray_intersect(const Ray &ray) {
+    std::pair<bool, RayIntersectInfo> Octree::ray_intersect(const Ray &ray) {
         return m_head.ray_intersect(ray, m_shape, std::nullopt);
     }
 
