@@ -36,15 +36,16 @@ namespace Caramel{
 
     class BVHNode {
     public:
-        BVHNode(const std::vector<Shape*> &shapes);
+        BVHNode(const std::vector<const Shape*> &shapes);
         void create_child();
         std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray);
+        bool is_leaf() const;
 
     private:
-        std::vector<Shape*> m_shapes;
+        std::vector<const Shape*> m_shapes;
 
-        BVHNode *m_left;
-        BVHNode *m_right;
+        std::unique_ptr<BVHNode> m_left;
+        std::unique_ptr<BVHNode> m_right;
 
         AABB m_aabb;
     };

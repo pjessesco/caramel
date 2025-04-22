@@ -36,7 +36,7 @@
 
 namespace Caramel{
 
-     BVHNode::BVHNode(const std::vector<Shape*> &shapes) {
+     BVHNode::BVHNode(const std::vector<const Shape*> &shapes) {
         m_shapes = shapes;
         m_left = nullptr;
         m_right = nullptr;
@@ -46,43 +46,69 @@ namespace Caramel{
         }
     }
 
+    bool BVHNode::is_leaf() const {
+         return !m_shapes.empty();
+     }
+
     std::pair<bool, RayIntersectInfo> BVHNode::ray_intersect(const Ray &ray) {
-        if (std::get<0>(m_aabb.ray_intersect(ray))) {
-            return {false, {}};
-        }
-        std::pair<bool, RayIntersectInfo> ret = {false, {}};
+        if (is_leaf()) {
+            bool is_hit = false;
+            RayIntersectInfo info = RayIntersectInfo();
 
-        if (auto tmp = m_left->m_aabb.ray_intersect(ray); std::get<0>(tmp)) {
-            if (std::get<1>(ret).t > std::get<1>(tmp)) {
-                ret = {true, }
+            for(int i=0;i<m_shapes.size();i++){
+                if(get<1>(m_shapes[i]->get_aabb().ray_intersect(ray)) <= info.t){
+                    auto [hit, tmp_info] = m_shapes[i]->ray_intersect(ray);
+                    if(hit){
+                        is_hit = true;
+                        if(info.t >= tmp_info.t){
+                            info = tmp_info;
+                            info.shape = m_shapes[i];
+                        }
+                    }
+                }
             }
-        }
-        if (std::get<0>(m_right->m_aabb.ray_intersect(ray))) {
 
+            return {is_hit, info};
         }
+        else {
+            if (!std::get<0>(m_aabb.ray_intersect(ray))) {
+                return {false, {}};
+            }
+            std::pair<bool, RayIntersectInfo> ret = {false, {}};
 
+            const auto left_hit = m_left->ray_intersect(ray);
+            if (left_hit.first) {
+                ret = left_hit;
+            }
+
+            const auto right_hit = m_right->ray_intersect(ray);
+            if (right_hit.first && right_hit.second.t < ret.second.t) {
+                ret = right_hit;
+            }
+            return ret;
+        }
     }
 
     void BVHNode::create_child() {
-        if (m_shapes.size() < 4) {
+        if (m_shapes.size() <= 2) {
             return;
         }
 
         const int longest_axis = m_aabb.longest_axis();
         const Float longest_axis_mid = (m_aabb.m_min[longest_axis] + m_aabb.m_max[longest_axis]) * Float0_5;
 
-        std::vector<Shape*> left;
-        std::vector<Shape*> right;
-
-        AABB left_aabb = m_aabb;
-        AABB right_aabb = m_aabb;
+        std::vector<const Shape*> left;
+        std::vector<const Shape*> right;
 
         for (auto &s : m_shapes) {
             ((s->get_center()[longest_axis] < longest_axis_mid) ? left : right).push_back(s);
         }
 
-        m_left = new BVHNode(left);
-        m_right = new BVHNode(right);
+         if (left.empty() || right.empty()) {
+             return;
+         }
+        m_left = std::make_unique<BVHNode>(left);
+        m_right = std::make_unique<BVHNode>(right);
         m_shapes.clear();
         m_left->create_child();
         m_right->create_child();
