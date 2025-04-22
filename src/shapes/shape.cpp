@@ -38,6 +38,10 @@ namespace Caramel {
         }
     }
 
+    Vector3f Shape::get_center() const {
+        return get_aabb().get_center();
+    }
+
     std::tuple<Float, Float, Float> moller_trumbore(const Ray &ray, const Vector3f &p0, const Vector3f &p1, const Vector3f &p2){
         const Vector3f D = ray.m_d;
 

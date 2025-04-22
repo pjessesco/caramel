@@ -81,4 +81,38 @@ namespace Caramel{
         }
         return {tmin <= tmax, tmin, tmax};
     }
+
+    int AABB::longest_axis() const {
+        const Float len_x = m_max[0] - m_min[0];
+        const Float len_y = m_max[1] - m_min[1];
+        const Float len_z = m_max[2] - m_min[2];
+
+        return len_x > len_y && len_x > len_z ? 0 :
+               len_y > len_x && len_y > len_z ? 1 :
+                                                2;
+    }
+
+    Vector3f AABB::get_center() const {
+        return (m_max + m_min) * Float0_5;
+    }
+
+    std::pair<AABB, AABB> AABB::split(int axis) const {
+        if (axis == 0/* x */) {
+            const Float x_mid = (m_min[0] + m_max[0]) * Float0_5;
+            return {{m_min, {x_mid, m_max[1], m_max[2]}}, {{x_mid, m_min[1], m_min[2]}, m_max}};
+        }
+        else if (axis == 1/* y */) {
+            const Float y_mid = (m_min[1] + m_max[1]) * Float0_5;
+            return {{m_min, {m_max[0], y_mid, m_max[2]}}, {{m_min[0], y_mid, m_min[2]}, m_max}};
+        }
+        else if (axis == 2/* z */) {
+            const Float z_mid = (m_min[2] + m_max[2]) * Float0_5;
+            return {{m_min, {m_max[0], m_max[1], z_mid}}, {{m_min[0], m_min[1], z_mid}, m_max}};
+        }
+        return {};
+    }
+
+
+
+
 }

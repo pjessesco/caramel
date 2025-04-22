@@ -58,6 +58,8 @@ namespace Caramel{
         // Probability to sample shapepos_world at hitpos_world respect to solid angle
         virtual Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const = 0;
 
+        Vector3f get_center() const;
+
         inline bool is_light() const{
             return m_arealight != nullptr;
         }
