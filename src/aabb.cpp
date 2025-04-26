@@ -61,24 +61,69 @@ namespace Caramel{
                 i & 4 ? m_min[2] : m_max[2]};
     }
 
-    std::tuple<bool, Float, Float> AABB::ray_intersect(const Ray &ray) const{
+    std::pair<bool, Float> AABB::ray_intersect(const Ray &ray) const{
         Float tmin = Float0;
         Float tmax = INF;
+
         for(Index i=0;i<3;i++){
-            const Float t1 = (m_min[i] - ray.m_o[i]) / ray.m_d[i];
-            const Float t2 = (m_max[i] - ray.m_o[i]) / ray.m_d[i];
-            // Using ternary operator seems faster than std::min/max in debug config
-            /* tmin */{
-                const Float a = (t1 > tmin ? t1 : tmin);
-                const Float b = (t2 > tmin ? t2 : tmin);
-                tmin = a > b ? b : a;
+            const Float o = ray.m_o[i];
+            const Float d = ray.m_d[i];
+            const Float min = m_min[i];
+            const Float max = m_max[i];
+            if (Peanut::is_zero(d)) {
+                if (o < min || o > max) {
+                    return {false, INF};
+                }
+                continue;
             }
-            /* tmax */{
-                const Float a = (t1 > tmax ? tmax : t1);
-                const Float b = (t2 > tmax ? tmax : t2);
-                tmax = a > b ? a : b;
+            const Float invd = Float1 / d;
+            Float t1 = (min - o) * invd;
+            Float t2 = (max - o) * invd;
+
+            if (t1 > t2) {
+                std::swap(t1, t2);
+            }
+            tmin = std::max(t1, tmin);
+            tmax = std::min(t2, tmax);
+
+            if (tmin > tmax) {
+                return {false, INF};
             }
         }
-        return {tmin <= tmax, tmin, tmax};
+        return {tmax >= Float0, tmin};
     }
+
+    int AABB::longest_axis() const {
+        const Float len_x = m_max[0] - m_min[0];
+        const Float len_y = m_max[1] - m_min[1];
+        const Float len_z = m_max[2] - m_min[2];
+
+        return len_x > len_y && len_x > len_z ? 0 :
+               len_y > len_x && len_y > len_z ? 1 :
+                                                2;
+    }
+
+    Vector3f AABB::get_center() const {
+        return (m_max + m_min) * Float0_5;
+    }
+
+    std::pair<AABB, AABB> AABB::split(int axis) const {
+        if (axis == 0/* x */) {
+            const Float x_mid = (m_min[0] + m_max[0]) * Float0_5;
+            return {{m_min, {x_mid, m_max[1], m_max[2]}}, {{x_mid, m_min[1], m_min[2]}, m_max}};
+        }
+        else if (axis == 1/* y */) {
+            const Float y_mid = (m_min[1] + m_max[1]) * Float0_5;
+            return {{m_min, {m_max[0], y_mid, m_max[2]}}, {{m_min[0], y_mid, m_min[2]}, m_max}};
+        }
+        else if (axis == 2/* z */) {
+            const Float z_mid = (m_min[2] + m_max[2]) * Float0_5;
+            return {{m_min, {m_max[0], m_max[1], z_mid}}, {{m_min[0], m_min[1], z_mid}, m_max}};
+        }
+        return {};
+    }
+
+
+
+
 }

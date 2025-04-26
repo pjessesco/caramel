@@ -47,7 +47,7 @@ namespace Caramel{
         virtual void build() = 0;
 
         // Trace ray
-        virtual std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) = 0;
+        virtual std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray) = 0;
 
         const OBJMesh &m_shape;
     };
@@ -57,7 +57,7 @@ namespace Caramel{
 
         void build() override;
 
-        std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) override;
+        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray) override;
     };
 
     // Octree for OBJMesh
@@ -71,9 +71,9 @@ namespace Caramel{
             void construct_children(const OBJMesh &shape);
             void construct_children_recursively(const OBJMesh &shape, int depth);
 
-            std::tuple<bool, RayIntersectInfo> ray_intersect_leaf(const Ray &ray, const OBJMesh &shape) const;
-            std::tuple<bool, RayIntersectInfo> ray_intersect_branch(const Ray &ray, const OBJMesh &shape) const;
-            std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray, const OBJMesh &shape, std::optional<bool> is_intersect) const;
+            std::pair<bool, RayIntersectInfo> ray_intersect_leaf(const Ray &ray, const OBJMesh &shape) const;
+            std::pair<bool, RayIntersectInfo> ray_intersect_branch(const Ray &ray, const OBJMesh &shape) const;
+            std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, const OBJMesh &shape, std::optional<bool> is_intersect) const;
             bool is_leaf() const;
 
             AABB m_aabb;
@@ -83,7 +83,7 @@ namespace Caramel{
         };
 
         void build() override;
-        std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) override;
+        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray) override;
 
         static constexpr Index MAX_DEPTH = 7;
         static constexpr Index MAX_TRIANGLE_NUM = 30;

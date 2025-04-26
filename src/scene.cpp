@@ -34,6 +34,7 @@
 #include <rayintersectinfo.h>
 #include <sampler.h>
 #include <aabb.h>
+#include <bvh.h>
 
 namespace Caramel{
 
@@ -44,25 +45,8 @@ namespace Caramel{
         m_cam = camera;
     }
 
-    std::tuple<bool, RayIntersectInfo> Scene::ray_intersect(const Ray &ray) const{
-
-        bool is_hit = false;
-        RayIntersectInfo info = RayIntersectInfo();
-
-        for(int i=0;i<m_meshes.size();i++){
-            if(get<1>(m_meshes[i]->get_aabb().ray_intersect(ray)) <= info.t){
-                auto [hit, tmp_info] = m_meshes[i]->ray_intersect(ray);
-                if(hit){
-                    is_hit = true;
-                    if(info.t >= tmp_info.t){
-                        info = tmp_info;
-                        info.idx = i;
-                    }
-                }
-            }
-        }
-
-        return {is_hit, info};
+    std::pair<bool, RayIntersectInfo> Scene::ray_intersect(const Ray &ray) const{
+        return m_bvh_root->ray_intersect(ray);
     }
 
     void Scene::add_mesh_and_arealight(const Shape *shape){
@@ -99,9 +83,13 @@ namespace Caramel{
         return {std::abs(vec3_1_to_2.length() - info.t) <= 1.1e-3, info};
     }
 
-    std::tuple<const Light*, Float> Scene::sample_light(Sampler &sampler) const{
+    std::pair<const Light*, Float> Scene::sample_light(Sampler &sampler) const{
         const Index idx = static_cast<Index>(sampler.sample_1d() * static_cast<Float>(m_lights.size()));
         return {m_lights[idx], Float1 / static_cast<Float>(m_lights.size())};
     }
 
+    void Scene::build_bvh() {
+        m_bvh_root = new BVHNode(m_meshes);
+        m_bvh_root->create_child();
+    }
 }
