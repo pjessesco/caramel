@@ -34,6 +34,7 @@ set(SOURCES
         src/lights/constantEnvLight.cpp
         src/mesh_accel/naive.cpp
         src/mesh_accel/octree.cpp
+        src/mesh_accel/bvh.cpp
         src/samplers/uniformstd.cpp
         src/scene.cpp
         src/shapes/objmesh.cpp

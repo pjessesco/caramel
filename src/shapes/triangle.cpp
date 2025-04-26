@@ -82,7 +82,7 @@ namespace Caramel {
     }
 
     // u, v, t
-    std::tuple<bool, RayIntersectInfo> Triangle::ray_intersect(const Ray &ray) const {
+    std::pair<bool, RayIntersectInfo> Triangle::ray_intersect(const Ray &ray) const {
 
         auto [u, v, t] = moller_trumbore(ray, m_p0, m_p1, m_p2);
 

@@ -50,7 +50,7 @@ namespace Caramel{
             return vec3f_zero;
         }
 
-        const auto mesh = scene.m_meshes[info.idx];
+        const auto mesh = info.shape;
         const Vector3f local_ray_dir = info.sh_coord.to_local(ray.m_d);
 
         if(mesh->is_light()){
@@ -99,7 +99,7 @@ namespace Caramel{
             }
 
             // BRDF sampling is meaningless if spawned ray doesn't hit light
-            const auto recursive_mesh = scene.m_meshes[recursive_info.idx];
+            const auto recursive_mesh = recursive_info.shape;
             if(!recursive_mesh->is_light()){
                 return L1;
             }

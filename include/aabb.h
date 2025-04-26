@@ -41,7 +41,7 @@ namespace Caramel{
 
         Vector3f corner(Index i) const;
 
-        std::tuple<bool, Float, Float> ray_intersect(const Ray &ray) const;
+        std::pair<bool, Float> ray_intersect(const Ray &ray) const;
 
         static AABB merge(const AABB &a, const AABB &b) {
             return {{std::min(a.m_min[0], b.m_min[0]),
@@ -51,6 +51,12 @@ namespace Caramel{
                      std::max(a.m_max[1], b.m_max[1]),
                      std::max(a.m_max[2], b.m_max[2])}};
         }
+
+        std::pair<AABB, AABB> split(int axis) const;
+
+        int longest_axis() const;
+
+        Vector3f get_center() const;
 
         Vector3f m_min;
         Vector3f m_max;
