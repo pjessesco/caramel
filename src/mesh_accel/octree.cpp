@@ -106,8 +106,8 @@ namespace Caramel{
         Index hit_count = 0;
         for(Index i=0;i<m_childs.size();i++){
             const auto child_aabb_intersect = m_childs[i].m_aabb.ray_intersect(ray);
-            if(get<0>(child_aabb_intersect)) {
-                idx_mint_pair[hit_count++] = {i, get<1>(child_aabb_intersect)};
+            if(child_aabb_intersect.first) {
+                idx_mint_pair[hit_count++] = {i, child_aabb_intersect.second};
             }
         }
 
@@ -132,7 +132,7 @@ namespace Caramel{
     }
 
     std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect(const Ray &ray, const OBJMesh &shape, std::optional<bool> is_intersect) const{
-        const bool intersect = is_intersect.has_value() ? is_intersect.value() : std::get<0>(m_aabb.ray_intersect(ray));
+        const bool intersect = is_intersect.has_value() ? is_intersect.value() : m_aabb.ray_intersect(ray).first;
 
         if(intersect){
             if(is_leaf()){

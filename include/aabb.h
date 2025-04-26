@@ -41,7 +41,7 @@ namespace Caramel{
 
         Vector3f corner(Index i) const;
 
-        std::tuple<bool, Float, Float> ray_intersect(const Ray &ray) const;
+        std::pair<bool, Float> ray_intersect(const Ray &ray) const;
 
         static AABB merge(const AABB &a, const AABB &b) {
             return {{std::min(a.m_min[0], b.m_min[0]),
