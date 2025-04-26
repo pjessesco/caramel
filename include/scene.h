@@ -38,6 +38,7 @@ namespace Caramel{
     class Light;
     class Sampler;
     class ConstantEnvLight;
+    class BVHNode;
 
     class Scene{
     public:
@@ -45,11 +46,12 @@ namespace Caramel{
 
         void set_camera(Camera *camera);
 
-        std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const;
+        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const;
         void add_mesh_and_arealight(const Shape *shape);
         void add_light(Light *light);
         std::pair<bool, RayIntersectInfo> is_visible(const Vector3f &pos1, const Vector3f &pos2) const;
-        std::tuple<const Light*, Float> sample_light(Sampler &sampler) const;
+        std::pair<const Light*, Float> sample_light(Sampler &sampler) const;
+        void build_bvh();
 
         std::vector<const Light*> m_lights;
         Light* m_envmap_light;
@@ -58,5 +60,6 @@ namespace Caramel{
         Float m_sceneRadius;
         AABB m_aabb;
         const Camera *m_cam;
+        BVHNode *m_bvh_root;
     };
 }

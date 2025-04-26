@@ -22,19 +22,34 @@
 // SOFTWARE.
 //
 
+#pragma once
+
+#include <vector>
+#include <optional>
+
 #include <common.h>
-#include <rayintersectinfo.h>
-#include <ray.h>
+#include <aabb.h>
 
 namespace Caramel{
 
-    RayIntersectInfo::RayIntersectInfo() : p{Float0, Float0, Float0}, sh_coord(), t(INF), tex_uv{INF, INF}, shape(nullptr) {}
+    class Shape;
 
-    // See also `Scene::is_visible()`
-    Ray RayIntersectInfo::recursive_ray_to(const Vector3f &local_next_dir) const{
-        const Vector3f world_d = sh_coord.to_world(local_next_dir);
+    class BVHNode {
+    public:
+        BVHNode(const std::vector<const Shape*> &shapes);
+        void create_child();
+        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray);
+        bool is_leaf() const;
 
-        return {p + (world_d * 1e-3), world_d};
-    }
+    private:
+        std::vector<const Shape*> m_shapes;
+
+        std::unique_ptr<BVHNode> m_left;
+        std::unique_ptr<BVHNode> m_right;
+
+        AABB m_aabb;
+    };
+
 
 }
+

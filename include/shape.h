@@ -50,13 +50,15 @@ namespace Caramel{
         virtual ~Shape() = default;
 
         // u, v, t
-        virtual std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const = 0;
+        virtual std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const = 0;
         virtual AABB get_aabb() const = 0;
         virtual Float get_area() const = 0;
         // point, normal, probability
         virtual std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const = 0;
         // Probability to sample shapepos_world at hitpos_world respect to solid angle
         virtual Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const = 0;
+
+        Vector3f get_center() const;
 
         inline bool is_light() const{
             return m_arealight != nullptr;
@@ -93,7 +95,7 @@ namespace Caramel{
                  const Vector2f &uv0, const Vector2f &uv1, const Vector2f &uv2);
 
         // u, v, t
-        std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
+        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
         AABB get_aabb() const override;
         Float get_area() const override;
         // point, normal, probability
@@ -119,7 +121,7 @@ namespace Caramel{
     public:
         OBJMesh(const std::filesystem::path &path, BSDF *bsdf, AreaLight *arealight = nullptr, const Matrix44f &transform = Matrix44f::identity());
 
-        std::tuple<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
+        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const override;
         AABB get_aabb() const override;
         Float get_area() const override;
         // point, normal, probability

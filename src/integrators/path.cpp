@@ -64,7 +64,7 @@ namespace Caramel{
                 break;
             }
 
-            const Shape *shape = scene.m_meshes[info.idx];
+            const Shape *shape = info.shape;
             const BSDF *shape_bsdf = shape->get_bsdf();
             const Vector3f local_ray_dir = info.sh_coord.to_local(ray.m_d);
 
