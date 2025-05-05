@@ -61,6 +61,8 @@ namespace Caramel{
         // as pbrt says so...
         static constexpr int COST_TRAVERSAL = 1;
         static constexpr int COST_INTERSECTION = 2;
+
+        static constexpr bool USE_SAH = true;
     };
 
 

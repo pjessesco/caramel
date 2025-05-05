@@ -101,19 +101,20 @@ namespace Caramel{
         //     return shapeCount * COST_INTERSECTION +
         // }
 
-        if (true){
+        if (USE_SAH){
             std::array<std::pair<int/*shape count*/, AABB>, SUBSPACE_COUNT> slices;
             std::array<Float, CUT_COUNT> costs;
 
             // Divide aabb and initialize
             for (const auto &shape : m_shapes) {
                 const int slice_idx = m_aabb.offset(shape->get_center())[longest_axis] * SUBSPACE_COUNT;
+                const AABB shape_aabb = shape->get_aabb();
 
                 if (slices[slice_idx].first == 0) {
-                    slices[slice_idx].second = shape->get_aabb();
+                    slices[slice_idx].second = shape_aabb;
                 }
                 else {
-                    slices[slice_idx].second = AABB::merge(slices[slice_idx].second, shape->get_aabb());
+                    slices[slice_idx].second = AABB::merge(slices[slice_idx].second, shape_aabb);
                 }
                 slices[slice_idx].first++;
             }
