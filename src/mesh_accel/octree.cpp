@@ -50,8 +50,9 @@ namespace Caramel{
         for(auto ti : m_triangle_indices){
             const Triangle &tri = shape.get_triangle(ti);
             for(auto &child : m_childs){
-                if(child.m_aabb.is_overlap(tri.get_aabb())){
+                if(child.m_aabb.is_contain(tri.get_center())){
                     child.m_triangle_indices.emplace_back(ti);
+                    break;
                 }
             }
         }
@@ -65,7 +66,7 @@ namespace Caramel{
             for (auto tri : child.m_triangle_indices) {
                 shrinked_aabb = AABB::merge(shrinked_aabb, shape.get_triangle(tri).get_aabb());
             }
-            child.m_aabb = AABB::overlapped(shrinked_aabb, child.m_aabb);
+            child.m_aabb = shrinked_aabb;
         }
     }
 
