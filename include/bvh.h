@@ -48,6 +48,19 @@ namespace Caramel{
         std::unique_ptr<BVHNode> m_right;
 
         AABB m_aabb;
+
+
+        /*
+         *      +----------------------------------+
+         *      |      |      |      |      |      |  :  SUBSPACE_COUNT = 5
+         *      +----------------------------------+     CUT_COUNT = 4
+         */
+        static constexpr int SUBSPACE_COUNT = 12;
+        static constexpr int CUT_COUNT = SUBSPACE_COUNT - 1;
+        
+        // as pbrt says so...
+        static constexpr int COST_TRAVERSAL = 1;
+        static constexpr int COST_INTERSECTION = 2;
     };
 
 

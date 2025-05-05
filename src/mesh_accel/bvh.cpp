@@ -95,23 +95,79 @@ namespace Caramel{
         }
 
         const int longest_axis = m_aabb.longest_axis();
-        const Float longest_axis_mid = (m_aabb.m_min[longest_axis] + m_aabb.m_max[longest_axis]) * Float0_5;
 
-        std::vector<const Shape*> left;
-        std::vector<const Shape*> right;
+        // const auto get_cost = [&](int shapeCount, const auto AABB &aabb) {
+        //     return shapeCount * COST_INTERSECTION +
+        // }
 
-        for (auto &s : m_shapes) {
-            ((s->get_center()[longest_axis] < longest_axis_mid) ? left : right).push_back(s);
+        if (true){
+            std::array<std::pair<int/*shape count*/, AABB>, SUBSPACE_COUNT> slices;
+            std::array<Float, CUT_COUNT> costs;
+
+            // Divide aabb and initialize
+            for (const auto &shape : m_shapes) {
+                const int slice_idx = m_aabb.offset(shape->get_center())[longest_axis] * SUBSPACE_COUNT;
+
+                if (slices[slice_idx].first == 0) {
+                    slices[slice_idx].second = shape->get_aabb();
+                }
+                else {
+                    slices[slice_idx].second = AABB::merge(slices[slice_idx].second, shape->get_aabb());
+                }
+                slices[slice_idx].first++;
+            }
+
+            // https://pbr-book.org/4ed/Primitives_and_Intersection_Acceleration/Bounding_Volume_Hierarchies#
+
+            int lower_shape_count = 0;
+            AABB lower_aabb = slices[0].second;
+            for (int i=0;i<CUT_COUNT;i++) {
+                lower_shape_count += slices[i].first;
+                lower_aabb = AABB::merge(slices[i].second, lower_aabb);
+                // Will be divided into parent's aabb surface area later
+                costs[i] = lower_aabb.surface_area() * lower_shape_count;
+            }
+
+            int upper_shape_count = 0;
+            AABB upper_aabb = slices[CUT_COUNT - 1].second;
+            for (int i=CUT_COUNT-1;i>=0;i--) {
+                upper_shape_count += slices[i].first;
+                upper_aabb = AABB::merge(slices[i].second, upper_aabb);
+                // Will be divided into parent's aabb surface area later
+                costs[i] = upper_aabb.surface_area() * upper_shape_count;
+            }
+
+            // Find cut index with the lowest cost
+            int lowest_cost_cut_index = 0;
+            int lower_cost = INF;
+            for (int i=0;i<CUT_COUNT;i++) {
+                
+            }
+
         }
 
-         if (left.empty() || right.empty()) {
-             return;
-         }
-        m_left = std::make_unique<BVHNode>(left);
-        m_right = std::make_unique<BVHNode>(right);
-        m_shapes.clear();
-        m_left->create_child();
-        m_right->create_child();
+        else {
+            const Float longest_axis_mid = (m_aabb.m_min[longest_axis] + m_aabb.m_max[longest_axis]) * Float0_5;
+
+            std::vector<const Shape*> left;
+            std::vector<const Shape*> right;
+
+            for (auto &s : m_shapes) {
+                ((s->get_center()[longest_axis] < longest_axis_mid) ? left : right).push_back(s);
+            }
+
+            if (left.empty() || right.empty()) {
+                return;
+            }
+
+
+            m_left = std::make_unique<BVHNode>(left);
+            m_right = std::make_unique<BVHNode>(right);
+            m_shapes.clear();
+            m_left->create_child();
+            m_right->create_child();
+        }
+
     }
 
 }
