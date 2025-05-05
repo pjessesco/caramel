@@ -50,14 +50,24 @@ namespace Caramel{
         for(auto ti : m_triangle_indices){
             const Triangle &tri = shape.get_triangle(ti);
             for(auto &child : m_childs){
-                if(child.m_aabb.is_overlap(tri.get_aabb())){
+                if(child.m_aabb.is_contain(tri.get_center())){
                     child.m_triangle_indices.emplace_back(ti);
+                    break;
                 }
             }
         }
 
         m_childs.erase(std::remove_if(m_childs.begin(), m_childs.end(), [](const Octree::Node &node){return node.m_triangle_indices.empty();}), m_childs.end());
         m_triangle_indices.clear();
+
+        // Shrink aabb as possible
+        for (auto &child : m_childs) {
+            AABB shrinked_aabb = shape.get_triangle(child.m_triangle_indices[0]).get_aabb();
+            for (auto tri : child.m_triangle_indices) {
+                shrinked_aabb = AABB::merge(shrinked_aabb, shape.get_triangle(tri).get_aabb());
+            }
+            child.m_aabb = shrinked_aabb;
+        }
     }
 
     void Octree::Node::construct_children_recursively(const OBJMesh &shape, int depth){
