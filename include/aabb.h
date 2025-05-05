@@ -52,6 +52,15 @@ namespace Caramel{
                      std::max(a.m_max[2], b.m_max[2])}};
         }
 
+        static AABB overlapped(const AABB &a, const AABB &b) {
+            return {{std::max(a.m_min[0], b.m_min[0]),
+                     std::max(a.m_min[1], b.m_min[1]),
+                     std::max(a.m_min[2], b.m_min[2])},
+                    {std::min(a.m_max[0], b.m_max[0]),
+                     std::min(a.m_max[1], b.m_max[1]),
+                     std::min(a.m_max[2], b.m_max[2])}};
+        }
+
         std::pair<AABB, AABB> split(int axis) const;
 
         int longest_axis() const;
