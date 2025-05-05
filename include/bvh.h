@@ -57,7 +57,7 @@ namespace Caramel{
          */
         static constexpr int SUBSPACE_COUNT = 12;
         static constexpr int CUT_COUNT = SUBSPACE_COUNT - 1;
-        
+        static constexpr int MAX_SHAPE_NUM = 4;
         // as pbrt says so...
         static constexpr int COST_TRAVERSAL = 1;
         static constexpr int COST_INTERSECTION = 2;

@@ -33,6 +33,7 @@
 #include <shape.h>
 
 #include <bvh.h>
+#include <valarray>
 
 namespace Caramel{
 
@@ -119,31 +120,74 @@ namespace Caramel{
 
             // https://pbr-book.org/4ed/Primitives_and_Intersection_Acceleration/Bounding_Volume_Hierarchies#
 
-            int lower_shape_count = 0;
-            AABB lower_aabb = slices[0].second;
+            Index lower_shape_count = 0;
+            AABB lower_aabb;
             for (int i=0;i<CUT_COUNT;i++) {
-                lower_shape_count += slices[i].first;
-                lower_aabb = AABB::merge(slices[i].second, lower_aabb);
-                // Will be divided into parent's aabb surface area later
-                costs[i] = lower_aabb.surface_area() * lower_shape_count;
+                if (slices[i].first == 0) {
+                    costs[i] = i==0 ? 0 : costs[i-1];
+                }
+                else {
+                    if (lower_shape_count == 0) {
+                        lower_aabb = slices[i].second;
+                    }
+                    lower_shape_count += slices[i].first;
+                    lower_aabb = AABB::merge(slices[i].second, lower_aabb);
+                    // Will be divided into parent's aabb surface area later
+                    costs[i] = lower_aabb.surface_area() * lower_shape_count;
+                }
             }
 
-            int upper_shape_count = 0;
-            AABB upper_aabb = slices[CUT_COUNT - 1].second;
+            Index upper_shape_count = 0;
+            AABB upper_aabb;
             for (int i=CUT_COUNT-1;i>=0;i--) {
-                upper_shape_count += slices[i].first;
-                upper_aabb = AABB::merge(slices[i].second, upper_aabb);
-                // Will be divided into parent's aabb surface area later
-                costs[i] = upper_aabb.surface_area() * upper_shape_count;
+                if (slices[i].first == 0) {
+                    costs[i] += i==CUT_COUNT-1 ? 0 : costs[i+1];
+                }
+                else {
+                    if (upper_shape_count == 0) {
+                        upper_aabb = slices[i].second;
+                    }
+                    upper_shape_count += slices[i].first;
+                    upper_aabb = AABB::merge(slices[i].second, upper_aabb);
+                    // Will be divided into parent's aabb surface area later
+                    costs[i] += upper_aabb.surface_area() * upper_shape_count;
+                }
             }
 
             // Find cut index with the lowest cost
-            int lowest_cost_cut_index = 0;
-            int lower_cost = INF;
+            Index lowest_cost_cut_index = 0;
+            Float lowest_cost = INF;
             for (int i=0;i<CUT_COUNT;i++) {
-                
+                if (lowest_cost > costs[i]) {
+                    lowest_cost_cut_index = i;
+                    lowest_cost = costs[i];
+                }
             }
 
+            const Float total_cost = COST_TRAVERSAL + lowest_cost / m_aabb.surface_area();
+
+            if (m_shapes.size() > MAX_SHAPE_NUM || total_cost < m_shapes.size() * COST_INTERSECTION) {
+                auto mid = std::partition(m_shapes.begin(), m_shapes.end(),
+                                          [=, this](const auto &shape) {
+                                              const int slice_idx = m_aabb.offset(shape->get_center())[longest_axis] * SUBSPACE_COUNT;
+                                              return slice_idx <= lowest_cost_cut_index;
+                                          });
+
+                if (mid == m_shapes.begin() || mid == m_shapes.end()) {
+                    return;
+                }
+
+                std::vector<const Shape*> left(mid - m_shapes.begin());
+                std::vector<const Shape*> right(m_shapes.end() - mid);
+                std::move(m_shapes.begin(), mid, left.begin());
+                std::move(mid, m_shapes.end(), right.begin());
+                m_shapes.clear();
+
+                m_left = std::make_unique<BVHNode>(left);
+                m_right = std::make_unique<BVHNode>(right);
+                m_left->create_child();
+                m_right->create_child();
+            }
         }
 
         else {
