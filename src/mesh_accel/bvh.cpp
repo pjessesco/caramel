@@ -81,7 +81,7 @@ namespace Caramel{
             }
 
             const auto right_hit = m_right->ray_intersect(ray, ret.second.t);
-            if (right_hit.first && right_hit.second.t < ret.second.t) {
+            if (right_hit.first) {
                 ret = right_hit;
             }
             return ret;

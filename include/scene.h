@@ -46,7 +46,7 @@ namespace Caramel{
 
         void set_camera(Camera *camera);
 
-        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray) const;
+        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt=INF) const;
         void add_mesh_and_arealight(const Shape *shape);
         void add_light(Light *light);
         std::pair<bool, RayIntersectInfo> is_visible(const Vector3f &pos1, const Vector3f &pos2) const;

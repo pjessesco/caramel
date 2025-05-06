@@ -74,7 +74,7 @@ namespace Caramel{
 
     std::pair<bool, Float> AABB::ray_intersect(const Ray &ray, Float maxt) const{
         Float tmin = Float0;
-        Float tmax = INF;
+        Float tmax = maxt;
 
         for(Index i=0;i<3;i++){
             const Float o = ray.m_o[i];
@@ -97,7 +97,7 @@ namespace Caramel{
             tmin = std::max(t1, tmin);
             tmax = std::min(t2, tmax);
 
-            if (tmin > tmax || tmin > maxt) {
+            if (tmin > tmax) {
                 return {false, INF};
             }
         }
