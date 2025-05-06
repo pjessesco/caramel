@@ -85,15 +85,6 @@ namespace Caramel{
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
     };
 
-    class DirectIntegrator final : public MCIntegrator{
-    public:
-        DirectIntegrator(Index spp);
-        Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
-
-    private:
-        Vector3f mis_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler);
-    };
-
     class PathIntegrator final : public MCIntegrator{
     public:
         PathIntegrator(Index rr_depth, Index max_depth, Index spp);
