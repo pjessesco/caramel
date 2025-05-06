@@ -58,7 +58,7 @@ namespace Caramel{
             info.t = maxt;
 
             for(int i=0;i<m_shapes.size();i++){
-                if(m_shapes[i]->get_aabb().ray_intersect(ray).second <= info.t){
+                if(m_shapes[i]->get_aabb().ray_intersect(ray, info.t).second <= info.t){
                     auto [hit, tmp_info] = m_shapes[i]->ray_intersect(ray, info.t);
                     if(hit){
                         is_hit = true;
@@ -71,7 +71,7 @@ namespace Caramel{
             return {is_hit, info};
         }
         else {
-            if (!m_aabb.ray_intersect(ray).first) {
+            if (!m_aabb.ray_intersect(ray, maxt).first) {
                 return {false, {}};
             }
             std::pair<bool, RayIntersectInfo> ret = {false, {}};

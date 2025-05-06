@@ -72,7 +72,7 @@ namespace Caramel{
         return ((diag[0] * diag[1]) + (diag[1] * diag[2]) + (diag[2] * diag[0])) * Float2;
     }
 
-    std::pair<bool, Float> AABB::ray_intersect(const Ray &ray) const{
+    std::pair<bool, Float> AABB::ray_intersect(const Ray &ray, Float maxt) const{
         Float tmin = Float0;
         Float tmax = INF;
 
@@ -97,7 +97,7 @@ namespace Caramel{
             tmin = std::max(t1, tmin);
             tmax = std::min(t2, tmax);
 
-            if (tmin > tmax) {
+            if (tmin > tmax || tmin > maxt) {
                 return {false, INF};
             }
         }
