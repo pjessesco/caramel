@@ -76,7 +76,7 @@ namespace Caramel{
                 }
                 continue;
             }
-            const Float invd = Float1 / d;
+            const Float invd = ray.m_d_recip[i];
             Float t1 = (min - o) * invd;
             Float t2 = (max - o) * invd;
 
