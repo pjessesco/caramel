@@ -93,15 +93,13 @@ namespace Caramel{
 
     std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect_leaf(const Ray &ray, Float maxt, const OBJMesh &shape) const{
         RayIntersectInfo info;
-        info.t = INF;
+        info.t = maxt;
         bool is_hit = false;
         for(Index i:m_triangle_indices){
-            const auto &[is_intersect, tmp_info] = shape.get_triangle(i).ray_intersect(ray, maxt);
+            const auto &[is_intersect, tmp_info] = shape.get_triangle(i).ray_intersect(ray, info.t);
             if (is_intersect) {
                 is_hit = true;
-                if (info.t > tmp_info.t) {
-                    info = tmp_info;
-                }
+                info = tmp_info;
             }
         }
         return {is_hit, info};
