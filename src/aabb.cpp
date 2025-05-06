@@ -61,6 +61,17 @@ namespace Caramel{
                 i & 4 ? m_min[2] : m_max[2]};
     }
 
+    Vector3f AABB::offset(const Vector3f &p) const {
+        const Vector3f tmp = p - m_min;
+        const Vector3f denom = m_max - m_min;
+        return {tmp[0] / denom[0], tmp[1] / denom[1], tmp[2] / denom[2]};
+    }
+
+    Float AABB::surface_area() const {
+        const Vector3f diag = m_max - m_min;
+        return ((diag[0] * diag[1]) + (diag[1] * diag[2]) + (diag[2] * diag[0])) * Float2;
+    }
+
     std::pair<bool, Float> AABB::ray_intersect(const Ray &ray) const{
         Float tmin = Float0;
         Float tmax = INF;
