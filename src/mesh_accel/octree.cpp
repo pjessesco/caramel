@@ -109,7 +109,7 @@ namespace Caramel{
 
     std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect_branch(const Ray &ray, Float maxt, const OBJMesh &shape) const{
         RayIntersectInfo info;
-        info.t = INF;
+        info.t = maxt;
         bool is_hit = false;
 
         std::array<std::pair<Index, Float>, 8> idx_mint_pair;
@@ -129,12 +129,10 @@ namespace Caramel{
                 break;
             }
 
-            const auto &[is_intersect, tmp_info] = m_childs[idx].ray_intersect(ray, maxt, shape, true);
+            const auto &[is_intersect, tmp_info] = m_childs[idx].ray_intersect(ray, info.t, shape, true);
             if (is_intersect) {
                 is_hit = true;
-                if (info.t > tmp_info.t) {
-                    info = tmp_info;
-                }
+                info = tmp_info;
             }
         }
 
