@@ -58,13 +58,11 @@ namespace Caramel{
             info.t = maxt;
 
             for(int i=0;i<m_shapes.size();i++){
-                if(m_shapes[i]->get_aabb().ray_intersect(ray, info.t).second <= info.t){
-                    auto [hit, tmp_info] = m_shapes[i]->ray_intersect(ray, info.t);
-                    if(hit){
-                        is_hit = true;
-                        info = tmp_info;
-                        info.shape = m_shapes[i];
-                    }
+                auto [hit, tmp_info] = m_shapes[i]->ray_intersect(ray, info.t);
+                if(hit){
+                    is_hit = true;
+                    info = tmp_info;
+                    info.shape = m_shapes[i];
                 }
             }
 
@@ -101,7 +99,7 @@ namespace Caramel{
         //     return shapeCount * COST_INTERSECTION +
         // }
 
-        if (USE_SAH){
+        if constexpr(USE_SAH){
             std::array<std::pair<int/*shape count*/, AABB>, SUBSPACE_COUNT> slices;
             std::array<Float, CUT_COUNT> costs;
 
