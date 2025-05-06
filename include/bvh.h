@@ -38,7 +38,7 @@ namespace Caramel{
     public:
         BVHNode(const std::vector<const Shape*> &shapes);
         void create_child();
-        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray);
+        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt);
         bool is_leaf() const;
 
     private:

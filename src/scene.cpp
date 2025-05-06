@@ -46,7 +46,7 @@ namespace Caramel{
     }
 
     std::pair<bool, RayIntersectInfo> Scene::ray_intersect(const Ray &ray) const{
-        return m_bvh_root->ray_intersect(ray);
+        return m_bvh_root->ray_intersect(ray, INF);
     }
 
     void Scene::add_mesh_and_arealight(const Shape *shape){

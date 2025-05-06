@@ -37,7 +37,7 @@ namespace Caramel{
 
     void Naive::build() {}
 
-    std::pair<bool, RayIntersectInfo> Naive::ray_intersect(const Ray &ray) {
+    std::pair<bool, RayIntersectInfo> Naive::ray_intersect(const Ray &ray, Float maxt) {
         if(!(m_shape.get_aabb().ray_intersect(ray).first)){
             return {false, RayIntersectInfo()};
         }
@@ -46,7 +46,7 @@ namespace Caramel{
         bool is_hit = false;
 
         for (int i = 0; i < m_shape.get_triangle_num(); i++) {
-            auto [is_intersect, tmp_info] = m_shape.get_triangle(i).ray_intersect(ray);
+            auto [is_intersect, tmp_info] = m_shape.get_triangle(i).ray_intersect(ray, maxt);
             if (is_intersect) {
                 is_hit = true;
                 if (info.t > tmp_info.t) {
