@@ -138,8 +138,8 @@ namespace Caramel {
         m_accel->build();
     }
 
-    std::pair<bool, RayIntersectInfo> OBJMesh::ray_intersect(const Ray &ray) const {
-        return m_accel->ray_intersect(ray);
+    std::pair<bool, RayIntersectInfo> OBJMesh::ray_intersect(const Ray &ray, Float maxt) const {
+        return m_accel->ray_intersect(ray, maxt);
     }
 
     AABB OBJMesh::get_aabb() const {

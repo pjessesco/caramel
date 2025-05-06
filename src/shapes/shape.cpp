@@ -42,7 +42,7 @@ namespace Caramel {
         return get_aabb().get_center();
     }
 
-    std::tuple<Float, Float, Float> moller_trumbore(const Ray &ray, const Vector3f &p0, const Vector3f &p1, const Vector3f &p2){
+    std::tuple<Float, Float, Float> moller_trumbore(const Ray &ray, const Vector3f &p0, const Vector3f &p1, const Vector3f &p2, Float maxt){
         const Vector3f D = ray.m_d;
 
         const Vector3f T = ray.m_o - p0;
@@ -55,6 +55,12 @@ namespace Caramel {
         const Float denom_inv = static_cast<Float>(1) / denom;
 
         const Vector3f TE1 = cross(T, E1);
+
+        const Float t = TE1.dot(E2) * denom_inv;
+        if(t <= Float0 || t > maxt){
+            return {-Float1, -Float1, -Float1};
+        }
+
         const Float v = TE1.dot(D) * denom_inv;
         if (v < Float0 || Float1 < v) {
             return {-Float1, -Float1, -Float1};
@@ -62,11 +68,6 @@ namespace Caramel {
 
         const Float u = DE2.dot(T) * denom_inv;
         if (u < Float0 || Float1 < u + v) {
-            return {-Float1, -Float1, -Float1};
-        }
-
-        const Float t = TE1.dot(E2) * denom_inv;
-        if(t <= Float0){
             return {-Float1, -Float1, -Float1};
         }
 

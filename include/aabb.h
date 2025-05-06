@@ -41,7 +41,7 @@ namespace Caramel{
 
         Vector3f corner(Index i) const;
 
-        std::pair<bool, Float> ray_intersect(const Ray &ray) const;
+        std::pair<bool, Float> ray_intersect(const Ray &ray, Float maxt) const;
 
         Vector3f offset(const Vector3f &p) const;
 
