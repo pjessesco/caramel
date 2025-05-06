@@ -62,7 +62,7 @@ namespace Caramel{
 
     // `sample_unit_sphere_uniformly()` does not sample
     // inside of the sphere, so no need to check vector's length.
-    inline Float sample_unit_sphere_uniformly_pdf(const Vector3f &vec){
+    inline Float sample_unit_sphere_uniformly_pdf(const Vector3f &){
         return PI_4_INV;
     }
 

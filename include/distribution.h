@@ -62,7 +62,7 @@ namespace Caramel{
         }
 
         Index sample(Float x) const{
-            auto iter = std::upper_bound(m_cdf.begin(), m_cdf.end(), x);
+            const auto iter = std::ranges::upper_bound(m_cdf, x);
             return iter - m_cdf.begin();
         }
 

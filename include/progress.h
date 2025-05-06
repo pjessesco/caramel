@@ -22,6 +22,8 @@
 // SOFTWARE.
 //
 
+#pragma once
+
 #include <mutex>
 
 // This class is independent with Caramel namespace.
@@ -41,8 +43,8 @@ public:
         }
         done_len = new_done_len;
 
-        std::string done_str(static_cast<int>(done_len), '=');
-        std::string remain_str(static_cast<int>(m_len - done_len), '-');
+        const std::string done_str(static_cast<int>(done_len), '=');
+        const std::string remain_str(static_cast<int>(m_len - done_len), '-');
         std::cout<<"["<<done_str << remain_str << "] " << static_cast<int>(done_ratio * 100) << " %\r";
         std::cout.flush();
     }

@@ -36,7 +36,7 @@ namespace Caramel {
         static constexpr int CHANNEL_NUM = 3;
 
         Image(Index width, Index height);
-        Image(const std::string &filename);
+        explicit Image(const std::string &filename);
         void write_exr(const std::string &filename) const;
 
         void set_pixel_value(int w, int h, Float r, Float g, Float b);
@@ -53,9 +53,6 @@ namespace Caramel {
         void read_from_png(const std::string &filename);
         void read_from_exr(const std::string &filename);
         void read_from_hdr(const std::string &filename);
-
-        static Float mse(const Image &img1, const Image &img2);
-        static Float rmse(const Image &img1, const Image &img2);
 
         Index m_width;
         Index m_height;
