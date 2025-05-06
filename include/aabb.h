@@ -43,6 +43,10 @@ namespace Caramel{
 
         std::pair<bool, Float> ray_intersect(const Ray &ray) const;
 
+        Vector3f offset(const Vector3f &p) const;
+
+        Float surface_area() const;
+
         static AABB merge(const AABB &a, const AABB &b) {
             return {{std::min(a.m_min[0], b.m_min[0]),
                      std::min(a.m_min[1], b.m_min[1]),
