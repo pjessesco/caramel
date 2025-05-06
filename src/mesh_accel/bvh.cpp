@@ -51,39 +51,37 @@ namespace Caramel{
          return !m_shapes.empty();
      }
 
-    std::pair<bool, RayIntersectInfo> BVHNode::ray_intersect(const Ray &ray) {
+    std::pair<bool, RayIntersectInfo> BVHNode::ray_intersect(const Ray &ray, Float maxt) {
         if (is_leaf()) {
             bool is_hit = false;
             RayIntersectInfo info = RayIntersectInfo();
+            info.t = maxt;
 
             for(int i=0;i<m_shapes.size();i++){
-                if(m_shapes[i]->get_aabb().ray_intersect(ray).second <= info.t){
-                    auto [hit, tmp_info] = m_shapes[i]->ray_intersect(ray);
-                    if(hit){
-                        is_hit = true;
-                        if(info.t >= tmp_info.t){
-                            info = tmp_info;
-                            info.shape = m_shapes[i];
-                        }
-                    }
+                auto [hit, tmp_info] = m_shapes[i]->ray_intersect(ray, info.t);
+                if(hit){
+                    is_hit = true;
+                    info = tmp_info;
+                    info.shape = m_shapes[i];
                 }
             }
 
             return {is_hit, info};
         }
         else {
-            if (!m_aabb.ray_intersect(ray).first) {
+            if (!m_aabb.ray_intersect(ray, maxt).first) {
                 return {false, {}};
             }
             std::pair<bool, RayIntersectInfo> ret = {false, {}};
+            ret.second.t = maxt;
 
-            const auto left_hit = m_left->ray_intersect(ray);
+            const auto left_hit = m_left->ray_intersect(ray, ret.second.t);
             if (left_hit.first) {
                 ret = left_hit;
             }
 
-            const auto right_hit = m_right->ray_intersect(ray);
-            if (right_hit.first && right_hit.second.t < ret.second.t) {
+            const auto right_hit = m_right->ray_intersect(ray, ret.second.t);
+            if (right_hit.first) {
                 ret = right_hit;
             }
             return ret;
@@ -101,7 +99,7 @@ namespace Caramel{
         //     return shapeCount * COST_INTERSECTION +
         // }
 
-        if (USE_SAH){
+        if constexpr(USE_SAH){
             std::array<std::pair<int/*shape count*/, AABB>, SUBSPACE_COUNT> slices;
             std::array<Float, CUT_COUNT> costs;
 

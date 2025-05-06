@@ -91,31 +91,29 @@ namespace Caramel{
         }
     }
 
-    std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect_leaf(const Ray &ray, const OBJMesh &shape) const{
+    std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect_leaf(const Ray &ray, Float maxt, const OBJMesh &shape) const{
         RayIntersectInfo info;
-        info.t = INF;
+        info.t = maxt;
         bool is_hit = false;
         for(Index i:m_triangle_indices){
-            const auto &[is_intersect, tmp_info] = shape.get_triangle(i).ray_intersect(ray);
+            const auto &[is_intersect, tmp_info] = shape.get_triangle(i).ray_intersect(ray, info.t);
             if (is_intersect) {
                 is_hit = true;
-                if (info.t > tmp_info.t) {
-                    info = tmp_info;
-                }
+                info = tmp_info;
             }
         }
         return {is_hit, info};
     }
 
-    std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect_branch(const Ray &ray, const OBJMesh &shape) const{
+    std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect_branch(const Ray &ray, Float maxt, const OBJMesh &shape) const{
         RayIntersectInfo info;
-        info.t = INF;
+        info.t = maxt;
         bool is_hit = false;
 
         std::array<std::pair<Index, Float>, 8> idx_mint_pair;
         Index hit_count = 0;
         for(Index i=0;i<m_childs.size();i++){
-            const auto child_aabb_intersect = m_childs[i].m_aabb.ray_intersect(ray);
+            const auto child_aabb_intersect = m_childs[i].m_aabb.ray_intersect(ray, maxt);
             if(child_aabb_intersect.first) {
                 idx_mint_pair[hit_count++] = {i, child_aabb_intersect.second};
             }
@@ -129,27 +127,25 @@ namespace Caramel{
                 break;
             }
 
-            const auto &[is_intersect, tmp_info] = m_childs[idx].ray_intersect(ray, shape, true);
+            const auto &[is_intersect, tmp_info] = m_childs[idx].ray_intersect(ray, info.t, shape, true);
             if (is_intersect) {
                 is_hit = true;
-                if (info.t > tmp_info.t) {
-                    info = tmp_info;
-                }
+                info = tmp_info;
             }
         }
 
         return {is_hit, info};
     }
 
-    std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect(const Ray &ray, const OBJMesh &shape, std::optional<bool> is_intersect) const{
-        const bool intersect = is_intersect.has_value() ? is_intersect.value() : m_aabb.ray_intersect(ray).first;
+    std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect(const Ray &ray, Float maxt, const OBJMesh &shape, std::optional<bool> is_intersect) const{
+        const bool intersect = is_intersect.has_value() ? is_intersect.value() : m_aabb.ray_intersect(ray, maxt).first;
 
         if(intersect){
             if(is_leaf()){
-                return ray_intersect_leaf(ray, shape);
+                return ray_intersect_leaf(ray, maxt, shape);
             }
             else{
-                return ray_intersect_branch(ray, shape);
+                return ray_intersect_branch(ray, maxt, shape);
             }
         }
         else{
@@ -176,8 +172,8 @@ namespace Caramel{
         m_head.construct_children_recursively(m_shape, 0);
     }
 
-    std::pair<bool, RayIntersectInfo> Octree::ray_intersect(const Ray &ray) {
-        return m_head.ray_intersect(ray, m_shape, std::nullopt);
+    std::pair<bool, RayIntersectInfo> Octree::ray_intersect(const Ray &ray, Float maxt) {
+        return m_head.ray_intersect(ray, maxt, m_shape, std::nullopt);
     }
 
 }

@@ -45,8 +45,8 @@ namespace Caramel{
         m_cam = camera;
     }
 
-    std::pair<bool, RayIntersectInfo> Scene::ray_intersect(const Ray &ray) const{
-        return m_bvh_root->ray_intersect(ray);
+    std::pair<bool, RayIntersectInfo> Scene::ray_intersect(const Ray &ray, Float maxt) const{
+        return m_bvh_root->ray_intersect(ray, maxt);
     }
 
     void Scene::add_mesh_and_arealight(const Shape *shape){
@@ -72,15 +72,16 @@ namespace Caramel{
     std::pair<bool, RayIntersectInfo> Scene::is_visible(const Vector3f &pos1, const Vector3f &pos2) const{
         const Vector3f vec3_1_to_2(pos2 - pos1);
         const Vector3f dir = vec3_1_to_2.normalize();
+        const Float len = vec3_1_to_2.length();
         const Ray ray{pos1 + (dir * 1e-3), dir};
 
-        const auto [is_hit, info] = ray_intersect(ray);
+        const auto [is_hit, info] = ray_intersect(ray, len);
 
         if(!is_hit){
             return {false, RayIntersectInfo()};
         }
 
-        return {std::abs(vec3_1_to_2.length() - info.t) <= 1.1e-3, info};
+        return {std::abs(len - info.t) <= 1.1e-3, info};
     }
 
     std::pair<const Light*, Float> Scene::sample_light(Sampler &sampler) const{
