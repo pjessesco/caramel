@@ -57,8 +57,8 @@ namespace Caramel{
         Vector3f _dir = dir.normalize();
         Vector3f _up = up.normalize();
         // right-handed coord
-        Vector3f left = cross(_up, _dir);
-        _up = cross(_dir, left);
+        Vector3f left = Vector3f::cross(_up, _dir);
+        _up = Vector3f::cross(_dir, left);
 
         m_cam_to_world = Matrix44f::from_cols(
                 Vector4f{left[0], left[1], left[2], Float0},
