@@ -46,11 +46,11 @@ namespace Caramel{
             m_world_n = world_normal.normalize();
             if(Peanut::is_zero(m_world_n[0]) && Peanut::is_zero(m_world_n[2])){
                 m_axis1 = Vector3f(m_world_n[1], -m_world_n[0], Float0).normalize();
-                m_axis2 = cross(m_world_n, m_axis1);
+                m_axis2 = Vector3f::cross(m_world_n, m_axis1);
             }
             else{
                 m_axis1 = Vector3f(m_world_n[2], Float0, -m_world_n[0]).normalize();
-                m_axis2 = cross(m_world_n, m_axis1);
+                m_axis2 = Vector3f::cross(m_world_n, m_axis1);
             }
         }
 

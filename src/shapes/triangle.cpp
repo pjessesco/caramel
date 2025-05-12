@@ -55,7 +55,7 @@ namespace Caramel {
     }
 
     Float Triangle::get_area() const{
-        return cross(m_p1 - m_p0, m_p2 - m_p0).length() * Float0_5;
+        return Vector3f::cross(m_p1 - m_p0, m_p2 - m_p0).length() * Float0_5;
     }
 
     std::tuple<Vector3f, Vector3f, Float> Triangle::sample_point(Sampler &sampler) const{
@@ -68,7 +68,7 @@ namespace Caramel {
         return {interpolate(m_p0, m_p1, m_p2, x, y),
                 is_vn_exists ?
                              interpolate(normal(0), normal(1), normal(2), x, y).normalize() :
-                             cross(m_p1 - m_p0, m_p2 - m_p0).normalize(),
+                             Vector3f::cross(m_p1 - m_p0, m_p2 - m_p0).normalize(),
                 Float1 / get_area()};
     }
 
@@ -100,7 +100,7 @@ namespace Caramel {
         ret.p = interpolate(m_p0, m_p1, m_p2, u, v);
         
         const Vector3f n = is_vn_exists ? interpolate(m_n0, m_n1, m_n2, u, v).normalize() :
-                                          cross(m_p1 - m_p0, m_p2 - m_p0).normalize();
+                                          Vector3f::cross(m_p1 - m_p0, m_p2 - m_p0).normalize();
         ret.sh_coord = Coordinate(n);
 
         return {true, ret};
