@@ -58,7 +58,7 @@ namespace Caramel{
         m_aabb = m_meshes.empty() ? shape->get_aabb() :
                                     AABB::merge(m_aabb, shape->get_aabb());
         m_sceneCenterPos = (m_aabb.m_max + m_aabb.m_min) * 0.5f;
-        m_sceneRadius = L2(m_sceneCenterPos, m_aabb.m_max);
+        m_sceneRadius = Vector3f::L2(m_sceneCenterPos, m_aabb.m_max);
     }
 
     void Scene::add_light(Light *light){
