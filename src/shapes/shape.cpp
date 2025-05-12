@@ -49,12 +49,12 @@ namespace Caramel {
         const Vector3f E1 = p1 - p0;
         const Vector3f E2 = p2 - p0;
 
-        const Vector3f DE2 = cross(D, E2);
+        const Vector3f DE2 = Vector3f::cross(D, E2);
 
         const Float denom = DE2.dot(E1);
         const Float denom_inv = static_cast<Float>(1) / denom;
 
-        const Vector3f TE1 = cross(T, E1);
+        const Vector3f TE1 = Vector3f::cross(T, E1);
 
         const Float t = TE1.dot(E2) * denom_inv;
         if(t <= Float0 || t > maxt){

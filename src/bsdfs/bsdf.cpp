@@ -107,8 +107,8 @@ namespace Caramel{
         }
 
         // eta + ik = nt / ni
-        const Vector3f eta = div(eta_t, eta_i);
-        const Vector3f etak = div(eta_t_k, eta_i);
+        const Vector3f eta = EDiv(eta_t, eta_i);
+        const Vector3f etak = EDiv(eta_t_k, eta_i);
 
         const Float cos_i_sq = cos_i * cos_i;
         const Float _sin_i_sq = Float1 - cos_i_sq;
@@ -120,18 +120,18 @@ namespace Caramel{
         // Calculate a^2+b^2
         const Vector3f tmp1 = eta_sq - etak_sq - sin_i_sq;
         const Vector3f tmp2 = static_cast<Float>(4) * eta_sq % etak_sq;
-        const Vector3f a2b2 = sqrt(tmp1%tmp1 + tmp2);
+        const Vector3f a2b2 = Sqrt(tmp1%tmp1 + tmp2);
         // See 'Physically Based Lighting Calculations for Computer Graphics' from Peter Shirley
-        const Vector3f a = sqrt(Float0_5 * (a2b2 + tmp1));
+        const Vector3f a = Sqrt(Float0_5 * (a2b2 + tmp1));
 
         Vector3f r_perpendicular;
         {
             const Vector3f _cos_i_sq{cos_i_sq, cos_i_sq, cos_i_sq};
-            r_perpendicular = div(a2b2 + _cos_i_sq - (Float2 * a * cos_i),
+            r_perpendicular = EDiv(a2b2 + _cos_i_sq - (Float2 * a * cos_i),
                                   a2b2 + _cos_i_sq + (Float2 * a * cos_i));
         }
 
-        const Vector3f r_parallel = r_perpendicular % div((cos_i_sq * a2b2) + sin_i_4 - (Float2 * cos_i * a % sin_i_sq),
+        const Vector3f r_parallel = r_perpendicular % EDiv((cos_i_sq * a2b2) + sin_i_4 - (Float2 * cos_i * a % sin_i_sq),
                                                           (cos_i_sq * a2b2) + sin_i_4 + (Float2 * cos_i * a % sin_i_sq));
 
         return (r_parallel + r_perpendicular) * Float0_5;
