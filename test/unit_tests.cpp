@@ -31,12 +31,10 @@
 // Dependencies headers
 #include "catch_amalgamated.hpp"
 
-using namespace Caramel;
-
 TEST_CASE("uv <-> vector mapping test") {
-    for(Float u = 0.05f; u <= 0.98f; u += 0.1f){
-        for(Float v = 0.05f; v <= 0.98f; v += 0.1f){
-            CHECK(is_zero(vec_to_normalized_uv(normalized_uv_to_vec({u, v})) - Vector2f{u, v}));
+    for(Caramel::Float u = 0.05f; u <= 0.98f; u += 0.1f){
+        for(Caramel::Float v = 0.05f; v <= 0.98f; v += 0.1f){
+            CHECK(Peanut::is_epsilon_equal(Caramel::vec_to_normalized_uv(Caramel::normalized_uv_to_vec({u, v})), Caramel::Vector2f{u, v}));
         }
     }
 }
