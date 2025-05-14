@@ -76,32 +76,39 @@ namespace Caramel{
         Float tmin = Float0;
         Float tmax = maxt;
 
+        Bool is_active = true;
+        Float ret;
+
         for(Index i=0;i<3;i++){
             const Float o = ray.m_o[i];
             const Float d = ray.m_d[i];
             const Float min = m_min[i];
             const Float max = m_max[i];
-            if (Peanut::is_zero(d)) {
-                if (o < min || o > max) {
+            if (pn_any(Peanut::is_zero(d))) {
+                is_active &= min <= o && o <= max;
+                if (pn_none_of(is_active)) {
                     return {false, INF};
                 }
-                continue;
+                // We can't substitute this 'continue' when using SIMD
+                // continue;
             }
+
             const Float invd = ray.m_d_recip[i];
             Float t1 = (min - o) * invd;
             Float t2 = (max - o) * invd;
 
-            if (t1 > t2) {
-                std::swap(t1, t2);
-            }
-            tmin = std::max(t1, tmin);
-            tmax = std::min(t2, tmax);
+            const Bool swap_cond = t1 > t2;
+            Float tmp = Peanut::select(swap_cond, t2, t1);
+            t2 = Peanut::select(swap_cond, t1, t2);
+            t1 = tmp;
 
-            if (tmin > tmax) {
-                return {false, INF};
-            }
+            tmin = Peanut::max(t1, tmin);
+            tmax = Peanut::min(t2, tmax);
+
+            is_active &= tmin > tmax;
         }
-        return {tmax >= Float0, tmin};
+
+        return {is_active && tmax >= Float0, Peanut::select(is_active, tmin, INF)};
     }
 
     Int AABB::longest_axis() const {

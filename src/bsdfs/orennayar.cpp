@@ -30,39 +30,30 @@ namespace Caramel{
         // from hitpoint to incoming point
         const Vector3f local_incoming_flipped = -local_incoming_dir.normalize();
 
-        if(local_incoming_flipped[2] <= Float0 || local_outgoing_dir[2] <= Float0){
-            // Not allow ray from backside
-            return vec3f_zero;
-        }
+        const Bool is_from_backside = local_incoming_flipped[2] <= Float0 || local_outgoing_dir[2] <= Float0;
 
-        Float cos_d = Float0;
         const Float sin_wo = vec_sin(local_outgoing_dir);
         const Float sin_wi = vec_sin(local_incoming_flipped);
         Float cos_max = Float0;
 
-        if(sin_wo > EPSILON && sin_wi > EPSILON){
-            const Float sin_phi_wi = vec_sin_phi(local_incoming_flipped);
-            const Float cos_phi_wi = vec_cos_phi(local_incoming_flipped);
-            const Float sin_phi_wo = vec_sin_phi(local_outgoing_dir);
-            const Float cos_phi_wo = vec_cos_phi(local_outgoing_dir);
-            cos_d = std::max(Float0, (cos_phi_wi * cos_phi_wo) + (sin_phi_wi * sin_phi_wo));
-        }
+        const Float sin_phi_wi = vec_sin_phi(local_incoming_flipped);
+        const Float cos_phi_wi = vec_cos_phi(local_incoming_flipped);
+        const Float sin_phi_wo = vec_sin_phi(local_outgoing_dir);
+        const Float cos_phi_wo = vec_cos_phi(local_outgoing_dir);
 
-        cos_max = std::max(Float0, cos_d);
+        const Float cos_d = Peanut::select(sin_wo > EPSILON && sin_wi > EPSILON,
+                                           Peanut::max(Float0, (cos_phi_wi * cos_phi_wo) + (sin_phi_wi * sin_phi_wo)),
+                                           Float0);
 
-        Float sin_alpha, tan_beta;
-        if(std::abs(local_incoming_flipped[2]) > std::abs(local_outgoing_dir[2])){
-            sin_alpha = sin_wo;
-            tan_beta = sin_wi / std::abs(local_incoming_flipped[2]);
-        }
-        else{
-            sin_alpha = sin_wi;
-            tan_beta = sin_wo / std::abs(local_outgoing_dir[2]);
-        }
+        cos_max = Peanut::max(Float0, cos_d);
+
+        const Bool tmp_mask = Peanut::abs(local_incoming_flipped[2]) > Peanut::abs(local_outgoing_dir[2]);
+        const Float sin_alpha = Peanut::select(tmp_mask, sin_wo, sin_wi);
+        const Float tan_beta = Peanut::select(tmp_mask, sin_wi / Peanut::abs(local_incoming_flipped[2]), sin_wo / Peanut::abs(local_outgoing_dir[2]));
 
         const Vector3f ret = m_reflection * PI_INV * (m_A + (m_B * cos_max * sin_alpha * tan_beta));
 
-        return ret;
+        return Peanut::select(is_from_backside, vec3f_zero, ret);
 
     }
 
