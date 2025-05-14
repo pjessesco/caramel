@@ -31,16 +31,16 @@
 namespace Caramel{
     AABB::AABB() = default;
     AABB::AABB(const Vector3f &p1, const Vector3f &p2) {
-        m_min = Vector3f{std::min(p1[0], p2[0]),
-                         std::min(p1[1], p2[1]),
-                         std::min(p1[2], p2[2])};
+        m_min = Vector3f{Peanut::min(p1[0], p2[0]),
+                         Peanut::min(p1[1], p2[1]),
+                         Peanut::min(p1[2], p2[2])};
 
-        m_max = Vector3f{std::max(p1[0], p2[0]),
-                         std::max(p1[1], p2[1]),
-                         std::max(p1[2], p2[2])};
+        m_max = Vector3f{Peanut::max(p1[0], p2[0]),
+                         Peanut::max(p1[1], p2[1]),
+                         Peanut::max(p1[2], p2[2])};
     }
 
-    bool AABB::is_overlap(const AABB &aabb) const{
+    Peanut::Bool AABB::is_overlap(const AABB &aabb) const{
         return aabb.m_min[0] <= m_max[0] &&
                aabb.m_min[1] <= m_max[1] &&
                aabb.m_min[2] <= m_max[2] &&
@@ -49,7 +49,7 @@ namespace Caramel{
                aabb.m_max[2] >= m_min[2];
     }
     
-    bool AABB::is_contain(const Vector3f &vec) const{
+    Peanut::Bool AABB::is_contain(const Vector3f &vec) const{
         return m_min[0] <= vec[0] && vec[0] <= m_max[0] &&
                m_min[1] <= vec[1] && vec[1] <= m_max[1] &&
                m_min[2] <= vec[2] && vec[2] <= m_max[2];
@@ -64,7 +64,7 @@ namespace Caramel{
     Vector3f AABB::offset(const Vector3f &p) const {
         const Vector3f tmp = p - m_min;
         const Vector3f denom = m_max - m_min;
-        return {tmp[0] / denom[0], tmp[1] / denom[1], tmp[2] / denom[2]};
+        return Peanut::EDiv(tmp, denom);
     }
 
     Float AABB::surface_area() const {
@@ -72,7 +72,7 @@ namespace Caramel{
         return ((diag[0] * diag[1]) + (diag[1] * diag[2]) + (diag[2] * diag[0])) * Float2;
     }
 
-    std::pair<bool, Float> AABB::ray_intersect(const Ray &ray, Float maxt) const{
+    std::pair<Peanut::Bool, Float> AABB::ray_intersect(const Ray &ray, Float maxt) const{
         Float tmin = Float0;
         Float tmax = maxt;
 
@@ -104,7 +104,7 @@ namespace Caramel{
         return {tmax >= Float0, tmin};
     }
 
-    int AABB::longest_axis() const {
+    Int AABB::longest_axis() const {
         const Float len_x = m_max[0] - m_min[0];
         const Float len_y = m_max[1] - m_min[1];
         const Float len_z = m_max[2] - m_min[2];

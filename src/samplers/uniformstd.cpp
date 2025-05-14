@@ -32,14 +32,25 @@ namespace Caramel{
 
     UniformStdSampler::UniformStdSampler(int seed) {
         m_gen = std::mt19937(seed);
-        m_dis = std::uniform_real_distribution<Float>(Float0, Float1);
+        m_dis = std::uniform_real_distribution<float>(0, 1);
     }
 
     Float UniformStdSampler::sample_1d() {
+#ifdef PEANUT_APPLE_SIMD
+        return Float(sample_1d_sure(), sample_1d_sure(), sample_1d_sure(), sample_1d_sure());
+#else
+        return sample_1d_sure();
+#endif
+    }
+
+    // std::uniform_real_distribution should return in range of [0, 1),
+    // but it often returns 1 somehow...
+    Float UniformStdSampler::sample_1d_sure() {
         Float ret = m_dis(m_gen);
         while(ret == Float1){
             ret = m_dis(m_gen);
         }
         return ret;
     }
+
 }

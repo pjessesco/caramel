@@ -52,12 +52,11 @@ namespace Caramel{
         // from hitpoint to incoming point
         const Vector3f local_incoming_flipped = -local_incoming_dir.normalize();
 
-        if(local_incoming_flipped[2] <= Float0 || local_outgoing_dir[2] <= Float0){
-            // Not allow ray from backside
-            return vec3f_zero;
-        }
+        const Vector3f ret = (m_texture == nullptr ? m_albedo : m_texture->get_val(uv)) * PI_INV;
 
-        return (m_texture == nullptr ? m_albedo : m_texture->get_val(uv)) * PI_INV;
+        return Peanut::select(local_incoming_flipped[2] <= Float0 || local_outgoing_dir[2] <= Float0,
+                              vec3f_zero/* Not allow ray from backside */,
+                              ret);
     }
 
     bool Diffuse::is_discrete() const{

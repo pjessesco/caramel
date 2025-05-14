@@ -44,14 +44,12 @@ namespace Caramel{
 
         explicit Coordinate(const Vector3f &world_normal){
             m_world_n = world_normal.normalize();
-            if(Peanut::is_zero(m_world_n[0]) && Peanut::is_zero(m_world_n[2])){
-                m_axis1 = Vector3f(m_world_n[1], -m_world_n[0], Float0).normalize();
-                m_axis2 = Vector3f::cross(m_world_n, m_axis1);
-            }
-            else{
-                m_axis1 = Vector3f(m_world_n[2], Float0, -m_world_n[0]).normalize();
-                m_axis2 = Vector3f::cross(m_world_n, m_axis1);
-            }
+
+            const Bool cond = Peanut::is_zero(m_world_n[0]) && Peanut::is_zero(m_world_n[2]);
+            m_axis1 = Peanut::select(cond, Vector3f(m_world_n[1], -m_world_n[0], Float0).normalize(),
+                                           Vector3f(m_world_n[2], Float0, -m_world_n[0]).normalize());
+            m_axis2 = Peanut::select(cond, Vector3f::cross(m_world_n, m_axis1),
+                                           Vector3f::cross(m_world_n, m_axis1));
         }
 
         Vector3f to_world(const Vector3f &local_vec) const{

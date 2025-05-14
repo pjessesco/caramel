@@ -57,8 +57,8 @@ namespace Caramel{
     }
 
     inline Matrix44f rotate_x(Float degree){
-        const Float s = sin(deg_to_rad(degree));
-        const Float c = cos(deg_to_rad(degree));
+        const Float s = Peanut::sin(deg_to_rad(degree));
+        const Float c = Peanut::cos(deg_to_rad(degree));
         return Matrix44f{Float1, Float0, Float0, Float0,
                          Float0,      c,     -s, Float0,
                          Float0,      s,      c, Float0,
@@ -66,8 +66,8 @@ namespace Caramel{
     }
 
     inline Matrix44f rotate_y(Float degree){
-        const Float s = sin(deg_to_rad(degree));
-        const Float c = cos(deg_to_rad(degree));
+        const Float s = Peanut::sin(deg_to_rad(degree));
+        const Float c = Peanut::cos(deg_to_rad(degree));
         return Matrix44f{     c, Float0,      s, Float0,
                          Float0, Float1, Float0, Float0,
                              -s, Float0,      c, Float0,
@@ -75,8 +75,8 @@ namespace Caramel{
     }
 
     inline Matrix44f rotate_z(Float degree){
-        const Float s = sin(deg_to_rad(degree));
-        const Float c = cos(deg_to_rad(degree));
+        const Float s = Peanut::sin(deg_to_rad(degree));
+        const Float c = Peanut::cos(deg_to_rad(degree));
         return Matrix44f{     c,     -s, Float0, Float0,
                               s,      c, Float0, Float0,
                          Float0, Float0, Float1, Float0,

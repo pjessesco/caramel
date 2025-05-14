@@ -28,9 +28,10 @@
 #include <Peanut/Peanut.h>
 
 namespace Caramel{
-    using Float = float;
-    using Int = int;
+    using Float = Peanut::Float;
+    using Int = Peanut::Int;
     using Index = unsigned int;
+    using Bool = Peanut::Bool;
 
     constexpr Float Float0 = static_cast<Float>(0);
     constexpr Float Float1 = static_cast<Float>(1);
@@ -129,10 +130,10 @@ namespace Caramel{
         const Float phi = PI_2 * uv[0];
         const Float theta = uv[1] * PI;
 
-        const Float sin_theta = std::sin(theta);
-        const Float cos_theta = std::cos(theta);
-        const Float sin_phi = std::sin(phi);
-        const Float cos_phi = std::cos(phi);
+        const Float sin_theta = Peanut::sin(theta);
+        const Float cos_theta = Peanut::cos(theta);
+        const Float sin_phi = Peanut::sin(phi);
+        const Float cos_phi = Peanut::cos(phi);
 
         // Note that it is different with `sample_unit_sphere_uniformly()` or similar functions
         return {sin_theta * sin_phi, cos_theta, -sin_theta * cos_phi};

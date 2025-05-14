@@ -35,39 +35,39 @@ namespace Caramel{
         AABB();
         AABB(const Vector3f &p1, const Vector3f &p2);
 
-        bool is_overlap(const AABB &aabb) const;
+        Peanut::Bool is_overlap(const AABB &aabb) const;
 
-        bool is_contain(const Vector3f &vec) const;
+        Peanut::Bool is_contain(const Vector3f &vec) const;
 
         Vector3f corner(Index i) const;
 
-        std::pair<bool, Float> ray_intersect(const Ray &ray, Float maxt) const;
+        std::pair<Peanut::Bool, Float> ray_intersect(const Ray &ray, Float maxt) const;
 
         Vector3f offset(const Vector3f &p) const;
 
         Float surface_area() const;
 
         static AABB merge(const AABB &a, const AABB &b) {
-            return {{std::min(a.m_min[0], b.m_min[0]),
-                     std::min(a.m_min[1], b.m_min[1]),
-                     std::min(a.m_min[2], b.m_min[2])},
-                    {std::max(a.m_max[0], b.m_max[0]),
-                     std::max(a.m_max[1], b.m_max[1]),
-                     std::max(a.m_max[2], b.m_max[2])}};
+            return {{Peanut::min(a.m_min[0], b.m_min[0]),
+                     Peanut::min(a.m_min[1], b.m_min[1]),
+                     Peanut::min(a.m_min[2], b.m_min[2])},
+                    {Peanut::max(a.m_max[0], b.m_max[0]),
+                     Peanut::max(a.m_max[1], b.m_max[1]),
+                     Peanut::max(a.m_max[2], b.m_max[2])}};
         }
 
         static AABB overlapped(const AABB &a, const AABB &b) {
-            return {{std::max(a.m_min[0], b.m_min[0]),
-                     std::max(a.m_min[1], b.m_min[1]),
-                     std::max(a.m_min[2], b.m_min[2])},
-                    {std::min(a.m_max[0], b.m_max[0]),
-                     std::min(a.m_max[1], b.m_max[1]),
-                     std::min(a.m_max[2], b.m_max[2])}};
+            return {{Peanut::max(a.m_min[0], b.m_min[0]),
+                     Peanut::max(a.m_min[1], b.m_min[1]),
+                     Peanut::max(a.m_min[2], b.m_min[2])},
+                    {Peanut::min(a.m_max[0], b.m_max[0]),
+                     Peanut::min(a.m_max[1], b.m_max[1]),
+                     Peanut::min(a.m_max[2], b.m_max[2])}};
         }
 
         std::pair<AABB, AABB> split(int axis) const;
 
-        int longest_axis() const;
+        Int longest_axis() const;
 
         Vector3f get_center() const;
 

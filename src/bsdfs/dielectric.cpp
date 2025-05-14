@@ -37,30 +37,24 @@ namespace Caramel{
         Vector3f n{Float0, Float0, Float1};
         Float local_incoming_cos = n.dot(-local_incoming_dir);
 
-        Float ex_ior = m_ex_index_of_refraction;
-        Float in_ior = m_in_index_of_refraction;
-
         // Flip internal <-> external if ray incidents from back
-        if(local_incoming_cos < Float0){
-            in_ior = m_ex_index_of_refraction;
-            ex_ior = m_in_index_of_refraction;
-            n = -n;
-            local_incoming_cos *= -1;
-        }
+        const Bool flip_cond = local_incoming_cos < Float0;
+
+        const Float ex_ior = Peanut::select(flip_cond, m_in_index_of_refraction, m_ex_index_of_refraction);
+        const Float in_ior = Peanut::select(flip_cond, m_ex_index_of_refraction, m_in_index_of_refraction);
+        n = n * Peanut::select(flip_cond, -Float1, Float1);
+        local_incoming_cos *= Peanut::select(flip_cond, -Float1, Float1);
 
         const Float reflect_ratio = fresnel_dielectric(local_incoming_cos, ex_ior, in_ior);
 
-        if(sampler.sample_1d() <= reflect_ratio){
-            const Vector3f local_outgoing_dir{local_incoming_dir[0], local_incoming_dir[1], -local_incoming_dir[2]};
-            return {local_outgoing_dir, vec3f_one, Float0};
-        }
-        else{
-            const Vector3f local_outgoing_dir = refract(local_incoming_dir, n, in_ior, ex_ior);
-            // TODO : consider https://www.pbr-book.org/4ed/Reflection_Models/Dielectric_BSDF#Non-SymmetricScatteringandRefraction
-            const Float tmp = ((ex_ior*ex_ior)/(in_ior*in_ior));
-            return {local_outgoing_dir, {tmp, tmp, tmp}, Float0};
-        }
+        const Bool cond = sampler.sample_1d() <= reflect_ratio;
+        const Float tmp = ((ex_ior*ex_ior)/(in_ior*in_ior));
 
+        return {Peanut::select(cond, {local_incoming_dir[0], local_incoming_dir[1], -local_incoming_dir[2]},
+                                      refract(local_incoming_dir, n, in_ior, ex_ior)),
+                Peanut::select(cond, vec3f_one,
+                                     {tmp, tmp, tmp}),
+                Float0};
     }
 
     Float Dielectric::pdf(const Vector3f &, const Vector3f &) const{

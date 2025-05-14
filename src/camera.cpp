@@ -36,7 +36,7 @@ namespace Caramel{
         m_ratio = static_cast<Float>(m_w) / static_cast<Float>(m_h);
 
         const Float tmp1 = Float1 / (m_far - m_near);
-        const Float cot = Float1 / tan(deg_to_rad(m_fov_x * Float0_5));
+        const Float cot = Float1 / Peanut::tan(deg_to_rad(m_fov_x * Float0_5));
 
         const Matrix44f perspective{   cot, Float0,       Float0,                 Float0,
                                     Float0,    cot,       Float0,                 Float0,
@@ -70,7 +70,7 @@ namespace Caramel{
         m_ratio = static_cast<Float>(m_w) / static_cast<Float>(m_h);
 
         const Float tmp1 = Float1 / (m_far - m_near);
-        const Float cot = Float1 / tan(deg_to_rad(m_fov_x * Float0_5));
+        const Float cot = Float1 / Peanut::tan(deg_to_rad(m_fov_x * Float0_5));
 
         const Matrix44f perspective{   cot, Float0,       Float0,                 Float0,
                                     Float0,    cot,       Float0,                 Float0,

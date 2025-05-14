@@ -42,8 +42,10 @@ namespace Caramel{
         Float sample_1d() override;
 
     private:
+        Float sample_1d_sure();
+
         std::mt19937 m_gen;
-        std::uniform_real_distribution<Float> m_dis;
+        std::uniform_real_distribution<float> m_dis;
     };
 
 

@@ -66,7 +66,7 @@ namespace Caramel{
             auto [emitted_rad, light_pos, light_n_world, light_pos_pdf, light_info] = light->sample_direct_contribution(scene, info, sampler);
 
             // Continue if light sampling succeed
-            if(!is_zero(emitted_rad)) {
+            if(!Peanut::is_zero(emitted_rad)) {
                 const Vector3f hitpos_to_light_local_normal = info.sh_coord.to_local(light_pos - info.p).normalize();
                 const Vector3f fr = mesh->get_bsdf()->get_reflection(local_ray_dir, hitpos_to_light_local_normal, info.tex_uv);
                 const Float pdf_solidangle = light->pdf_solidangle(info.p, light_pos, light_info.sh_coord.m_world_n);

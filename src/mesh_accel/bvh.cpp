@@ -93,7 +93,7 @@ namespace Caramel{
             return;
         }
 
-        const int longest_axis = m_aabb.longest_axis();
+        const Int longest_axis = m_aabb.longest_axis();
 
         // const auto get_cost = [&](int shapeCount, const auto AABB &aabb) {
         //     return shapeCount * COST_INTERSECTION +

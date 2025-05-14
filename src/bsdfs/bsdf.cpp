@@ -55,9 +55,9 @@ namespace Caramel{
 
     Vector3f refract(const Vector3f &local_incoming_dir, const Vector3f &n, Float in_ior, Float ex_ior){
         const Float eta_ratio = ex_ior / in_ior;
-        const Float sin_i = std::sqrt(1 - (local_incoming_dir[2] * local_incoming_dir[2]));
+        const Float sin_i = Peanut::sqrt(1 - (local_incoming_dir[2] * local_incoming_dir[2]));
         const Float sin_t = snell_get_sin_t(sin_i, ex_ior, in_ior);
-        const Float cos_t = std::sqrt(1 - (sin_t * sin_t));
+        const Float cos_t = Peanut::sqrt(1 - (sin_t * sin_t));
         const Vector3f local_outgoing_dir = eta_ratio * local_incoming_dir + (eta_ratio * n.dot(-local_incoming_dir) - cos_t) * n;
         return local_outgoing_dir;
     }
@@ -75,7 +75,7 @@ namespace Caramel{
             CRM_WARNING("cos_i(" + std::to_string(_cos_i) + ") exceeds 1 which is not allowed, clamped to 1");
         }
 
-        const Float sin_i = std::sqrt(Float1 - (cos_i * cos_i));
+        const Float sin_i = Peanut::sqrt(Float1 - (cos_i * cos_i));
         const Float sin_t = snell_get_sin_t(sin_i, eta_i, eta_t);
 
         // Total reflection
