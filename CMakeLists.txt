@@ -3,13 +3,6 @@ project(caramel)
 
 set(CMAKE_CXX_STANDARD 20)
 
-# Extern libs
-add_subdirectory(ext/peanut)
-include_directories(ext)
-include_directories(ext/peanut/include)
-
-include_directories(include)
-
 set(SOURCES
         src/aabb.cpp
         src/bsdfs/diffuse.cpp
@@ -85,10 +78,26 @@ if(NOT EXCLUDE_TEST)
 
     add_compile_definitions(caramel_test TEST_SCENE_PATH="${CMAKE_SOURCE_DIR}/scenes/")
     target_include_directories(caramel_test PUBLIC ../include)
+    target_link_libraries(caramel_test PUBLIC Peanut)
 endif()
 
 add_executable(caramel
         main.cpp
         ${SOURCES}
         ${HEADERS})
+
+if(APPLE)
+    option(SIMD OFF)
+endif()
+
+if(SIMD)
+    set(PEANUT_ENABLE_APPLE_SIMD ON)
+endif()
+
+# Extern libs
+include_directories(ext)
+include_directories(include)
+
+add_subdirectory(ext/Peanut)
+target_link_libraries(caramel PUBLIC Peanut)
 
