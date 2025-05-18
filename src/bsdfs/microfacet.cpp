@@ -34,32 +34,31 @@ namespace Caramel{
     std::tuple<Vector3f, Vector3f, Float> Microfacet::sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &sampler) const {
         // from hitpoint to incoming point
         const Vector3f local_incoming_flipped = -local_incoming_dir.normalize();
-        Vector3f local_outgoing;
 
-        if(local_incoming_flipped[2] <= Float0){
+        Bool active = local_incoming_flipped[2] > Float0;
+
+        if(pn_none_of(active)){
             // Not allow ray from backside
             return {vec3f_zero, vec3f_zero, Float0};
         }
 
-        if(sampler.sample_1d() < m_ks) /* reflect */{
-            const Vector3f sampled_normal = sample_beckmann_distrib(sampler, m_alpha).first;
-            local_outgoing = reflect(-local_incoming_flipped, sampled_normal);
-        }
-        else{ // diffuse
-            local_outgoing = sample_unit_hemisphere_cosine(sampler).first;
-        }
+        const Vector3f local_outgoing = Peanut::select(sampler.sample_1d() < m_ks,
+                                                       reflect(-local_incoming_flipped, sample_beckmann_distrib(sampler, m_alpha).first)/* reflect */,
+                                                       sample_unit_hemisphere_cosine(sampler).first/* diffuse */);
 
-        if(local_outgoing[2] <= Float0){
+        active &= local_outgoing[2] > Float0;
+        if(pn_none_of(active)){
             // Not allow ray from backside
             return {vec3f_zero, vec3f_zero, Float0};
         }
 
         // pdf -------------
         const Float pdf_ = pdf(local_incoming_dir, local_outgoing);
+        const Vector3f ret = get_reflection(local_incoming_dir, local_outgoing, Vector2f(/*dummy*/)) * local_outgoing[2] / pdf_;
 
-        return {local_outgoing,
-                get_reflection(local_incoming_dir, local_outgoing, Vector2f(/*dummy*/)) * local_outgoing[2] / pdf_,
-                pdf_};
+        return {Peanut::select(active, local_outgoing, vec3f_zero),
+                Peanut::select(active, ret, vec3f_zero),
+                Peanut::select(active, pdf_, Float0)};
     }
 
     Float Microfacet::pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const{
