@@ -65,23 +65,18 @@ namespace Caramel{
     // Calculate fresnel reflectance for dielectric <-> dielectric.
     // This is special case of `fresnel_conductor()` with k=0.
     Float fresnel_dielectric(Float _cos_i, Float eta_i/* ex */, Float eta_t/* in */) {
-        Float cos_i = _cos_i;
-        if(_cos_i < Float0){
-            cos_i = Float0;
-            CRM_WARNING("cos_i(" + std::to_string(_cos_i) + ") is negative which is not allowed, clamped to 0");
+
+#ifdef DEBUG
+        if (pn_any(_cos_i < Float0 || _cos_i > Float1)) {
+            CRM_WARNING("cos_i is clamped");
         }
-        if(_cos_i > Float1){
-            cos_i = Float1;
-            CRM_WARNING("cos_i(" + std::to_string(_cos_i) + ") exceeds 1 which is not allowed, clamped to 1");
-        }
+#endif
+        const Float cos_i = Peanut::clamp(cos_i, Float0, Float1);
 
         const Float sin_i = Peanut::sqrt(Float1 - (cos_i * cos_i));
         const Float sin_t = snell_get_sin_t(sin_i, eta_i, eta_t);
 
-        // Total reflection
-        if(sin_t >= Float1) return Float1;
-
-        const Float cos_t = std::sqrt(Float1 - (sin_t * sin_t));
+        const Float cos_t = Peanut::sqrt(Float1 - (sin_t * sin_t));
 
         const Float eta_t_cos_t = eta_t * cos_t;
         const Float eta_t_cos_i = eta_t * cos_i;
@@ -91,20 +86,20 @@ namespace Caramel{
         const Float r_parallel = (eta_t_cos_i - eta_i_cos_t) / (eta_t_cos_i + eta_i_cos_t);
         const Float r_perpendicular = (eta_i_cos_i - eta_t_cos_t) / (eta_i_cos_i + eta_t_cos_t);
 
-        return (r_parallel * r_parallel + r_perpendicular * r_perpendicular) * Float0_5;
+        return Peanut::select(sin_t >= Float1,
+                              Float1/* Total reflection */,
+                              (r_parallel * r_parallel + r_perpendicular * r_perpendicular) * Float0_5);
     }
 
     // Calculate fresnel reflectance for dielectric <-> conductor
     Vector3f fresnel_conductor(Float _cos_i, const Vector3f &eta_i/* ex */, const Vector3f &eta_t/* in */, const Vector3f eta_t_k){
-        Float cos_i = _cos_i;
-        if(_cos_i < Float0){
-            cos_i = Float0;
-            CRM_WARNING("cos_i(" + std::to_string(_cos_i) + ") is negative which is not allowed, clamped to 0");
+
+#ifdef DEBUG
+        if (pn_any(_cos_i < Float0 || _cos_i > Float1)) {
+            CRM_WARNING("cos_i is clamped");
         }
-        if(_cos_i > Float1){
-            cos_i = Float1;
-            CRM_WARNING("cos_i(" + std::to_string(_cos_i) + ") exceeds 1 which is not allowed, clamped to 1");
-        }
+#endif
+        const Float cos_i = Peanut::clamp(_cos_i, Float0, Float1);
 
         // eta + ik = nt / ni
         const Vector3f eta = EDiv(eta_t, eta_i);
