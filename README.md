@@ -5,6 +5,8 @@
 [![Build (Windows, Clang)](https://github.com/pjessesco/caramel/actions/workflows/build_windows_clang.yml/badge.svg)](https://github.com/pjessesco/caramel/actions/workflows/build_windows_clang.yml)
 [![Build (Windows, MSVC)](https://github.com/pjessesco/caramel/actions/workflows/build_windows_msvc.yml/badge.svg)](https://github.com/pjessesco/caramel/actions/workflows/build_windows_msvc.yml)
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/pjessesco/caramel)
+
 
 Caramel is a physically-based offline renderer for studying myself based on [Peanut](https://github.com/pjessesco/peanut). 
 
