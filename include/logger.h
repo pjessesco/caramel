@@ -101,6 +101,6 @@ namespace Caramel {
 
 
 #define NOT_IMPLEMENTED() do{         \
-    CRM_ERROR"NOT IMPLEMENTED") \
+    CRM_ERROR("NOT IMPLEMENTED") \
 } while(0);
 
