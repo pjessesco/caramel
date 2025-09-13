@@ -212,10 +212,10 @@ namespace Caramel{
                                            parse_positive_float(child, "sigma"));
         }
         else if(type=="conductor"){
-            const std::string child = parse_string(child, "material");
-            const Conductors c = child == "Au" ? Conductors::Au :
-                                 child == "Ag" ? Conductors::Ag :
-                                 child == "Al" ? Conductors::Al :
+            const std::string conductor = parse_string(child, "material");
+            const Conductors c = conductor == "Au" ? Conductors::Au :
+                                 conductor == "Ag" ? Conductors::Ag :
+                                 conductor == "Al" ? Conductors::Al :
                              /*child == "Cu" ?*/ Conductors::Cu;
             return BSDF::Create<Conductor>(c, parse_positive_float(child, "ex_ior"));
         }

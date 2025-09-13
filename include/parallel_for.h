@@ -37,7 +37,7 @@ namespace Caramel{
     template <typename F>
     inline void parallel_for(int start_idx, int end_idx, F &&func){
 
-        const std::vector<std::thread> tasks(end_idx - start_idx);
+        const int task_num = end_idx - start_idx;
         std::atomic<int> total_done_jobs = 0;
         std::counting_semaphore<THREAD_NUM> sem{THREAD_NUM};
 
@@ -51,7 +51,7 @@ namespace Caramel{
             th.detach();
         }
 
-        while (total_done_jobs != tasks.size()){}
+        while (total_done_jobs != task_num){}
 
     }
 }
