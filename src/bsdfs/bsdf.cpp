@@ -28,20 +28,6 @@
 #include <logger.h>
 
 namespace Caramel{
-    // Debug from mitsuba3 rgb mode
-    const std::unordered_map<std::string, Vector3f> IOR::eta_map{
-        {"Au"/*Gold*/,   {static_cast<Float>(0.143035978), static_cast<Float>(0.375307083), static_cast<Float>(1.44204533)}},
-        {"Ag"/*Silver*/, {static_cast<Float>(0.155276194), static_cast<Float>(0.116727956), static_cast<Float>(0.138387635)}},
-        {"Al"/*Aluminium*/, {static_cast<Float>(1.65750086), static_cast<Float>(0.880404711), static_cast<Float>(0.521244466)}},
-        {"Cu"/*Copper*/, {static_cast<Float>(0.201005474), static_cast<Float>(0.923749506), static_cast<Float>(1.10221541)}},
-    };
-    const std::unordered_map<std::string, Vector3f> IOR::k_map{
-        {"Au"/*Gold*/, {static_cast<Float>(3.98299694), static_cast<Float>(2.38555646), static_cast<Float>(1.60335922)}},
-        {"Ag"/*Silver*/, {static_cast<Float>(4.82835436), static_cast<Float>(3.12222242), static_cast<Float>(2.14690113)}},
-        {"Al"/*Aluminium*/, {static_cast<Float>(9.22381114), static_cast<Float>(6.26950216), static_cast<Float>(4.83700418)}},
-        {"Cu"/*Copper*/, {static_cast<Float>(3.91326213), static_cast<Float>(2.45304513), static_cast<Float>(2.14208984)}},
-    };
-
     // Snell's Law : eta_i * sin_i = eta_t * sin_t
     // Calculate `sin_t` using above equation.
     Float snell_get_sin_t(Float sin_i, Float eta_i, Float eta_t) {
@@ -95,7 +81,7 @@ namespace Caramel{
     }
 
     // Calculate fresnel reflectance for dielectric <-> conductor
-    Vector3f fresnel_conductor(Float _cos_i, const Vector3f &eta_i/* ex */, const Vector3f &eta_t/* in */, const Vector3f eta_t_k){
+    Vector3f fresnel_conductor(Float _cos_i, const Vector3f &eta_i/* ex */, const Vector3f &eta_t/* in */, const Vector3f &eta_t_k){
         Float cos_i = _cos_i;
         if(_cos_i < Float0){
             cos_i = Float0;

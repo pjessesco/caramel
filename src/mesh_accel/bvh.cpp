@@ -33,7 +33,6 @@
 #include <shape.h>
 
 #include <bvh.h>
-#include <valarray>
 
 namespace Caramel{
 
@@ -51,7 +50,7 @@ namespace Caramel{
          return !m_shapes.empty();
      }
 
-    std::pair<bool, RayIntersectInfo> BVHNode::ray_intersect(const Ray &ray, Float maxt) {
+    std::pair<bool, RayIntersectInfo> BVHNode::ray_intersect(const Ray &ray, Float maxt) const{
         if (is_leaf()) {
             bool is_hit = false;
             RayIntersectInfo info = RayIntersectInfo();
@@ -166,7 +165,7 @@ namespace Caramel{
             const Float total_cost = COST_TRAVERSAL + lowest_cost / m_aabb.surface_area();
 
             if (m_shapes.size() > MAX_SHAPE_NUM || total_cost < m_shapes.size() * COST_INTERSECTION) {
-                auto mid = std::partition(m_shapes.begin(), m_shapes.end(),
+                const auto mid = std::partition(m_shapes.begin(), m_shapes.end(),
                                           [=, this](const auto &shape) {
                                               const int slice_idx = m_aabb.offset(shape->get_center())[longest_axis] * SUBSPACE_COUNT;
                                               return slice_idx <= lowest_cost_cut_index;

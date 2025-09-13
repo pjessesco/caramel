@@ -39,7 +39,7 @@ namespace Caramel{
 
     // Divide a single mesh
     struct AccelerationMesh{
-        friend struct OBJMesh;
+        friend class OBJMesh;
 
         explicit AccelerationMesh(const OBJMesh &shape) : m_shape{shape} {}
         virtual ~AccelerationMesh() = default;
@@ -65,7 +65,7 @@ namespace Caramel{
         explicit Octree(const OBJMesh &shape);
 
         struct Node{
-            Node() {};
+            Node() = default;
             explicit Node(const AABB &aabb);
 
             void construct_children(const OBJMesh &shape);

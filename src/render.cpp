@@ -37,11 +37,11 @@ namespace Caramel{
         // Set current path
         std::filesystem::current_path(scene_path.parent_path());
 
-        SceneParser parser(scene_path);
+        const SceneParser parser(scene_path);
         Integrator *integrator = parser.parse_integrator();
         Camera *cam = parser.parse_camera();
-        std::vector<Shape*> shapes = parser.parse_shapes();
-        std::vector<Light*> lights = parser.parse_lights();
+        const std::vector<Shape*> shapes = parser.parse_shapes();
+        const std::vector<Light*> lights = parser.parse_lights();
 
         Scene scene;
         for(auto s : shapes){

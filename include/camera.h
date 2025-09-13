@@ -43,12 +43,12 @@ namespace Caramel{
             return dynamic_cast<Camera*>(new Type(args...));
         }
 
-        inline std::pair<Index, Index> get_size() const{
+        std::pair<Index, Index> get_size() const{
             return {m_w, m_h};
         }
 
         // Used for test
-        inline void set_size(Index width, Index height){
+        void set_size(Index width, Index height){
             m_w = width;
             m_h = height;
         }

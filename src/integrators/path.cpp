@@ -42,7 +42,7 @@ namespace Caramel{
         return mis_sampling_path(scene, i, j, sampler);
     }
 
-    Vector3f PathIntegrator::mis_sampling_path(const Scene &scene, Float i, Float j, Sampler &sampler){
+    Vector3f PathIntegrator::mis_sampling_path(const Scene &scene, Float i, Float j, Sampler &sampler) const{
         Ray ray = scene.m_cam->sample_ray(i, j);
         Vector3f current_brdf = vec3f_one;
         Vector3f ret = vec3f_zero;
