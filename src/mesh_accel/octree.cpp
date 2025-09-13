@@ -57,7 +57,7 @@ namespace Caramel{
             }
         }
 
-        m_childs.erase(std::remove_if(m_childs.begin(), m_childs.end(), [](const Octree::Node &node){return node.m_triangle_indices.empty();}), m_childs.end());
+        std::erase_if(m_childs, [](const Octree::Node &node){return node.m_triangle_indices.empty();});
         m_triangle_indices.clear();
 
         // Shrink aabb as possible

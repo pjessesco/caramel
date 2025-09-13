@@ -249,10 +249,10 @@ namespace Caramel{
         const Json child = get_unique_first_elem(parent, key);
 
         if(child.is_array() && child.size()==3 &&
-            std::all_of(child.begin(), child.end(), [](auto e){return e.is_number();})){
-            return Vector3f{static_cast<Float>(child[0]),
-                            static_cast<Float>(child[1]),
-                            static_cast<Float>(child[2])};
+            std::ranges::all_of(child, [](auto e){return e.is_number();})){
+                return Vector3f{static_cast<Float>(child[0]),
+                                static_cast<Float>(child[1]),
+                                static_cast<Float>(child[2])};
         }
         CRM_ERROR("Can not parse vector3f : " + to_string(child));
     }
@@ -306,13 +306,13 @@ namespace Caramel{
         }
 
         if(child.size() == 16 &&
-            std::all_of(child.begin(), child.end(), [](auto e){return e.is_number();})){
-            return Matrix44f{static_cast<Float>(child[0]), static_cast<Float>(child[1]), static_cast<Float>(child[2]), static_cast<Float>(child[3]),
-                             static_cast<Float>(child[4]), static_cast<Float>(child[5]), static_cast<Float>(child[6]), static_cast<Float>(child[7]),
-                             static_cast<Float>(child[8]), static_cast<Float>(child[9]), static_cast<Float>(child[10]), static_cast<Float>(child[11]),
-                             static_cast<Float>(child[12]), static_cast<Float>(child[13]), static_cast<Float>(child[14]), static_cast<Float>(child[15])};
+            std::ranges::all_of(child, [](auto e){return e.is_number();})){
+                return Matrix44f{static_cast<Float>(child[0]), static_cast<Float>(child[1]), static_cast<Float>(child[2]), static_cast<Float>(child[3]),
+                                 static_cast<Float>(child[4]), static_cast<Float>(child[5]), static_cast<Float>(child[6]), static_cast<Float>(child[7]),
+                                 static_cast<Float>(child[8]), static_cast<Float>(child[9]), static_cast<Float>(child[10]), static_cast<Float>(child[11]),
+                                 static_cast<Float>(child[12]), static_cast<Float>(child[13]), static_cast<Float>(child[14]), static_cast<Float>(child[15])};
         }
-        else if(std::all_of(child.begin(), child.end(), [](auto e){return e.is_object();})){
+        else if(std::ranges::all_of(child, [](auto e){return e.is_object();})){
             Matrix44f mat = Matrix44f::identity();
             for(const auto &e : child){
                 const std::string key = parse_string(e, "type");
