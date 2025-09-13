@@ -22,6 +22,8 @@
 // SOFTWARE.
 //
 
+#include <fstream>
+
 #include <scene_parser.h>
 
 #include <scene.h>
@@ -112,10 +114,10 @@ namespace Caramel{
     std::vector<Light*> SceneParser::parse_lights() const{
         std::vector<Light*> lights;
 
-        bool is_envmap_parsed = false;
-
         const Json child = get_unique_first_elem(m_scene_json, "light", true/*optional*/);
         if(child.is_array()){
+            bool is_envmap_parsed = false;
+
             for(const auto &ch : child){
                 auto light = parse_light(ch);
                 if (light->is_envlight() && is_envmap_parsed) {
@@ -297,8 +299,8 @@ namespace Caramel{
         CRM_ERROR("Can not parse negative int : " + to_string(child));
     }
 
-    Matrix44f SceneParser::parse_matrix44f(const SceneParser::Json &parent, const std::string &key) const {
-        const Json child = get_unique_first_elem(parent, key);
+    Matrix44f SceneParser::parse_matrix44f(const SceneParser::Json &parent, const std::string &_key) const {
+        const Json child = get_unique_first_elem(parent, _key);
         if(!child.is_array()){
             CRM_ERROR("Can not parse matrix : " + to_string(child));
         }

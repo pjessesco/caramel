@@ -63,7 +63,7 @@ namespace Caramel{
         // Shrink aabb as possible
         for (auto &child : m_childs) {
             AABB shrinked_aabb = shape.get_triangle(child.m_triangle_indices[0]).get_aabb();
-            for (auto tri : child.m_triangle_indices) {
+            for (const auto tri : child.m_triangle_indices) {
                 shrinked_aabb = AABB::merge(shrinked_aabb, shape.get_triangle(tri).get_aabb());
             }
             child.m_aabb = shrinked_aabb;
@@ -95,7 +95,7 @@ namespace Caramel{
         RayIntersectInfo info;
         info.t = maxt;
         bool is_hit = false;
-        for(Index i:m_triangle_indices){
+        for(const Index i:m_triangle_indices){
             const auto &[is_intersect, tmp_info] = shape.get_triangle(i).ray_intersect(ray, info.t);
             if (is_intersect) {
                 is_hit = true;
@@ -113,9 +113,9 @@ namespace Caramel{
         std::array<std::pair<Index, Float>, 8> idx_mint_pair;
         Index hit_count = 0;
         for(Index i=0;i<m_childs.size();i++){
-            const auto child_aabb_intersect = m_childs[i].m_aabb.ray_intersect(ray, maxt);
-            if(child_aabb_intersect.first) {
-                idx_mint_pair[hit_count++] = {i, child_aabb_intersect.second};
+            const auto [is_child_aabb_hit, child_aabb_t] = m_childs[i].m_aabb.ray_intersect(ray, maxt);
+            if(is_child_aabb_hit) {
+                idx_mint_pair[hit_count++] = {i, child_aabb_t};
             }
         }
 

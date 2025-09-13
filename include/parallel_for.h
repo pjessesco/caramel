@@ -27,20 +27,17 @@
 #include <thread>
 #include <atomic>
 #include <vector>
-#include <queue>
-#include <numeric>
 #include <semaphore>
 #include <functional>
-
-#include <common.h>
 
 namespace Caramel{
 
     constexpr int THREAD_NUM = 10;
 
-    inline void parallel_for(int start_idx, int end_idx, std::function<void(int)> func){
+    template <typename F>
+    inline void parallel_for(int start_idx, int end_idx, F &&func){
 
-        std::vector<std::thread> tasks(end_idx - start_idx);
+        const std::vector<std::thread> tasks(end_idx - start_idx);
         std::atomic<int> total_done_jobs = 0;
         std::counting_semaphore<THREAD_NUM> sem{THREAD_NUM};
 

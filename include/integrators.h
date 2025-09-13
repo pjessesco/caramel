@@ -100,7 +100,7 @@ namespace Caramel{
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
 
     private:
-        Vector3f mis_sampling_path(const Scene &scene, Float i, Float j, Sampler &sampler);
+        Vector3f mis_sampling_path(const Scene &scene, Float i, Float j, Sampler &sampler) const;
 
         Index m_rr_depth;
         Index m_max_depth;

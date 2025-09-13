@@ -48,9 +48,9 @@ namespace Caramel{
         }
     };
 
-    class ImageTexture : public Texture{
+    class ImageTexture final : public Texture {
     public:
-        ImageTexture(const std::string &path);
+        explicit ImageTexture(const std::string &path);
         virtual ~ImageTexture();
         Vector3f get_val(const Vector2f &uv) const override;
 

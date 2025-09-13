@@ -38,7 +38,7 @@ namespace Caramel{
     class Light;
     class AreaLight;
     class RayIntersectInfo;
-    class AABB;
+    struct AABB;
     class Ray;
     class Sampler;
     class Distrib1D;
@@ -60,15 +60,15 @@ namespace Caramel{
 
         Vector3f get_center() const;
 
-        inline bool is_light() const{
+        bool is_light() const{
             return m_arealight != nullptr;
         }
 
-        inline AreaLight *get_arealight() const{
+        AreaLight *get_arealight() const{
             return m_arealight;
         }
 
-        inline BSDF* get_bsdf() const{
+        BSDF* get_bsdf() const{
             return m_bsdf;
         }
 
@@ -102,10 +102,11 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;
         Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const override;
 
-        inline Vector3f point(Index i) const{
+        Vector3f point(Index i) const{
             return i == 0 ? m_p0 : i == 1 ? m_p1 : m_p2;
         }
-        inline Vector3f normal(Index i) const{
+
+        Vector3f normal(Index i) const{
             return i == 0 ? m_n0 : i == 1 ? m_n1 : m_n2;
         }
 
@@ -130,7 +131,7 @@ namespace Caramel{
 
         Triangle get_triangle(Index i) const;
 
-        inline Index get_triangle_num() const{
+        Index get_triangle_num() const{
             return m_vertex_indices.size();
         }
 

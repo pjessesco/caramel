@@ -36,7 +36,7 @@ namespace Caramel {
         static constexpr int CHANNEL_NUM = 3;
 
         Image(Index width, Index height);
-        Image(const std::string &filename);
+        explicit Image(const std::string &filename);
         void write_exr(const std::string &filename) const;
 
         void set_pixel_value(int w, int h, Float r, Float g, Float b);

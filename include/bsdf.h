@@ -45,13 +45,13 @@ namespace Caramel{
     Float fresnel_dielectric(Float cos_i, Float eta_i/* ex */, Float eta_t/* in */);
 
     // Calculate fresnel reflectance for dielectric <-> conductor
-    Vector3f fresnel_conductor(Float cos_i, const Vector3f &eta_i/* ex */, const Vector3f &eta_t/* in */, const Vector3f eta_t_k);
+    Vector3f fresnel_conductor(Float cos_i, const Vector3f &eta_i/* ex */, const Vector3f &eta_t/* in */, const Vector3f &eta_t_k);
 
     // perfect reflect
     Vector3f reflect(const Vector3f &local_incoming_dir, const Vector3f &normal);
 
     // refract using snell's law
-    Vector3f refract(const Vector3f &wi, const Vector3f &n, Float in_ior, Float ex_ior);
+    Vector3f refract(const Vector3f &local_incoming_dir, const Vector3f &n, Float in_ior, Float ex_ior);
 
     struct IOR{
         static constexpr Float VACUUM       = static_cast<Float>(1.0);
@@ -112,7 +112,7 @@ namespace Caramel{
 
     class Dielectric final : public BSDF{
     public:
-        Dielectric(Float in_ior = IOR::GLASS, Float ex_ior = IOR::VACUUM);
+        explicit Dielectric(Float in_ior = IOR::GLASS, Float ex_ior = IOR::VACUUM);
         std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &) const override;
         Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
         Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const override;
