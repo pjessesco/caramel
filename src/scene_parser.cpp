@@ -60,9 +60,9 @@ namespace Caramel{
         else if(type=="normal"){
             return Integrator::Create<NormalIntegrator>();
         }
-        else if(type=="direct"){
-            return Integrator::Create<DirectIntegrator>(parse_positive_int(child, "spp"));
-        }
+        // else if(type=="direct"){
+        //     return Integrator::Create<DirectIntegrator>(parse_positive_int(child, "spp"));
+        // }
         else if(type=="path"){
             return Integrator::Create<PathIntegrator>(parse_nonnegative_int(child, "depth_rr"),
                                                       parse_nonnegative_int(child, "depth_max"),
