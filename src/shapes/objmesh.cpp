@@ -124,7 +124,7 @@ namespace Caramel {
         m_area = Float0;
         // Initialize m_triangle_pdf used in sampling triangle.
         for(int i=0;i<m_vertex_indices.size();i++){
-            Float ith_tri_area = get_triangle(i).get_area();
+            const Float ith_tri_area = get_triangle(i).get_area();
             triangle_area_vec[i] = ith_tri_area;
             m_area += ith_tri_area;
         }
@@ -152,10 +152,10 @@ namespace Caramel {
 
     std::tuple<Vector3f, Vector3f, Float> OBJMesh::sample_point(Sampler &sampler) const{
         // Sample triangle considering area
-        Index i = m_triangle_pdf.sample(sampler.sample_1d());
+        const Index i = m_triangle_pdf.sample(sampler.sample_1d());
 
         // Sample point in chosen triangle
-        auto [pos, normal, _] = get_triangle(i).sample_point(sampler);
+        const auto [pos, normal, _] = get_triangle(i).sample_point(sampler);
 
         return {pos, normal, Float1 / m_area};
     }

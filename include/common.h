@@ -44,7 +44,7 @@ namespace Caramel{
     constexpr Float PI = 3.14159265359;
     constexpr Float PI_2 = PI * 2;
     constexpr Float PI_4 = PI * 4;
-    constexpr Float PI_HALF = PI * Float(0.5);
+    constexpr Float PI_HALF = PI * static_cast<Float>(0.5);
     constexpr Float PI_INV = 1 / PI;
     constexpr Float PI_2_INV = 1 / PI_2;
     constexpr Float PI_4_INV = 1 / PI_4;
@@ -99,7 +99,7 @@ namespace Caramel{
     }                                                                                //        v   Y
 
     template <typename T>
-    inline T interpolate(const T &a, const T &b, const T &c, Float u, Float v){
+    T interpolate(const T &a, const T &b, const T &c, Float u, Float v){
         return (a*(Float1-u-v)) + (b*u) + (c*v);
     }
 

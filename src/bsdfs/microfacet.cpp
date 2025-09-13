@@ -105,7 +105,6 @@ namespace Caramel{
     }
 
     Float Microfacet::G1(const Vector3f &wv, const Vector3f &wh) const{
-        const Vector3f n = Vector3f{Float0, Float0, Float1};
         if(wv.dot(wh) / wv[2] <= 0){
             return Float0;
         }

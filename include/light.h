@@ -30,7 +30,7 @@
 #include <distribution.h>
 
 namespace Caramel{
-    struct Scene;
+    class Scene;
     class Shape;
     class Sampler;
     class Image;
@@ -85,7 +85,7 @@ namespace Caramel{
 
     class AreaLight final : public Light{
     public:
-        AreaLight(const Vector3f &radiance);
+        explicit AreaLight(const Vector3f &radiance);
         ~AreaLight();
         
         Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const override;

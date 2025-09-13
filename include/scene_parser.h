@@ -24,11 +24,8 @@
 
 #pragma once
 
-#include <algorithm>
 #include <filesystem>
-#include <fstream>
 #include <ranges>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -59,8 +56,6 @@ namespace Caramel{
         std::vector<Shape*> parse_shapes() const;
 
         std::vector<Light*> parse_lights() const;
-
-        Light* parse_light() const;
 
     private:
         Shape* parse_shape(const Json &shape_json) const;

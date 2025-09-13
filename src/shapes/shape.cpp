@@ -78,9 +78,9 @@ namespace Caramel {
     std::tuple<Float, Float, Float> watertight_intersection(const Ray &ray, const Vector3f &p0, const Vector3f &p1, const Vector3f &p2){
 
         // Calculate dimension where the ray direction is maximal
-        Index idx_z = ray.m_d[0] > ray.m_d[1] ? ray.m_d[0] > ray.m_d[2] ? 0 :
-                                                                          2 :
-                                                ray.m_d[1] > ray.m_d[2] ? 1 :
+        const Index idx_z = ray.m_d[0] > ray.m_d[1] ? ray.m_d[0] > ray.m_d[2] ? 0 :
+                                                                                2 :
+                                                      ray.m_d[1] > ray.m_d[2] ? 1 :
                                                                           2;
         Index idx_x = idx_z == 2 ? 0 : idx_z + 1;
         Index idx_y = idx_x == 2 ? 0 : idx_x + 1;
@@ -129,7 +129,7 @@ namespace Caramel {
         }
 
         // Calculate determinant
-        Float det = U + V + W;
+        const Float det = U + V + W;
         if(det == Float0){
             return {-Float1, -Float1, -Float1};
         }

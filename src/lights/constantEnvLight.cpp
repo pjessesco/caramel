@@ -45,8 +45,8 @@ namespace Caramel{
     }
 
     std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> ConstantEnvLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &sampler) const{
-        auto [pos_to_light_dir_local, pos_pdf] = sample_unit_sphere_uniformly(sampler);
-        auto pos_to_light_dir_world = hitpos_info.sh_coord.to_world(pos_to_light_dir_local);
+        const auto [pos_to_light_dir_local, pos_pdf] = sample_unit_sphere_uniformly(sampler);
+        const auto pos_to_light_dir_world = hitpos_info.sh_coord.to_world(pos_to_light_dir_local);
 
         const Vector3f light_pos = hitpos_info.p + (pos_to_light_dir_world * scene.m_sceneRadius * 2);
         auto [visible, info] = scene.is_visible(light_pos, hitpos_info.p);

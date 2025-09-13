@@ -24,8 +24,6 @@
 
 #pragma once
 
-#include <chrono>
-
 #include <common.h>
 
 namespace Caramel{
@@ -85,14 +83,14 @@ namespace Caramel{
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
     };
 
-    class DirectIntegrator final : public MCIntegrator{
-    public:
-        DirectIntegrator(Index spp);
-        Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
-
-    private:
-        Vector3f mis_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler);
-    };
+    // class DirectIntegrator final : public MCIntegrator{
+    // public:
+    //     DirectIntegrator(Index spp);
+    //     Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
+    //
+    // private:
+    //     Vector3f mis_sampling_direct(const Scene &scene, Float i, Float j, Sampler &sampler);
+    // };
 
     class PathIntegrator final : public MCIntegrator{
     public:
@@ -100,7 +98,7 @@ namespace Caramel{
         Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) override;
 
     private:
-        Vector3f mis_sampling_path(const Scene &scene, Float i, Float j, Sampler &sampler);
+        Vector3f mis_sampling_path(const Scene &scene, Float i, Float j, Sampler &sampler) const;
 
         Index m_rr_depth;
         Index m_max_depth;

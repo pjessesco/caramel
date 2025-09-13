@@ -22,6 +22,8 @@
 // SOFTWARE.
 //
 
+#include <fstream>
+
 #include <scene_parser.h>
 
 #include <scene.h>
@@ -60,9 +62,9 @@ namespace Caramel{
         else if(type=="normal"){
             return Integrator::Create<NormalIntegrator>();
         }
-        else if(type=="direct"){
-            return Integrator::Create<DirectIntegrator>(parse_positive_int(child, "spp"));
-        }
+        // else if(type=="direct"){
+        //     return Integrator::Create<DirectIntegrator>(parse_positive_int(child, "spp"));
+        // }
         else if(type=="path"){
             return Integrator::Create<PathIntegrator>(parse_nonnegative_int(child, "depth_rr"),
                                                       parse_nonnegative_int(child, "depth_max"),
@@ -112,10 +114,10 @@ namespace Caramel{
     std::vector<Light*> SceneParser::parse_lights() const{
         std::vector<Light*> lights;
 
-        bool is_envmap_parsed = false;
-
         const Json child = get_unique_first_elem(m_scene_json, "light", true/*optional*/);
         if(child.is_array()){
+            bool is_envmap_parsed = false;
+
             for(const auto &ch : child){
                 auto light = parse_light(ch);
                 if (light->is_envlight() && is_envmap_parsed) {
@@ -210,8 +212,12 @@ namespace Caramel{
                                            parse_positive_float(child, "sigma"));
         }
         else if(type=="conductor"){
-            return BSDF::Create<Conductor>(parse_string(child, "material"),
-                                           parse_positive_float(child, "ex_ior"));
+            const std::string conductor = parse_string(child, "material");
+            const Conductors c = conductor == "Au" ? Conductors::Au :
+                                 conductor == "Ag" ? Conductors::Ag :
+                                 conductor == "Al" ? Conductors::Al :
+                             /*child == "Cu" ?*/ Conductors::Cu;
+            return BSDF::Create<Conductor>(c, parse_positive_float(child, "ex_ior"));
         }
         else{
             CRM_ERROR(type + "bsdf is not supported : "+ to_string(child));
@@ -247,10 +253,10 @@ namespace Caramel{
         const Json child = get_unique_first_elem(parent, key);
 
         if(child.is_array() && child.size()==3 &&
-            std::all_of(child.begin(), child.end(), [](auto e){return e.is_number();})){
-            return Vector3f{static_cast<Float>(child[0]),
-                            static_cast<Float>(child[1]),
-                            static_cast<Float>(child[2])};
+            std::ranges::all_of(child, [](auto e){return e.is_number();})){
+                return Vector3f{static_cast<Float>(child[0]),
+                                static_cast<Float>(child[1]),
+                                static_cast<Float>(child[2])};
         }
         CRM_ERROR("Can not parse vector3f : " + to_string(child));
     }
@@ -297,20 +303,20 @@ namespace Caramel{
         CRM_ERROR("Can not parse negative int : " + to_string(child));
     }
 
-    Matrix44f SceneParser::parse_matrix44f(const SceneParser::Json &parent, const std::string &key) const {
-        const Json child = get_unique_first_elem(parent, key);
+    Matrix44f SceneParser::parse_matrix44f(const SceneParser::Json &parent, const std::string &_key) const {
+        const Json child = get_unique_first_elem(parent, _key);
         if(!child.is_array()){
             CRM_ERROR("Can not parse matrix : " + to_string(child));
         }
 
         if(child.size() == 16 &&
-            std::all_of(child.begin(), child.end(), [](auto e){return e.is_number();})){
-            return Matrix44f{static_cast<Float>(child[0]), static_cast<Float>(child[1]), static_cast<Float>(child[2]), static_cast<Float>(child[3]),
-                             static_cast<Float>(child[4]), static_cast<Float>(child[5]), static_cast<Float>(child[6]), static_cast<Float>(child[7]),
-                             static_cast<Float>(child[8]), static_cast<Float>(child[9]), static_cast<Float>(child[10]), static_cast<Float>(child[11]),
-                             static_cast<Float>(child[12]), static_cast<Float>(child[13]), static_cast<Float>(child[14]), static_cast<Float>(child[15])};
+            std::ranges::all_of(child, [](auto e){return e.is_number();})){
+                return Matrix44f{static_cast<Float>(child[0]), static_cast<Float>(child[1]), static_cast<Float>(child[2]), static_cast<Float>(child[3]),
+                                 static_cast<Float>(child[4]), static_cast<Float>(child[5]), static_cast<Float>(child[6]), static_cast<Float>(child[7]),
+                                 static_cast<Float>(child[8]), static_cast<Float>(child[9]), static_cast<Float>(child[10]), static_cast<Float>(child[11]),
+                                 static_cast<Float>(child[12]), static_cast<Float>(child[13]), static_cast<Float>(child[14]), static_cast<Float>(child[15])};
         }
-        else if(std::all_of(child.begin(), child.end(), [](auto e){return e.is_object();})){
+        else if(std::ranges::all_of(child, [](auto e){return e.is_object();})){
             Matrix44f mat = Matrix44f::identity();
             for(const auto &e : child){
                 const std::string key = parse_string(e, "type");

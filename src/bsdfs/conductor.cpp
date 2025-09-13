@@ -30,7 +30,7 @@
 
 namespace Caramel{
 
-    Conductor::Conductor(const std::string &mat, Float ex_ior)
+    Conductor::Conductor(const Conductors &mat, Float ex_ior)
     : m_ex_ior{ex_ior} {
         if(!IOR::eta_map.contains(mat) || !IOR::k_map.contains(mat)){
             CRM_ERROR("Given material is not found");
