@@ -51,7 +51,7 @@ namespace Caramel{
 
         CRM_LOG("Render start...");
 
-        auto time1 = std::chrono::high_resolution_clock::now();
+        const auto time1 = std::chrono::high_resolution_clock::now();
 
         parallel_for(0, size.first, std::function([&](int i){
                          UniformStdSampler sampler(i);
@@ -67,7 +67,7 @@ namespace Caramel{
                          progress_bar.increase();
                      }));
 
-        auto time2 = std::chrono::high_resolution_clock::now();
+        const auto time2 = std::chrono::high_resolution_clock::now();
         CRM_LOG("Render done in " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(time2 - time1).count() / 1000.0f) + " seconds");
 
         return img;

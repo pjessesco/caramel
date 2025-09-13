@@ -45,13 +45,20 @@ namespace Caramel{
     Float fresnel_dielectric(Float cos_i, Float eta_i/* ex */, Float eta_t/* in */);
 
     // Calculate fresnel reflectance for dielectric <-> conductor
-    Vector3f fresnel_conductor(Float cos_i, const Vector3f &eta_i/* ex */, const Vector3f &eta_t/* in */, const Vector3f eta_t_k);
+    Vector3f fresnel_conductor(Float cos_i, const Vector3f &eta_i/* ex */, const Vector3f &eta_t/* in */, const Vector3f &eta_t_k);
 
     // perfect reflect
     Vector3f reflect(const Vector3f &local_incoming_dir, const Vector3f &normal);
 
     // refract using snell's law
-    Vector3f refract(const Vector3f &wi, const Vector3f &n, Float in_ior, Float ex_ior);
+    Vector3f refract(const Vector3f &local_incoming_dir, const Vector3f &n, Float in_ior, Float ex_ior);
+
+    enum class Conductors {
+        Au/*Gold*/,
+        Ag/*Silver*/,
+        Al/*Aluminium*/,
+        Cu/*Copper*/
+    };
 
     struct IOR{
         static constexpr Float VACUUM       = static_cast<Float>(1.0);
@@ -61,8 +68,19 @@ namespace Caramel{
         static constexpr Float SAPPHIRE     = static_cast<Float>(1.77);
         static constexpr Float DIAMOND      = static_cast<Float>(2.42);
 
-        static const std::unordered_map<std::string, Vector3f> eta_map;
-        static const std::unordered_map<std::string, Vector3f> k_map;
+        // Debug from mitsuba3 rgb mode
+        inline static const std::unordered_map<Conductors, Vector3f> eta_map{
+            {Conductors::Au, {static_cast<Float>(0.143035978), static_cast<Float>(0.375307083), static_cast<Float>(1.44204533)}},
+            {Conductors::Ag, {static_cast<Float>(0.155276194), static_cast<Float>(0.116727956), static_cast<Float>(0.138387635)}},
+            {Conductors::Al, {static_cast<Float>(1.65750086), static_cast<Float>(0.880404711), static_cast<Float>(0.521244466)}},
+            {Conductors::Cu, {static_cast<Float>(0.201005474), static_cast<Float>(0.923749506), static_cast<Float>(1.10221541)}},
+        };
+        inline static const std::unordered_map<Conductors, Vector3f> k_map{
+            {Conductors::Au, {static_cast<Float>(3.98299694), static_cast<Float>(2.38555646), static_cast<Float>(1.60335922)}},
+            {Conductors::Ag, {static_cast<Float>(4.82835436), static_cast<Float>(3.12222242), static_cast<Float>(2.14690113)}},
+            {Conductors::Al, {static_cast<Float>(9.22381114), static_cast<Float>(6.26950216), static_cast<Float>(4.83700418)}},
+            {Conductors::Cu, {static_cast<Float>(3.91326213), static_cast<Float>(2.45304513), static_cast<Float>(2.14208984)}},
+        };
     };
 
     // Class definitions
@@ -112,7 +130,7 @@ namespace Caramel{
 
     class Dielectric final : public BSDF{
     public:
-        Dielectric(Float in_ior = IOR::GLASS, Float ex_ior = IOR::VACUUM);
+        explicit Dielectric(Float in_ior = IOR::GLASS, Float ex_ior = IOR::VACUUM);
         std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &) const override;
         Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
         Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const override;
@@ -125,7 +143,7 @@ namespace Caramel{
 
     class Conductor final : public BSDF{
     public:
-        Conductor(const std::string &mat, Float ex_ior);
+        Conductor(const Conductors &mat, Float ex_ior);
         std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &) const override;
         Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
         Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const override;
