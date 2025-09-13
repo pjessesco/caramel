@@ -26,7 +26,6 @@
 
 #include <vector>
 #include <tuple>
-#include <cmath>
 #include <filesystem>
 
 #include <aabb.h>

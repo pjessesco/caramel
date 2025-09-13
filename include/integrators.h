@@ -24,8 +24,6 @@
 
 #pragma once
 
-#include <chrono>
-
 #include <common.h>
 
 namespace Caramel{

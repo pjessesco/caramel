@@ -54,9 +54,6 @@ namespace Caramel {
         void read_from_exr(const std::string &filename);
         void read_from_hdr(const std::string &filename);
 
-        static Float mse(const Image &img1, const Image &img2);
-        static Float rmse(const Image &img1, const Image &img2);
-
         Index m_width;
         Index m_height;
         std::vector<Float> m_data;

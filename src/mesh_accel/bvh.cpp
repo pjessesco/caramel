@@ -33,7 +33,6 @@
 #include <shape.h>
 
 #include <bvh.h>
-#include <valarray>
 
 namespace Caramel{
 
