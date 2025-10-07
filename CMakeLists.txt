@@ -82,7 +82,7 @@ if(NOT EXCLUDE_TEST)
             test/utils.cpp
     )
 
-    add_compile_definitions(caramel_test TEST_SCENE_PATH="${CMAKE_SOURCE_DIR}/scenes/")
+    add_compile_definitions(caramel_test TEST_SCENE_PATH="${CMAKE_SOURCE_DIR}/caramel-scenes/")
     target_include_directories(caramel_test PUBLIC ../include)
 endif()
 
