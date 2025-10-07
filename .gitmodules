@@ -1,3 +1,6 @@
 [submodule "ext/peanut"]
 	path = ext/peanut
 	url = https://github.com/pjessesco/peanut
+[submodule "caramel-scenes"]
+	path = caramel-scenes
+	url = https://github.com/pjessesco/caramel-scenes
