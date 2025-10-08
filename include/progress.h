@@ -26,6 +26,13 @@
 
 #include <mutex>
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <sys/ioctl.h>
+#include <unistd.h>
+#endif
+
 // This class is independent with Caramel namespace.
 
 class ProgressBar{
@@ -50,7 +57,23 @@ public:
     }
 
 private:
-    const int m_len = 100;
+    static int get_progress_width() {
+#ifdef _WIN32
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (GetConsoleScreenBufferInfo(handle, &csbi)) {
+            return csbi.srWindow.Right - csbi.srWindow.Left - 9;
+        }
+#elif defined(__APPLE__) || defined(__linux__)
+        struct winsize ws;
+        if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0) {
+            return ws.ws_col - 10;
+        }
+#endif
+        return 100; // by default
+    }
+
+    const int m_len = get_progress_width();
     std::mutex m_lock;
     int m_current;
     const float m_total_inv;
