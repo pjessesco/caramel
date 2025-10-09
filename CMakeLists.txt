@@ -21,6 +21,7 @@ set(SOURCES
         src/bsdfs/orennayar.cpp
         src/camera.cpp
         src/image.cpp
+        src/progress.cpp
         src/integrators/MCIntegrator.cpp
         src/integrators/depth.cpp
         src/integrators/hitpos.cpp

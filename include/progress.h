@@ -26,54 +26,16 @@
 
 #include <mutex>
 
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <sys/ioctl.h>
-#include <unistd.h>
-#endif
-
 // This class is independent with Caramel namespace.
 
 class ProgressBar{
 public:
-    explicit ProgressBar(int total) : m_current(0), m_total_inv(1.0f / static_cast<float>(total)) {}
-
-    void increase(){
-        static int done_len = 0;
-        std::lock_guard<std::mutex> lock_guard(m_lock);
-        m_current++;
-        const float done_ratio = m_current * m_total_inv;
-        const int new_done_len = done_ratio * m_len;
-        if(new_done_len == done_len){
-            return;
-        }
-        done_len = new_done_len;
-
-        const std::string done_str(static_cast<int>(done_len), '=');
-        const std::string remain_str(static_cast<int>(m_len - done_len), '-');
-        std::cout<<"["<<done_str << remain_str << "] " << static_cast<int>(done_ratio * 100) << " %\r";
-        std::cout.flush();
-    }
+    explicit ProgressBar(int total);
+    void increase();
 
 private:
-    static int get_progress_width() {
-#ifdef _WIN32
-        CONSOLE_SCREEN_BUFFER_INFO csbi;
-        HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
-        if (GetConsoleScreenBufferInfo(handle, &csbi)) {
-            return csbi.srWindow.Right - csbi.srWindow.Left - 9;
-        }
-#elif defined(__APPLE__) || defined(__linux__)
-        struct winsize ws;
-        if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0) {
-            return ws.ws_col - 10;
-        }
-#endif
-        return 100; // by default
-    }
+    static int get_progress_width();
 
-    const int m_len = get_progress_width();
     std::mutex m_lock;
     int m_current;
     const float m_total_inv;
