@@ -30,27 +30,12 @@
 
 class ProgressBar{
 public:
-    explicit ProgressBar(int total) : m_current(0), m_total_inv(1.0f / static_cast<float>(total)) {}
-
-    void increase(){
-        static int done_len = 0;
-        std::lock_guard<std::mutex> lock_guard(m_lock);
-        m_current++;
-        const float done_ratio = m_current * m_total_inv;
-        const int new_done_len = done_ratio * m_len;
-        if(new_done_len == done_len){
-            return;
-        }
-        done_len = new_done_len;
-
-        const std::string done_str(static_cast<int>(done_len), '=');
-        const std::string remain_str(static_cast<int>(m_len - done_len), '-');
-        std::cout<<"["<<done_str << remain_str << "] " << static_cast<int>(done_ratio * 100) << " %\r";
-        std::cout.flush();
-    }
+    explicit ProgressBar(int total);
+    void increase();
 
 private:
-    const int m_len = 100;
+    static int get_progress_width();
+
     std::mutex m_lock;
     int m_current;
     const float m_total_inv;
