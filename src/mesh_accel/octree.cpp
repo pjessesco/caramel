@@ -63,8 +63,8 @@ namespace Caramel{
         // Shrink aabb as possible
         for (auto &child : m_childs) {
             AABB shrinked_aabb = shape.get_triangle(child.m_triangle_indices[0]).get_aabb();
-            for (const auto tri : child.m_triangle_indices) {
-                shrinked_aabb = AABB::merge(shrinked_aabb, shape.get_triangle(tri).get_aabb());
+            for (size_t i = 1; i < child.m_triangle_indices.size(); ++i) {
+                shrinked_aabb = AABB::merge(shrinked_aabb, shape.get_triangle(child.m_triangle_indices[i]).get_aabb());
             }
             child.m_aabb = shrinked_aabb;
         }

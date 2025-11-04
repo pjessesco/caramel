@@ -84,13 +84,13 @@ namespace Caramel {
         for (int i = 0; i < attrib.vertices.size(); i += 3) {
             const Vector3f transformed_point = transform_point({attrib.vertices[i], attrib.vertices[i+1], attrib.vertices[i+2]}, transform);
 
-            min_x = min_x > transformed_point[0] ? transformed_point[0] : min_x;
-            min_y = min_y > transformed_point[1] ? transformed_point[1] : min_y;
-            min_z = min_z > transformed_point[2] ? transformed_point[2] : min_z;
+            min_x = std::min(min_x, transformed_point[0]);
+            min_y = std::min(min_y, transformed_point[1]);
+            min_z = std::min(min_z, transformed_point[2]);
 
-            max_x = max_x < transformed_point[0] ? transformed_point[0] : max_x;
-            max_y = max_y < transformed_point[1] ? transformed_point[1] : max_y;
-            max_z = max_z < transformed_point[2] ? transformed_point[2] : max_z;
+            max_x = std::max(max_x, transformed_point[0]);
+            max_y = std::max(max_y, transformed_point[1]);
+            max_z = std::max(max_z, transformed_point[2]);
 
             m_vertices.emplace_back(transformed_point[0],
                                     transformed_point[1],
