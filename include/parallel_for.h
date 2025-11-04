@@ -41,7 +41,7 @@ namespace Caramel{
             return;
         }
         
-        // Use hardware concurrency if available, otherwise use THREAD_NUM
+        // Use THREAD_NUM threads, but don't exceed the number of tasks
         const int num_threads = std::min(THREAD_NUM, task_num);
         
         std::atomic<int> next_idx{start_idx};

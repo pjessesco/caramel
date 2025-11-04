@@ -57,7 +57,7 @@ namespace Caramel {
             const auto current_time = std::localtime(&now);
             
             std::string result;
-            result.reserve(12); // "[HH:MM:SS]" approximate size
+            result.reserve(15); // "[HH:MM:SS]" - conservative estimate for multi-digit values
             result += '[';
             result += std::to_string(current_time->tm_hour);
             result += ':';
@@ -71,7 +71,7 @@ namespace Caramel {
 
         static std::string log_prefix() {
             std::string result;
-            result.reserve(30);
+            result.reserve(35); // timestamp (15) + ANSI codes (14) + "[LOG] " (6)
             result += current_time_string();
             result += "\033[1;30m[LOG]\033[0m ";
             return result;
@@ -79,14 +79,14 @@ namespace Caramel {
 
         static std::string err_prefix() {
             std::string result;
-            result.reserve(30);
+            result.reserve(35); // timestamp (15) + ANSI codes (14) + "[ERR] " (6)
             result += current_time_string();
             result += "\033[1;31m[ERR]\033[0m ";
             return result;
         }
         static std::string warn_prefix() {
             std::string result;
-            result.reserve(30);
+            result.reserve(36); // timestamp (15) + ANSI codes (14) + "[WARN] " (7)
             result += current_time_string();
             result += "\033[1;31m[WARN]\033[0m ";
             return result;
