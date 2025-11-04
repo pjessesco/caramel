@@ -27,8 +27,10 @@
 #include <thread>
 #include <atomic>
 #include <vector>
-#include <semaphore>
 #include <functional>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
 
 namespace Caramel{
 
@@ -36,22 +38,35 @@ namespace Caramel{
 
     template <typename F>
     inline void parallel_for(int start_idx, int end_idx, F &&func){
-
         const int task_num = end_idx - start_idx;
-        std::atomic<int> total_done_jobs = 0;
-        std::counting_semaphore<THREAD_NUM> sem{THREAD_NUM};
-
-        for(int i=start_idx;i<end_idx;i++){
-            sem.acquire();
-            std::thread th([&](int idx){
-                func(idx);
-                total_done_jobs++;
-                sem.release();
-            }, i);
-            th.detach();
+        
+        if (task_num <= 0) {
+            return;
         }
-
-        while (total_done_jobs != task_num){}
-
+        
+        // Use hardware concurrency if available, otherwise use THREAD_NUM
+        const int num_threads = std::min(THREAD_NUM, task_num);
+        
+        std::atomic<int> next_idx{start_idx};
+        std::vector<std::thread> threads;
+        threads.reserve(num_threads);
+        
+        // Create worker threads
+        for (int t = 0; t < num_threads; ++t) {
+            threads.emplace_back([&]() {
+                while (true) {
+                    int idx = next_idx.fetch_add(1);
+                    if (idx >= end_idx) {
+                        break;
+                    }
+                    func(idx);
+                }
+            });
+        }
+        
+        // Wait for all threads to complete
+        for (auto& thread : threads) {
+            thread.join();
+        }
     }
 }

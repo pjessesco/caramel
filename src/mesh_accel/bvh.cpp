@@ -175,10 +175,8 @@ namespace Caramel{
                     return;
                 }
 
-                std::vector<const Shape*> left(mid - m_shapes.begin());
-                std::vector<const Shape*> right(m_shapes.end() - mid);
-                std::move(m_shapes.begin(), mid, left.begin());
-                std::move(mid, m_shapes.end(), right.begin());
+                std::vector<const Shape*> left(m_shapes.begin(), mid);
+                std::vector<const Shape*> right(mid, m_shapes.end());
                 m_shapes.clear();
 
                 m_left = std::make_unique<BVHNode>(left);
@@ -193,6 +191,8 @@ namespace Caramel{
 
             std::vector<const Shape*> left;
             std::vector<const Shape*> right;
+            left.reserve(m_shapes.size());
+            right.reserve(m_shapes.size());
 
             for (auto &s : m_shapes) {
                 ((s->get_center()[longest_axis] < longest_axis_mid) ? left : right).push_back(s);

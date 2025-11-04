@@ -164,6 +164,7 @@ namespace Caramel{
     void Octree::build(){
         // Construct head
         m_head = Node(m_shape.get_aabb());
+        m_head.m_triangle_indices.reserve(m_shape.get_triangle_num());
         for(int i=0;i<m_shape.get_triangle_num();i++){
             m_head.m_triangle_indices.push_back(i);
         }

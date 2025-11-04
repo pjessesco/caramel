@@ -55,22 +55,41 @@ namespace Caramel {
             const std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
             const auto current_time = std::localtime(&now);
-            const std::string hour = std::to_string(current_time->tm_hour);
-            const std::string min = std::to_string(current_time->tm_min);
-            const std::string sec = std::to_string(current_time->tm_sec);
-
-            return "[" + hour + ":" + min + ":" + sec + "]";
+            
+            std::string result;
+            result.reserve(12); // "[HH:MM:SS]" approximate size
+            result += '[';
+            result += std::to_string(current_time->tm_hour);
+            result += ':';
+            result += std::to_string(current_time->tm_min);
+            result += ':';
+            result += std::to_string(current_time->tm_sec);
+            result += ']';
+            
+            return result;
         }
 
         static std::string log_prefix() {
-            return current_time_string() + "\033[1;30m[LOG]\033[0m ";
+            std::string result;
+            result.reserve(30);
+            result += current_time_string();
+            result += "\033[1;30m[LOG]\033[0m ";
+            return result;
         }
 
         static std::string err_prefix() {
-            return current_time_string() + "\033[1;31m[ERR]\033[0m ";
+            std::string result;
+            result.reserve(30);
+            result += current_time_string();
+            result += "\033[1;31m[ERR]\033[0m ";
+            return result;
         }
         static std::string warn_prefix() {
-            return current_time_string() + "\033[1;31m[WARN]\033[0m ";
+            std::string result;
+            result.reserve(30);
+            result += current_time_string();
+            result += "\033[1;31m[WARN]\033[0m ";
+            return result;
         }
 
         static std::string get_filename(const std::string &str) {
