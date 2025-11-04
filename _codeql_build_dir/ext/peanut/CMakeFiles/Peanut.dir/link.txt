@@ -1,2 +1,0 @@
-/usr/bin/ar qc libPeanut.a CMakeFiles/Peanut.dir/Peanut.cpp.o
-/usr/bin/ranlib libPeanut.a

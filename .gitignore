@@ -6,3 +6,4 @@ cmake-build-release/
 cmake-build-relwithdebinfo/
 cmake-build-minsizerel/
 .vs/
+_codeql_build_dir/
