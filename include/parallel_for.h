@@ -28,9 +28,6 @@
 #include <atomic>
 #include <vector>
 #include <functional>
-#include <queue>
-#include <mutex>
-#include <condition_variable>
 
 namespace Caramel{
 

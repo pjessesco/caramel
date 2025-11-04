@@ -129,7 +129,7 @@ namespace Caramel {
         }
 
         std::vector<Float> triangle_area_vec;
-        triangle_area_vec.reserve(m_vertex_indices.size());
+        triangle_area_vec.resize(m_vertex_indices.size());
 
         m_area = Float0;
         // Initialize m_triangle_pdf used in sampling triangle.
