@@ -47,15 +47,16 @@ namespace Caramel{
         Distrib1D() = default;
         explicit Distrib1D(const std::vector<Float> &vec){
             m_pdf = vec;
-            m_cdf.resize(m_pdf.size());
+            const size_t size = m_pdf.size();
+            m_cdf.resize(size);
             m_cdf[0] = m_pdf[0];
 
-            for(Index i=1;i<m_pdf.size();i++){
+            for(size_t i=1;i<size;i++){
                 m_cdf[i] = m_cdf[i-1] + m_pdf[i];
             }
             const Float sum = m_cdf.back();
 
-            for(int i=0;i<m_pdf.size();i++){
+            for(size_t i=0;i<size;i++){
                 m_pdf[i] /= sum;
                 m_cdf[i] /= sum;
             }

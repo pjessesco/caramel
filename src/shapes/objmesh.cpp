@@ -72,6 +72,11 @@ namespace Caramel {
         is_vn_exists = !attrib.normals.empty();
         is_tx_exists = !attrib.texcoords.empty();
 
+        // Reserve space for vectors
+        m_vertices.reserve(attrib.vertices.size() / 3);
+        m_normals.reserve(attrib.normals.size() / 3);
+        m_tex_coords.reserve(attrib.texcoords.size() / 2);
+
         // Used for aabb
         Float min_x = INF,  min_y = INF,  min_z = INF,
               max_x = -INF, max_y = -INF, max_z = -INF;
@@ -103,6 +108,11 @@ namespace Caramel {
         }
 
         const auto &indices = shapes[0].mesh.indices;
+        const size_t num_triangles = indices.size() / 3;
+        
+        m_vertex_indices.reserve(num_triangles);
+        m_normal_indices.reserve(num_triangles);
+        m_tex_coord_indices.reserve(num_triangles);
 
         for (int i = 0; i < indices.size(); i += 3) {
             m_vertex_indices.emplace_back(indices[i].vertex_index,
@@ -119,7 +129,7 @@ namespace Caramel {
         }
 
         std::vector<Float> triangle_area_vec;
-        triangle_area_vec.resize(m_vertex_indices.size());
+        triangle_area_vec.reserve(m_vertex_indices.size());
 
         m_area = Float0;
         // Initialize m_triangle_pdf used in sampling triangle.
