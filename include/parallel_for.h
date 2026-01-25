@@ -27,31 +27,75 @@
 #include <thread>
 #include <atomic>
 #include <vector>
-#include <semaphore>
 #include <functional>
+#include <condition_variable>
+#include <mutex>
 
 namespace Caramel{
 
-    constexpr int THREAD_NUM = 10;
-
-    template <typename F>
-    inline void parallel_for(int start_idx, int end_idx, F &&func){
-
-        const int task_num = end_idx - start_idx;
-        std::atomic<int> total_done_jobs = 0;
-        std::counting_semaphore<THREAD_NUM> sem{THREAD_NUM};
-
-        for(int i=start_idx;i<end_idx;i++){
-            sem.acquire();
-            std::thread th([&](int idx){
-                func(idx);
-                total_done_jobs++;
-                sem.release();
-            }, i);
-            th.detach();
+    class ThreadPool {
+    public:
+        static ThreadPool& instance() {
+            static ThreadPool pool;
+            return pool;
         }
 
-        while (total_done_jobs != task_num){}
+        template <typename F>
+        void parallel_for(int start_idx, int end_idx, F &&func) {
+            if (start_idx >= end_idx) return;
 
+            const int task_count = end_idx - start_idx;
+            std::atomic<int> next_task{0};
+            std::atomic<int> completed_tasks{0};
+            std::mutex completion_mutex;
+            std::condition_variable completion_cv;
+
+            auto worker_func = [&]() {
+                while (true) {
+                    int task_idx = next_task.fetch_add(1);
+                    if (task_idx >= task_count) break;
+                    func(start_idx + task_idx);
+                    if (completed_tasks.fetch_add(1) + 1 == task_count) {
+                        std::lock_guard<std::mutex> lock(completion_mutex);
+                        completion_cv.notify_one();
+                    }
+                }
+            };
+
+            // Launch worker threads (use N-1 threads + main thread)
+            std::vector<std::thread> workers;
+            workers.reserve(m_thread_count - 1);
+            for (unsigned i = 0; i < m_thread_count - 1; ++i) {
+                workers.emplace_back(worker_func);
+            }
+
+            // Main thread also participates
+            worker_func();
+
+            // Wait for all tasks to complete
+            {
+                std::unique_lock<std::mutex> lock(completion_mutex);
+                completion_cv.wait(lock, [&]() { return completed_tasks.load() >= task_count; });
+            }
+
+            // Join all worker threads
+            for (auto& w : workers) {
+                w.join();
+            }
+        }
+
+    private:
+        ThreadPool() : m_thread_count(std::max(1u, std::thread::hardware_concurrency())) {}
+        ~ThreadPool() = default;
+        ThreadPool(const ThreadPool&) = delete;
+        ThreadPool& operator=(const ThreadPool&) = delete;
+
+        unsigned m_thread_count;
+    };
+
+    template <typename F>
+    inline void parallel_for(int start_idx, int end_idx, F &&func) {
+        ThreadPool::instance().parallel_for(start_idx, end_idx, std::forward<F>(func));
     }
+
 }
