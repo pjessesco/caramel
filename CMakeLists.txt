@@ -38,6 +38,7 @@ set(SOURCES
         src/samplers/uniformstd.cpp
         src/scene.cpp
         src/shapes/objmesh.cpp
+        src/shapes/plymesh.cpp
         src/shapes/shape.cpp
         src/shapes/triangle.cpp
         src/scene_parser.cpp

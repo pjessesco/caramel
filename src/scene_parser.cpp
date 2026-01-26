@@ -142,6 +142,16 @@ namespace Caramel{
                                                                           parse_matrix44f(shape_json, "to_world") :
                                                                           Matrix44f::identity());
         }
+        else if(type=="ply"){
+            return Shape::Create<PLYMesh>(parse_string(shape_json, "path"),
+                                          parse_bsdf(shape_json),
+                                          shape_json.contains("arealight") ?
+                                                                           parse_arealight(shape_json) :
+                                                                           nullptr,
+                                          shape_json.contains("to_world") ?
+                                                                          parse_matrix44f(shape_json, "to_world") :
+                                                                          Matrix44f::identity());
+        }
         else if(type=="triangle"){
             if(shape_json.contains("n0") || shape_json.contains("n1") || shape_json.contains("n2")){
                 return Shape::Create<Triangle>(parse_vector3f(shape_json, "p0"),

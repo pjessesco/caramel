@@ -157,6 +157,34 @@ namespace Caramel{
         std::vector<Vector3i> m_tex_coord_indices;
     };
 
+    class PLYMesh final : public TriangleMesh{
+    public:
+        PLYMesh(const std::filesystem::path &path, BSDF *bsdf, AreaLight *arealight = nullptr, const Matrix44f &transform = Matrix44f::identity());
+
+        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const override;
+        AABB get_aabb() const override;
+        Float get_area() const override;
+        // point, normal, probability
+        std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;
+        Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const override;
+
+        Triangle get_triangle(Index i) const override;
+
+        Index get_triangle_num() const override {
+            return m_face_indices.size();
+        }
+
+    private:
+        Distrib1D m_triangle_pdf;
+        Float m_area;
+        AABB m_aabb;
+        bool is_vn_exists;
+        std::unique_ptr<AccelerationMesh> m_accel;
+        std::vector<Vector3f> m_vertices;
+        std::vector<Vector3f> m_normals;
+        std::vector<Vector3i> m_face_indices;
+    };
+
     // u, v, t
     std::tuple<Float, Float, Float> moller_trumbore(const Ray &ray, const Vector3f &p0, const Vector3f &p1, const Vector3f &p2, Float maxt);
     // u, v, t
