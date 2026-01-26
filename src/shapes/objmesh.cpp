@@ -38,7 +38,7 @@
 
 namespace Caramel {
     OBJMesh::OBJMesh(const std::filesystem::path &path, BSDF *bsdf, AreaLight *arealight, const Matrix44f &transform)
-    : Shape(bsdf, arealight){
+    : TriangleMesh(bsdf, arealight){
         if (!m_vertices.empty()) {
             CRM_ERROR("This mesh already loaded obj file");
         }

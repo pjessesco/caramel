@@ -33,7 +33,7 @@
 #include <shape.h>
 
 namespace Caramel{
-    Naive::Naive(const OBJMesh &shape) : AccelerationMesh(shape) {}
+    Naive::Naive(const TriangleMesh &shape) : AccelerationMesh(shape) {}
 
     void Naive::build() {}
 

@@ -39,7 +39,7 @@ namespace Caramel{
 
     Octree::Node::Node(const AABB &aabb) : m_aabb{aabb} {}
 
-    void Octree::Node::construct_children(const OBJMesh &shape){
+    void Octree::Node::construct_children(const TriangleMesh &shape){
         const Vector3f &center = (m_aabb.m_max + m_aabb.m_min) * Float0_5;
 
         m_childs.reserve(8);
@@ -70,7 +70,7 @@ namespace Caramel{
         }
     }
 
-    void Octree::Node::construct_children_recursively(const OBJMesh &shape, int depth){
+    void Octree::Node::construct_children_recursively(const TriangleMesh &shape, int depth){
         if(depth > MAX_DEPTH){
             return;
         }
@@ -91,7 +91,7 @@ namespace Caramel{
         }
     }
 
-    std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect_leaf(const Ray &ray, Float maxt, const OBJMesh &shape) const{
+    std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect_leaf(const Ray &ray, Float maxt, const TriangleMesh &shape) const{
         RayIntersectInfo info;
         info.t = maxt;
         bool is_hit = false;
@@ -105,7 +105,7 @@ namespace Caramel{
         return {is_hit, info};
     }
 
-    std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect_branch(const Ray &ray, Float maxt, const OBJMesh &shape) const{
+    std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect_branch(const Ray &ray, Float maxt, const TriangleMesh &shape) const{
         RayIntersectInfo info;
         info.t = maxt;
         bool is_hit = false;
@@ -137,7 +137,7 @@ namespace Caramel{
         return {is_hit, info};
     }
 
-    std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect(const Ray &ray, Float maxt, const OBJMesh &shape, std::optional<bool> is_intersect) const{
+    std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect(const Ray &ray, Float maxt, const TriangleMesh &shape, std::optional<bool> is_intersect) const{
         const bool intersect = is_intersect.has_value() ? is_intersect.value() : m_aabb.ray_intersect(ray, maxt).first;
 
         if(intersect){
@@ -155,7 +155,7 @@ namespace Caramel{
 
     // ================= Octree implementation ====================
 
-    Octree::Octree(const OBJMesh &shape) : AccelerationMesh(shape) {}
+    Octree::Octree(const TriangleMesh &shape) : AccelerationMesh(shape) {}
 
     bool Octree::Node::is_leaf() const{
         return m_childs.empty();
