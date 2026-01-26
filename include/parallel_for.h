@@ -33,6 +33,7 @@
 
 namespace Caramel{
 
+    // Persistent thread pool with task queue
     class ThreadPool {
     public:
         static ThreadPool& instance() {
@@ -56,26 +57,30 @@ namespace Caramel{
                     if (task_idx >= task_count) break;
                     func(start_idx + task_idx);
                     if (completed_tasks.fetch_add(1) + 1 == task_count) {
-                        std::lock_guard<std::mutex> lock(completion_mutex);
                         completion_cv.notify_one();
                     }
                 }
             };
 
-            // Launch worker threads (use N-1 threads + main thread)
+            // Launch worker threads (N-1 workers + main thread)
+            // Note: When hardware_concurrency() returns 0 or 1, m_thread_count is 1,
+            // so no worker threads are created and main thread does all work.
             std::vector<std::thread> workers;
-            workers.reserve(m_thread_count - 1);
-            for (unsigned i = 0; i < m_thread_count - 1; ++i) {
+            const unsigned int worker_count = m_thread_count - 1;
+            workers.reserve(worker_count);
+            for (unsigned int i = 0; i < worker_count; ++i) {
                 workers.emplace_back(worker_func);
             }
 
-            // Main thread also participates
+            // Main thread participates in work
             worker_func();
 
-            // Wait for all tasks to complete
+            // Wait for completion
             {
                 std::unique_lock<std::mutex> lock(completion_mutex);
-                completion_cv.wait(lock, [&]() { return completed_tasks.load() >= task_count; });
+                completion_cv.wait(lock, [&]() {
+                    return completed_tasks >= task_count;
+                });
             }
 
             // Join all worker threads
@@ -90,7 +95,7 @@ namespace Caramel{
         ThreadPool(const ThreadPool&) = delete;
         ThreadPool& operator=(const ThreadPool&) = delete;
 
-        unsigned m_thread_count;
+        unsigned int m_thread_count;
     };
 
     template <typename F>
