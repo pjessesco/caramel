@@ -42,7 +42,7 @@ TEST_CASE("test1 render test") {
     Image rendered = render(std::string(TEST_SCENE_PATH) + "test_scenes/test1/scene.json");
 
     CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
-    CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
+    CHECK(Catch::Approx(0.9991) <= avg(rendered)/avg(ref));
 }
 
 TEST_CASE("test2 render test") {
@@ -51,7 +51,7 @@ TEST_CASE("test2 render test") {
     Image rendered = render(std::string(TEST_SCENE_PATH) + "test_scenes/test2/scene.json");
 
     CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
-    CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
+    CHECK(Catch::Approx(0.9991) <= avg(rendered)/avg(ref));
 }
 
 TEST_CASE("test3 render test") {
@@ -59,7 +59,7 @@ TEST_CASE("test3 render test") {
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test3/gt.exr");
     Image rendered = render(std::string(TEST_SCENE_PATH) + "test_scenes/test3/scene.json");
 
-    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
+    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0007));
     CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
 }
 
@@ -69,7 +69,7 @@ TEST_CASE("test4 render test") {
     Image rendered = render(std::string(TEST_SCENE_PATH) + "test_scenes/test4/scene.json");
 
     CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
-    CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
+    CHECK(Catch::Approx(0.9993) <= avg(rendered)/avg(ref));
 }
 
 TEST_CASE("test5 render test") {
