@@ -117,7 +117,15 @@ namespace Caramel{
         const bool is_tx_exists;
     };
 
-    class OBJMesh final : public Shape{
+    // Interface for triangle mesh shapes (used by acceleration structures)
+    class TriangleMesh : public Shape{
+    public:
+        using Shape::Shape;
+        virtual Triangle get_triangle(Index i) const = 0;
+        virtual Index get_triangle_num() const = 0;
+    };
+
+    class OBJMesh final : public TriangleMesh{
     public:
         OBJMesh(const std::filesystem::path &path, BSDF *bsdf, AreaLight *arealight = nullptr, const Matrix44f &transform = Matrix44f::identity());
 
@@ -128,9 +136,9 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;
         Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const override;
 
-        Triangle get_triangle(Index i) const;
+        Triangle get_triangle(Index i) const override;
 
-        Index get_triangle_num() const{
+        Index get_triangle_num() const override {
             return m_vertex_indices.size();
         }
 

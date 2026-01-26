@@ -32,16 +32,16 @@
 
 namespace Caramel{
 
-    class OBJMesh;
+    class TriangleMesh;
     class RayIntersectInfo;
     class Ray;
 
 
     // Divide a single mesh
     struct AccelerationMesh{
-        friend class OBJMesh;
+        friend class TriangleMesh;
 
-        explicit AccelerationMesh(const OBJMesh &shape) : m_shape{shape} {}
+        explicit AccelerationMesh(const TriangleMesh &shape) : m_shape{shape} {}
         virtual ~AccelerationMesh() = default;
 
         virtual void build() = 0;
@@ -49,31 +49,31 @@ namespace Caramel{
         // Trace ray
         virtual std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) = 0;
 
-        const OBJMesh &m_shape;
+        const TriangleMesh &m_shape;
     };
 
     struct Naive final : public AccelerationMesh{
-        explicit Naive(const OBJMesh &shape);
+        explicit Naive(const TriangleMesh &shape);
 
         void build() override;
 
         std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) override;
     };
 
-    // Octree for OBJMesh
+    // Octree for triangle meshes
     struct Octree final : public AccelerationMesh{
-        explicit Octree(const OBJMesh &shape);
+        explicit Octree(const TriangleMesh &shape);
 
         struct Node{
             Node() = default;
             explicit Node(const AABB &aabb);
 
-            void construct_children(const OBJMesh &shape);
-            void construct_children_recursively(const OBJMesh &shape, int depth);
+            void construct_children(const TriangleMesh &shape);
+            void construct_children_recursively(const TriangleMesh &shape, int depth);
 
-            std::pair<bool, RayIntersectInfo> ray_intersect_leaf(const Ray &ray, Float maxt, const OBJMesh &shape) const;
-            std::pair<bool, RayIntersectInfo> ray_intersect_branch(const Ray &ray, Float maxt, const OBJMesh &shape) const;
-            std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt, const OBJMesh &shape, std::optional<bool> is_intersect) const;
+            std::pair<bool, RayIntersectInfo> ray_intersect_leaf(const Ray &ray, Float maxt, const TriangleMesh &shape) const;
+            std::pair<bool, RayIntersectInfo> ray_intersect_branch(const Ray &ray, Float maxt, const TriangleMesh &shape) const;
+            std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt, const TriangleMesh &shape, std::optional<bool> is_intersect) const;
             bool is_leaf() const;
 
             AABB m_aabb;
