@@ -65,7 +65,7 @@ int ProgressBar::get_progress_width() {
 #elif defined(__APPLE__) || defined(__linux__)
     struct winsize ws;
     if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0) {
-        return ws.ws_col - 10;
+        return static_cast<int>(ws.ws_col) - 10 < 0 ? 0 : static_cast<int>(ws.ws_col) - 10;
     }
 #endif
     return 100; // by default
