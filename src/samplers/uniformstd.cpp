@@ -22,24 +22,41 @@
 // SOFTWARE.
 //
 
-#include <random>
-
 #include <sampler.h>
 
 #include <common.h>
 
 namespace Caramel{
 
-    UniformStdSampler::UniformStdSampler(int seed) {
-        m_gen = std::mt19937(seed);
-        m_dis = std::uniform_real_distribution<Float>(Float0, Float1);
+    UniformStdSampler::UniformStdSampler(uint64_t seed, uint64_t stream) {
+        // Initialize PCG32
+        // inc must be odd, so we use (stream << 1) | 1
+        m_state = 0;
+        m_inc = (stream << 1) | 1;
+
+        // Warm up the generator
+        next_uint32();
+        m_state += seed;
+        next_uint32();
+    }
+
+    uint32_t UniformStdSampler::next_uint32() {
+        // Save old state for output function
+        uint64_t oldstate = m_state;
+
+        // LCG state transition
+        m_state = oldstate * 6364136223846793005ULL + m_inc;
+
+        // Permutation: XOR-shift + random rotation
+        uint32_t xorshifted = static_cast<uint32_t>(((oldstate >> 18u) ^ oldstate) >> 27u);
+        uint32_t rot = static_cast<uint32_t>(oldstate >> 59u);
+        return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
     }
 
     Float UniformStdSampler::sample_1d() {
-        Float ret = m_dis(m_gen);
-        while(ret == Float1){
-            ret = m_dis(m_gen);
-        }
-        return ret;
+        // Convert to [0, 1) range
+        // Use upper 24 bits for float (24-bit mantissa)
+        return static_cast<Float>(next_uint32() >> 8) * static_cast<Float>(0x1.0p-24);
     }
+
 }

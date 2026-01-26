@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include <random>
+#include <cstdint>
 
 #include <common.h>
 
@@ -36,16 +36,18 @@ namespace Caramel{
         virtual Float sample_1d() = 0;
     };
 
+    // PCG32 - Permuted Congruential Generator
+    // Fast, small state (16 bytes), statistically excellent
     class UniformStdSampler final : public Sampler{
     public:
-        explicit UniformStdSampler(int seed);
+        explicit UniformStdSampler(uint64_t seed, uint64_t stream = 1);
         Float sample_1d() override;
 
     private:
-        std::mt19937 m_gen;
-        std::uniform_real_distribution<Float> m_dis;
+        uint32_t next_uint32();
+
+        uint64_t m_state;
+        uint64_t m_inc;  // Stream ID (must be odd)
     };
-
-
 
 }

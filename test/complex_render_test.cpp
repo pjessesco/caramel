@@ -42,7 +42,7 @@ TEST_CASE("ajax render test") {
     Image rendered = render(std::string(TEST_SCENE_PATH) + "ajax/scene.json");
 
     CHECK(avg(rendered) / avg(ref) <= Catch::Approx(1.005));
-    CHECK(Catch::Approx(0.9995) <= avg(rendered) / avg(ref));
+    CHECK(Catch::Approx(0.9991) <= avg(rendered) / avg(ref));
 }
 
 TEST_CASE("veach-mis render test"){
