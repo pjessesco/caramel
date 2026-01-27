@@ -122,8 +122,6 @@ namespace Caramel{
                 Vector3f pixel_val = vec3f_zero;
                 
                 // 1. Camera Path only (s=0, t>=1) - Light Hit / Env Hit
-                // Already implemented in generate_camera_path? No.
-                // We need to check if camera vertex hit a light.
                 for(const auto& cv : camera_path){
                     if(cv.info.shape->is_light()){
                         Vector3f Le = cv.info.shape->get_arealight()->radiance(cv.info.p, cv.info.p, cv.info.sh_coord.m_world_n);
@@ -131,6 +129,62 @@ namespace Caramel{
                     }
                 }
                 
+                // 1.5 Direct Lighting (s=1, t>=1) - NEE
+                for(const auto& cv : camera_path){
+                    auto [light, light_pick_pdf] = scene.sample_light(sampler);
+                    auto [emitted_rad, light_pos, light_n_world, light_pos_pdf, light_info] = light->sample_direct_contribution(scene, cv.info, sampler);
+                    
+                    if(!is_zero(emitted_rad)){
+                        Vector3f hitpos_to_light_local = cv.info.sh_coord.to_local(light_pos - cv.info.p).normalize();
+                        Vector3f f = cv.info.shape->get_bsdf()->get_reflection(
+                            cv.info.sh_coord.to_local(cv.wo),
+                            hitpos_to_light_local,
+                            cv.info.tex_uv);
+                            
+                        if(!is_zero(f)){
+                            Float light_pdf = light_pick_pdf * light_pos_pdf; // Solid angle PDF? 
+                            // sample_direct_contribution returns pos_pdf (Area measure).
+                            // But we need Solid Angle measure for MC estimator integration over hemisphere?
+                            // Or we integrate over Area (Light Source).
+                            // Estimator: f * L * G / pdf_area.
+                            // light->sample_direct_contribution returns Le / dist^2 ? No, returns Radiance.
+                            // We need G term explicitly if integrating over area.
+                            // But sample_direct_contribution usually handles 1/dist^2 in PointLight.
+                            // Let's check PointLight implementation.
+                            // PointLight returns: Le / dist^2. This is Irradiance? No, Radiance * SolidAngle factor.
+                            // Actually PointLight::sample_direct returns (Intensity / dist^2).
+                            // This is effectively Radiance at hitpoint (Irradiance).
+                            // And pdf is 1.0.
+                            // So we just multiply by f * cos.
+                            
+                            // For AreaLight, it returns Radiance (Le). PDF is 1/Area.
+                            // We need G = cos_light * cos_surf / dist^2.
+                            
+                            Float cos_surf = std::abs(hitpos_to_light_local[2]);
+                            Float weight = cos_surf / light_pick_pdf; // Basic weight
+                            
+                            if(light->is_delta()){
+                                // PointLight: emitted_rad includes 1/dist^2. pdf_pos=1.
+                                // We need cos_surf.
+                                pixel_val = pixel_val + (cv.beta % f % emitted_rad) * weight;
+                            } else {
+                                // AreaLight: emitted_rad is Le. pdf_pos is 1/Area.
+                                // We need G term.
+                                // sample_direct_contribution implementation for AreaLight:
+                                // returns {Le, ..., pos_pdf, ...}
+                                // It does NOT include 1/dist^2.
+                                
+                                Vector3f dir = light_pos - cv.info.p;
+                                Float dist2 = dir.dot(dir);
+                                Float cos_light = std::abs(light_n_world.dot(-dir.normalize()));
+                                Float G = cos_light / dist2;
+                                
+                                pixel_val = pixel_val + (cv.beta % f % emitted_rad) * (weight * G / light_pos_pdf);
+                            }
+                        }
+                    }
+                }
+
                 // 2. Vertex Connection (s>=1, t>=1)
                 for(const auto& lv : light_path){
                     for(const auto& cv : camera_path){
@@ -155,9 +209,9 @@ namespace Caramel{
                                 
                             if(!is_zero(f_l) && !is_zero(f_c)){
                                 Float G = std::abs(dir_l_to_c.dot(lv.info.sh_coord.m_world_n)) * 
-                                          std::abs((-dir_l_to_c).dot(cv.info.sh_coord.m_world_n)) / dist2;
+                                          std::abs(dir_l_to_c.dot(cv.info.sh_coord.m_world_n)) / dist2;
                                           
-                                pixel_val = pixel_val + (lv.beta % f_l % G % f_c % cv.beta);
+                                pixel_val = pixel_val + ((lv.beta % f_l % f_c % cv.beta) * G);
                             }
                         }
                     }
