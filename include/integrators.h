@@ -115,5 +115,16 @@ namespace Caramel{
         Index m_spp;
     };
 
+    class BDPTIntegrator final : public Integrator{
+    public:
+        BDPTIntegrator(Index max_depth, Index spp);
+        void pre_process(const Scene &scene) override;
+        Image render(const Scene &scene) override;
+
+    private:
+        Index m_max_depth;
+        Index m_spp;
+    };
+
 }
 

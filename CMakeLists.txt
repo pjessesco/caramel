@@ -29,6 +29,7 @@ set(SOURCES
         src/integrators/uv.cpp
         src/integrators/path.cpp
         src/integrators/particle.cpp
+        src/integrators/bdpt.cpp
         src/lights/area.cpp
         src/lights/point.cpp
         src/lights/imageEnvLight.cpp
