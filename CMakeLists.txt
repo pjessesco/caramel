@@ -28,6 +28,7 @@ set(SOURCES
         src/integrators/normal.cpp
         src/integrators/uv.cpp
         src/integrators/path.cpp
+        src/integrators/particle.cpp
         src/lights/area.cpp
         src/lights/point.cpp
         src/lights/imageEnvLight.cpp
@@ -92,4 +93,6 @@ add_executable(caramel
         main.cpp
         ${SOURCES}
         ${HEADERS})
+
+add_executable(compare_exr test/compare_exr.cpp)
 

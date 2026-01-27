@@ -25,6 +25,8 @@
 #include <tuple>
 
 #include <light.h>
+#include <warp_sample.h>
+#include <coordinate.h>
 
 #include <ray.h>
 #include <common.h>
@@ -44,6 +46,21 @@ namespace Caramel{
             return vec3f_zero;
         }
         return m_radiance;
+    }
+
+    std::tuple<Ray, Vector3f, Vector3f, Float, Float> AreaLight::sample_le(Sampler &sampler) const{
+        // 1. Sample Position
+        const auto [light_pos, light_normal, pdf_pos] = m_shape->sample_point(sampler);
+
+        // 2. Sample Direction
+        // Cosine weighted hemisphere sampling
+        const auto [local_dir, pdf_dir] = sample_unit_hemisphere_cosine(sampler);
+
+        // Transform local_dir to world
+        const Coordinate coord(light_normal);
+        const Vector3f world_dir = coord.to_world(local_dir);
+
+        return {Ray(light_pos, world_dir), light_normal, m_radiance, pdf_pos, pdf_dir};
     }
 
     std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> AreaLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &sampler) const{

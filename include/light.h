@@ -28,6 +28,7 @@
 
 #include <common.h>
 #include <distribution.h>
+#include <ray.h>
 
 namespace Caramel{
     class Scene;
@@ -54,6 +55,10 @@ namespace Caramel{
         // This function should not be used from delta lights, since they can't be captured by recursive ray from brdf sampling
         virtual Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const = 0;
 
+        // Sample a ray from the light source
+        // returns {ray, normal, radiance, pdf_pos, pdf_dir}
+        virtual std::tuple<Ray, Vector3f, Vector3f, Float, Float> sample_le(Sampler &sampler) const = 0;
+
         virtual bool is_delta() const = 0;
         virtual bool is_envlight() const = 0;
 
@@ -73,6 +78,7 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> sample_direct_contribution(const Scene &scene,
                                                                                                      const RayIntersectInfo &hitpos_info,
                                                                                                      Sampler &) const override;
+        std::tuple<Ray, Vector3f, Vector3f, Float, Float> sample_le(Sampler &sampler) const override;
 
         Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const override;
 
@@ -92,6 +98,7 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> sample_direct_contribution(const Scene &scene,
                                                                                                      const RayIntersectInfo &hitpos_info,
                                                                                                      Sampler &sampler) const override;
+        std::tuple<Ray, Vector3f, Vector3f, Float, Float> sample_le(Sampler &sampler) const override;
 
         Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const override;
 
@@ -115,6 +122,7 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> sample_direct_contribution(const Scene &scene,
                                                                                                      const RayIntersectInfo &hitpos_info,
                                                                                                      Sampler &sampler) const override;
+        std::tuple<Ray, Vector3f, Vector3f, Float, Float> sample_le(Sampler &sampler) const override;
 
         Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const override;
 
@@ -133,6 +141,7 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> sample_direct_contribution(const Scene &scene,
                                                                                                      const RayIntersectInfo &hitpos_info,
                                                                                                      Sampler &sampler) const override;
+        std::tuple<Ray, Vector3f, Vector3f, Float, Float> sample_le(Sampler &sampler) const override;
 
         Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const override;
 

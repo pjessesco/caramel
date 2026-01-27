@@ -25,6 +25,7 @@
 #include <tuple>
 
 #include <light.h>
+#include <warp_sample.h>
 
 #include <ray.h>
 #include <common.h>
@@ -41,6 +42,11 @@ namespace Caramel{
 
     Vector3f PointLight::radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &) const{
         return vec3f_zero;
+    }
+
+    std::tuple<Ray, Vector3f, Vector3f, Float, Float> PointLight::sample_le(Sampler &sampler) const{
+        auto [d, pdf_dir] = sample_unit_sphere_uniformly(sampler);
+        return {Ray(m_pos, d), d, m_radiance, Float1, pdf_dir};
     }
 
     std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> PointLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &) const{

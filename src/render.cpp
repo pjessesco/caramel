@@ -34,10 +34,12 @@
 namespace Caramel{
 
     Image render(const std::filesystem::path &scene_path){
-        // Set current path
-        std::filesystem::current_path(scene_path.parent_path());
+        const auto abs_path = std::filesystem::absolute(scene_path);
 
-        const SceneParser parser(scene_path);
+        // Set current path
+        std::filesystem::current_path(abs_path.parent_path());
+
+        const SceneParser parser(abs_path);
         Integrator *integrator = parser.parse_integrator();
         Camera *cam = parser.parse_camera();
         const std::vector<Shape*> shapes = parser.parse_shapes();

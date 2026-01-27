@@ -40,6 +40,8 @@ namespace Caramel {
         void write_exr(const std::string &filename) const;
 
         void set_pixel_value(int w, int h, Float r, Float g, Float b);
+        void add_pixel_value(int w, int h, const Vector3f &val);
+        void scale(Float factor);
         Vector3f get_pixel_value(int w, int h) const;
         Vector2ui size() const;
 

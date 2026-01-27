@@ -1,7 +1,3 @@
-//
-// Created by Jino Park on 2023/01/20.
-//
-
 #include <bsdf.h>
 
 #include <common.h>
@@ -70,5 +66,3 @@ namespace Caramel{
         return false;
     }
 }
-
-

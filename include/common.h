@@ -73,6 +73,11 @@ namespace Caramel{
 
     using Vector2ui = Peanut::Matrix<Index, 2, 1>;
 
+    enum class TransportMode {
+        Radiance,
+        Importance
+    };
+
     static const Vector3f vec3f_zero{Float0, Float0, Float0};
     static const Vector3f vec3f_one{Float1, Float1, Float1};
 

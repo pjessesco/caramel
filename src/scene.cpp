@@ -78,7 +78,7 @@ namespace Caramel{
         const auto [is_hit, info] = ray_intersect(ray, len);
 
         if(!is_hit){
-            return {false, RayIntersectInfo()};
+            return {true, RayIntersectInfo()};
         }
 
         return {std::abs(len - info.t) <= 1.1e-3, info};

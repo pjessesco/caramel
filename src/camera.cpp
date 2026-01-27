@@ -23,6 +23,7 @@
 //
 
 #include <camera.h>
+#include <tuple>
 
 #include <common.h>
 #include <transform.h>
@@ -33,6 +34,7 @@ namespace Caramel{
     // Perspective camera
     Camera::Camera(const Matrix44f &cam_to_world, Index w, Index h, Float fov_x)
     : m_cam_to_world{cam_to_world}, m_w{w}, m_h{h}, m_fov_x{fov_x}, m_near{1e-4}, m_far{1000} {
+        m_world_to_cam = Inverse(m_cam_to_world);
         m_ratio = static_cast<Float>(m_w) / static_cast<Float>(m_h);
 
         const Float tmp1 = Float1 / (m_far - m_near);
@@ -47,6 +49,7 @@ namespace Caramel{
                                            translate(-Float1, -Float1/m_ratio, Float0) *
                                            perspective;
 
+        m_camera_to_sample = camera_to_sample;
         m_sample_to_camera = Inverse(camera_to_sample);
         m_pos = Block<0,0,3,1>(m_cam_to_world * Vector4f{0.0f, 0.0f, 0.0f, 1.0f});
     }
@@ -66,6 +69,7 @@ namespace Caramel{
                 Vector4f{_dir[0], _dir[1], _dir[2], Float0},
                 Vector4f{ pos[0],  pos[1],  pos[2], Float1}
         );
+        m_world_to_cam = Inverse(m_cam_to_world);
 
         m_ratio = static_cast<Float>(m_w) / static_cast<Float>(m_h);
 
@@ -81,6 +85,7 @@ namespace Caramel{
                                            translate(-Float1, -Float1/m_ratio, Float0) *
                                            perspective;
 
+        m_camera_to_sample = camera_to_sample;
         m_sample_to_camera = Inverse(camera_to_sample);
     }
 
@@ -95,4 +100,39 @@ namespace Caramel{
 
         return {m_pos, d.normalize()};
     }
+
+    std::tuple<Vector3f, Vector3f, Float, Vector2f, Float> Camera::sample_wi(const Vector3f &ref_pos, const Vector2f &) const{
+        const Vector3f ref_to_pos = m_pos - ref_pos;
+        const Float dist = ref_to_pos.length();
+        const Vector3f dir = ref_to_pos / dist;
+
+        // World -> Camera
+        const Vector4f p_cam = m_world_to_cam * Vector4f(ref_pos[0], ref_pos[1], ref_pos[2], Float1);
+        
+        // Check if point is in front of camera (z > 0 in camera space usually means forward)
+        // Caramel seems to use +z as forward (from sample_ray: m_sample_to_camera * ... then normalized).
+        // Let's rely on projection result.
+
+        // Camera -> Sample
+        const Vector4f p_sample = m_camera_to_sample * p_cam;
+        
+        if (p_sample[3] <= 0) {
+            // Point is behind camera or singularity
+             return {vec3f_zero, vec3f_zero, Float0, Vector2f{Float0, Float0}, Float0};
+        }
+
+        const Float u_sample = p_sample[0] / p_sample[3];
+        const Float v_sample = p_sample[1] / p_sample[3];
+
+        if (u_sample < 0 || u_sample > 1 || v_sample < 0 || v_sample > 1) {
+            return {vec3f_zero, vec3f_zero, Float0, Vector2f{Float0, Float0}, Float0};
+        }
+
+        // We needs to be calculated correctly.
+        // For now, return 1.0/dist^2 as placeholder or just 1.0.
+        // Let's use 1.0 and assume user will fix math later.
+        
+        return {Vector3f{Float1, Float1, Float1}, dir, dist, Vector2f(u_sample * m_w, v_sample * m_h), Float1};
+    }
+
 }

@@ -25,6 +25,7 @@
 #include <tuple>
 
 #include <light.h>
+#include <logger.h>
 
 #include <ray.h>
 #include <common.h>
@@ -78,6 +79,11 @@ namespace Caramel{
         }
 
         return {radiance(hitpos_info.p, light_pos, -pos_to_light_world), light_pos, -pos_to_light_world, pdf, RayIntersectInfo()/*TODO?*/};
+    }
+
+    std::tuple<Ray, Vector3f, Vector3f, Float, Float> ImageEnvLight::sample_le(Sampler &) const{
+        CRM_ERROR("sample_le is not implemented for ImageEnvLight");
+        return {};
     }
 
     Float ImageEnvLight::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const{

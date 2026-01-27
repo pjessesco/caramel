@@ -104,6 +104,16 @@ namespace Caramel{
         Index m_max_depth;
     };
 
+    class ParticleIntegrator final : public Integrator{
+    public:
+        ParticleIntegrator(Index max_depth, Index spp);
+        void pre_process(const Scene &scene) override;
+        Image render(const Scene &scene) override;
+
+    private:
+        Index m_max_depth;
+        Index m_spp;
+    };
 
 }
 

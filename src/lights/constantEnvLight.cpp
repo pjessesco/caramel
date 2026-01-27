@@ -25,6 +25,7 @@
 #include <tuple>
 
 #include <light.h>
+#include <logger.h>
 
 #include <ray.h>
 #include <common.h>
@@ -55,6 +56,11 @@ namespace Caramel{
         }
 
         return {m_radiance, light_pos, -pos_to_light_dir_world, PI_4_INV, RayIntersectInfo()/*TODO?*/};
+    }
+
+    std::tuple<Ray, Vector3f, Vector3f, Float, Float> ConstantEnvLight::sample_le(Sampler &) const{
+        CRM_ERROR("sample_le is not implemented for ConstantEnvLight");
+        return {};
     }
 
     Float ConstantEnvLight::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const{

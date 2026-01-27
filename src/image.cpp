@@ -128,13 +128,25 @@ namespace Caramel{
     }
 
     void Image::set_pixel_value(int w, int h, Float r, Float g, Float b) {
-        if(w<0 || m_width<=w || h<0 || m_height<=h){
-            CRM_ERROR("unavailable image pixel position");
-        }
+        if (w < 0 || w >= m_width || h < 0 || h >= m_height) return;
+        const int idx = (h * m_width + w) * 3;
+        m_data[idx] = r;
+        m_data[idx+1] = g;
+        m_data[idx+2] = b;
+    }
 
-        m_data[(w + h * m_width)*3] = r;
-        m_data[(w + h * m_width)*3 + 1] = g;
-        m_data[(w + h * m_width)*3 + 2] = b;
+    void Image::add_pixel_value(int w, int h, const Vector3f &val) {
+        if (w < 0 || w >= m_width || h < 0 || h >= m_height) return;
+        const int idx = (h * m_width + w) * 3;
+        m_data[idx] += val[0];
+        m_data[idx+1] += val[1];
+        m_data[idx+2] += val[2];
+    }
+
+    void Image::scale(Float factor){
+        for(auto &v : m_data){
+            v *= factor;
+        }
     }
 
     Vector3f Image::get_pixel_value(int w, int h) const{
