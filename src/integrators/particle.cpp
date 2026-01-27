@@ -73,7 +73,11 @@ namespace Caramel{
                          
                          if(visible){
                              Float cos_surface = std::abs(wi_local[2]);
-                             Float G = cos_surface / (dist_to_cam * dist_to_cam);
+                             
+                             Vector3f cam_forward = scene.m_cam->get_forward();
+                             Float cos_at_camera = std::abs(dir_to_cam.dot(cam_forward));
+                             
+                             Float G = (cos_surface * cos_at_camera) / (dist_to_cam * dist_to_cam);
                              
                              Vector3f contrib = (throughput % f % We) * G;
                              
@@ -110,7 +114,7 @@ namespace Caramel{
             }
         });
         
-        img.scale(Float1 / m_spp); 
+        img.scale(Float1 / static_cast<Float>(total_samples)); 
         
         return img;
     }

@@ -43,6 +43,7 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Float, Vector2f, Float> sample_wi(const Vector3f &ref_pos, const Vector2f &u) const;
         
         Vector3f get_pos() const { return m_pos; }
+        Vector3f get_forward() const;
 
         template <typename Type, typename ...Param>
         static Camera* Create(Param ...args){
@@ -66,6 +67,7 @@ namespace Caramel{
         Float m_ratio;
         Float m_near;
         Float m_far;
+        Float m_pixel_area;
         Matrix44f m_sample_to_camera;
         Matrix44f m_camera_to_sample; // inverse of m_sample_to_camera
         Matrix44f m_cam_to_world;

@@ -1,29 +1,6 @@
-//
-// This software is released under the MIT license.
-//
-// Copyright (c) 2022-2025 Jino Park
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-//
-
 #include <camera.h>
 #include <tuple>
+#include <cmath>
 
 #include <common.h>
 #include <transform.h>
@@ -31,11 +8,20 @@
 
 namespace Caramel{
 
+    Float calc_pixel_area(Index w, Index h, Float fov_x) {
+        Float aspect = static_cast<Float>(w) / static_cast<Float>(h);
+        Float half_width = std::tan(deg_to_rad(fov_x * 0.5f)); 
+        Float width_len = 2 * half_width;
+        Float height_len = width_len / aspect;
+        return (width_len * height_len) / (w * h);
+    }
+
     // Perspective camera
     Camera::Camera(const Matrix44f &cam_to_world, Index w, Index h, Float fov_x)
     : m_cam_to_world{cam_to_world}, m_w{w}, m_h{h}, m_fov_x{fov_x}, m_near{1e-4}, m_far{1000} {
         m_world_to_cam = Inverse(m_cam_to_world);
         m_ratio = static_cast<Float>(m_w) / static_cast<Float>(m_h);
+        m_pixel_area = calc_pixel_area(m_w, m_h, m_fov_x);
 
         const Float tmp1 = Float1 / (m_far - m_near);
         const Float cot = Float1 / tan(deg_to_rad(m_fov_x * Float0_5));
@@ -72,6 +58,7 @@ namespace Caramel{
         m_world_to_cam = Inverse(m_cam_to_world);
 
         m_ratio = static_cast<Float>(m_w) / static_cast<Float>(m_h);
+        m_pixel_area = calc_pixel_area(m_w, m_h, m_fov_x);
 
         const Float tmp1 = Float1 / (m_far - m_near);
         const Float cot = Float1 / tan(deg_to_rad(m_fov_x * Float0_5));
@@ -106,20 +93,10 @@ namespace Caramel{
         const Float dist = ref_to_pos.length();
         const Vector3f dir = ref_to_pos / dist;
 
-        // World -> Camera
         const Vector4f p_cam = m_world_to_cam * Vector4f(ref_pos[0], ref_pos[1], ref_pos[2], Float1);
-        
-        // Check if point is in front of camera (z > 0 in camera space usually means forward)
-        // Caramel seems to use +z as forward (from sample_ray: m_sample_to_camera * ... then normalized).
-        // Let's rely on projection result.
-
-        // Camera -> Sample
         const Vector4f p_sample = m_camera_to_sample * p_cam;
         
-        if (p_sample[3] <= 0) {
-            // Point is behind camera or singularity
-             return {vec3f_zero, vec3f_zero, Float0, Vector2f{Float0, Float0}, Float0};
-        }
+        if (p_sample[3] <= 0) return {vec3f_zero, vec3f_zero, Float0, Vector2f{Float0, Float0}, Float0};
 
         const Float u_sample = p_sample[0] / p_sample[3];
         const Float v_sample = p_sample[1] / p_sample[3];
@@ -128,11 +105,17 @@ namespace Caramel{
             return {vec3f_zero, vec3f_zero, Float0, Vector2f{Float0, Float0}, Float0};
         }
 
-        // We needs to be calculated correctly.
-        // For now, return 1.0/dist^2 as placeholder or just 1.0.
-        // Let's use 1.0 and assume user will fix math later.
+        Vector3f forward = Vector3f(m_cam_to_world(0, 2), m_cam_to_world(1, 2), m_cam_to_world(2, 2));
+        Float cos_theta = dir.dot(forward) * -Float1;
+        if (cos_theta <= 1e-4) return {vec3f_zero, vec3f_zero, Float0, Vector2f{Float0, Float0}, Float0};
+
+        Float We_val = 1.0f / (m_pixel_area * std::pow(cos_theta, 4));
         
-        return {Vector3f{Float1, Float1, Float1}, dir, dist, Vector2f(u_sample * m_w, v_sample * m_h), Float1};
+        return {Vector3f{We_val, We_val, We_val}, dir, dist, Vector2f(u_sample * m_w, v_sample * m_h), Float1};
+    }
+
+    Vector3f Camera::get_forward() const {
+        return Vector3f(m_cam_to_world(0, 2), m_cam_to_world(1, 2), m_cam_to_world(2, 2));
     }
 
 }
