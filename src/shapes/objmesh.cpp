@@ -180,19 +180,22 @@ namespace Caramel {
                                 m_normals[m_normal_indices[i][2]],
                                 m_tex_coords[m_tex_coord_indices[i][0]],
                                 m_tex_coords[m_tex_coord_indices[i][1]],
-                                m_tex_coords[m_tex_coord_indices[i][2]]);
+                                m_tex_coords[m_tex_coord_indices[i][2]],
+                                get_bsdf());
             }
             return Triangle(m_vertices[m_vertex_indices[i][0]],
                             m_vertices[m_vertex_indices[i][1]],
                             m_vertices[m_vertex_indices[i][2]],
                             m_normals[m_normal_indices[i][0]],
                             m_normals[m_normal_indices[i][1]],
-                            m_normals[m_normal_indices[i][2]]);
+                            m_normals[m_normal_indices[i][2]],
+                            get_bsdf());
         }
         else{
             return Triangle(m_vertices[m_vertex_indices[i][0]],
                             m_vertices[m_vertex_indices[i][1]],
-                            m_vertices[m_vertex_indices[i][2]]);
+                            m_vertices[m_vertex_indices[i][2]],
+                            get_bsdf());
         }
     }
 }

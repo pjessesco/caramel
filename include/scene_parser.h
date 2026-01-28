@@ -28,6 +28,7 @@
 #include <ranges>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include <common.h>
 
@@ -58,6 +59,8 @@ namespace Caramel{
         std::vector<Light*> parse_lights() const;
 
     private:
+        void parse_bsdfs_map();
+
         Shape* parse_shape(const Json &shape_json) const;
 
         Light* parse_light(const Json &light_json) const;
@@ -86,6 +89,7 @@ namespace Caramel{
         Matrix44f parse_matrix44f(const Json &parent, const std::string &key) const;
 
         Json m_scene_json;
+        std::unordered_map<std::string, BSDF*> m_bsdf_map;
     };
 
 }
