@@ -50,6 +50,8 @@ namespace Caramel{
     public:
         explicit SceneParser(const std::filesystem::path &path);
 
+        void parse_bsdfs_map();
+
         Integrator* parse_integrator() const;
 
         Camera* parse_camera() const;
@@ -59,8 +61,6 @@ namespace Caramel{
         std::vector<Light*> parse_lights() const;
 
     private:
-        void parse_bsdfs_map();
-
         Shape* parse_shape(const Json &shape_json) const;
 
         Light* parse_light(const Json &light_json) const;

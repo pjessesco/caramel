@@ -45,7 +45,6 @@ namespace Caramel{
         
         std::ifstream stream(path);
         m_scene_json = Json::parse(stream);
-        parse_bsdfs_map();
     }
 
     void SceneParser::parse_bsdfs_map() {
