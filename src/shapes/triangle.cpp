@@ -32,17 +32,17 @@
 #include <rayintersectinfo.h>
 
 namespace Caramel {
-    Triangle::Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2)
-        : Shape(nullptr, nullptr), m_p0{p0}, m_p1{p1}, m_p2{p2}, is_vn_exists{false}, is_tx_exists{false} {}
+    Triangle::Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2, BSDF *bsdf)
+        : Shape(bsdf, nullptr), m_p0{p0}, m_p1{p1}, m_p2{p2}, is_vn_exists{false}, is_tx_exists{false} {}
 
     Triangle::Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2,
-                       const Vector3f &n0, const Vector3f &n1, const Vector3f &n2)
-        : Shape(nullptr, nullptr), m_p0{p0}, m_p1{p1}, m_p2{p2}, m_n0{n0}, m_n1{n1}, m_n2{n2}, is_vn_exists{true}, is_tx_exists{false} {}
+                       const Vector3f &n0, const Vector3f &n1, const Vector3f &n2, BSDF *bsdf)
+        : Shape(bsdf, nullptr), m_p0{p0}, m_p1{p1}, m_p2{p2}, m_n0{n0}, m_n1{n1}, m_n2{n2}, is_vn_exists{true}, is_tx_exists{false} {}
 
     Triangle::Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2,
                        const Vector3f &n0, const Vector3f &n1, const Vector3f &n2,
-                       const Vector2f &uv0, const Vector2f &uv1, const Vector2f &uv2)
-        : Shape(nullptr, nullptr), m_p0{p0}, m_p1{p1}, m_p2{p2}, m_n0{n0}, m_n1{n1}, m_n2{n2}, is_vn_exists{true}, is_tx_exists{true},
+                       const Vector2f &uv0, const Vector2f &uv1, const Vector2f &uv2, BSDF *bsdf)
+        : Shape(bsdf, nullptr), m_p0{p0}, m_p1{p1}, m_p2{p2}, m_n0{n0}, m_n1{n1}, m_n2{n2}, is_vn_exists{true}, is_tx_exists{true},
           m_uv0{uv0}, m_uv1{uv1}, m_uv2{uv2} {}
 
     AABB Triangle::get_aabb() const{

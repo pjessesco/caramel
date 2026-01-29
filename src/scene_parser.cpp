@@ -47,6 +47,29 @@ namespace Caramel{
         m_scene_json = Json::parse(stream);
     }
 
+    void SceneParser::parse_bsdfs_map() {
+        if(!m_scene_json.contains("bsdfs")){
+            return;
+        }
+        const Json bsdfs = m_scene_json["bsdfs"];
+        if(bsdfs.is_array()){
+            for(const auto &b : bsdfs){
+                if(!b.contains("id")){
+                    CRM_ERROR("BSDF in bsdfs list must have an id : " + to_string(b));
+                }
+                const std::string id = parse_string(b, "id");
+                if(m_bsdf_map.find(id) != m_bsdf_map.end()){
+                    CRM_ERROR("Duplicated BSDF id : " + id);
+                }
+                
+                // Wrap to match parse_bsdf expectation
+                Json wrapper;
+                wrapper["bsdf"] = b;
+                m_bsdf_map[id] = parse_bsdf(wrapper);
+            }
+        }
+    }
+
     Integrator* SceneParser::parse_integrator() const {
         const Json child = get_unique_first_elem(m_scene_json, "integrator");
         const std::string type = parse_string(child, "type");
@@ -159,12 +182,14 @@ namespace Caramel{
                                                parse_vector3f(shape_json, "p2"),
                                                parse_vector3f(shape_json, "n0"),
                                                parse_vector3f(shape_json, "n1"),
-                                               parse_vector3f(shape_json, "n2"));
+                                               parse_vector3f(shape_json, "n2"),
+                                               parse_bsdf(shape_json));
             }
             else{
                 return Shape::Create<Triangle>(parse_vector3f(shape_json, "p0"),
                                                parse_vector3f(shape_json, "p1"),
-                                               parse_vector3f(shape_json, "p2"));
+                                               parse_vector3f(shape_json, "p2"),
+                                               parse_bsdf(shape_json));
             }
         }
 
@@ -198,6 +223,15 @@ namespace Caramel{
 
     BSDF* SceneParser::parse_bsdf(const SceneParser::Json &bsdf_json) const {
         const Json child = get_unique_first_elem(bsdf_json, "bsdf");
+
+        if(child.is_string()){
+            const std::string id = child;
+            if(m_bsdf_map.find(id) == m_bsdf_map.end()){
+                CRM_ERROR("BSDF id not found : " + id);
+            }
+            return m_bsdf_map.at(id);
+        }
+
         const std::string type = parse_string(child, "type");
         if(type == "diffuse"){
             return child.contains("albedo") ? BSDF::Create<Diffuse>(parse_vector3f(child, "albedo")) :

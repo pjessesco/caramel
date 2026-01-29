@@ -84,14 +84,14 @@ namespace Caramel{
 
     class Triangle final : public Shape{
     public:
-        Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2);
+        Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2, BSDF *bsdf);
 
         Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2,
-                 const Vector3f &n0, const Vector3f &n1, const Vector3f &n2);
+                 const Vector3f &n0, const Vector3f &n1, const Vector3f &n2, BSDF *bsdf);
 
         Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2,
                  const Vector3f &n0, const Vector3f &n1, const Vector3f &n2,
-                 const Vector2f &uv0, const Vector2f &uv1, const Vector2f &uv2);
+                 const Vector2f &uv0, const Vector2f &uv1, const Vector2f &uv2, BSDF *bsdf);
 
         // u, v, t
         std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const override;

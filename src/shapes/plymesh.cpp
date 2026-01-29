@@ -181,11 +181,13 @@ namespace Caramel {
                             m_vertices[idx[2]],
                             m_normals[idx[0]],
                             m_normals[idx[1]],
-                            m_normals[idx[2]]);
+                            m_normals[idx[2]],
+                            get_bsdf());
         } else {
             return Triangle(m_vertices[idx[0]],
                             m_vertices[idx[1]],
-                            m_vertices[idx[2]]);
+                            m_vertices[idx[2]],
+                            get_bsdf());
         }
     }
 }

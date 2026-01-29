@@ -28,6 +28,7 @@
 #include <ranges>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include <common.h>
 
@@ -48,6 +49,8 @@ namespace Caramel{
 
     public:
         explicit SceneParser(const std::filesystem::path &path);
+
+        void parse_bsdfs_map();
 
         Integrator* parse_integrator() const;
 
@@ -86,6 +89,7 @@ namespace Caramel{
         Matrix44f parse_matrix44f(const Json &parent, const std::string &key) const;
 
         Json m_scene_json;
+        std::unordered_map<std::string, BSDF*> m_bsdf_map;
     };
 
 }

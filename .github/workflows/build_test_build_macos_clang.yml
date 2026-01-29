@@ -8,6 +8,7 @@ on:
 
 env:
   BUILD_TYPE: Release
+  LDFLAGS: "-L/opt/homebrew/opt/llvm/lib/c++ -L/opt/homebrew/opt/llvm/lib/unwind -lunwind"
 
 jobs:
   build:
