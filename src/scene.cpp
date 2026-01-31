@@ -73,15 +73,17 @@ namespace Caramel{
         const Vector3f vec3_1_to_2(pos2 - pos1);
         const Vector3f dir = vec3_1_to_2.normalize();
         const Float len = vec3_1_to_2.length();
-        const Ray ray{pos1 + (dir * 1e-3), dir};
+        const Float scale = Float1 + std::max({std::abs(pos1[0]), std::abs(pos1[1]), std::abs(pos1[2])});
+        
+        // Shadow ray with adaptive epsilon for origin offset, and shortened max_t to avoid hitting the target itself
+        const Ray ray{pos1 + (dir * SHADOW_EPSILON * scale), dir};
+        const Float maxt = len * (Float1 - SHADOW_EPSILON);
 
-        const auto [is_hit, info] = ray_intersect(ray, len);
+        const auto [is_hit, info] = ray_intersect(ray, maxt);
 
-        if(!is_hit){
-            return {false, RayIntersectInfo()};
-        }
-
-        return {std::abs(len - info.t) <= 1.1e-3, info};
+        // If we hit something (closer than the target), it is occluded.
+        // If we don't hit anything, it is visible.
+        return {!is_hit, info};
     }
 
     std::pair<const Light*, Float> Scene::sample_light(Sampler &sampler) const{
