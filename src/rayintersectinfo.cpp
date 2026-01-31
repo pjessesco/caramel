@@ -33,8 +33,9 @@ namespace Caramel{
     // See also `Scene::is_visible()`
     Ray RayIntersectInfo::recursive_ray_to(const Vector3f &local_next_dir) const{
         const Vector3f world_d = sh_coord.to_world(local_next_dir);
+        const Float scale = Float1 + std::max({std::abs(p[0]), std::abs(p[1]), std::abs(p[2])});
 
-        return {p + (world_d * 1e-3), world_d};
+        return {p + (world_d * RAY_EPSILON * scale), world_d};
     }
 
 }
