@@ -50,7 +50,8 @@ namespace Caramel{
     constexpr Float PI_4_INV = 1 / PI_4;
 
     // TODO : lower epsilon...
-    constexpr Float EPSILON = static_cast<Float>(1e-3);
+    constexpr Float RAY_EPSILON = static_cast<Float>(1.8e-4f);
+    constexpr Float SHADOW_EPSILON = static_cast<Float>(1.8e-3f);
 
     inline Float deg_to_rad(Float deg){
         return deg * PI / static_cast<Float>(180);
