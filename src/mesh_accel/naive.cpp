@@ -46,7 +46,7 @@ namespace Caramel{
         bool is_hit = false;
 
         for (int i = 0; i < m_shape.get_triangle_num(); i++) {
-            auto [is_intersect, tmp_info] = m_shape.get_triangle(i).ray_intersect(ray, maxt);
+            auto [is_intersect, tmp_info] = m_shape.get_triangle_ray_intersect(i, ray, maxt);
             if (is_intersect) {
                 is_hit = true;
                 if (info.t > tmp_info.t) {

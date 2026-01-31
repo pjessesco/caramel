@@ -121,8 +121,11 @@ namespace Caramel{
     class TriangleMesh : public Shape{
     public:
         using Shape::Shape;
-        virtual Triangle get_triangle(Index i) const = 0;
         virtual Index get_triangle_num() const = 0;
+        virtual std::pair<bool, RayIntersectInfo> get_triangle_ray_intersect(Index i, const Ray &ray, Float maxt) const = 0;
+        virtual AABB get_triangle_aabb(Index i) const = 0;
+        virtual Float get_triangle_area(Index i) const = 0;
+        virtual std::tuple<Vector3f, Vector3f, Float> get_triangle_sample_point(Index i, Sampler &sampler) const = 0;
     };
 
     class OBJMesh final : public TriangleMesh{
@@ -136,7 +139,10 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;
         Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const override;
 
-        Triangle get_triangle(Index i) const override;
+        std::pair<bool, RayIntersectInfo> get_triangle_ray_intersect(Index i, const Ray &ray, Float maxt) const override;
+        AABB get_triangle_aabb(Index i) const override;
+        Float get_triangle_area(Index i) const override;
+        std::tuple<Vector3f, Vector3f, Float> get_triangle_sample_point(Index i, Sampler &sampler) const override;
 
         Index get_triangle_num() const override {
             return m_vertex_indices.size();
@@ -168,7 +174,10 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;
         Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const override;
 
-        Triangle get_triangle(Index i) const override;
+        std::pair<bool, RayIntersectInfo> get_triangle_ray_intersect(Index i, const Ray &ray, Float maxt) const override;
+        AABB get_triangle_aabb(Index i) const override;
+        Float get_triangle_area(Index i) const override;
+        std::tuple<Vector3f, Vector3f, Float> get_triangle_sample_point(Index i, Sampler &sampler) const override;
 
         Index get_triangle_num() const override {
             return m_face_indices.size();

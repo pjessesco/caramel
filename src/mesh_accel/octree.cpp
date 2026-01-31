@@ -48,9 +48,9 @@ namespace Caramel{
         }
 
         for(auto ti : m_triangle_indices){
-            const Triangle &tri = shape.get_triangle(ti);
+            const AABB tri_aabb = shape.get_triangle_aabb(ti);
             for(auto &child : m_childs){
-                if(child.m_aabb.is_contain(tri.get_center())){
+                if(child.m_aabb.is_contain(tri_aabb.get_center())){
                     child.m_triangle_indices.emplace_back(ti);
                     break;
                 }
@@ -62,9 +62,9 @@ namespace Caramel{
 
         // Shrink aabb as possible
         for (auto &child : m_childs) {
-            AABB shrinked_aabb = shape.get_triangle(child.m_triangle_indices[0]).get_aabb();
+            AABB shrinked_aabb = shape.get_triangle_aabb(child.m_triangle_indices[0]);
             for (const auto tri : child.m_triangle_indices) {
-                shrinked_aabb = AABB::merge(shrinked_aabb, shape.get_triangle(tri).get_aabb());
+                shrinked_aabb = AABB::merge(shrinked_aabb, shape.get_triangle_aabb(tri));
             }
             child.m_aabb = shrinked_aabb;
         }
@@ -96,7 +96,7 @@ namespace Caramel{
         info.t = maxt;
         bool is_hit = false;
         for(const Index i:m_triangle_indices){
-            const auto &[is_intersect, tmp_info] = shape.get_triangle(i).ray_intersect(ray, info.t);
+            const auto &[is_intersect, tmp_info] = shape.get_triangle_ray_intersect(i, ray, info.t);
             if (is_intersect) {
                 is_hit = true;
                 info = tmp_info;

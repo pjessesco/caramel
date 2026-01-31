@@ -127,7 +127,7 @@ namespace Caramel {
 
         m_area = Float0;
         for (size_t i = 0; i < m_face_indices.size(); ++i) {
-            const Float ith_tri_area = get_triangle(i).get_area();
+            const Float ith_tri_area = get_triangle_area(i);
             triangle_area_vec[i] = ith_tri_area;
             m_area += ith_tri_area;
         }
@@ -160,7 +160,7 @@ namespace Caramel {
         const Index i = m_triangle_pdf.sample(sampler.sample_1d());
 
         // Sample point in chosen triangle
-        const auto [pos, normal, _] = get_triangle(i).sample_point(sampler);
+        const auto [pos, normal, _] = get_triangle_sample_point(i, sampler);
 
         return {pos, normal, Float1 / m_area};
     }
@@ -172,22 +172,89 @@ namespace Caramel {
         return dist_squared / (cos * m_area);
     }
 
-    Triangle PLYMesh::get_triangle(Index i) const {
+    Float PLYMesh::get_triangle_area(Index i) const {
         const Vector3i& idx = m_face_indices[i];
+        const Vector3f &p0 = m_vertices[idx[0]];
+        const Vector3f &p1 = m_vertices[idx[1]];
+        const Vector3f &p2 = m_vertices[idx[2]];
 
+        return Vector3f::cross(p1 - p0, p2 - p0).length() * Float0_5;
+    }
+
+    std::tuple<Vector3f, Vector3f, Float> PLYMesh::get_triangle_sample_point(Index i, Sampler &sampler) const {
+        const Vector3i& idx = m_face_indices[i];
+        const Vector3f &p0 = m_vertices[idx[0]];
+        const Vector3f &p1 = m_vertices[idx[1]];
+        const Vector3f &p2 = m_vertices[idx[2]];
+
+        const Float u = sampler.sample_1d();
+        const Float v = sampler.sample_1d();
+        const Float x = Float1 - std::sqrt(Float1 - u);
+        const Float y = v * std::sqrt(Float1 - u);
+
+        Vector3f n;
         if (is_vn_exists) {
-            return Triangle(m_vertices[idx[0]],
-                            m_vertices[idx[1]],
-                            m_vertices[idx[2]],
-                            m_normals[idx[0]],
-                            m_normals[idx[1]],
-                            m_normals[idx[2]],
-                            get_bsdf());
+            const Vector3f &n0 = m_normals[idx[0]];
+            const Vector3f &n1 = m_normals[idx[1]];
+            const Vector3f &n2 = m_normals[idx[2]];
+            n = interpolate(n0, n1, n2, x, y).normalize();
         } else {
-            return Triangle(m_vertices[idx[0]],
-                            m_vertices[idx[1]],
-                            m_vertices[idx[2]],
-                            get_bsdf());
+            n = Vector3f::cross(p1 - p0, p2 - p0).normalize();
         }
+
+        return {interpolate(p0, p1, p2, x, y),
+                n,
+                Float1 / get_triangle_area(i)};
+    }
+
+    std::pair<bool, RayIntersectInfo> PLYMesh::get_triangle_ray_intersect(Index i, const Ray &ray, Float maxt) const {
+        const Vector3i& idx = m_face_indices[i];
+        const Vector3f &p0 = m_vertices[idx[0]];
+        const Vector3f &p1 = m_vertices[idx[1]];
+        const Vector3f &p2 = m_vertices[idx[2]];
+
+        auto [u, v, t] = moller_trumbore(ray, p0, p1, p2, maxt);
+
+        if(u==-Float1 && v==-Float1 && t==-Float1){
+            return {false, RayIntersectInfo()};
+        }
+
+        RayIntersectInfo ret;
+        ret.t = t;
+        
+        // PLYMesh doesn't have UVs in this implementation
+        ret.tex_uv = Vector2f{u, v};
+
+        ret.tex_uv[0] -= floor(ret.tex_uv[0]);
+        ret.tex_uv[1] -= floor(ret.tex_uv[1]);
+
+        ret.p = interpolate(p0, p1, p2, u, v);
+        
+        Vector3f n;
+        if (is_vn_exists) {
+            const Vector3f &n0 = m_normals[idx[0]];
+            const Vector3f &n1 = m_normals[idx[1]];
+            const Vector3f &n2 = m_normals[idx[2]];
+            n = interpolate(n0, n1, n2, u, v).normalize();
+        } else {
+            n = Vector3f::cross(p1 - p0, p2 - p0).normalize();
+        }
+        ret.sh_coord = Coordinate(n);
+
+        return {true, ret};
+    }
+
+    AABB PLYMesh::get_triangle_aabb(Index i) const {
+        const Vector3i& idx = m_face_indices[i];
+        const Vector3f &p0 = m_vertices[idx[0]];
+        const Vector3f &p1 = m_vertices[idx[1]];
+        const Vector3f &p2 = m_vertices[idx[2]];
+        
+        return AABB(Vector3f{std::min({p0[0], p1[0], p2[0]}),
+                             std::min({p0[1], p1[1], p2[1]}),
+                             std::min({p0[2], p1[2], p2[2]})},
+                    Vector3f{std::max({p0[0], p1[0], p2[0]}),
+                             std::max({p0[1], p1[1], p2[1]}),
+                             std::max({p0[2], p1[2], p2[2]})});
     }
 }
