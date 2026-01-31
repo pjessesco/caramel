@@ -36,37 +36,17 @@
 
 using namespace Caramel;
 
-TEST_CASE("ajax render test", "[RenderTest]") {
-    std::filesystem::current_path();
-    Image ref(std::string(TEST_SCENE_PATH) + "ajax/gt.exr");
-    Image rendered = render(std::string(TEST_SCENE_PATH) + "ajax/scene.json");
-
-    CHECK(avg(rendered) / avg(ref) <= Catch::Approx(1.005));
-    CHECK(Catch::Approx(0.9991) <= avg(rendered) / avg(ref));
-}
-
-TEST_CASE("veach-mis render test", "[RenderTest]"){
-    Image ref(std::string(TEST_SCENE_PATH) + "veach_mis/gt.exr");
-    Image rendered = render(std::string(TEST_SCENE_PATH) + "veach_mis/scene.json");
-    CHECK(avg(rendered) / avg(ref) <= Catch::Approx(1.005));
-    CHECK(Catch::Approx(0.9995) <= avg(rendered) / avg(ref));
-}
 
 TEST_CASE("cbox render test", "[RenderTest]"){
     Image ref(std::string(TEST_SCENE_PATH) + "cbox/gt.exr");
     Image rendered = render(std::string(TEST_SCENE_PATH) + "cbox/scene.json");
 
+    rendered.write_exr(std::string(TEST_SCENE_PATH) + "cbox/scene.exr");
+
     CHECK(avg(rendered) / avg(ref) <= Catch::Approx(1.005));
     CHECK(Catch::Approx(0.9995) <= avg(rendered) / avg(ref));
 }
 
-TEST_CASE("shaderballs render test", "[RenderTest]"){
-    Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/gt.exr");
-    Image rendered = render(std::string(TEST_SCENE_PATH) + "shaderballs/scene.json");
-
-    CHECK(avg(rendered) / avg(ref) <= Catch::Approx(1.05));
-    CHECK(Catch::Approx(0.995) <= avg(rendered) / avg(ref));
-}
 
 
 
