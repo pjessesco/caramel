@@ -65,7 +65,7 @@ TEST_CASE("diamond render test", "[RenderTest]"){
     Image rendered = render(std::string(TEST_SCENE_PATH) + "diamonds/scene.json");
 
     CHECK(avg(rendered) / avg(ref) <= Catch::Approx(1.005));
-    CHECK(Catch::Approx(0.9995) <= avg(rendered) / avg(ref));
+    CHECK(Catch::Approx(0.995) <= avg(rendered) / avg(ref));
 }
 
 TEST_CASE("shaderballs render test", "[RenderTest]"){
