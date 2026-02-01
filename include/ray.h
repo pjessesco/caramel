@@ -36,6 +36,7 @@ namespace Caramel{
         friend class RayIntersectInfo;
         friend class Camera;
         friend class Scene;
+        friend class RayTestHelper;
         Ray(const Vector3f &o, const Vector3f &d) : m_o{o}, m_d{d.normalize()}, m_d_recip{Float1/m_d[0], Float1/m_d[1], Float1/m_d[2]} {}
     };
 }
