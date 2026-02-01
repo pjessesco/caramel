@@ -36,7 +36,7 @@
 
 using namespace Caramel;
 
-TEST_CASE("test1 render test") {
+TEST_CASE("test1 render test", "[RenderTest]") {
     std::filesystem::current_path();
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test1/gt.exr");
     Image rendered = render(std::string(TEST_SCENE_PATH) + "test_scenes/test1/scene.json");
@@ -45,7 +45,7 @@ TEST_CASE("test1 render test") {
     CHECK(Catch::Approx(0.9991) <= avg(rendered)/avg(ref));
 }
 
-TEST_CASE("test2 render test") {
+TEST_CASE("test2 render test", "[RenderTest]") {
     std::filesystem::current_path();
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test2/gt.exr");
     Image rendered = render(std::string(TEST_SCENE_PATH) + "test_scenes/test2/scene.json");
@@ -54,7 +54,7 @@ TEST_CASE("test2 render test") {
     CHECK(Catch::Approx(0.9991) <= avg(rendered)/avg(ref));
 }
 
-TEST_CASE("test3 render test") {
+TEST_CASE("test3 render test", "[RenderTest]") {
     std::filesystem::current_path();
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test3/gt.exr");
     Image rendered = render(std::string(TEST_SCENE_PATH) + "test_scenes/test3/scene.json");
@@ -63,7 +63,7 @@ TEST_CASE("test3 render test") {
     CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
 }
 
-TEST_CASE("test4 render test") {
+TEST_CASE("test4 render test", "[RenderTest]") {
     std::filesystem::current_path();
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test4/gt.exr");
     Image rendered = render(std::string(TEST_SCENE_PATH) + "test_scenes/test4/scene.json");
@@ -72,7 +72,7 @@ TEST_CASE("test4 render test") {
     CHECK(Catch::Approx(0.9993) <= avg(rendered)/avg(ref));
 }
 
-TEST_CASE("test5 render test") {
+TEST_CASE("test5 render test", "[RenderTest]") {
     std::filesystem::current_path();
 
     SECTION("Conductor"){
@@ -105,7 +105,7 @@ TEST_CASE("test5 render test") {
     }
 }
 
-TEST_CASE("test6 render test") {
+TEST_CASE("test6 render test", "[RenderTest]") {
     std::filesystem::current_path();
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test6/gt.exr");
     Image rendered = render(std::string(TEST_SCENE_PATH) + "test_scenes/test6/scene.json");
