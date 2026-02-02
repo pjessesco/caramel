@@ -36,41 +36,69 @@
 
 using namespace Caramel;
 
+#define SAVE_RENDERED_IMAGES
+
 TEST_CASE("ajax render test", "[RenderTest]") {
     std::filesystem::current_path();
+    std::string scene_path = std::string(TEST_SCENE_PATH) + "ajax/scene.json";
     Image ref(std::string(TEST_SCENE_PATH) + "ajax/gt.exr");
-    Image rendered = render(std::string(TEST_SCENE_PATH) + "ajax/scene.json");
+    Image rendered = render(scene_path);
+
+#ifdef SAVE_RENDERED_IMAGES
+    rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "ajax_rendered.exr").string());
+#endif
 
     CHECK(avg(rendered) / avg(ref) <= Catch::Approx(1.005));
     CHECK(Catch::Approx(0.9991) <= avg(rendered) / avg(ref));
 }
 
 TEST_CASE("veach-mis render test", "[RenderTest]"){
+    std::string scene_path = std::string(TEST_SCENE_PATH) + "veach_mis/scene.json";
     Image ref(std::string(TEST_SCENE_PATH) + "veach_mis/gt.exr");
-    Image rendered = render(std::string(TEST_SCENE_PATH) + "veach_mis/scene.json");
+    Image rendered = render(scene_path);
+    
+#ifdef SAVE_RENDERED_IMAGES
+    rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "veach_mis_rendered.exr").string());
+#endif
+
     CHECK(avg(rendered) / avg(ref) <= Catch::Approx(1.005));
     CHECK(Catch::Approx(0.9995) <= avg(rendered) / avg(ref));
 }
 
 TEST_CASE("cbox render test", "[RenderTest]"){
+    std::string scene_path = std::string(TEST_SCENE_PATH) + "cbox/scene.json";
     Image ref(std::string(TEST_SCENE_PATH) + "cbox/gt.exr");
-    Image rendered = render(std::string(TEST_SCENE_PATH) + "cbox/scene.json");
+    Image rendered = render(scene_path);
+
+#ifdef SAVE_RENDERED_IMAGES
+    rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "cbox_rendered.exr").string());
+#endif
 
     CHECK(avg(rendered) / avg(ref) <= Catch::Approx(1.005));
     CHECK(Catch::Approx(0.9995) <= avg(rendered) / avg(ref));
 }
 
 TEST_CASE("diamond render test", "[RenderTest]"){
+    std::string scene_path = std::string(TEST_SCENE_PATH) + "diamonds/scene.json";
     Image ref(std::string(TEST_SCENE_PATH) + "diamonds/gt.exr");
-    Image rendered = render(std::string(TEST_SCENE_PATH) + "diamonds/scene.json");
+    Image rendered = render(scene_path);
+
+#ifdef SAVE_RENDERED_IMAGES
+    rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "diamonds_rendered.exr").string());
+#endif
 
     CHECK(avg(rendered) / avg(ref) <= Catch::Approx(1.005));
     CHECK(Catch::Approx(0.995) <= avg(rendered) / avg(ref));
 }
 
 TEST_CASE("shaderballs render test", "[RenderTest]"){
+    std::string scene_path = std::string(TEST_SCENE_PATH) + "shaderballs/scene.json";
     Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/gt.exr");
-    Image rendered = render(std::string(TEST_SCENE_PATH) + "shaderballs/scene.json");
+    Image rendered = render(scene_path);
+
+#ifdef SAVE_RENDERED_IMAGES
+    rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "shaderballs_rendered.exr").string());
+#endif
 
     CHECK(avg(rendered) / avg(ref) <= Catch::Approx(1.05));
     CHECK(Catch::Approx(0.995) <= avg(rendered) / avg(ref));
