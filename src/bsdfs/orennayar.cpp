@@ -40,7 +40,7 @@ namespace Caramel{
         const Float sin_wi = vec_sin(local_incoming_flipped);
         Float cos_max = Float0;
 
-        if(sin_wo > EPSILON && sin_wi > EPSILON){
+        if(sin_wo > Float0 && sin_wi > Float0){
             const Float sin_phi_wi = vec_sin_phi(local_incoming_flipped);
             const Float cos_phi_wi = vec_cos_phi(local_incoming_flipped);
             const Float sin_phi_wo = vec_sin_phi(local_outgoing_dir);
