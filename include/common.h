@@ -29,6 +29,7 @@
 
 namespace Caramel{
     using Float = float;
+    using Double = double;
     using Int = int;
     using Index = unsigned int;
 
