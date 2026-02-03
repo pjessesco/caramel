@@ -49,7 +49,7 @@ public:
 
 using namespace Caramel;
 
-constexpr Float TEST_EPSILON = 1e-3;
+constexpr Float TEST_EPSILON = EPSILON;
 
 bool is_approx(Float a, Float b, Float epsilon = TEST_EPSILON) {
     if (std::abs(a) < 1e-3f && std::abs(b) < 1e-3f) return std::abs(a - b) < epsilon;

@@ -84,7 +84,13 @@ namespace Caramel {
     // u, v, t
     std::pair<bool, RayIntersectInfo> Triangle::ray_intersect(const Ray &ray, Float maxt) const {
 
+#ifdef USE_MOLLER_TRUMBORE
         auto [u, v, t] = moller_trumbore(ray, m_p0, m_p1, m_p2, maxt);
+#else
+        // Default: watertight intersection (more robust at triangle edges)
+        // Reference: https://jcgt.org/published/0002/01/05/paper.pdf
+        auto [u, v, t] = watertight_intersection(ray, m_p0, m_p1, m_p2, maxt);
+#endif
 
         if(u==-Float1 && v==-Float1 && t==-Float1){
             return {false, RayIntersectInfo()};

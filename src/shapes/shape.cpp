@@ -24,6 +24,7 @@
 
 #include <tuple>
 #include <algorithm>
+#include <cmath>
 
 #include <shape.h>
 
@@ -75,13 +76,13 @@ namespace Caramel {
     }
 
     // https://jcgt.org/published/0002/01/05/paper.pdf
-    std::tuple<Float, Float, Float> watertight_intersection(const Ray &ray, const Vector3f &p0, const Vector3f &p1, const Vector3f &p2){
+    std::tuple<Float, Float, Float> watertight_intersection(const Ray &ray, const Vector3f &p0, const Vector3f &p1, const Vector3f &p2, Float maxt){
 
-        // Calculate dimension where the ray direction is maximal
-        const Index idx_z = ray.m_d[0] > ray.m_d[1] ? ray.m_d[0] > ray.m_d[2] ? 0 :
-                                                                                2 :
-                                                      ray.m_d[1] > ray.m_d[2] ? 1 :
-                                                                          2;
+        // Calculate dimension where the ray direction is maximal (using absolute values)
+        const Index idx_z = std::abs(ray.m_d[0]) > std::abs(ray.m_d[1]) ?
+                            std::abs(ray.m_d[0]) > std::abs(ray.m_d[2]) ? 0 : 2 :
+                            std::abs(ray.m_d[1]) > std::abs(ray.m_d[2]) ? 1 : 2;
+
         Index idx_x = idx_z == 2 ? 0 : idx_z + 1;
         Index idx_y = idx_x == 2 ? 0 : idx_x + 1;
 
@@ -114,17 +115,21 @@ namespace Caramel {
         Float W = bx*ay - by*ax;
 
         // Fallback to test against edges using double precision
-        // Note that we are using `Float` keyword instead of standard `float`/`double` in paper.
         if(U==Float0 || V==Float0 || W==Float0){
-            U = cx*by - cy*bx;
-            V = ax*cy - ay*cx;
-            W = bx*ay - by*ax;
+            const Double cxd = static_cast<Double>(cx);
+            const Double cyd = static_cast<Double>(cy);
+            const Double bxd = static_cast<Double>(bx);
+            const Double byd = static_cast<Double>(by);
+            const Double axd = static_cast<Double>(ax);
+            const Double ayd = static_cast<Double>(ay);
+            U = static_cast<Float>(cxd*byd - cyd*bxd);
+            V = static_cast<Float>(axd*cyd - ayd*cxd);
+            W = static_cast<Float>(bxd*ayd - byd*axd);
         }
 
-        // Perform edge tests. Moving this test before and at the end
-        // of the previous conditional gives higher performances.
-        // Assumes backface culling
-        if(U<Float0 || V<Float0 || W<Float0){
+        // Perform edge tests for double-sided triangles
+        // Accept if all barycentric coordinates have the same sign (all positive or all negative)
+        if((U<Float0 || V<Float0 || W<Float0) && (U>Float0 || V>Float0 || W>Float0)){
             return {-Float1, -Float1, -Float1};
         }
 
@@ -140,14 +145,20 @@ namespace Caramel {
         const Float cz = sz * C[idx_z];
         const Float T = U*az + V*bz + W*cz;
 
-        // Assumes backface culling
-        // if(T <= ray.m_min_t * det){
-        //     return {-Float1, -Float1, -Float1};
-        // }
+        // Check that intersection is in front of ray origin (t > 0) and within maxt
+        // For positive det: T must be positive and T/det <= maxt (i.e., T <= maxt * det)
+
+        if(det > Float0 && (T <= Float0 || T > maxt * det)){
+            return {-Float1, -Float1, -Float1};
+        }
+        // For negative det: T must be negative and T/det <= maxt (i.e., T >= maxt * det)
+        if (det <= Float0 && (T >= Float0 || T < maxt * det)) {
+            return {-Float1, -Float1, -Float1};
+        }
 
         // Normalize U, V, W, and T
         const Float inv_det = Float1 / det;
-        // Return v and to match with trumbore_moeller implementation
+        // Return u, v, t to match with moller_trumbore implementation
         return {V * inv_det, W * inv_det, T * inv_det};
     }
 }
