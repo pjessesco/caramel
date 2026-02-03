@@ -34,7 +34,8 @@ namespace Caramel{
     Ray RayIntersectInfo::recursive_ray_to(const Vector3f &local_next_dir) const{
         const Vector3f world_d = sh_coord.to_world(local_next_dir);
 
-        return {p + (world_d * 1e-3), world_d};
+        // TODO : add offset using geometry normal
+        return {p + (world_d * EPSILON), world_d};
     }
 
 }
