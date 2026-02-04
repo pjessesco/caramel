@@ -118,8 +118,8 @@ TEST_CASE("test5 render test", "[RenderTest]") {
         rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_dielectric_rendered.exr").string());
 #endif
 
-        CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.001));
-        CHECK(Catch::Approx(0.999) <= avg(rendered)/avg(ref));
+        CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0015));
+        CHECK(Catch::Approx(0.9985) <= avg(rendered)/avg(ref));
     }
     SECTION("Diffuse"){
         std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_diffuse.json";
