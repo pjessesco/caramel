@@ -213,7 +213,13 @@ namespace Caramel {
         const Vector3f &p1 = m_vertices[idx[1]];
         const Vector3f &p2 = m_vertices[idx[2]];
 
+#ifdef USE_MOLLER_TRUMBORE
         auto [u, v, t] = moller_trumbore(ray, p0, p1, p2, maxt);
+#else
+        // Default: watertight intersection (more robust at triangle edges)
+        // Reference: https://jcgt.org/published/0002/01/05/paper.pdf
+        auto [u, v, t] = watertight_intersection(ray, p0, p1, p2, maxt);
+#endif
 
         if(u==-Float1 && v==-Float1 && t==-Float1){
             return {false, RayIntersectInfo()};

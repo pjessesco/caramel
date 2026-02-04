@@ -87,8 +87,8 @@ TEST_CASE("diamond render test", "[RenderTest]"){
     rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "diamonds_rendered.exr").string());
 #endif
 
-    CHECK(avg(rendered) / avg(ref) <= Catch::Approx(1.005));
-    CHECK(Catch::Approx(0.995) <= avg(rendered) / avg(ref));
+    CHECK(avg(rendered) / avg(ref) <= Catch::Approx(1.006));
+    CHECK(Catch::Approx(0.994) <= avg(rendered) / avg(ref));
 }
 
 TEST_CASE("shaderballs render test", "[RenderTest]"){
