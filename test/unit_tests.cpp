@@ -1720,7 +1720,7 @@ TEST_CASE("Scene::is_visible", "[UnitTest]") {
         Vector3f obs_pos{0.0f, 0.0f, 1.0f}; // In front of target
         Vector3f target_pos{0.0f, 0.0f, 0.0f}; // On target (centroid)
 
-        auto [visible, info] = scene.is_visible(obs_pos, target_pos);
+        bool visible = scene.is_visible(obs_pos, target_pos);
         CHECK(visible == true);
     }
 
@@ -1728,7 +1728,7 @@ TEST_CASE("Scene::is_visible", "[UnitTest]") {
         Vector3f obs_pos{0.0f, 0.0f, 4.0f}; // Behind occluder (Z=2)
         Vector3f target_pos{0.0f, 0.0f, 0.0f}; // On target (Z=0)
         
-        auto [visible, info] = scene.is_visible(obs_pos, target_pos);
+        bool visible = scene.is_visible(obs_pos, target_pos);
         CHECK(visible == false);
     }
 
@@ -1736,7 +1736,7 @@ TEST_CASE("Scene::is_visible", "[UnitTest]") {
         Vector3f obs_pos{0.0f, 0.0f, 4.0f};
         Vector3f target_pos{10.0f, 10.0f, 0.0f}; // Way outside
         
-        auto [visible, info] = scene.is_visible(obs_pos, target_pos);
+        bool visible = scene.is_visible(obs_pos, target_pos);
         CHECK(visible == false);
     }
 
@@ -1746,11 +1746,11 @@ TEST_CASE("Scene::is_visible", "[UnitTest]") {
         // 1. Just outside epsilon (should be visible)
         // Epsilon is 1e-3. Let's try 2e-3.
         Vector3f obs_safe{0.0f, 0.0f, 0.002f};
-        CHECK(scene.is_visible(obs_safe, target_pos).first == true);
+        CHECK(scene.is_visible(obs_safe, target_pos) == true);
 
         // 2. Inside epsilon (ray starts behind target, so it misses)
         Vector3f obs_unsafe{0.0f, 0.0f, 0.0005f};
-        CHECK(scene.is_visible(obs_unsafe, target_pos).first == false);
+        CHECK(scene.is_visible(obs_unsafe, target_pos) == false);
     }
     
     SECTION("Robustness - Grazing angle") {
@@ -1758,7 +1758,7 @@ TEST_CASE("Scene::is_visible", "[UnitTest]") {
         // Ray travels almost parallel to Z=0 plane.
         Vector3f obs_pos{10.0f, 0.0f, 0.1f};
         Vector3f target_pos{0.0f, 0.0f, 0.0f};
-        CHECK(scene.is_visible(obs_pos, target_pos).first == true);
+        CHECK(scene.is_visible(obs_pos, target_pos) == true);
     }
 
     SECTION("Robustness - Very close to Occluder") {
@@ -1768,12 +1768,12 @@ TEST_CASE("Scene::is_visible", "[UnitTest]") {
         // 1. Observer just BEFORE occluder (should be blocked)
         // Z=2.002. Ray origin starts at 2.001. Hits Z=2.0.
         Vector3f obs_blocked{0.0f, 0.0f, 2.002f};
-        CHECK(scene.is_visible(obs_blocked, target_pos).first == false);
+        CHECK(scene.is_visible(obs_blocked, target_pos) == false);
 
         // 2. Observer inside occluder epsilon (should see through)
         // Z=2.0005. Ray origin starts at 1.9995 (past occluder).
         Vector3f obs_past{0.0f, 0.0f, 2.0005f};
-        CHECK(scene.is_visible(obs_past, target_pos).first == true);
+        CHECK(scene.is_visible(obs_past, target_pos) == true);
     }
 
     delete tri1;

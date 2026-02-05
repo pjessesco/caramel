@@ -46,23 +46,23 @@ namespace Caramel{
         return m_radiance;
     }
 
-    std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> AreaLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &sampler) const{
+    std::tuple<Vector3f, Vector3f, Vector3f, Float> AreaLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &sampler) const{
         // Sample point on the shape
         const auto [light_pos, light_normal_world, pos_pdf] = m_shape->sample_point(sampler);
         const Vector3f light_to_hitpos = hitpos_info.p - light_pos;
 
         // If hitpoint is behind of a sampled point, zero contribution
         if(light_normal_world.dot(light_to_hitpos) <= 0){
-            return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf, RayIntersectInfo()};
+            return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf};
         }
 
         // If hitpoint and sampled point is not visible to each other, zero contribution
-        auto [is_visible, info] = scene.is_visible(hitpos_info.p, light_pos);
+        bool is_visible = scene.is_visible(hitpos_info.p, light_pos);
         if(!is_visible){
-            return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf, RayIntersectInfo()};
+            return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf};
         }
 
-        return {m_radiance, light_pos, light_normal_world, pos_pdf, info};
+        return {m_radiance, light_pos, light_normal_world, pos_pdf};
     }
 
     Float AreaLight::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const{
