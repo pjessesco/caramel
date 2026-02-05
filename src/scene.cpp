@@ -69,19 +69,14 @@ namespace Caramel{
     }
 
     // Similar with `RayIntersectInfo::recursive_ray_to()`
-    std::pair<bool, RayIntersectInfo> Scene::is_visible(const Vector3f &pos1, const Vector3f &pos2) const{
+    bool Scene::is_visible(const Vector3f &pos1, const Vector3f &pos2) const{
         const Vector3f vec3_1_to_2(pos2 - pos1);
         const Vector3f dir = vec3_1_to_2.normalize();
         const Float len = vec3_1_to_2.length();
         const Ray ray{pos1 + (dir * EPSILON), dir};
 
         const auto [is_hit, info] = ray_intersect(ray, len);
-
-        if(!is_hit){
-            return {false, RayIntersectInfo()};
-        }
-
-        return {std::abs(len - info.t) <= (EPSILON * static_cast<Float>(1.1)), info};
+        return !is_hit || std::abs(len - info.t) <= (EPSILON * static_cast<Float>(1.1));
     }
 
     std::pair<const Light*, Float> Scene::sample_light(Sampler &sampler) const{

@@ -51,7 +51,7 @@ namespace Caramel{
         return m_image->get_pixel_value(uv[0] * size[0], uv[1] * size[1]);
     }
 
-    std::tuple<Vector3f, Vector3f, Vector3f, Float, RayIntersectInfo> ImageEnvLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &sampler) const{
+    std::tuple<Vector3f, Vector3f, Vector3f, Float> ImageEnvLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &sampler) const{
         const auto sampled_uv = m_imageDistrib.sample(sampler.sample_1d(), sampler.sample_1d());
         const auto pos_to_light_world = normalized_uv_to_vec(Vector2f{static_cast<Float>(sampled_uv[0] + Float0_5) / m_width, static_cast<Float>(sampled_uv[1] + Float0_5) / m_height});
 
@@ -72,12 +72,12 @@ namespace Caramel{
         //
         const auto pdf = m_width_height * m_imageDistrib.pdf/*technically it's pmf*/(sampled_uv[0], sampled_uv[1]) / (2 * PI * PI * std::sin(static_cast<Float>((sampled_uv[1] + Float0_5) / m_height) * PI));
 
-        auto [visible, info] = scene.is_visible(light_pos, hitpos_info.p);
+        bool visible = scene.is_visible(light_pos, hitpos_info.p);
         if (!visible) {
-            return {vec3f_zero, vec3f_zero, vec3f_zero, pdf, RayIntersectInfo()};
+            return {vec3f_zero, vec3f_zero, vec3f_zero, pdf};
         }
 
-        return {radiance(hitpos_info.p, light_pos, -pos_to_light_world), light_pos, -pos_to_light_world, pdf, RayIntersectInfo()/*TODO?*/};
+        return {radiance(hitpos_info.p, light_pos, -pos_to_light_world), light_pos, -pos_to_light_world, pdf};
     }
 
     Float ImageEnvLight::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const{
