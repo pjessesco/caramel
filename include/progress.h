@@ -33,10 +33,12 @@ public:
     explicit ProgressBar(int total);
     void increase();
 
+#if ENABLE_PROGRESS
 private:
     static int get_progress_width();
 
     std::mutex m_lock;
     int m_current;
     const float m_total_inv;
+#endif
 };

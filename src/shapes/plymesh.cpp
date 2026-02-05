@@ -42,7 +42,7 @@ namespace Caramel {
             CRM_ERROR(path.string() + " does not exist");
         }
 
-        CRM_LOG("Loading ply in " + path.string());
+        CRM_LOG("Loading ply : " + path.string());
 
         happly::PLYData plyData(path.string());
 
@@ -134,11 +134,6 @@ namespace Caramel {
         m_triangle_pdf = Distrib1D(triangle_area_vec);
 
         m_aabb = AABB({min_x, min_y, min_z}, {max_x, max_y, max_z});
-
-        CRM_LOG(" - # of vertices : " + std::to_string(m_vertices.size()));
-        CRM_LOG(" - # of triangles : " + std::to_string(m_face_indices.size()));
-        CRM_LOG(" - Loading complete");
-        CRM_LOG(" - Building acceleration structure...");
         m_accel = std::make_unique<Octree>(*this);
         m_accel->build();
     }

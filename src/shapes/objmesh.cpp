@@ -60,14 +60,10 @@ namespace Caramel {
         const auto &shapes = reader.GetShapes();
         const auto &mats = reader.GetMaterials();
 
-        CRM_LOG("Loading obj in " + path.string());
+        CRM_LOG("Loading obj : " + path.string());
         if (shapes.size() != 1) {
             CRM_ERROR("We do not support obj file with several shapes");
         }
-        // CRM_LOG(" - # of vertices : " + std::to_string(attrib.vertices.size() / 3));
-        // CRM_LOG(" - # of normals : " + std::to_string(attrib.normals.size() / 3));
-        // CRM_LOG(" - # of faces : " + std::to_string(shapes[0].mesh.indices.size() / 3));
-        // CRM_LOG(" - # of texture coordinates : " + std::to_string(attrib.texcoords.size()));
 
         is_vn_exists = !attrib.normals.empty();
         is_tx_exists = !attrib.texcoords.empty();
@@ -131,9 +127,7 @@ namespace Caramel {
         m_triangle_pdf = Distrib1D(triangle_area_vec);
 
         m_aabb = AABB({min_x, min_y, min_z}, {max_x, max_y, max_z});
-        
-        CRM_LOG(" - Loading complete");
-        CRM_LOG(" - Building accelation structure...");
+
         m_accel = std::make_unique<Octree>(*this);
         m_accel->build();
     }

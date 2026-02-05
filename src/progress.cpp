@@ -35,8 +35,15 @@
 
 // This class is independent with Caramel namespace.
 
+#if !ENABLE_PROGRESS
+ProgressBar::ProgressBar(int total) {}
+#else
 ProgressBar::ProgressBar(int total) : m_current(0), m_total_inv(1.0f / static_cast<float>(total)) {}
+#endif
 
+#if !ENABLE_PROGRESS
+void ProgressBar::increase() {}
+#else
 void ProgressBar::increase(){
     static int done_len = 0;
     static const int max_len = get_progress_width();
@@ -70,3 +77,4 @@ int ProgressBar::get_progress_width() {
 #endif
     return 100; // by default
 }
+#endif

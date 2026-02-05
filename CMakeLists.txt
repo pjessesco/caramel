@@ -84,7 +84,10 @@ if(NOT EXCLUDE_TEST)
             test/utils.cpp
     )
 
-    add_compile_definitions(caramel_test TEST_SCENE_PATH="${CMAKE_SOURCE_DIR}/caramel-scenes/")
+    target_compile_definitions(caramel_test PRIVATE
+        TEST_SCENE_PATH="${CMAKE_SOURCE_DIR}/caramel-scenes/"
+        ENABLE_PROGRESS=0
+    )
     target_include_directories(caramel_test PUBLIC ../include)
 endif()
 
@@ -93,3 +96,4 @@ add_executable(caramel
         ${SOURCES}
         ${HEADERS})
 
+target_compile_definitions(caramel PRIVATE ENABLE_PROGRESS=1)
