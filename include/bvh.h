@@ -63,6 +63,7 @@ namespace Caramel{
         std::unique_ptr<BVHNode> m_right;
 
         AABB m_aabb;
+        int m_split_axis = -1;
 
 
         /*

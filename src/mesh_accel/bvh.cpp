@@ -76,14 +76,17 @@ namespace Caramel{
             std::pair<bool, RayIntersectInfo> ret = {false, {}};
             ret.second.t = maxt;
 
-            const auto left_hit = m_left->ray_intersect(ray, ret.second.t);
-            if (left_hit.first) {
-                ret = left_hit;
+            const BVHNode *first  = (ray.m_d[m_split_axis] > 0) ? m_left.get() : m_right.get();
+            const BVHNode *second = (ray.m_d[m_split_axis] > 0) ? m_right.get() : m_left.get();
+
+            const auto first_hit = first->ray_intersect(ray, ret.second.t);
+            if (first_hit.first) {
+                ret = first_hit;
             }
 
-            const auto right_hit = m_right->ray_intersect(ray, ret.second.t);
-            if (right_hit.first) {
-                ret = right_hit;
+            const auto second_hit = second->ray_intersect(ray, ret.second.t);
+            if (second_hit.first) {
+                ret = second_hit;
             }
             return ret;
         }
@@ -171,6 +174,7 @@ namespace Caramel{
                 std::move(mid, m_shapes.end(), right.begin());
                 m_shapes.clear();
 
+                m_split_axis = longest_axis;
                 m_left = std::make_unique<BVHNode>(left);
                 m_right = std::make_unique<BVHNode>(right);
                 m_left->create_child();
@@ -195,6 +199,7 @@ namespace Caramel{
 
             m_left = std::make_unique<BVHNode>(left);
             m_right = std::make_unique<BVHNode>(right);
+            m_split_axis = longest_axis;
             m_shapes.clear();
             m_left->create_child();
             m_right->create_child();
