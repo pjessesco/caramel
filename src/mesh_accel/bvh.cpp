@@ -102,7 +102,7 @@ namespace Caramel{
 
         if constexpr(USE_SAH){
             std::array<std::pair<int/*shape count*/, AABB>, SUBSPACE_COUNT> slices;
-            std::array<Float, CUT_COUNT> costs;
+            std::array<Float, CUT_COUNT/* = SUBSPACE_COUNT - 1*/> costs{0};
 
             // Divide aabb and initialize
             for (const auto &shape : m_shapes) {
@@ -121,37 +121,25 @@ namespace Caramel{
             // https://pbr-book.org/4ed/Primitives_and_Intersection_Acceleration/Bounding_Volume_Hierarchies#
 
             Index lower_shape_count = 0;
-            AABB lower_aabb;
+            AABB lower_aabb = slices[0].second;
             for (int i=0;i<CUT_COUNT;i++) {
-                if (slices[i].first == 0) {
-                    costs[i] = i==0 ? 0 : costs[i-1];
+                lower_shape_count += slices[i].first;
+                if (lower_shape_count == 0) {
+                    continue;
                 }
-                else {
-                    if (lower_shape_count == 0) {
-                        lower_aabb = slices[i].second;
-                    }
-                    lower_shape_count += slices[i].first;
-                    lower_aabb = AABB::merge(slices[i].second, lower_aabb);
-                    // Will be divided into parent's aabb surface area later
-                    costs[i] = lower_aabb.surface_area() * lower_shape_count;
-                }
+                lower_aabb = AABB::merge(lower_aabb, slices[i].second);
+                costs[i] = lower_aabb.surface_area() * lower_shape_count;
             }
 
             Index upper_shape_count = 0;
-            AABB upper_aabb;
-            for (int i=CUT_COUNT-1;i>=0;i--) {
-                if (slices[i].first == 0) {
-                    costs[i] += i==CUT_COUNT-1 ? 0 : costs[i+1];
+            AABB upper_aabb = slices[CUT_COUNT].second;
+            for (int i=CUT_COUNT;i>=1;i--) {
+                upper_shape_count += slices[i].first;
+                if (upper_shape_count == 0) {
+                    continue;
                 }
-                else {
-                    if (upper_shape_count == 0) {
-                        upper_aabb = slices[i].second;
-                    }
-                    upper_shape_count += slices[i].first;
-                    upper_aabb = AABB::merge(slices[i].second, upper_aabb);
-                    // Will be divided into parent's aabb surface area later
-                    costs[i] += upper_aabb.surface_area() * upper_shape_count;
-                }
+                upper_aabb = AABB::merge(upper_aabb, slices[i].second);
+                costs[i-1] += upper_aabb.surface_area() * upper_shape_count;
             }
 
             // Find cut index with the lowest cost

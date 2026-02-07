@@ -29,7 +29,8 @@
 #include <ray.h>
 
 namespace Caramel{
-    AABB::AABB() = default;
+    AABB::AABB() : m_min{INF, INF, INF}, m_max{-INF, -INF, -INF} {}
+
     AABB::AABB(const Vector3f &p1, const Vector3f &p2) {
         m_min = Vector3f{std::min(p1[0], p2[0]),
                          std::min(p1[1], p2[1]),
