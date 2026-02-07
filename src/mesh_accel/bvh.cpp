@@ -23,6 +23,8 @@
 //
 
 #include <vector>
+#include <iostream>
+#include <iomanip>
 
 #include <acceleration.h>
 
@@ -211,6 +213,76 @@ namespace Caramel{
         }
 
     }
+
+    // void BVHNode::collect_stats(Stats &stats, int depth) const {
+    //     stats.total_nodes++;
+    //     if (is_leaf()) {
+    //         stats.leaf_nodes++;
+    //         const int n = static_cast<int>(m_shapes.size());
+    //         stats.min_shapes_per_leaf = std::min(stats.min_shapes_per_leaf, n);
+    //         stats.max_shapes_per_leaf = std::max(stats.max_shapes_per_leaf, n);
+    //         stats.total_shapes_in_leaves += n;
+    //         stats.max_depth = std::max(stats.max_depth, depth);
+    //     } else {
+    //         stats.inner_nodes++;
+    //         m_left->collect_stats(stats, depth + 1);
+    //         m_right->collect_stats(stats, depth + 1);
+    //     }
+    // }
+
+    // void BVHNode::print_tree(std::string prefix, bool is_left, int depth, int max_depth) const {
+    //     if (depth > max_depth) return;
+    //
+    //     std::cout << prefix;
+    //     std::cout << (depth == 0 ? "" : (is_left ? "├─L " : "└─R "));
+    //
+    //     if (is_leaf()) {
+    //         std::cout << "Leaf [" << m_shapes.size() << " shapes] ";
+    //     } else {
+    //         std::cout << "Inner ";
+    //     }
+    //     std::cout << "AABB("
+    //               << std::fixed << std::setprecision(2)
+    //               << m_aabb.m_min[0] << "," << m_aabb.m_min[1] << "," << m_aabb.m_min[2]
+    //               << " ~ "
+    //               << m_aabb.m_max[0] << "," << m_aabb.m_max[1] << "," << m_aabb.m_max[2]
+    //               << ") SA=" << std::setprecision(2) << m_aabb.surface_area()
+    //               << "\n";
+    //
+    //     if (!is_leaf() && depth < max_depth) {
+    //         std::string child_prefix = prefix + (depth == 0 ? "" : (is_left ? "│   " : "    "));
+    //         m_left->print_tree(child_prefix, true, depth + 1, max_depth);
+    //         m_right->print_tree(child_prefix, false, depth + 1, max_depth);
+    //     }
+    // }
+    //
+    // void BVHNode::print_stats() const {
+    //     Stats stats;
+    //     collect_stats(stats, 0);
+    //
+    //     std::cout << "\n====== BVH Statistics ======\n";
+    //     std::cout << "Total nodes:          " << stats.total_nodes << "\n";
+    //     std::cout << "  Inner nodes:        " << stats.inner_nodes << "\n";
+    //     std::cout << "  Leaf nodes:         " << stats.leaf_nodes << "\n";
+    //     std::cout << "Max depth:            " << stats.max_depth << "\n";
+    //     std::cout << "Shapes per leaf:\n";
+    //     std::cout << "  Min:                " << stats.min_shapes_per_leaf << "\n";
+    //     std::cout << "  Max:                " << stats.max_shapes_per_leaf << "\n";
+    //     std::cout << "  Avg:                " << std::fixed << std::setprecision(1)
+    //               << static_cast<float>(stats.total_shapes_in_leaves) / stats.leaf_nodes << "\n";
+    //     std::cout << "Root AABB:            ("
+    //               << std::setprecision(3)
+    //               << m_aabb.m_min[0] << ", " << m_aabb.m_min[1] << ", " << m_aabb.m_min[2]
+    //               << ") ~ ("
+    //               << m_aabb.m_max[0] << ", " << m_aabb.m_max[1] << ", " << m_aabb.m_max[2]
+    //               << ")\n";
+    //     std::cout << "Root surface area:    " << std::setprecision(2) << m_aabb.surface_area() << "\n";
+    //
+    //     constexpr int PRINT_DEPTH = 4;
+    //     std::cout << "\n--- Tree (depth <= " << PRINT_DEPTH << ") ---\n";
+    //     print_tree("", true, 0, PRINT_DEPTH);
+    //     std::cout << "============================\n\n";
+    // }
 
 }
 

@@ -87,5 +87,6 @@ namespace Caramel{
     void Scene::build_bvh() {
         m_bvh_root = new BVHNode(m_meshes);
         m_bvh_root->create_child();
+        // m_bvh_root->print_stats();
     }
 }
