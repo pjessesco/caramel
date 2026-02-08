@@ -26,6 +26,7 @@
 
 #include <vector>
 #include <optional>
+#include <string>
 
 #include <common.h>
 #include <aabb.h>
@@ -41,13 +42,28 @@ namespace Caramel{
         std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const;
         bool is_leaf() const;
 
+        // void print_stats() const;
+
     private:
+        // struct Stats {
+        //     int total_nodes = 0;
+        //     int leaf_nodes = 0;
+        //     int inner_nodes = 0;
+        //     int max_depth = 0;
+        //     int min_shapes_per_leaf = std::numeric_limits<int>::max();
+        //     int max_shapes_per_leaf = 0;
+        //     int total_shapes_in_leaves = 0;
+        // };
+        // void collect_stats(Stats &stats, int depth) const;
+        // void print_tree(std::string prefix, bool is_left, int depth, int max_depth) const;
+
         std::vector<const Shape*> m_shapes;
 
         std::unique_ptr<BVHNode> m_left;
         std::unique_ptr<BVHNode> m_right;
 
         AABB m_aabb;
+        int m_split_axis = -1;
 
 
         /*

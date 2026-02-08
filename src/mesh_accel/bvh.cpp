@@ -23,6 +23,8 @@
 //
 
 #include <vector>
+#include <iostream>
+#include <iomanip>
 
 #include <acceleration.h>
 
@@ -74,14 +76,17 @@ namespace Caramel{
             std::pair<bool, RayIntersectInfo> ret = {false, {}};
             ret.second.t = maxt;
 
-            const auto left_hit = m_left->ray_intersect(ray, ret.second.t);
-            if (left_hit.first) {
-                ret = left_hit;
+            const BVHNode *first  = (ray.m_d[m_split_axis] > 0) ? m_left.get() : m_right.get();
+            const BVHNode *second = (ray.m_d[m_split_axis] > 0) ? m_right.get() : m_left.get();
+
+            const auto first_hit = first->ray_intersect(ray, ret.second.t);
+            if (first_hit.first) {
+                ret = first_hit;
             }
 
-            const auto right_hit = m_right->ray_intersect(ray, ret.second.t);
-            if (right_hit.first) {
-                ret = right_hit;
+            const auto second_hit = second->ray_intersect(ray, ret.second.t);
+            if (second_hit.first) {
+                ret = second_hit;
             }
             return ret;
         }
@@ -100,7 +105,7 @@ namespace Caramel{
 
         if constexpr(USE_SAH){
             std::array<std::pair<int/*shape count*/, AABB>, SUBSPACE_COUNT> slices;
-            std::array<Float, CUT_COUNT> costs;
+            std::array<Float, CUT_COUNT/* = SUBSPACE_COUNT - 1*/> costs{0};
 
             // Divide aabb and initialize
             for (const auto &shape : m_shapes) {
@@ -119,37 +124,25 @@ namespace Caramel{
             // https://pbr-book.org/4ed/Primitives_and_Intersection_Acceleration/Bounding_Volume_Hierarchies#
 
             Index lower_shape_count = 0;
-            AABB lower_aabb;
+            AABB lower_aabb = slices[0].second;
             for (int i=0;i<CUT_COUNT;i++) {
-                if (slices[i].first == 0) {
-                    costs[i] = i==0 ? 0 : costs[i-1];
+                lower_shape_count += slices[i].first;
+                if (lower_shape_count == 0) {
+                    continue;
                 }
-                else {
-                    if (lower_shape_count == 0) {
-                        lower_aabb = slices[i].second;
-                    }
-                    lower_shape_count += slices[i].first;
-                    lower_aabb = AABB::merge(slices[i].second, lower_aabb);
-                    // Will be divided into parent's aabb surface area later
-                    costs[i] = lower_aabb.surface_area() * lower_shape_count;
-                }
+                lower_aabb = AABB::merge(lower_aabb, slices[i].second);
+                costs[i] = lower_aabb.surface_area() * lower_shape_count;
             }
 
             Index upper_shape_count = 0;
-            AABB upper_aabb;
-            for (int i=CUT_COUNT-1;i>=0;i--) {
-                if (slices[i].first == 0) {
-                    costs[i] += i==CUT_COUNT-1 ? 0 : costs[i+1];
+            AABB upper_aabb = slices[CUT_COUNT].second;
+            for (int i=CUT_COUNT;i>=1;i--) {
+                upper_shape_count += slices[i].first;
+                if (upper_shape_count == 0) {
+                    continue;
                 }
-                else {
-                    if (upper_shape_count == 0) {
-                        upper_aabb = slices[i].second;
-                    }
-                    upper_shape_count += slices[i].first;
-                    upper_aabb = AABB::merge(slices[i].second, upper_aabb);
-                    // Will be divided into parent's aabb surface area later
-                    costs[i] += upper_aabb.surface_area() * upper_shape_count;
-                }
+                upper_aabb = AABB::merge(upper_aabb, slices[i].second);
+                costs[i-1] += upper_aabb.surface_area() * upper_shape_count;
             }
 
             // Find cut index with the lowest cost
@@ -181,6 +174,7 @@ namespace Caramel{
                 std::move(mid, m_shapes.end(), right.begin());
                 m_shapes.clear();
 
+                m_split_axis = longest_axis;
                 m_left = std::make_unique<BVHNode>(left);
                 m_right = std::make_unique<BVHNode>(right);
                 m_left->create_child();
@@ -205,12 +199,83 @@ namespace Caramel{
 
             m_left = std::make_unique<BVHNode>(left);
             m_right = std::make_unique<BVHNode>(right);
+            m_split_axis = longest_axis;
             m_shapes.clear();
             m_left->create_child();
             m_right->create_child();
         }
 
     }
+
+    // void BVHNode::collect_stats(Stats &stats, int depth) const {
+    //     stats.total_nodes++;
+    //     if (is_leaf()) {
+    //         stats.leaf_nodes++;
+    //         const int n = static_cast<int>(m_shapes.size());
+    //         stats.min_shapes_per_leaf = std::min(stats.min_shapes_per_leaf, n);
+    //         stats.max_shapes_per_leaf = std::max(stats.max_shapes_per_leaf, n);
+    //         stats.total_shapes_in_leaves += n;
+    //         stats.max_depth = std::max(stats.max_depth, depth);
+    //     } else {
+    //         stats.inner_nodes++;
+    //         m_left->collect_stats(stats, depth + 1);
+    //         m_right->collect_stats(stats, depth + 1);
+    //     }
+    // }
+
+    // void BVHNode::print_tree(std::string prefix, bool is_left, int depth, int max_depth) const {
+    //     if (depth > max_depth) return;
+    //
+    //     std::cout << prefix;
+    //     std::cout << (depth == 0 ? "" : (is_left ? "├─L " : "└─R "));
+    //
+    //     if (is_leaf()) {
+    //         std::cout << "Leaf [" << m_shapes.size() << " shapes] ";
+    //     } else {
+    //         std::cout << "Inner ";
+    //     }
+    //     std::cout << "AABB("
+    //               << std::fixed << std::setprecision(2)
+    //               << m_aabb.m_min[0] << "," << m_aabb.m_min[1] << "," << m_aabb.m_min[2]
+    //               << " ~ "
+    //               << m_aabb.m_max[0] << "," << m_aabb.m_max[1] << "," << m_aabb.m_max[2]
+    //               << ") SA=" << std::setprecision(2) << m_aabb.surface_area()
+    //               << "\n";
+    //
+    //     if (!is_leaf() && depth < max_depth) {
+    //         std::string child_prefix = prefix + (depth == 0 ? "" : (is_left ? "│   " : "    "));
+    //         m_left->print_tree(child_prefix, true, depth + 1, max_depth);
+    //         m_right->print_tree(child_prefix, false, depth + 1, max_depth);
+    //     }
+    // }
+    //
+    // void BVHNode::print_stats() const {
+    //     Stats stats;
+    //     collect_stats(stats, 0);
+    //
+    //     std::cout << "\n====== BVH Statistics ======\n";
+    //     std::cout << "Total nodes:          " << stats.total_nodes << "\n";
+    //     std::cout << "  Inner nodes:        " << stats.inner_nodes << "\n";
+    //     std::cout << "  Leaf nodes:         " << stats.leaf_nodes << "\n";
+    //     std::cout << "Max depth:            " << stats.max_depth << "\n";
+    //     std::cout << "Shapes per leaf:\n";
+    //     std::cout << "  Min:                " << stats.min_shapes_per_leaf << "\n";
+    //     std::cout << "  Max:                " << stats.max_shapes_per_leaf << "\n";
+    //     std::cout << "  Avg:                " << std::fixed << std::setprecision(1)
+    //               << static_cast<float>(stats.total_shapes_in_leaves) / stats.leaf_nodes << "\n";
+    //     std::cout << "Root AABB:            ("
+    //               << std::setprecision(3)
+    //               << m_aabb.m_min[0] << ", " << m_aabb.m_min[1] << ", " << m_aabb.m_min[2]
+    //               << ") ~ ("
+    //               << m_aabb.m_max[0] << ", " << m_aabb.m_max[1] << ", " << m_aabb.m_max[2]
+    //               << ")\n";
+    //     std::cout << "Root surface area:    " << std::setprecision(2) << m_aabb.surface_area() << "\n";
+    //
+    //     constexpr int PRINT_DEPTH = 4;
+    //     std::cout << "\n--- Tree (depth <= " << PRINT_DEPTH << ") ---\n";
+    //     print_tree("", true, 0, PRINT_DEPTH);
+    //     std::cout << "============================\n\n";
+    // }
 
 }
 
