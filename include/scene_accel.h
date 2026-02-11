@@ -45,15 +45,6 @@ namespace Caramel{
         virtual std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const = 0;
     };
 
-    // Traits for scene-level BVH (Shape pointers)
-    struct SceneBVHTraits {
-        using Primitive = const Shape *;
-
-        AABB get_aabb(Primitive p) const;
-        Vector3f get_center(Primitive p) const;
-        std::pair<bool, RayIntersectInfo> ray_intersect(Primitive p, const Ray &ray, Float maxt) const;
-    };
-
     class BVHScene final : public SceneAccel {
     public:
         void build(std::vector<const Shape*> shapes) override;

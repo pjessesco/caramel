@@ -31,15 +31,6 @@
 #include <shape.h>
 
 namespace Caramel{
-
-    AABB SceneBVHTraits::get_aabb(const Shape *s) const {
-        return s->get_aabb();
-    }
-
-    Vector3f SceneBVHTraits::get_center(const Shape *s) const {
-        return s->get_center();
-    }
-
     std::pair<bool, RayIntersectInfo> SceneBVHTraits::ray_intersect(const Shape *s, const Ray &ray, Float maxt) const {
         auto [hit, info] = s->ray_intersect(ray, maxt);
         if (hit) info.shape = s;

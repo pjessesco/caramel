@@ -91,18 +91,6 @@ namespace Caramel{
         Node m_head;
     };
 
-    // Traits for mesh-level BVH (triangle indices)
-    struct BVHMeshTraits {
-        using Primitive = Index;
-        explicit BVHMeshTraits(const TriangleMesh &m);
-
-        AABB get_aabb(Primitive p) const;
-        Vector3f get_center(Primitive p) const;
-        std::pair<bool, RayIntersectInfo> ray_intersect(Primitive p, const Ray &ray, Float maxt) const;
-
-        const TriangleMesh &mesh;
-    };
-
     // BVH for triangle meshes
     struct BVHMesh final : public MeshAccel{
         explicit BVHMesh(const TriangleMesh &shape);

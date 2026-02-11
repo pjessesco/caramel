@@ -66,6 +66,25 @@ namespace Caramel{
         static constexpr bool USE_SAH = true;
     };
 
+    // Traits for scene-level BVH (Shape pointers)
+    struct SceneBVHTraits {
+        using Primitive = const Shape *;
 
+        AABB get_aabb(Primitive p) const;
+        Vector3f get_center(Primitive p) const;
+        std::pair<bool, RayIntersectInfo> ray_intersect(Primitive p, const Ray &ray, Float maxt) const;
+    };
+
+    // Traits for mesh-level BVH (triangle indices)
+    struct BVHMeshTraits {
+        using Primitive = Index;
+        explicit BVHMeshTraits(const TriangleMesh &m);
+
+        AABB get_aabb(Primitive p) const;
+        Vector3f get_center(Primitive p) const;
+        std::pair<bool, RayIntersectInfo> ray_intersect(Primitive p, const Ray &ray, Float maxt) const;
+
+        const TriangleMesh &mesh;
+    };
 }
 

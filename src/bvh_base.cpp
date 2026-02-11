@@ -203,5 +203,30 @@ namespace Caramel{
             m_right->create_child();
         }
     }
+
+    AABB SceneBVHTraits::get_aabb(const Shape *s) const {
+        return s->get_aabb();
+    }
+
+    Vector3f SceneBVHTraits::get_center(const Shape *s) const {
+        return s->get_center();
+    }
+
+    BVHMeshTraits::BVHMeshTraits(const TriangleMesh &m) : mesh(m) {}
+
+    AABB BVHMeshTraits::get_aabb(Index i) const {
+        return mesh.get_triangle_aabb(i);
+    }
+
+    Vector3f BVHMeshTraits::get_center(Index i) const {
+        return mesh.get_triangle_aabb(i).get_center();
+    }
+
+    std::pair<bool, RayIntersectInfo> BVHMeshTraits::ray_intersect(Index i, const Ray &ray, Float maxt) const {
+        return mesh.get_triangle_ray_intersect(i, ray, maxt);
+    }
+
+    template class BVHBase<SceneBVHTraits>;
+    template class BVHBase<BVHMeshTraits>;
 }
 
