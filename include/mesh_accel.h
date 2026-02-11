@@ -27,8 +27,9 @@
 #include <vector>
 #include <optional>
 
-#include <common.h>
 #include <aabb.h>
+#include <bvh_base.h>
+#include <common.h>
 
 namespace Caramel{
 
@@ -38,11 +39,11 @@ namespace Caramel{
 
 
     // Divide a single mesh
-    struct AccelerationMesh{
+    struct MeshAccel{
         friend class TriangleMesh;
 
-        explicit AccelerationMesh(const TriangleMesh &shape) : m_shape{shape} {}
-        virtual ~AccelerationMesh() = default;
+        explicit MeshAccel(const TriangleMesh &shape) : m_shape{shape} {}
+        virtual ~MeshAccel() = default;
 
         virtual void build() = 0;
 
@@ -52,8 +53,8 @@ namespace Caramel{
         const TriangleMesh &m_shape;
     };
 
-    struct Naive final : public AccelerationMesh{
-        explicit Naive(const TriangleMesh &shape);
+    struct NaiveMeshAccel final : public MeshAccel{
+        explicit NaiveMeshAccel(const TriangleMesh &shape);
 
         void build() override;
 
@@ -61,7 +62,7 @@ namespace Caramel{
     };
 
     // Octree for triangle meshes
-    struct Octree final : public AccelerationMesh{
+    struct Octree final : public MeshAccel{
         explicit Octree(const TriangleMesh &shape);
 
         struct Node{
@@ -88,6 +89,30 @@ namespace Caramel{
         static constexpr Index MAX_DEPTH = 7;
         static constexpr Index MAX_TRIANGLE_NUM = 30;
         Node m_head;
+    };
+
+    // Traits for mesh-level BVH (triangle indices)
+    struct BVHMeshTraits {
+        using Primitive = Index;
+        explicit BVHMeshTraits(const TriangleMesh &m);
+
+        AABB get_aabb(Primitive p) const;
+        Vector3f get_center(Primitive p) const;
+        std::pair<bool, RayIntersectInfo> ray_intersect(Primitive p, const Ray &ray, Float maxt) const;
+
+        const TriangleMesh &mesh;
+    };
+
+    // BVH for triangle meshes
+    struct BVHMesh final : public MeshAccel{
+        explicit BVHMesh(const TriangleMesh &shape);
+
+        void build() override;
+        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) override;
+
+    private:
+        BVHMeshTraits m_traits;
+        std::unique_ptr<BVHBase<BVHMeshTraits>> m_root;
     };
 
 }

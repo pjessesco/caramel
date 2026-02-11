@@ -22,44 +22,43 @@
 // SOFTWARE.
 //
 
-#pragma once
+#include <mesh_accel.h>
 
-#include <vector>
-
+#include <bvh_base.h>
 #include <common.h>
-#include <aabb.h>
+#include <ray.h>
+#include <rayintersectinfo.h>
+#include <shape.h>
 
 namespace Caramel{
-    class Camera;
-    class Ray;
-    class RayIntersectInfo;
-    class Shape;
-    class Light;
-    class Sampler;
-    class ConstantEnvLight;
-    class SceneAccel;
 
-    class Scene{
-    public:
-        Scene();
+    BVHMeshTraits::BVHMeshTraits(const TriangleMesh &m) : mesh(m) {}
 
-        void set_camera(Camera *camera);
+    AABB BVHMeshTraits::get_aabb(Index i) const {
+        return mesh.get_triangle_aabb(i);
+    }
 
-        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt=INF) const;
-        void add_mesh_and_arealight(const Shape *shape);
-        void add_light(Light *light);
-        bool is_visible(const Vector3f &pos1, const Vector3f &pos2) const;
-        std::pair<const Light*, Float> sample_light(Sampler &sampler) const;
-        void build_bvh();
+    Vector3f BVHMeshTraits::get_center(Index i) const {
+        return mesh.get_triangle_aabb(i).get_center();
+    }
 
-        std::vector<const Light*> m_lights;
-        Light* m_envmap_light;
-        std::vector<const Shape*> m_meshes;
-        Vector3f m_sceneCenterPos;
-        Float m_sceneRadius;
-        AABB m_aabb;
-        const Camera *m_cam;
-        const SceneAccel *m_accel;
+    std::pair<bool, RayIntersectInfo> BVHMeshTraits::ray_intersect(Index i, const Ray &ray, Float maxt) const {
+        return mesh.get_triangle_ray_intersect(i, ray, maxt);
+    }
 
-    };
+    BVHMesh::BVHMesh(const TriangleMesh &shape) : MeshAccel(shape), m_traits(shape) {}
+
+    void BVHMesh::build() {
+        std::vector<Index> indices(m_shape.get_triangle_num());
+        for (Index i = 0; i < m_shape.get_triangle_num(); i++) {
+            indices[i] = i;
+        }
+        m_root = std::make_unique<BVHBase<BVHMeshTraits>>(std::move(indices), m_traits);
+        m_root->create_child();
+    }
+
+    std::pair<bool, RayIntersectInfo> BVHMesh::ray_intersect(const Ray &ray, Float maxt) {
+        return m_root->ray_intersect(ray, maxt);
+    }
+
 }

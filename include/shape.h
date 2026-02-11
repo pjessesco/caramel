@@ -41,7 +41,7 @@ namespace Caramel{
     class Ray;
     class Sampler;
     class Distrib1D;
-    class AccelerationMesh;
+    class MeshAccel;
 
     class Shape{
     public:
@@ -154,7 +154,7 @@ namespace Caramel{
         AABB m_aabb;
         bool is_vn_exists;
         bool is_tx_exists;
-        std::unique_ptr<AccelerationMesh> m_accel;
+        std::unique_ptr<MeshAccel> m_accel;
         std::vector<Vector3f> m_vertices;
         std::vector<Vector3f> m_normals;
         std::vector<Vector2f> m_tex_coords;
@@ -188,7 +188,7 @@ namespace Caramel{
         Float m_area;
         AABB m_aabb;
         bool is_vn_exists;
-        std::unique_ptr<AccelerationMesh> m_accel;
+        std::unique_ptr<MeshAccel> m_accel;
         std::vector<Vector3f> m_vertices;
         std::vector<Vector3f> m_normals;
         std::vector<Vector3i> m_face_indices;

@@ -25,41 +25,45 @@
 #pragma once
 
 #include <vector>
+#include <optional>
 
-#include <common.h>
 #include <aabb.h>
+#include <bvh_base.h>
+#include <common.h>
 
 namespace Caramel{
-    class Camera;
-    class Ray;
+
+    class TriangleMesh;
     class RayIntersectInfo;
-    class Shape;
-    class Light;
-    class Sampler;
-    class ConstantEnvLight;
-    class SceneAccel;
+    class Ray;
 
-    class Scene{
+
+    // Divide a single mesh
+    class SceneAccel{
     public:
-        Scene();
-
-        void set_camera(Camera *camera);
-
-        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt=INF) const;
-        void add_mesh_and_arealight(const Shape *shape);
-        void add_light(Light *light);
-        bool is_visible(const Vector3f &pos1, const Vector3f &pos2) const;
-        std::pair<const Light*, Float> sample_light(Sampler &sampler) const;
-        void build_bvh();
-
-        std::vector<const Light*> m_lights;
-        Light* m_envmap_light;
-        std::vector<const Shape*> m_meshes;
-        Vector3f m_sceneCenterPos;
-        Float m_sceneRadius;
-        AABB m_aabb;
-        const Camera *m_cam;
-        const SceneAccel *m_accel;
-
+        virtual void build(std::vector<const Shape*> shapes) = 0;
+        virtual std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const = 0;
     };
+
+    // Traits for scene-level BVH (Shape pointers)
+    struct SceneBVHTraits {
+        using Primitive = const Shape *;
+
+        AABB get_aabb(Primitive p) const;
+        Vector3f get_center(Primitive p) const;
+        std::pair<bool, RayIntersectInfo> ray_intersect(Primitive p, const Ray &ray, Float maxt) const;
+    };
+
+    class BVHScene final : public SceneAccel {
+    public:
+        void build(std::vector<const Shape*> shapes) override;
+        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const override;
+
+    public:
+        BVHBase<SceneBVHTraits> *m_bvh_root;
+    };
+
+
+
 }
+
