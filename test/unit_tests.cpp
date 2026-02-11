@@ -1714,7 +1714,7 @@ TEST_CASE("Scene::is_visible", "[UnitTest]") {
     Shape* tri2 = new Triangle(t2_p0, t2_p1, t2_p2, nullptr);
     scene.add_mesh_and_arealight(tri2);
 
-    scene.build_bvh();
+    scene.build_accel();
 
     SECTION("Visible - Unobstructed view") {
         Vector3f obs_pos{0.0f, 0.0f, 1.0f}; // In front of target

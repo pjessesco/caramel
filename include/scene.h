@@ -50,7 +50,7 @@ namespace Caramel{
         void add_light(Light *light);
         bool is_visible(const Vector3f &pos1, const Vector3f &pos2) const;
         std::pair<const Light*, Float> sample_light(Sampler &sampler) const;
-        void build_bvh();
+        void build_accel();
 
         std::vector<const Light*> m_lights;
         Light* m_envmap_light;
@@ -59,7 +59,7 @@ namespace Caramel{
         Float m_sceneRadius;
         AABB m_aabb;
         const Camera *m_cam;
-        const SceneAccel *m_accel;
+        SceneAccel *m_accel;
 
     };
 }

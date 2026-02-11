@@ -38,7 +38,7 @@ namespace Caramel{
     }
 
 
-    void BVHScene::build(std::vector<const Shape *> shapes) {
+    void BVHScene::build(const std::vector<const Shape*> &shapes) {
         m_bvh_root = new BVHBase<BVHSceneTraits>(shapes, BVHSceneTraits{});
         m_bvh_root->create_child();
     }

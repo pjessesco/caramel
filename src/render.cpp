@@ -53,7 +53,7 @@ namespace Caramel{
         }
         scene.set_camera(cam);
 
-        scene.build_bvh();
+        scene.build_accel();
 
         integrator->pre_process(scene);
         Image img = integrator->render(scene);

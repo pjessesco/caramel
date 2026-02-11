@@ -85,8 +85,8 @@ namespace Caramel{
         return {m_lights[idx], Float1 / static_cast<Float>(m_lights.size())};
     }
 
-    void Scene::build_bvh() {
-
-        // m_bvh_root->print_stats();
+    void Scene::build_accel() {
+        m_accel = new BVHScene();
+        m_accel->build(m_meshes);
     }
 }

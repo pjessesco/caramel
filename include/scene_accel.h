@@ -41,13 +41,13 @@ namespace Caramel{
     // Divide a single mesh
     class SceneAccel{
     public:
-        virtual void build(std::vector<const Shape*> shapes) = 0;
+        virtual void build(const std::vector<const Shape*> &shapes) = 0;
         virtual std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const = 0;
     };
 
     class BVHScene final : public SceneAccel {
     public:
-        void build(std::vector<const Shape*> shapes) override;
+        void build(const std::vector<const Shape*> &shapes) override;
         std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const override;
 
     public:
