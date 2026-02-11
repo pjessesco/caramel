@@ -51,7 +51,7 @@ namespace Caramel{
         std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const override;
 
     public:
-        BVHBase<SceneBVHTraits> *m_bvh_root;
+        BVHBase<BVHSceneTraits> *m_bvh_root;
     };
 
 

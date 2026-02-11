@@ -204,11 +204,11 @@ namespace Caramel{
         }
     }
 
-    AABB SceneBVHTraits::get_aabb(const Shape *s) const {
+    AABB BVHSceneTraits::get_aabb(const Shape *s) const {
         return s->get_aabb();
     }
 
-    Vector3f SceneBVHTraits::get_center(const Shape *s) const {
+    Vector3f BVHSceneTraits::get_center(const Shape *s) const {
         return s->get_center();
     }
 
@@ -226,7 +226,7 @@ namespace Caramel{
         return mesh.get_triangle_ray_intersect(i, ray, maxt);
     }
 
-    template class BVHBase<SceneBVHTraits>;
+    template class BVHBase<BVHSceneTraits>;
     template class BVHBase<BVHMeshTraits>;
 }
 

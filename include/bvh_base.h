@@ -67,7 +67,7 @@ namespace Caramel{
     };
 
     // Traits for scene-level BVH (Shape pointers)
-    struct SceneBVHTraits {
+    struct BVHSceneTraits {
         using Primitive = const Shape *;
 
         AABB get_aabb(Primitive p) const;
