@@ -28,10 +28,10 @@
 #include <shape.h>
 
 #include <logger.h>
-#include <transform.h>
-#include <acceleration.h>
+#include <mesh_accel.h>
 #include <rayintersectinfo.h>
 #include <sampler.h>
+#include <transform.h>
 
 #include "happly.h"
 

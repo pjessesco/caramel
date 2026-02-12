@@ -12,6 +12,7 @@ include_directories(include)
 
 set(SOURCES
         src/aabb.cpp
+        src/bvh_base.cpp
         src/bsdfs/diffuse.cpp
         src/bsdfs/mirror.cpp
         src/bsdfs/conductor.cpp
@@ -34,8 +35,9 @@ set(SOURCES
         src/lights/constantEnvLight.cpp
         src/mesh_accel/naive.cpp
         src/mesh_accel/octree.cpp
-        src/mesh_accel/bvh.cpp
+        src/mesh_accel/bvh_mesh.cpp
         src/samplers/uniformstd.cpp
+        src/scene_accel/bvh_scene.cpp
         src/scene.cpp
         src/shapes/objmesh.cpp
         src/shapes/plymesh.cpp
@@ -49,7 +51,7 @@ set(SOURCES
 
 set(HEADERS
         include/aabb.h
-        include/acceleration.h
+        include/mesh_accel.h
         include/bsdf.h
         include/camera.h
         include/common.h
@@ -94,6 +96,7 @@ endif()
 add_executable(caramel
         main.cpp
         ${SOURCES}
-        ${HEADERS})
+        ${HEADERS}
+        include/bvh_base.h)
 
 target_compile_definitions(caramel PRIVATE ENABLE_PROGRESS=1)

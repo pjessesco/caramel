@@ -22,44 +22,29 @@
 // SOFTWARE.
 //
 
-#pragma once
+#include <scene_accel.h>
 
-#include <vector>
-
+#include <bvh_base.h>
 #include <common.h>
-#include <aabb.h>
+#include <ray.h>
+#include <rayintersectinfo.h>
+#include <shape.h>
 
 namespace Caramel{
-    class Camera;
-    class Ray;
-    class RayIntersectInfo;
-    class Shape;
-    class Light;
-    class Sampler;
-    class ConstantEnvLight;
-    class SceneAccel;
+    std::pair<bool, RayIntersectInfo> BVHSceneTraits::ray_intersect(const Shape *s, const Ray &ray, Float maxt) const {
+        auto [hit, info] = s->ray_intersect(ray, maxt);
+        if (hit) info.shape = s;
+        return {hit, info};
+    }
 
-    class Scene{
-    public:
-        Scene();
 
-        void set_camera(Camera *camera);
+    void BVHScene::build(const std::vector<const Shape*> &shapes) {
+        m_bvh_root = new BVHBase<BVHSceneTraits>(shapes, BVHSceneTraits{});
+        m_bvh_root->create_child();
+    }
 
-        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt=INF) const;
-        void add_mesh_and_arealight(const Shape *shape);
-        void add_light(Light *light);
-        bool is_visible(const Vector3f &pos1, const Vector3f &pos2) const;
-        std::pair<const Light*, Float> sample_light(Sampler &sampler) const;
-        void build_accel();
+    std::pair<bool, RayIntersectInfo> BVHScene::ray_intersect(const Ray &ray, Float maxt) const {
+        return m_bvh_root->ray_intersect(ray, maxt);
+    }
 
-        std::vector<const Light*> m_lights;
-        Light* m_envmap_light;
-        std::vector<const Shape*> m_meshes;
-        Vector3f m_sceneCenterPos;
-        Float m_sceneRadius;
-        AABB m_aabb;
-        const Camera *m_cam;
-        SceneAccel *m_accel;
-
-    };
-}
+}// namespace Caramel

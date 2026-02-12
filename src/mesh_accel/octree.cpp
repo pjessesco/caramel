@@ -24,7 +24,7 @@
 
 #include <vector>
 
-#include <acceleration.h>
+#include <mesh_accel.h>
 
 #include <aabb.h>
 #include <common.h>
@@ -155,7 +155,7 @@ namespace Caramel{
 
     // ================= Octree implementation ====================
 
-    Octree::Octree(const TriangleMesh &shape) : AccelerationMesh(shape) {}
+    Octree::Octree(const TriangleMesh &shape) : MeshAccel(shape) {}
 
     bool Octree::Node::is_leaf() const{
         return m_childs.empty();

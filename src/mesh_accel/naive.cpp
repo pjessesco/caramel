@@ -24,7 +24,7 @@
 
 #include <vector>
 
-#include <acceleration.h>
+#include <mesh_accel.h>
 
 #include <aabb.h>
 #include <common.h>
@@ -33,11 +33,11 @@
 #include <shape.h>
 
 namespace Caramel{
-    Naive::Naive(const TriangleMesh &shape) : AccelerationMesh(shape) {}
+    NaiveMeshAccel::NaiveMeshAccel(const TriangleMesh &shape) : MeshAccel(shape) {}
 
-    void Naive::build() {}
+    void NaiveMeshAccel::build() {}
 
-    std::pair<bool, RayIntersectInfo> Naive::ray_intersect(const Ray &ray, Float maxt) {
+    std::pair<bool, RayIntersectInfo> NaiveMeshAccel::ray_intersect(const Ray &ray, Float maxt) {
         if(!(m_shape.get_aabb().ray_intersect(ray, maxt).first)){
             return {false, RayIntersectInfo()};
         }

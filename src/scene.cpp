@@ -26,15 +26,16 @@
 
 #include <scene.h>
 
-#include <common.h>
-#include <ray.h>
-#include <shape.h>
+#include <aabb.h>
+#include <bvh_base.h>
 #include <camera.h>
+#include <common.h>
 #include <light.h>
+#include <ray.h>
 #include <rayintersectinfo.h>
 #include <sampler.h>
-#include <aabb.h>
-#include <bvh.h>
+#include <shape.h>
+#include <scene_accel.h>
 
 namespace Caramel{
 
@@ -46,7 +47,7 @@ namespace Caramel{
     }
 
     std::pair<bool, RayIntersectInfo> Scene::ray_intersect(const Ray &ray, Float maxt) const{
-        return m_bvh_root->ray_intersect(ray, maxt);
+        return m_accel->ray_intersect(ray, maxt);
     }
 
     void Scene::add_mesh_and_arealight(const Shape *shape){
@@ -84,9 +85,8 @@ namespace Caramel{
         return {m_lights[idx], Float1 / static_cast<Float>(m_lights.size())};
     }
 
-    void Scene::build_bvh() {
-        m_bvh_root = new BVHNode(m_meshes);
-        m_bvh_root->create_child();
-        // m_bvh_root->print_stats();
+    void Scene::build_accel() {
+        m_accel = new BVHScene();
+        m_accel->build(m_meshes);
     }
 }
