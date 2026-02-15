@@ -37,15 +37,16 @@
 
 
 namespace Caramel{
-    ImageEnvLight::ImageEnvLight(const std::string &path, Float scale)
+    ImageEnvLight::ImageEnvLight(const std::string &path, Float scale, const Matrix44f &to_world)
         : m_image(new Image(path)), m_scale(scale), m_imageDistrib(m_image->get_data_for_sampling(true)),
-          m_width(m_image->size()[0]), m_height(m_image->size()[1]), m_width_height(m_width * m_height) {
+          m_width(m_image->size()[0]), m_height(m_image->size()[1]), m_width_height(m_width * m_height),
+          m_to_world{Block<0, 0, 3, 3>(to_world)}, m_to_local{Block<0, 0, 3, 3>(Inverse(to_world))}{
 
     }
 
     Vector3f ImageEnvLight::radiance(const Vector3f &, const Vector3f &, const Vector3f &light_normal_world) const{
         const Vector3f dir = -light_normal_world.normalize();
-        Vector2f uv = vec_to_normalized_uv(dir);
+        Vector2f uv = vec_to_normalized_uv(m_to_local * dir);
 
         const auto size = m_image->size();
         return m_image->get_pixel_value(uv[0] * size[0], uv[1] * size[1]);
@@ -53,7 +54,8 @@ namespace Caramel{
 
     std::tuple<Vector3f, Vector3f, Vector3f, Float> ImageEnvLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &sampler) const{
         const auto sampled_uv = m_imageDistrib.sample(sampler.sample_1d(), sampler.sample_1d());
-        const auto pos_to_light_world = normalized_uv_to_vec(Vector2f{static_cast<Float>(sampled_uv[0] + Float0_5) / m_width, static_cast<Float>(sampled_uv[1] + Float0_5) / m_height});
+        const auto pos_to_light_local = normalized_uv_to_vec(Vector2f{static_cast<Float>(sampled_uv[0] + Float0_5) / m_width, static_cast<Float>(sampled_uv[1] + Float0_5) / m_height});
+        const Vector3f pos_to_light_world = Vector3f(m_to_world * pos_to_light_local).normalize();
 
         const Vector3f light_pos = hitpos_info.p + (pos_to_light_world * scene.m_sceneRadius * 2);
 
@@ -82,7 +84,7 @@ namespace Caramel{
 
     Float ImageEnvLight::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const{
         const auto dir = Vector3f(lightpos_world - hitpos_world).normalize();
-        const Vector2f uv = vec_to_normalized_uv(dir);
+        const Vector2f uv = vec_to_normalized_uv(m_to_local * dir);
         if (std::abs(uv[1] - Float1) < 1e-6 || std::abs(uv[1] - Float0) < 1e-6) {
             return 0;
         }
