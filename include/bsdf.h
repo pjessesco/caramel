@@ -197,8 +197,8 @@ namespace Caramel{
         bool is_discrete(bool frontside) const override;
 
     private:
-        BSDF *m_front;
-        BSDF *m_back;
+        const BSDF *m_front;
+        const BSDF *m_back;
     };
 
 }
