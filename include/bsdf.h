@@ -188,4 +188,17 @@ namespace Caramel{
         Float m_B;
     };
 
+    class TwoSided final : public BSDF{
+    public:
+        TwoSided(BSDF *front, BSDF *back);
+        std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &uv, Sampler &sampler) const override;
+        Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
+        Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &uv) const override;
+        bool is_discrete(bool frontside) const override;
+
+    private:
+        BSDF *m_front;
+        BSDF *m_back;
+    };
+
 }
