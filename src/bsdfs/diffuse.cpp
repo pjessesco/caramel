@@ -60,7 +60,7 @@ namespace Caramel{
         return (m_texture == nullptr ? m_albedo : m_texture->get_val(uv)) * PI_INV;
     }
 
-    bool Diffuse::is_discrete() const{
+    bool Diffuse::is_discrete(bool /*frontside*/) const{
         return false;
     }
 

@@ -59,7 +59,7 @@ namespace Caramel{
         return vec3f_zero;
     }
 
-    bool Conductor::is_discrete() const {
+    bool Conductor::is_discrete(bool /*frontside*/) const {
         return true;
     }
 

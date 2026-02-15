@@ -100,7 +100,7 @@ namespace Caramel{
         return (m_kd * PI_INV) + Vector3f{spec_contrib, spec_contrib, spec_contrib};
     }
 
-    bool Microfacet::is_discrete() const{
+    bool Microfacet::is_discrete(bool /*frontside*/) const{
         return false;
     }
 
