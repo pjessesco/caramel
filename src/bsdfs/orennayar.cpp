@@ -66,7 +66,7 @@ namespace Caramel{
 
     }
 
-    bool OrenNayar::is_discrete() const {
+    bool OrenNayar::is_discrete(bool /*frontside*/) const {
         return false;
     }
 }

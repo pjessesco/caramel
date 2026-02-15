@@ -97,7 +97,7 @@ namespace Caramel{
         virtual Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &uv) const = 0;
 
         // Returns whether bsdf is discrete (mirror, etc) or continuous (diffuse, etc).
-        virtual bool is_discrete() const = 0;
+        virtual bool is_discrete(bool frontside) const = 0;
 
         template <typename Type, typename ...Param>
         static BSDF* Create(Param ...args){
@@ -113,7 +113,7 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &, const Vector2f &uv, Sampler &sampler) const override;
         Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
         Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &uv) const override;
-        bool is_discrete() const override;
+        bool is_discrete(bool /*frontside*/) const override;
     private:
         const Vector3f m_albedo;
         const Texture *m_texture;
@@ -125,7 +125,7 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &) const override;
         Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
         Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const override;
-        bool is_discrete() const override;
+        bool is_discrete(bool /*frontside*/) const override;
     };
 
     class Dielectric final : public BSDF{
@@ -134,7 +134,7 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &) const override;
         Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
         Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const override;
-        bool is_discrete() const override;
+        bool is_discrete(bool /*frontside*/) const override;
 
     private:
         Float m_in_index_of_refraction;
@@ -147,7 +147,7 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &) const override;
         Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
         Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const override;
-        bool is_discrete() const override;
+        bool is_discrete(bool /*frontside*/) const override;
 
     private:
         Vector3f m_in_ior;
@@ -161,7 +161,7 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &) const override;
         Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
         Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const override;
-        bool is_discrete() const override;
+        bool is_discrete(bool /*frontside*/) const override;
 
     private:
         Float G1(const Vector3f &wv, const Vector3f &wh) const;
@@ -180,12 +180,25 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &sampler) const override;
         Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
         Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const override;
-        bool is_discrete() const override;
+        bool is_discrete(bool /*frontside*/) const override;
 
     private:
         Vector3f m_reflection;
         Float m_A;
         Float m_B;
+    };
+
+    class TwoSided final : public BSDF{
+    public:
+        TwoSided(BSDF *front, BSDF *back);
+        std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &uv, Sampler &sampler) const override;
+        Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
+        Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &uv) const override;
+        bool is_discrete(bool frontside) const override;
+
+    private:
+        const BSDF *m_front;
+        const BSDF *m_back;
     };
 
 }

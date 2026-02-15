@@ -49,10 +49,7 @@ namespace Caramel{
     }
 
     Vector3f Diffuse::get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &uv) const {
-        // from hitpoint to incoming point
-        const Vector3f local_incoming_flipped = -local_incoming_dir.normalize();
-
-        if(local_incoming_flipped[2] <= Float0 || local_outgoing_dir[2] <= Float0){
+        if(local_incoming_dir[2] >= Float0 || local_outgoing_dir[2] <= Float0){
             // Not allow ray from backside
             return vec3f_zero;
         }
@@ -60,7 +57,7 @@ namespace Caramel{
         return (m_texture == nullptr ? m_albedo : m_texture->get_val(uv)) * PI_INV;
     }
 
-    bool Diffuse::is_discrete() const{
+    bool Diffuse::is_discrete(bool /*frontside*/) const{
         return false;
     }
 

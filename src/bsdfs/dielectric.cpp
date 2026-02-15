@@ -71,7 +71,7 @@ namespace Caramel{
         return vec3f_zero;
     }
 
-    bool Dielectric::is_discrete() const {
+    bool Dielectric::is_discrete(bool /*frontside*/) const {
         return true;
     }
 

@@ -20,6 +20,7 @@ set(SOURCES
         src/bsdfs/microfacet.cpp
         src/bsdfs/bsdf.cpp
         src/bsdfs/orennayar.cpp
+        src/bsdfs/twosided.cpp
         src/camera.cpp
         src/image.cpp
         src/progress.cpp

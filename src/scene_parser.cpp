@@ -265,6 +265,15 @@ namespace Caramel{
                              /*child == "Cu" ?*/ Conductors::Cu;
             return BSDF::Create<Conductor>(c, parse_positive_float(child, "ex_ior"));
         }
+        else if(type=="twosided"){
+            BSDF *front = parse_bsdf(child);
+            Json back_wrapper;
+            if(child.contains("back_bsdf")){
+                back_wrapper["bsdf"] = child.at("back_bsdf");
+                return BSDF::Create<TwoSided>(front, parse_bsdf(back_wrapper));
+            }
+            return BSDF::Create<TwoSided>(front, front);
+        }
         else{
             CRM_ERROR(type + "bsdf is not supported : "+ to_string(child));
         }

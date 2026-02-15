@@ -43,7 +43,7 @@ namespace Caramel{
         return vec3f_zero;
     }
 
-    bool Mirror::is_discrete() const{
+    bool Mirror::is_discrete(bool /*frontside*/) const{
         return true;
     }
 

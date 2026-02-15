@@ -84,7 +84,7 @@ namespace Caramel{
             }
 
             // emiiter sampling
-            const bool is_current_specular = shape_bsdf->is_discrete();
+            const bool is_current_specular = shape_bsdf->is_discrete(local_ray_dir[2] < Float0);
             if(!is_current_specular){
                 auto [light, light_pick_pdf] = scene.sample_light(sampler);
 
