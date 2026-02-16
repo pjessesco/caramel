@@ -90,8 +90,30 @@ namespace Caramel {
         return avg(square(diff(img1, img2)));
     }
 
+    // TODO : add test
     Float rmse(const Image &img1, const Image &img2){
-        return Float0;
+        if((img1.size()[0] != img2.size()[0]) || (img1.size()[1] != img2.size()[1])){
+            CRM_ERROR("size diff");
+        }
+
+        const Index w = img1.size()[0];
+        const Index h = img1.size()[1];
+
+        Float sum = Float0;
+        constexpr Float epsilon = 1e-2;
+
+        for(int i=0;i<w;i++){
+            for(int j=0;j<h;j++){
+                const Vector3f val1 = img1.get_pixel_value(i, j);
+                const Vector3f val2 = img2.get_pixel_value(i, j);
+                const Vector3f diff = val1 - val2;
+
+                sum += (diff[0]*diff[0]) / (val2[0]*val2[0] + epsilon);
+                sum += (diff[1]*diff[1]) / (val2[1]*val2[1] + epsilon);
+                sum += (diff[2]*diff[2]) / (val2[2]*val2[2] + epsilon);
+            }
+        }
+        return sum / (w * h * 3);
     }
 
 }
