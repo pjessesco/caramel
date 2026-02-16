@@ -163,8 +163,7 @@ namespace Caramel{
             temp.reserve(m_height);
             for (int h=0;h<m_height;h++) {
                 const Float multiply = sin_weight ? std::sin(static_cast<Float>(h) / static_cast<Float>(m_height) * PI) : Float1;
-                const auto val = m_data[(w + h * m_width)*3] + m_data[(w + h * m_width)*3 + 1] + m_data[(w + h * m_width)*3 + 2];
-                temp.emplace_back(val * multiply);
+                temp.emplace_back(luminance(get_pixel_value(w, h)) * multiply);
             }
             data.emplace_back(std::move(temp));
         }
