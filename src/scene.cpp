@@ -66,6 +66,7 @@ namespace Caramel{
         m_lights.push_back(light);
         if (light->is_envlight()) {
             m_envmap_light = light;
+            m_envmap_light->set_scene_radius(m_sceneRadius);
         }
     }
 
@@ -81,12 +82,29 @@ namespace Caramel{
     }
 
     std::pair<const Light*, Float> Scene::sample_light(Sampler &sampler) const{
-        const Index idx = static_cast<Index>(sampler.sample_1d() * static_cast<Float>(m_lights.size()));
-        return {m_lights[idx], Float1 / static_cast<Float>(m_lights.size())};
+        const Index idx = m_lights_pdf.sample(sampler.sample_1d());
+        return {m_lights[idx], m_lights_pdf.pdf(idx)};
+    }
+
+    Float Scene::pdf_light(const Light *light) const{
+        return m_lights_pdf.pdf(m_light_idx_map.at(light));
     }
 
     void Scene::build_accel() {
         m_accel = new BVHScene();
         m_accel->build(m_meshes);
+    }
+
+    void Scene::build_light_pdf() {
+        std::vector<Float> light_power;
+        light_power.reserve(m_lights.size());
+
+        int i = 0;
+        for (auto p : m_lights) {
+            m_light_idx_map[p] = i;
+            i++;
+            light_power.push_back(p->power());
+        }
+        m_lights_pdf = Distrib1D(light_power);
     }
 }

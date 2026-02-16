@@ -34,10 +34,15 @@
 #include <rayintersectinfo.h>
 
 namespace Caramel{
-    PointLight::PointLight(const Vector3f &pos, const Vector3f &radiance)
-        : m_pos{pos}, m_radiance{radiance} {}
+    PointLight::PointLight(const Vector3f &pos, const Vector3f &radiant_intensity)
+        : m_pos{pos}, m_radiant_intensity{radiant_intensity} {}
 
     PointLight::~PointLight() = default;
+
+    Float PointLight::power() const {
+        // Integrate radiant intensity over the sphere
+        return luminance(m_radiant_intensity) * PI_4;
+    }
 
     Vector3f PointLight::radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &) const{
         return vec3f_zero;
@@ -52,9 +57,9 @@ namespace Caramel{
         }
 
         const Vector3f light_to_hitpos = hitpos_info.p - m_pos;
-        const Float dist = light_to_hitpos.length();
 
-        return {m_radiance / (dist * dist), m_pos, light_to_hitpos.normalize(), Float1};
+        return {m_radiant_intensity / light_to_hitpos.dot(light_to_hitpos)/* = dist * dist*/,
+                m_pos, light_to_hitpos.normalize(), Float1};
     }
 
     Float PointLight::pdf_solidangle(const Vector3f &, const Vector3f &, const Vector3f &) const{

@@ -54,8 +54,13 @@ namespace Caramel{
         // This function should not be used from delta lights, since they can't be captured by recursive ray from brdf sampling
         virtual Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const = 0;
 
+        // Returns watt
+        virtual Float power() const = 0;
+
         virtual bool is_delta() const = 0;
         virtual bool is_envlight() const = 0;
+
+        virtual void set_scene_radius(Float radius) {}
 
         // Arealight is handled in AreaLight::Create
         template <typename Type, typename ...Param>
@@ -66,9 +71,10 @@ namespace Caramel{
 
     class PointLight final : public Light{
     public:
-        PointLight(const Vector3f &pos, const Vector3f &radiance);
+        PointLight(const Vector3f &pos, const Vector3f &radiant_intensity);
         ~PointLight();
 
+        Float power() const override;
         Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &) const override;
         std::tuple<Vector3f, Vector3f, Vector3f, Float> sample_direct_contribution(const Scene &scene,
                                                                                    const RayIntersectInfo &hitpos_info,
@@ -80,7 +86,10 @@ namespace Caramel{
         bool is_envlight() const override;
 
         Vector3f m_pos;
-        Vector3f m_radiance;
+
+        // Radiant intensity = dWatt / dSolidAngle, W/sr
+        // Note that we use "radiance" key in scene description
+        Vector3f m_radiant_intensity;
     };
 
     class AreaLight final : public Light{
@@ -88,6 +97,7 @@ namespace Caramel{
         explicit AreaLight(const Vector3f &radiance);
         ~AreaLight();
         
+        Float power() const override;
         Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const override;
         std::tuple<Vector3f, Vector3f, Vector3f, Float> sample_direct_contribution(const Scene &scene,
                                                                                    const RayIntersectInfo &hitpos_info,
@@ -111,6 +121,7 @@ namespace Caramel{
     public:
         ConstantEnvLight(const Vector3f &radiance, Float scale);
 
+        Float power() const override;
         Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const override;
         std::tuple<Vector3f, Vector3f, Vector3f, Float> sample_direct_contribution(const Scene &scene,
                                                                                    const RayIntersectInfo &hitpos_info,
@@ -121,14 +132,18 @@ namespace Caramel{
         bool is_delta() const override;
         bool is_envlight() const override;
 
+        void set_scene_radius(Float radius) override;
+
         const Float m_scale;
         const Vector3f m_radiance;
+        Float m_scene_radius;
     };
 
     class ImageEnvLight final : public Light {
     public:
         ImageEnvLight(const std::string &path, Float scale, const Matrix44f &to_world);
 
+        Float power() const override;
         Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const override;
         std::tuple<Vector3f, Vector3f, Vector3f, Float> sample_direct_contribution(const Scene &scene,
                                                                                    const RayIntersectInfo &hitpos_info,
@@ -138,6 +153,8 @@ namespace Caramel{
 
         bool is_delta() const override;
         bool is_envlight() const override;
+
+        void set_scene_radius(Float radius) override;
 
         const Float m_scale;
         const Image *m_image;
@@ -147,6 +164,7 @@ namespace Caramel{
         const int m_width_height;
         const Matrix33f m_to_world;
         const Matrix33f m_to_local;
+        Float m_scene_radius;
     };
 
 }

@@ -39,6 +39,17 @@ namespace Caramel{
 
     AreaLight::~AreaLight() = default;
 
+    Float AreaLight::power() const {
+        // Integrate radiance over hemisphere and area, one-sided
+        //     radiance = d^2Watt / (dSolidAngle * cos * dArea)
+        //     d^2Watt = radiance * dSolidAngle * cos * dArea
+        //     Watt = radiance * (integral over hemisphere (integral over area (cos) dArea) dSolidAngle)
+        //     Watt = radiance * (integral over hemisphere (cos * integral over area dArea) dSolidAngle)
+        //     Watt = radiance * area * (integral over hemisphere (cos) dSolidAngle)   (integral over area dArea == area)
+        //     Watt = radiance * area * pi
+        return luminance(m_radiance) * m_shape->get_area() * PI;
+    }
+
     Vector3f AreaLight::radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const{
         if(light_normal_world.dot(hitpos - lightpos) <= 0){
             return vec3f_zero;
