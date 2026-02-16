@@ -51,6 +51,8 @@ namespace Caramel{
         for(auto l : lights){
             scene.add_light(l);
         }
+        scene.build_light_pdf();
+
         scene.set_camera(cam);
 
         scene.build_accel();

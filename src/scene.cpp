@@ -85,8 +85,25 @@ namespace Caramel{
         return {m_lights[idx], Float1 / static_cast<Float>(m_lights.size())};
     }
 
+    Float Scene::pdf_light(const Light *light) const{
+        return m_lights_pdf.pdf(m_light_idx_map.at(light));
+    }
+
     void Scene::build_accel() {
         m_accel = new BVHScene();
         m_accel->build(m_meshes);
+    }
+
+    void Scene::build_light_pdf() {
+        std::vector<Float> light_power;
+        light_power.reserve(m_lights.size());
+
+        int i = 0;
+        for (auto p : m_lights) {
+            m_light_idx_map[p] = i;
+            i++;
+            light_power.push_back(p->power());
+        }
+        m_lights_pdf = Distrib1D(light_power);
     }
 }

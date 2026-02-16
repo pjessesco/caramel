@@ -26,6 +26,7 @@
 
 #include <vector>
 
+#include <distribution.h>
 #include <common.h>
 #include <aabb.h>
 
@@ -50,9 +51,14 @@ namespace Caramel{
         void add_light(Light *light);
         bool is_visible(const Vector3f &pos1, const Vector3f &pos2) const;
         std::pair<const Light*, Float> sample_light(Sampler &sampler) const;
+        Float pdf_light(const Light *light) const;
         void build_accel();
+        void build_light_pdf();
 
         std::vector<const Light*> m_lights;
+        Distrib1D m_lights_pdf;
+        std::unordered_map<const Light*, Index> m_light_idx_map;
+
         Light* m_envmap_light;
         std::vector<const Shape*> m_meshes;
         Vector3f m_sceneCenterPos;
