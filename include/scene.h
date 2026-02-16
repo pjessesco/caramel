@@ -25,6 +25,7 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
 
 #include <distribution.h>
 #include <common.h>
