@@ -139,5 +139,8 @@ namespace Caramel{
         return {sin_theta * sin_phi, cos_theta, -sin_theta * cos_phi};
     }
 
+    inline Float luminance(const Vector3f &rgb) {
+        return (rgb[0] + rgb[1] + rgb[2])/3;
+    }
 
 }

@@ -27,7 +27,7 @@
 //
 //             0                   1      2              3          4                    5          : index
 //  ############--------------------$$$$$$$===============@@@@@@@@@@@!!!!!!!!!!!!!!!!!!!!!          : m_cdf value
-//     * -> return 0               *     * -> return 2            * -> return 2     *             * : Random sample [0, 1)
+//     * -> return 0               *     * -> return 2            * -> return 4     *             * : Random sample [0, 1)
 //                                 -> return 1                                      -> return 5
 // <-------------------------------------------------------------------------------------->
 // 0                                                                                      1
@@ -71,7 +71,6 @@ namespace Caramel{
         }
 
     private:
-
         std::vector<Float> m_pdf;
         std::vector<Float> m_cdf;
     };
