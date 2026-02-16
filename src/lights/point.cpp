@@ -39,6 +39,11 @@ namespace Caramel{
 
     PointLight::~PointLight() = default;
 
+    Float PointLight::power() const {
+        // Integrate radiant intensity over the sphere
+        return luminance(m_radiant_intensity) * PI_4;
+    }
+
     Vector3f PointLight::radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &) const{
         return vec3f_zero;
     }

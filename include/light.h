@@ -54,6 +54,9 @@ namespace Caramel{
         // This function should not be used from delta lights, since they can't be captured by recursive ray from brdf sampling
         virtual Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const = 0;
 
+        // Returns watt
+        virtual Float power() const = 0;
+
         virtual bool is_delta() const = 0;
         virtual bool is_envlight() const = 0;
 
@@ -71,6 +74,7 @@ namespace Caramel{
         PointLight(const Vector3f &pos, const Vector3f &radiant_intensity);
         ~PointLight();
 
+        Float power() const override;
         Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &) const override;
         std::tuple<Vector3f, Vector3f, Vector3f, Float> sample_direct_contribution(const Scene &scene,
                                                                                    const RayIntersectInfo &hitpos_info,
@@ -93,6 +97,7 @@ namespace Caramel{
         explicit AreaLight(const Vector3f &radiance);
         ~AreaLight();
         
+        Float power() const override;
         Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const override;
         std::tuple<Vector3f, Vector3f, Vector3f, Float> sample_direct_contribution(const Scene &scene,
                                                                                    const RayIntersectInfo &hitpos_info,
@@ -116,6 +121,7 @@ namespace Caramel{
     public:
         ConstantEnvLight(const Vector3f &radiance, Float scale);
 
+        Float power() const override;
         Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const override;
         std::tuple<Vector3f, Vector3f, Vector3f, Float> sample_direct_contribution(const Scene &scene,
                                                                                    const RayIntersectInfo &hitpos_info,
@@ -137,6 +143,7 @@ namespace Caramel{
     public:
         ImageEnvLight(const std::string &path, Float scale, const Matrix44f &to_world);
 
+        Float power() const override;
         Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const override;
         std::tuple<Vector3f, Vector3f, Vector3f, Float> sample_direct_contribution(const Scene &scene,
                                                                                    const RayIntersectInfo &hitpos_info,

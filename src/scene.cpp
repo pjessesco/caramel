@@ -82,8 +82,8 @@ namespace Caramel{
     }
 
     std::pair<const Light*, Float> Scene::sample_light(Sampler &sampler) const{
-        const Index idx = static_cast<Index>(sampler.sample_1d() * static_cast<Float>(m_lights.size()));
-        return {m_lights[idx], Float1 / static_cast<Float>(m_lights.size())};
+        const Index idx = m_lights_pdf.sample(sampler.sample_1d());
+        return {m_lights[idx], m_lights_pdf.pdf(idx)};
     }
 
     Float Scene::pdf_light(const Light *light) const{

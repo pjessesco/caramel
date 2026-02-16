@@ -47,6 +47,34 @@ namespace Caramel{
     void ImageEnvLight::set_scene_radius(Float radius) {
         m_scene_radius = radius;
     }
+
+    Float ImageEnvLight::power() const {
+
+        Float l = 0;
+        Int width = m_image->size()[0];
+        Int height = m_image->size()[1];
+
+        auto p = m_image->get_data_for_sampling(true);
+        for (int i=0;i<width; i++) {
+            for (int j=0;j<height; j++) {
+                l += p[i][j];
+            }
+        }
+
+        // Integrate radiance over the sphere of directions and the scene's projected area
+        //     Power = Integral over sphere_directions ( Radiance(w) * ProjectedArea ) dSolidAngle
+        //     ProjectedArea = pi * radius^2   (Cross-section of the scene bounding sphere)
+        //     Power = pi * radius^2 * Integral over sphere_directions ( Radiance(w) ) dSolidAngle
+        //
+        //     Discretize integral to sum over pixels (Equirectangular map)
+        //     dSolidAngle = (2pi / Width) * (pi / Height) * sin(theta)
+        //     dSolidAngle = 2 * pi^2 * sin(theta) / (Width * Height)
+        //
+        //     Power = pi * radius^2 * Sum over pixels ( Radiance(u,v) * 2 * pi^2 * sin(theta) / (Width * Height) )
+        //     Power = (2 * pi^3 * radius^2 / (Width * Height)) * Sum over pixels ( Radiance(u,v) * sin(theta) )
+        return m_scale * 2 * PI * PI * PI * m_scene_radius * m_scene_radius * l / (width * height);
+    }
+
     Vector3f ImageEnvLight::radiance(const Vector3f &, const Vector3f &, const Vector3f &light_normal_world) const{
         const Vector3f dir = -light_normal_world.normalize();
         Vector2f uv = vec_to_normalized_uv(m_to_local * dir);

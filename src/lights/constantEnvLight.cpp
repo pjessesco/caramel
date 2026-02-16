@@ -40,6 +40,19 @@ namespace Caramel{
     ConstantEnvLight::ConstantEnvLight(const Vector3f &radiance, Float scale)
         : m_radiance(radiance), m_scale(scale) {}
 
+    Float ConstantEnvLight::power() const {
+        // Considering the point at the scene bounding sphere, which is illuminated by the environment light
+        // Irradiance of the point is,
+        //     E = integral over hemisphere (L(=radiance) * cos) dw(=solid angle)
+        //     E = L * integral over hemisphere (cos) dw
+        //     E = L * pi (see also `AreaLight::power()`)
+        // Total power from the light is equal to the total power that sphere receives, so :
+        //     power = integral over sphere area (E) dArea
+        //     power = E * sphere area
+        //     power = (L * pi) * (4 * pi * radius * radius)
+        return PI * PI_4 * luminance(m_radiance) * m_scene_radius * m_scene_radius;
+    }
+
     Vector3f ConstantEnvLight::radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &light_normal_world) const{
         return m_radiance;
     }
