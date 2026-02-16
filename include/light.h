@@ -68,7 +68,7 @@ namespace Caramel{
 
     class PointLight final : public Light{
     public:
-        PointLight(const Vector3f &pos, const Vector3f &radiance);
+        PointLight(const Vector3f &pos, const Vector3f &radiant_intensity);
         ~PointLight();
 
         Vector3f radiance(const Vector3f &hitpos, const Vector3f &lightpos, const Vector3f &) const override;
@@ -82,7 +82,10 @@ namespace Caramel{
         bool is_envlight() const override;
 
         Vector3f m_pos;
-        Vector3f m_radiance;
+
+        // Radiant intensity = dWatt / dSolidAngle, W/sr
+        // Note that we use "radiance" key in scene description
+        Vector3f m_radiant_intensity;
     };
 
     class AreaLight final : public Light{
