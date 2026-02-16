@@ -44,11 +44,15 @@ namespace Caramel{
         return m_radiance;
     }
 
+    void ConstantEnvLight::set_scene_radius(Float radius) {
+        m_scene_radius = radius;
+    }
+
     std::tuple<Vector3f, Vector3f, Vector3f, Float> ConstantEnvLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &sampler) const{
         const auto [pos_to_light_dir_local, pos_pdf] = sample_unit_sphere_uniformly(sampler);
         const auto pos_to_light_dir_world = hitpos_info.sh_coord.to_world(pos_to_light_dir_local);
 
-        const Vector3f light_pos = hitpos_info.p + (pos_to_light_dir_world * scene.m_sceneRadius * 2);
+        const Vector3f light_pos = hitpos_info.p + (pos_to_light_dir_world * m_scene_radius * 2);
         bool visible = scene.is_visible(light_pos, hitpos_info.p);
         if (!visible) {
             return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf};

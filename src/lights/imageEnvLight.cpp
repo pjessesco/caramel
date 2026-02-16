@@ -44,6 +44,9 @@ namespace Caramel{
 
     }
 
+    void ImageEnvLight::set_scene_radius(Float radius) {
+        m_scene_radius = radius;
+    }
     Vector3f ImageEnvLight::radiance(const Vector3f &, const Vector3f &, const Vector3f &light_normal_world) const{
         const Vector3f dir = -light_normal_world.normalize();
         Vector2f uv = vec_to_normalized_uv(m_to_local * dir);
@@ -57,7 +60,7 @@ namespace Caramel{
         const auto pos_to_light_local = normalized_uv_to_vec(Vector2f{static_cast<Float>(sampled_uv[0] + Float0_5) / m_width, static_cast<Float>(sampled_uv[1] + Float0_5) / m_height});
         const Vector3f pos_to_light_world = Vector3f(m_to_world * pos_to_light_local).normalize();
 
-        const Vector3f light_pos = hitpos_info.p + (pos_to_light_world * scene.m_sceneRadius * 2);
+        const Vector3f light_pos = hitpos_info.p + (pos_to_light_world * m_scene_radius * 2);
 
         // 1.
         // (i,j) (discrete) -> (u, v) (continuous)

@@ -57,6 +57,8 @@ namespace Caramel{
         virtual bool is_delta() const = 0;
         virtual bool is_envlight() const = 0;
 
+        virtual void set_scene_radius(Float radius) {}
+
         // Arealight is handled in AreaLight::Create
         template <typename Type, typename ...Param>
         static Light* Create(Param ...args){
@@ -121,8 +123,11 @@ namespace Caramel{
         bool is_delta() const override;
         bool is_envlight() const override;
 
+        void set_scene_radius(Float radius) override;
+
         const Float m_scale;
         const Vector3f m_radiance;
+        Float m_scene_radius;
     };
 
     class ImageEnvLight final : public Light {
@@ -139,6 +144,8 @@ namespace Caramel{
         bool is_delta() const override;
         bool is_envlight() const override;
 
+        void set_scene_radius(Float radius) override;
+
         const Float m_scale;
         const Image *m_image;
         const Distrib2D m_imageDistrib;
@@ -147,6 +154,7 @@ namespace Caramel{
         const int m_width_height;
         const Matrix33f m_to_world;
         const Matrix33f m_to_local;
+        Float m_scene_radius;
     };
 
 }

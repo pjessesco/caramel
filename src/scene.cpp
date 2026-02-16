@@ -66,6 +66,7 @@ namespace Caramel{
         m_lights.push_back(light);
         if (light->is_envlight()) {
             m_envmap_light = light;
+            m_envmap_light->set_scene_radius(m_sceneRadius);
         }
     }
 
