@@ -30,6 +30,21 @@
 
 #include <common.h>
 
+static constexpr bool SAVE_RENDERED_IMAGES = true;
+
+#define TEST_BODY(DIR, RANGE)                                                                           \
+    std::filesystem::current_path();                                                                    \
+    std::string scene_path = std::string(TEST_SCENE_PATH) + #DIR + "/scene.json";                       \
+    Image ref(std::string(TEST_SCENE_PATH) + #DIR + "/gt.exr");                                         \
+    Image rendered = render(scene_path);                                                                \
+    if(SAVE_RENDERED_IMAGES){                                                                           \
+        std::string rendered_name = std::string(#DIR) + "_rendered.exr";                                \
+        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / rendered_name).string()); \
+    }                                                                                                   \
+    CHECK(avg(rendered) / avg(ref) <= Catch::Approx(1 + RANGE));                                        \
+    CHECK(Catch::Approx(1 - RANGE) <= avg(rendered) / avg(ref));
+
+
 namespace Caramel {
     class Image;
 

@@ -36,17 +36,15 @@
 
 using namespace Caramel;
 
-#define SAVE_RENDERED_IMAGES
-
 TEST_CASE("test1 render test", "[RenderTest]") {
     std::filesystem::current_path();
     std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test1/scene.json";
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test1/gt.exr");
     Image rendered = render(scene_path);
 
-#ifdef SAVE_RENDERED_IMAGES
-    rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test1_rendered.exr").string());
-#endif
+    if (SAVE_RENDERED_IMAGES) {
+        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test1_rendered.exr").string());
+    }
 
     CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
     CHECK(Catch::Approx(0.9991) <= avg(rendered)/avg(ref));
@@ -58,9 +56,11 @@ TEST_CASE("test2 render test", "[RenderTest]") {
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test2/gt.exr");
     Image rendered = render(scene_path);
 
-#ifdef SAVE_RENDERED_IMAGES
-    rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test2_rendered.exr").string());
-#endif
+    if (SAVE_RENDERED_IMAGES) {
+        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test2_rendered.exr").string());
+    }
+
+
 
     CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
     CHECK(Catch::Approx(0.9991) <= avg(rendered)/avg(ref));
@@ -72,9 +72,9 @@ TEST_CASE("test3 render test", "[RenderTest]") {
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test3/gt.exr");
     Image rendered = render(scene_path);
 
-#ifdef SAVE_RENDERED_IMAGES
-    rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test3_rendered.exr").string());
-#endif
+    if (SAVE_RENDERED_IMAGES) {
+        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test3_rendered.exr").string());
+    }
 
     CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0007));
     CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
@@ -86,9 +86,9 @@ TEST_CASE("test4 render test", "[RenderTest]") {
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test4/gt.exr");
     Image rendered = render(scene_path);
 
-#ifdef SAVE_RENDERED_IMAGES
-    rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test4_rendered.exr").string());
-#endif
+    if (SAVE_RENDERED_IMAGES) {
+        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test4_rendered.exr").string());
+    }
 
     CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
     CHECK(Catch::Approx(0.9993) <= avg(rendered)/avg(ref));
@@ -102,9 +102,9 @@ TEST_CASE("test5 render test", "[RenderTest]") {
         Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_conductor.exr");
         Image rendered = render(scene_path);
 
-#ifdef SAVE_RENDERED_IMAGES
-        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_conductor_rendered.exr").string());
-#endif
+        if (SAVE_RENDERED_IMAGES) {
+            rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_conductor_rendered.exr").string());
+        }
 
         CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
         CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
@@ -114,9 +114,9 @@ TEST_CASE("test5 render test", "[RenderTest]") {
         Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_dielectric.exr");
         Image rendered = render(scene_path);
 
-#ifdef SAVE_RENDERED_IMAGES
-        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_dielectric_rendered.exr").string());
-#endif
+        if (SAVE_RENDERED_IMAGES) {
+            rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_dielectric_rendered.exr").string());
+        }
 
         CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0015));
         CHECK(Catch::Approx(0.9985) <= avg(rendered)/avg(ref));
@@ -126,9 +126,9 @@ TEST_CASE("test5 render test", "[RenderTest]") {
         Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_diffuse.exr");
         Image rendered = render(scene_path);
 
-#ifdef SAVE_RENDERED_IMAGES
-        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_diffuse_rendered.exr").string());
-#endif
+        if (SAVE_RENDERED_IMAGES) {
+            rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_diffuse_rendered.exr").string());
+        }
 
         CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
         CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
@@ -138,9 +138,9 @@ TEST_CASE("test5 render test", "[RenderTest]") {
         Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_mirror.exr");
         Image rendered = render(scene_path);
 
-#ifdef SAVE_RENDERED_IMAGES
-        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_mirror_rendered.exr").string());
-#endif
+        if (SAVE_RENDERED_IMAGES) {
+            rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_mirror_rendered.exr").string());
+        }
 
         CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
         CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
@@ -153,9 +153,9 @@ TEST_CASE("test6 render test", "[RenderTest]") {
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test6/gt.exr");
     Image rendered = render(scene_path);
 
-#ifdef SAVE_RENDERED_IMAGES
-    rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test6_rendered.exr").string());
-#endif
+    if (SAVE_RENDERED_IMAGES) {
+        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test6_rendered.exr").string());
+    }
 
     CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
     CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
