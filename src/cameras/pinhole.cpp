@@ -22,17 +22,28 @@
 // SOFTWARE.
 //
 
-#pragma once
+#include <camera.h>
 
 #include <common.h>
+#include <transform.h>
+#include <ray.h>
 
 namespace Caramel{
-    class Ray{
-    public:
-        Ray(const Vector3f &o, const Vector3f &d) : m_o{o}, m_d{d.normalize()}, m_d_recip{Float1/m_d[0], Float1/m_d[1], Float1/m_d[2]} {}
 
-        Vector3f m_o;
-        Vector3f m_d;
-        Vector3f m_d_recip;
-    };
+    // Perspective camera
+    Pinhole::Pinhole(const Matrix44f &cam_to_world, Index w, Index h, Float fov_x)
+        : Camera(cam_to_world, w, h, fov_x) {}
+
+    Pinhole::Pinhole(const Vector3f &pos, const Vector3f &dir, const Vector3f &up, Index w, Index h, Float fov_x)
+        : Camera(pos, dir, up, w, h, fov_x) {}
+
+    [[nodiscard]] Ray Pinhole::sample_ray(Float w, Float h) const{
+        Vector4f local_d = (m_sample_to_camera * Vector4f(w / static_cast<Float>(m_w),
+                                                          h / static_cast<Float>(m_h),
+                                                          Float0, Float1));
+        local_d[3] = Float0;
+        const Vector3f d = Block<0,0,3,1>(m_cam_to_world * local_d);
+
+        return {m_pos, d.normalize()};
+    }
 }

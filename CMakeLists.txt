@@ -21,7 +21,8 @@ set(SOURCES
         src/bsdfs/bsdf.cpp
         src/bsdfs/orennayar.cpp
         src/bsdfs/twosided.cpp
-        src/camera.cpp
+        src/cameras/camera.cpp
+        src/cameras/pinhole.cpp
         src/image.cpp
         src/progress.cpp
         src/integrators/MCIntegrator.cpp
