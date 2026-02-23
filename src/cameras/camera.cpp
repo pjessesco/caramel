@@ -83,16 +83,4 @@ namespace Caramel{
 
         m_sample_to_camera = Inverse(camera_to_sample);
     }
-
-    [[nodiscard]] Ray Camera::sample_ray(Float w, Float h) const{
-        Vector4f local_d = (m_sample_to_camera * Vector4f(w / static_cast<Float>(m_w),
-                                                          h / static_cast<Float>(m_h),
-                                                          Float0, Float1));
-        local_d[3] = Float0;
-        local_d = local_d.normalize();
-
-        const Vector3f d = Block<0,0,3,1>(m_cam_to_world * local_d);
-
-        return {m_pos, d.normalize()};
-    }
 }

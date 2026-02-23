@@ -36,7 +36,7 @@ namespace Caramel{
                Index w, Index h, Float fov_x);
         Camera(const Matrix44f &cam_to_world, Index w, Index h, Float fov_x);
 
-        [[nodiscard]] Ray sample_ray(Float w, Float h) const;
+        [[nodiscard]] virtual Ray sample_ray(Float w, Float h) const = 0;
 
         template <typename Type, typename ...Param>
         static Camera* Create(Param ...args){
@@ -53,7 +53,7 @@ namespace Caramel{
             m_h = height;
         }
 
-    private:
+    protected:
         Vector3f m_pos;
         const Float m_fov_x;
         Index m_w, m_h;
@@ -62,5 +62,14 @@ namespace Caramel{
         Float m_far;
         Matrix44f m_sample_to_camera;
         Matrix44f m_cam_to_world;
+    };
+
+    class Pinhole : public Camera {
+    public:
+        Pinhole(const Vector3f &pos, const Vector3f &dir, const Vector3f &up,
+               Index w, Index h, Float fov_x);
+        Pinhole(const Matrix44f &cam_to_world, Index w, Index h, Float fov_x);
+
+        [[nodiscard]] Ray sample_ray(Float w, Float h) const override;
     };
 }
