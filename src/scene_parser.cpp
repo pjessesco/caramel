@@ -101,7 +101,7 @@ namespace Caramel{
     Camera* SceneParser::parse_camera() const {
         const Json child = get_unique_first_elem(m_scene_json, "camera");
         const std::string type = parse_string(child, "type");
-        if(type == "perspective"){
+        if(type == "pinhole"){
             if(child.contains("pos")){
                 return Camera::Create<Pinhole>(parse_vector3f(child, "pos"),
                                                parse_vector3f(child, "dir"),
@@ -118,7 +118,7 @@ namespace Caramel{
             }
         }
         else{
-            CRM_ERROR(type + "camera is not supported : "+ to_string(child));
+            CRM_ERROR(type + " camera is not supported : "+ to_string(child));
         }
     }
 
