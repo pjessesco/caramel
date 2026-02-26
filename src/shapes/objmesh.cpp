@@ -158,7 +158,8 @@ namespace Caramel {
     // This implementation assumes that two given points are visible to each other
     Float OBJMesh::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const{
         const Vector3f shape_to_hitpos_world = hitpos_world - shapepos_world;
-        const Float cos = std::abs(shape_normal_world.dot(shape_to_hitpos_world.normalize()));
+        using std::abs;
+        const Float cos = abs(shape_normal_world.dot(shape_to_hitpos_world.normalize()));
         const Float dist_squared = shape_to_hitpos_world.dot(shape_to_hitpos_world);
         return dist_squared / (cos * m_area);
     }
@@ -180,8 +181,9 @@ namespace Caramel {
 
         const Float u = sampler.sample_1d();
         const Float v = sampler.sample_1d();
-        const Float x = Float1 - std::sqrt(Float1 - u);
-        const Float y = v * std::sqrt(Float1 - u);
+        using std::sqrt;
+        const Float x = Float1 - sqrt(Float1 - u);
+        const Float y = v * sqrt(Float1 - u);
 
         Vector3f normal_vec;
         if (is_vn_exists) {

@@ -35,7 +35,8 @@ namespace Caramel{
     // ----------------------------------------------
 
     inline std::pair<Vector2f, Float> sample_unit_disk_uniformly(Sampler &sampler){
-        const Float sqrt_x = std::sqrt(sampler.sample_1d());
+        using std::sqrt;
+        const Float sqrt_x = sqrt(sampler.sample_1d());
         const Float angle = sampler.sample_1d() * PI_2;
         return {{sqrt_x * static_cast<Float>(cos(angle)), sqrt_x * static_cast<Float>(sin(angle))},
                  PI_INV};
@@ -48,13 +49,16 @@ namespace Caramel{
     // ----------------------------------------------
 
     inline std::pair<Vector3f, Float> sample_unit_sphere_uniformly(Sampler &sampler){
+        using std::acos;
+        using std::sin;
+        using std::cos;
         const Float phi = PI_2 * sampler.sample_1d();
-        const Float theta = std::acos(Float1 - 2 * sampler.sample_1d());
+        const Float theta = acos(Float1 - 2 * sampler.sample_1d());
 
-        const Float sin_theta = std::sin(theta);
-        const Float cos_theta = std::cos(theta);
-        const Float sin_phi = std::sin(phi);
-        const Float cos_phi = std::cos(phi);
+        const Float sin_theta = sin(theta);
+        const Float cos_theta = cos(theta);
+        const Float sin_phi = sin(phi);
+        const Float cos_phi = cos(phi);
 
         return {{sin_theta * cos_phi, sin_theta * sin_phi, cos_theta},
                 PI_4_INV};
@@ -69,13 +73,16 @@ namespace Caramel{
     // ----------------------------------------------
 
     inline std::pair<Vector3f, Float> sample_unit_hemisphere_uniformly(Sampler &sampler){
+        using std::acos;
+        using std::sin;
+        using std::cos;
         const Float phi = PI_2 * sampler.sample_1d();
-        const Float theta = std::acos(Float1 - sampler.sample_1d());
+        const Float theta = acos(Float1 - sampler.sample_1d());
 
-        const Float sin_theta = std::sin(theta);
-        const Float cos_theta = std::cos(theta);
-        const Float sin_phi = std::sin(phi);
-        const Float cos_phi = std::cos(phi);
+        const Float sin_theta = sin(theta);
+        const Float cos_theta = cos(theta);
+        const Float sin_phi = sin(phi);
+        const Float cos_phi = cos(phi);
 
         return {{sin_theta * cos_phi, sin_theta * sin_phi, cos_theta},
                 PI_2_INV};
@@ -88,8 +95,9 @@ namespace Caramel{
     // ----------------------------------------------
 
     inline std::pair<Vector3f, Float> sample_unit_hemisphere_cosine(Sampler &sampler){
+        using std::sqrt;
         auto [xy, _] = sample_unit_disk_uniformly(sampler);
-        const Float z = std::sqrt(Float1 - xy.dot(xy));
+        const Float z = sqrt(Float1 - xy.dot(xy));
         return {{xy[0], xy[1], z},
                 z*PI_INV};
     }
@@ -105,23 +113,29 @@ namespace Caramel{
             return 0;
         }
 
+        using std::exp;
         const Float alpha_2 = alpha * alpha;
-        const float tan_theta_2 = (vec[0]*vec[0] + vec[1]*vec[1]) / (vec[2] * vec[2]);
-        const float cos_theta_3 = vec[2] * vec[2] * vec[2];
-        return PI_INV * std::exp(-tan_theta_2/alpha_2) / (alpha_2 * cos_theta_3);
+        const Float tan_theta_2 = (vec[0]*vec[0] + vec[1]*vec[1]) / (vec[2] * vec[2]);
+        const Float cos_theta_3 = vec[2] * vec[2] * vec[2];
+        return PI_INV * exp(-tan_theta_2/alpha_2) / (alpha_2 * cos_theta_3);
     }
 
     inline std::pair<Vector3f, Float> sample_beckmann_distrib(Sampler &sampler, Float alpha){
+        using std::atan;
+        using std::sqrt;
+        using std::log;
+        using std::cos;
+        using std::sin;
         const Float s1 = sampler.sample_1d();
         const Float s2 = sampler.sample_1d();
 
         const Float phi = PI_2 * s1;
-        const Float theta = std::atan(std::sqrt(-alpha*alpha * std::log(1-s2)));
+        const Float theta = atan(sqrt(-alpha*alpha * log(1-s2)));
 
-        const Float cos_phi = std::cos(phi);
-        const Float sin_phi = std::sin(phi);
-        const Float cos_theta = std::cos(theta);
-        const Float sin_theta = std::sin(theta);
+        const Float cos_phi = cos(phi);
+        const Float sin_phi = sin(phi);
+        const Float cos_theta = cos(theta);
+        const Float sin_theta = sin(theta);
 
         const Vector3f val = Vector3f{sin_theta * cos_phi, sin_theta * sin_phi, cos_theta};
 

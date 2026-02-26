@@ -105,19 +105,23 @@ namespace Caramel{
     }
 
     inline bool is_zero(const Vector2f &v){
-        return std::abs(v[0] - Float0) < 1e-7 &&
-               std::abs(v[1] - Float0) < 1e-7;
+        using std::abs;
+        return abs(v[0] - Float0) < 1e-7 &&
+               abs(v[1] - Float0) < 1e-7;
     }
 
     inline bool is_zero(const Vector3f &v){
-        return std::abs(v[0] - Float0) < 1e-7 &&
-               std::abs(v[1] - Float0) < 1e-7 &&
-               std::abs(v[2] - Float0) < 1e-7;
+        using std::abs;
+        return abs(v[0] - Float0) < 1e-7 &&
+               abs(v[1] - Float0) < 1e-7 &&
+               abs(v[2] - Float0) < 1e-7;
     }
 
     inline Vector2f vec_to_normalized_uv(const Vector3f &vec) {
-        Vector2f uv {std::atan2(vec[0], -vec[2]) * PI_2_INV,
-                     std::acos(vec[1]) * PI_INV};
+        using std::atan2;
+        using std::acos;
+        Vector2f uv {atan2(vec[0], -vec[2]) * PI_2_INV,
+                     acos(vec[1]) * PI_INV};
 
         if(uv[0] < 0){
             uv[0] += 1;
@@ -127,13 +131,15 @@ namespace Caramel{
     }
 
     inline Vector3f normalized_uv_to_vec(const Vector2f &uv) {
+        using std::sin;
+        using std::cos;
         const Float phi = PI_2 * uv[0];
         const Float theta = uv[1] * PI;
 
-        const Float sin_theta = std::sin(theta);
-        const Float cos_theta = std::cos(theta);
-        const Float sin_phi = std::sin(phi);
-        const Float cos_phi = std::cos(phi);
+        const Float sin_theta = sin(theta);
+        const Float cos_theta = cos(theta);
+        const Float sin_phi = sin(phi);
+        const Float cos_phi = cos(phi);
 
         // Note that it is different with `sample_unit_sphere_uniformly()` or similar functions
         return {sin_theta * sin_phi, cos_theta, -sin_theta * cos_phi};

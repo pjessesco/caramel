@@ -96,16 +96,17 @@ namespace Caramel{
                     const Vector3f fr = shape_bsdf->get_reflection(local_ray_dir, hitpos_to_light_local_normal, info.tex_uv);
 
                     if (!is_zero(fr)) {
+                        using std::abs;
                         if(light->is_delta()){
                             // We don't perform MIS for delta light
-                            ret = ret + (fr % emitted_rad % current_brdf) * std::abs(hitpos_to_light_local_normal[2]) / light_pick_pdf;
+                            ret = ret + (fr % emitted_rad % current_brdf) * abs(hitpos_to_light_local_normal[2]) / light_pick_pdf;
                         }
                         else{
                             // MIS for light sampling
                             const Float pdf_solidangle = light->pdf_solidangle(info.p, light_pos, light_n_world);
                             const Float bsdf_pdf = shape->get_bsdf()->pdf(local_ray_dir, hitpos_to_light_local_normal);
                             const Float light_pdf = light_pick_pdf * pdf_solidangle;
-                            ret = ret + (fr % emitted_rad % current_brdf) * std::abs(hitpos_to_light_local_normal[2]) * balance_heuristic(light_pdf, bsdf_pdf) / light_pdf;
+                            ret = ret + (fr % emitted_rad % current_brdf) * abs(hitpos_to_light_local_normal[2]) * balance_heuristic(light_pdf, bsdf_pdf) / light_pdf;
                         }
                     }
                 }
