@@ -50,14 +50,15 @@ namespace Caramel{
 
         cos_max = std::max(Float0, cos_d);
 
+        using std::abs;
         Float sin_alpha, tan_beta;
-        if(std::abs(local_incoming_flipped[2]) > std::abs(local_outgoing_dir[2])){
+        if(abs(local_incoming_flipped[2]) > abs(local_outgoing_dir[2])){
             sin_alpha = sin_wo;
-            tan_beta = sin_wi / std::abs(local_incoming_flipped[2]);
+            tan_beta = sin_wi / abs(local_incoming_flipped[2]);
         }
         else{
             sin_alpha = sin_wi;
-            tan_beta = sin_wo / std::abs(local_outgoing_dir[2]);
+            tan_beta = sin_wo / abs(local_outgoing_dir[2]);
         }
 
         const Vector3f ret = m_reflection * PI_INV * (m_A + (m_B * cos_max * sin_alpha * tan_beta));

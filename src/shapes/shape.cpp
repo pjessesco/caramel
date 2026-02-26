@@ -79,9 +79,10 @@ namespace Caramel {
     std::tuple<Float, Float, Float> watertight_intersection(const Ray &ray, const Vector3f &p0, const Vector3f &p1, const Vector3f &p2, Float maxt){
 
         // Calculate dimension where the ray direction is maximal (using absolute values)
-        const Index idx_z = std::abs(ray.m_d[0]) > std::abs(ray.m_d[1]) ?
-                            std::abs(ray.m_d[0]) > std::abs(ray.m_d[2]) ? 0 : 2 :
-                            std::abs(ray.m_d[1]) > std::abs(ray.m_d[2]) ? 1 : 2;
+        using std::abs;
+        const Index idx_z = abs(ray.m_d[0]) > abs(ray.m_d[1]) ?
+                            abs(ray.m_d[0]) > abs(ray.m_d[2]) ? 0 : 2 :
+                            abs(ray.m_d[1]) > abs(ray.m_d[2]) ? 1 : 2;
 
         Index idx_x = idx_z == 2 ? 0 : idx_z + 1;
         Index idx_y = idx_x == 2 ? 0 : idx_x + 1;

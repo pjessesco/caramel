@@ -61,8 +61,9 @@ namespace Caramel {
     std::tuple<Vector3f, Vector3f, Float> Triangle::sample_point(Sampler &sampler) const{
         const Float u = sampler.sample_1d();
         const Float v = sampler.sample_1d();
-        const Float x = Float1 - std::sqrt(Float1 - u);
-        const Float y = v * std::sqrt(Float1 - u);
+        using std::sqrt;
+        const Float x = Float1 - sqrt(Float1 - u);
+        const Float y = v * sqrt(Float1 - u);
         // z = 1 - x - y
 
         return {interpolate(m_p0, m_p1, m_p2, x, y),
@@ -77,7 +78,8 @@ namespace Caramel {
     Float Triangle::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const{
         const Vector3f shape_to_hitpos_world = hitpos_world - shapepos_world;
         const Float dist_squared = shape_to_hitpos_world.dot(shape_to_hitpos_world);
-        const Float cos = std::abs(shape_normal_world.dot(shape_to_hitpos_world.normalize()));
+        using std::abs;
+        const Float cos = abs(shape_normal_world.dot(shape_to_hitpos_world.normalize()));
         return dist_squared / (cos * get_area());
     }
 

@@ -103,7 +103,8 @@ namespace Caramel{
         // (theta, phi) -> (x, y, z) (solid angle vector)
         // |j| is known as sin(theta)
         //
-        const auto pdf = m_width_height * m_imageDistrib.pdf/*technically it's pmf*/(sampled_uv[0], sampled_uv[1]) / (2 * PI * PI * std::sin(static_cast<Float>((sampled_uv[1] + Float0_5) / m_height) * PI));
+        using std::sin;
+        const auto pdf = m_width_height * m_imageDistrib.pdf/*technically it's pmf*/(sampled_uv[0], sampled_uv[1]) / (2 * PI * PI * sin(static_cast<Float>((sampled_uv[1] + Float0_5) / m_height) * PI));
 
         bool visible = scene.is_visible(light_pos, hitpos_info.p);
         if (!visible) {
@@ -116,7 +117,9 @@ namespace Caramel{
     Float ImageEnvLight::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const{
         const auto dir = Vector3f(lightpos_world - hitpos_world).normalize();
         const Vector2f uv = vec_to_normalized_uv(m_to_local * dir);
-        if (std::abs(uv[1] - Float1) < 1e-6 || std::abs(uv[1] - Float0) < 1e-6) {
+        using std::abs;
+        using std::sin;
+        if (abs(uv[1] - Float1) < 1e-6 || abs(uv[1] - Float0) < 1e-6) {
             return 0;
         }
 
@@ -125,7 +128,7 @@ namespace Caramel{
             pixel_idx[0] -= m_width;
         }
 
-        return m_width_height * m_imageDistrib.pdf(pixel_idx[0], pixel_idx[1]) / (2 * PI * PI * std::sin(uv[1] * PI)); // ???
+        return m_width_height * m_imageDistrib.pdf(pixel_idx[0], pixel_idx[1]) / (2 * PI * PI * sin(uv[1] * PI)); // ???
     }
 
     bool ImageEnvLight::is_delta() const {
