@@ -33,7 +33,7 @@ namespace Caramel{
     UVIntegrator::UVIntegrator() : MCIntegrator(1) {}
 
     Vector3f UVIntegrator::get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) {
-        const Ray ray = scene.m_cam->sample_ray(i, j);
+        const Ray ray = scene.m_cam->sample_ray(i, j, sampler);
         auto [is_hit, info] = scene.ray_intersect(ray);
         return is_hit ? Vector3f(info.tex_uv[0], info.tex_uv[1], Float1 - info.tex_uv[0] - info.tex_uv[1]) : vec3f_zero;
     }

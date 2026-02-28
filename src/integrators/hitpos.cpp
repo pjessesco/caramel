@@ -33,7 +33,7 @@ namespace Caramel{
     HitPosIntegrator::HitPosIntegrator() : MCIntegrator(1) {}
 
     Vector3f HitPosIntegrator::get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) {
-        const Ray ray = scene.m_cam->sample_ray(i, j);
+        const Ray ray = scene.m_cam->sample_ray(i, j, sampler);
         auto [is_hit, info] = scene.ray_intersect(ray);
         return is_hit ? Vector3f(info.p[0], info.p[1], info.p[2]) : vec3f_zero;
     }

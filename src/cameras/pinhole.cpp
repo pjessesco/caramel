@@ -37,7 +37,7 @@ namespace Caramel{
     Pinhole::Pinhole(const Vector3f &pos, const Vector3f &dir, const Vector3f &up, Index w, Index h, Float fov_x)
         : Camera(pos, dir, up, w, h, fov_x) {}
 
-    [[nodiscard]] Ray Pinhole::sample_ray(Float w, Float h) const{
+    [[nodiscard]] Ray Pinhole::sample_ray(Float w, Float h, Sampler &) const{
         Vector4f local_d = (m_sample_to_camera * Vector4f(w / static_cast<Float>(m_w),
                                                           h / static_cast<Float>(m_h),
                                                           Float0, Float1));

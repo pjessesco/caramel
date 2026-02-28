@@ -23,6 +23,7 @@ set(SOURCES
         src/bsdfs/twosided.cpp
         src/cameras/camera.cpp
         src/cameras/pinhole.cpp
+        src/cameras/thinlens.cpp
         src/image.cpp
         src/progress.cpp
         src/integrators/MCIntegrator.cpp
