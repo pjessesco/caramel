@@ -73,8 +73,8 @@ namespace Caramel{
     // Similar with `RayIntersectInfo::recursive_ray_to()`
     bool Scene::is_visible(const Vector3f &pos1, const Vector3f &pos2) const{
         const Vector3f vec3_1_to_2(pos2 - pos1);
-        const Vector3f dir = vec3_1_to_2.normalize();
         const Float len = vec3_1_to_2.length();
+        const Vector3f dir = vec3_1_to_2 / len;
         const Ray ray{pos1 + (dir * EPSILON), dir};
 
         const auto [is_hit, info] = ray_intersect(ray, len);
