@@ -35,7 +35,7 @@ namespace Caramel{
         // Multiply -1 to calculate cosine, since we use incoming direction as point-toward direction
         // Values varies on `local_incoming_cos`
         Vector3f n{Float0, Float0, Float1};
-        Float local_incoming_cos = n.dot(-local_incoming_dir);
+        Float local_incoming_cos = -local_incoming_dir[2];
 
         Float ex_ior = m_ex_index_of_refraction;
         Float in_ior = m_in_index_of_refraction;

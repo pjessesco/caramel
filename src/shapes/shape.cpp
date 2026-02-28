@@ -44,7 +44,7 @@ namespace Caramel {
     }
 
     std::tuple<Float, Float, Float> moller_trumbore(const Ray &ray, const Vector3f &p0, const Vector3f &p1, const Vector3f &p2, Float maxt){
-        const Vector3f D = ray.m_d;
+        const Vector3f &D = ray.m_d;
 
         const Vector3f T = ray.m_o - p0;
         const Vector3f E1 = p1 - p0;
