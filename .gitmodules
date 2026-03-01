@@ -4,3 +4,6 @@
 [submodule "caramel-scenes"]
 	path = caramel-scenes
 	url = https://github.com/pjessesco/caramel-scenes
+[submodule "ext/hypothesis"]
+	path = ext/hypothesis
+	url = https://github.com/wjakob/hypothesis
