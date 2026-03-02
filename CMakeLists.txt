@@ -74,6 +74,7 @@ set(HEADERS
         include/render.h)
 
 if(NOT EXCLUDE_TEST)
+    include_directories(ext/hypothesis)
     include_directories(test)
 
     add_executable(caramel_test
@@ -85,6 +86,7 @@ if(NOT EXCLUDE_TEST)
             test/complex_render_test.cpp
             test/simple_render_test.cpp
             test/unit_tests.cpp
+            test/chi2_bsdf_test.cpp
             test/utils.cpp
     )
 
