@@ -28,6 +28,7 @@
 
 namespace Caramel{
     class Ray;
+    class Sampler;
 
     // Perspective camera
     class Camera{
@@ -36,7 +37,7 @@ namespace Caramel{
                Index w, Index h, Float fov_x);
         Camera(const Matrix44f &cam_to_world, Index w, Index h, Float fov_x);
 
-        [[nodiscard]] virtual Ray sample_ray(Float w, Float h) const = 0;
+        [[nodiscard]] virtual Ray sample_ray(Float w, Float h, Sampler &sampler) const = 0;
 
         template <typename Type, typename ...Param>
         static Camera* Create(Param ...args){
@@ -70,6 +71,19 @@ namespace Caramel{
                Index w, Index h, Float fov_x);
         Pinhole(const Matrix44f &cam_to_world, Index w, Index h, Float fov_x);
 
-        [[nodiscard]] Ray sample_ray(Float w, Float h) const override;
+        [[nodiscard]] Ray sample_ray(Float w, Float h, Sampler &) const override;
+    };
+
+    class ThinLens : public Camera {
+    public:
+        ThinLens(const Vector3f &pos, const Vector3f &dir, const Vector3f &up,
+                 Index w, Index h, Float fov_x, Float lens_radius, Float focal_dist);
+        ThinLens(const Matrix44f &cam_to_world, Index w, Index h, Float fov_x, Float lens_radius, Float focal_dist);
+
+        [[nodiscard]] Ray sample_ray(Float w, Float h, Sampler &sampler) const override;
+
+    private:
+        Float m_lens_radius;
+        Float m_focal_dist;
     };
 }

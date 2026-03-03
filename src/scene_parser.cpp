@@ -117,6 +117,26 @@ namespace Caramel{
                                                parse_positive_float(child, "fov"));
             }
         }
+        else if(type == "thinlens"){
+            if(child.contains("pos")){
+                return Camera::Create<ThinLens>(parse_vector3f(child, "pos"),
+                                               parse_vector3f(child, "dir"),
+                                               parse_vector3f(child, "up"),
+                                               parse_positive_int(child, "width"),
+                                               parse_positive_int(child, "height"),
+                                               parse_positive_float(child, "fov"),
+                                               parse_positive_float(child, "lens_radius"),
+                                               parse_positive_float(child, "focal_dist"));
+            }
+            else{
+                return Camera::Create<ThinLens>(parse_matrix44f(child, "matrix"),
+                                               parse_positive_int(child, "width"),
+                                               parse_positive_int(child, "height"),
+                                               parse_positive_float(child, "fov"),
+                                               parse_positive_float(child, "lens_radius"),
+                                               parse_positive_float(child, "focal_dist"));
+            }
+        }
         else{
             CRM_ERROR(type + " camera is not supported : "+ to_string(child));
         }
