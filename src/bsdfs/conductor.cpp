@@ -44,7 +44,7 @@ namespace Caramel{
         const Float local_incoming_cos = -local_incoming_dir[2];
 
         if(local_incoming_cos <= Float0){
-            return {local_outgoing, vec3f_one, Float0};
+            return {local_outgoing, vec3f_zero, Float0};
         }
 
         return {local_outgoing, fresnel_conductor(local_incoming_cos, {m_ex_ior, m_ex_ior, m_ex_ior}, m_in_ior, m_in_ior_img), Float0};

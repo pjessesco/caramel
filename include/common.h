@@ -84,7 +84,7 @@ namespace Caramel{
 
     // returns sin value between given normalized vector and (0, 0, 1)
     inline Float vec_sin(const Vector3f &v){
-        return static_cast<Float>(vec_sin_2(v));
+        return static_cast<Float>(sqrt(vec_sin_2(v)));
     }                                                                                //              ^  Z   ^
                                                                                      //              |     /!  given v
     // returns cos value of phi of given vector (in spherical coordinate system)     //              |    / !

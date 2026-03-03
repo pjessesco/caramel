@@ -109,7 +109,7 @@ namespace Caramel{
             return Float0;
         }
 
-        const Float b = Float1 / (m_alpha * wv[2]);
+        const Float b = wv[2] / (sqrt(wv[0]*wv[0] + wv[1]*wv[1]) * m_alpha);
         if(b >= static_cast<Float>(1.6)){
             return Float1;
         }

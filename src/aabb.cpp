@@ -110,8 +110,8 @@ namespace Caramel{
         const Float len_y = m_max[1] - m_min[1];
         const Float len_z = m_max[2] - m_min[2];
 
-        return len_x > len_y && len_x > len_z ? 0 :
-               len_y > len_x && len_y > len_z ? 1 :
+        return len_x >= len_y && len_x >= len_z ? 0 :
+               len_y >= len_x && len_y >= len_z ? 1 :
                                                 2;
     }
 
