@@ -164,7 +164,7 @@ namespace Caramel{
             for(const auto &ch : child){
                 auto light = parse_light(ch);
                 if (light->is_envlight() && is_envmap_parsed) {
-                    CRM_ERROR("Environment map can't be more than 2");
+                    CRM_ERROR("Environment map can't be more than 1");
                 }
                 is_envmap_parsed |= light->is_envlight();
                 lights.emplace_back(light);
