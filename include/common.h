@@ -25,6 +25,7 @@
 #pragma once
 
 #include <limits>
+#include <cmath>
 #include <Peanut/Peanut.h>
 
 namespace Caramel{
