@@ -84,7 +84,7 @@ namespace Caramel{
     // to get the correct angle for the Van Oosterom-Strackee formula.
     inline Float positive_atan(Float tangent) {
         using std::atan;
-        return atan(tangent) + (tangent < Float0) ? PI : Float0;
+        return atan(tangent) + ((tangent < Float0) ? PI : Float0);
     }
 
     // Numerically stable linear interpolation: x*(1-a) + y*a
