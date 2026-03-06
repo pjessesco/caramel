@@ -108,7 +108,14 @@ namespace Caramel{
                 // sample_solid_angle_polygon returns a *direction*, not a surface point.
                 // We need the actual 3D position on the light for radiance/visibility evaluation,
                 // so we intersect the ray (hitpos, dir) with the polygon's plane.
+                // sample_solid_angle_polygon returns a *direction*, not a surface point.
+                // We need the actual 3D position on the light for radiance/visibility evaluation,
+                // so we intersect the ray (hitpos, dir) with the polygon's plane.
                 const Vector3f dir = sample_solid_angle_polygon(polygon, sampler.sample_1d(), sampler.sample_1d());
+
+                if(std::isnan(dir[0]) || std::isnan(dir[1]) || std::isnan(dir[2])){
+                    return {vec3f_zero, vec3f_zero, vec3f_zero, Float0};
+                }
 
                 // Ray-plane intersection to recover the light surface point:
                 //   plane equation: plane_n · (x - plane_point) = 0
