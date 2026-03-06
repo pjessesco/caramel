@@ -26,6 +26,7 @@
 
 #include <light.h>
 
+#include <logger.h>
 #include <ray.h>
 #include <common.h>
 #include <sampler.h>
@@ -38,6 +39,10 @@ namespace Caramel{
         : m_radiance{radiance} {}
 
     AreaLight::~AreaLight() = default;
+
+    void AreaLight::init_is_triangle_mesh() {
+        m_is_triangle_mesh = (dynamic_cast<const TriangleMesh*>(m_shape) != nullptr);
+    }
 
     Float AreaLight::power() const {
         // Integrate radiance over hemisphere and area, one-sided

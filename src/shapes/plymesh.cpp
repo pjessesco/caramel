@@ -23,12 +23,15 @@
 //
 
 #include <filesystem>
+#include <map>
 #include <tuple>
 
 #include <shape.h>
 
+#include <light.h>
 #include <logger.h>
 #include <mesh_accel.h>
+#include <polygon_sampling.h>
 #include <rayintersectinfo.h>
 #include <sampler.h>
 #include <transform.h>
@@ -136,6 +139,94 @@ namespace Caramel {
         m_aabb = AABB({min_x, min_y, min_z}, {max_x, max_y, max_z});
         m_accel = std::make_unique<Octree>(*this);
         m_accel->build();
+
+        if (arealight != nullptr) {
+            // Check coplanarity of all triangles
+            const auto& idx0 = m_face_indices[0];
+            const Vector3f ref_normal = Vector3f::cross(
+                m_vertices[idx0[1]] - m_vertices[idx0[0]],
+                m_vertices[idx0[2]] - m_vertices[idx0[0]]).normalize();
+
+            bool coplanar = true;
+            constexpr Float coplanar_eps = Float(1e-4);
+
+            for (Index i = 0; i < m_face_indices.size() && coplanar; ++i) {
+                const auto& idx = m_face_indices[i];
+                const Vector3f tri_normal = Vector3f::cross(
+                    m_vertices[idx[1]] - m_vertices[idx[0]],
+                    m_vertices[idx[2]] - m_vertices[idx[0]]).normalize();
+
+                if (ref_normal.dot(tri_normal) <= Float1 - coplanar_eps) {
+                    coplanar = false;
+                    break;
+                }
+
+                for (int j = 0; j < 3; ++j) {
+                    using std::abs;
+                    if (abs(ref_normal.dot(m_vertices[idx[j]] - m_vertices[idx0[0]])) > coplanar_eps) {
+                        coplanar = false;
+                        break;
+                    }
+                }
+            }
+
+            if (coplanar) {
+                // Build edge map: (min_idx, max_idx) -> count
+                std::map<std::pair<Int, Int>, int> edge_count;
+                for (Index i = 0; i < m_face_indices.size(); ++i) {
+                    const auto& idx = m_face_indices[i];
+                    for (int e = 0; e < 3; ++e) {
+                        Int a = idx[e];
+                        Int b = idx[(e + 1) % 3];
+                        auto edge = std::make_pair(std::min(a, b), std::max(a, b));
+                        edge_count[edge]++;
+                    }
+                }
+
+                // Find boundary edges (count == 1) and build adjacency
+                std::map<Int, std::vector<Int>> adjacency;
+                for (const auto& [edge, count] : edge_count) {
+                    if (count == 1) {
+                        adjacency[edge.first].push_back(edge.second);
+                        adjacency[edge.second].push_back(edge.first);
+                    }
+                }
+
+                if (!adjacency.empty()) {
+                    // Walk boundary edges to get ordered vertex indices
+                    std::vector<Int> boundary_indices;
+                    Int start = adjacency.begin()->first;
+                    Int current = start;
+                    Int prev = -1;
+                    do {
+                        boundary_indices.push_back(current);
+                        const auto& neighbors = adjacency[current];
+                        Int next = (neighbors[0] != prev) ? neighbors[0] : neighbors[1];
+                        prev = current;
+                        current = next;
+                    } while (current != start);
+
+                    m_polygon_vertex_count = boundary_indices.size();
+                    if (m_polygon_vertex_count <= MAX_POLYGON_VERTEX_COUNT) {
+                        m_sampling_type = SolidAngleSamplingType::SinglePolygon;
+                        m_polygon_vertices.resize(m_polygon_vertex_count);
+                        for (Index i = 0; i < m_polygon_vertex_count; ++i) {
+                            m_polygon_vertices[i] = m_vertices[boundary_indices[i]];
+                        }
+                    } else {
+                        m_sampling_type = SolidAngleSamplingType::PerTriangle;
+                    }
+                } else {
+                    m_polygon_vertex_count = m_vertices.size();
+                    m_sampling_type = SolidAngleSamplingType::PerTriangle;
+                }
+            } else {
+                m_polygon_vertex_count = m_vertices.size();
+                m_sampling_type = SolidAngleSamplingType::PerTriangle;
+            }
+
+            arealight->init_is_triangle_mesh();
+        }
     }
 
     std::pair<bool, RayIntersectInfo> PLYMesh::ray_intersect(const Ray &ray, Float maxt) const {
@@ -224,7 +315,8 @@ namespace Caramel {
 
         RayIntersectInfo ret;
         ret.t = t;
-        
+        ret.tri_index = i;
+
         // PLYMesh doesn't have UVs in this implementation
         ret.tex_uv = Vector2f{u, v};
 
@@ -252,12 +344,37 @@ namespace Caramel {
         const Vector3f &p0 = m_vertices[idx[0]];
         const Vector3f &p1 = m_vertices[idx[1]];
         const Vector3f &p2 = m_vertices[idx[2]];
-        
+
         return AABB(Vector3f{std::min({p0[0], p1[0], p2[0]}),
                              std::min({p0[1], p1[1], p2[1]}),
                              std::min({p0[2], p1[2], p2[2]})},
                     Vector3f{std::max({p0[0], p1[0], p2[0]}),
                              std::max({p0[1], p1[1], p2[1]}),
                              std::max({p0[2], p1[2], p2[2]})});
+    }
+
+    std::tuple<Vector3f, Vector3f, Vector3f> PLYMesh::get_triangle_vertices(Index i) const {
+        const Vector3i& idx = m_face_indices[i];
+        return {m_vertices[idx[0]], m_vertices[idx[1]], m_vertices[idx[2]]};
+    }
+
+    Index PLYMesh::sample_triangle_index(Float u) const {
+        return m_triangle_pdf.sample(u);
+    }
+
+    Float PLYMesh::triangle_select_pdf(Index i) const {
+        return m_triangle_pdf.pdf(i);
+    }
+
+    SolidAngleSamplingType PLYMesh::get_solid_angle_sampling_type() const {
+        return m_sampling_type;
+    }
+
+    Index PLYMesh::get_polygon_vertex_count() const {
+        return m_polygon_vertex_count;
+    }
+
+    const std::vector<Vector3f>& PLYMesh::get_polygon_vertices() const {
+        return m_polygon_vertices;
     }
 }
