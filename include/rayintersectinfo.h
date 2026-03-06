@@ -41,5 +41,6 @@ namespace Caramel{
         Float t;      // Length of the ray from origin to hitpoint
         const Shape *shape;    // Shape index in a scene
         Vector2f tex_uv; // Texture coordinate
+        Index tri_index{0}; // Triangle index within mesh (used by TriangleMesh)
     };
 }
