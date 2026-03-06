@@ -202,6 +202,14 @@ namespace Caramel {
 
                     m_polygon_vertex_count = boundary_indices.size();
                     if (m_polygon_vertex_count <= MAX_POLYGON_VERTEX_COUNT) {
+                        // Ensure boundary winding matches original triangle winding
+                        const Vector3f boundary_normal = Vector3f::cross(
+                            m_vertices[boundary_indices[1]] - m_vertices[boundary_indices[0]],
+                            m_vertices[boundary_indices[2]] - m_vertices[boundary_indices[0]]);
+                        if (ref_normal.dot(boundary_normal) < Float0) {
+                            std::reverse(boundary_indices.begin(), boundary_indices.end());
+                        }
+
                         m_sampling_type = SolidAngleSamplingType::SinglePolygon;
                         m_polygon_vertices.resize(m_polygon_vertex_count);
                         for (Index i = 0; i < m_polygon_vertex_count; ++i) {
