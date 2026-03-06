@@ -43,6 +43,8 @@ namespace Caramel{
     class Distrib1D;
     class MeshAccel;
 
+    enum class SolidAngleSamplingType { SinglePolygon, PerTriangle, Impossible };
+
     class Shape{
     public:
         Shape(BSDF *bsdf, AreaLight *arealight);
@@ -56,6 +58,10 @@ namespace Caramel{
         virtual std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const = 0;
         // Probability to sample shapepos_world at hitpos_world respect to solid angle
         virtual Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const = 0;
+
+        virtual SolidAngleSamplingType get_solid_angle_sampling_type() const = 0;
+        virtual Index get_polygon_vertex_count() const = 0;
+        virtual const std::vector<Vector3f>& get_polygon_vertices() const = 0;
 
         Vector3f get_center() const;
 
@@ -101,17 +107,21 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;
         Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const override;
 
+        SolidAngleSamplingType get_solid_angle_sampling_type() const override;
+        Index get_polygon_vertex_count() const override;
+        const std::vector<Vector3f>& get_polygon_vertices() const override;
+
         Vector3f point(Index i) const{
-            return i == 0 ? m_p0 : i == 1 ? m_p1 : m_p2;
+            return m_points[i];
         }
 
         Vector3f normal(Index i) const{
-            return i == 0 ? m_n0 : i == 1 ? m_n1 : m_n2;
+            return m_normals[i];
         }
 
     private:
-        Vector3f m_p0, m_p1, m_p2;
-        Vector3f m_n0, m_n1, m_n2;
+        std::vector<Vector3f> m_points;
+        std::vector<Vector3f> m_normals;
         Vector2f m_uv0, m_uv1, m_uv2;
         const bool is_vn_exists;
         const bool is_tx_exists;
@@ -126,6 +136,9 @@ namespace Caramel{
         virtual AABB get_triangle_aabb(Index i) const = 0;
         virtual Float get_triangle_area(Index i) const = 0;
         virtual std::tuple<Vector3f, Vector3f, Float> get_triangle_sample_point(Index i, Sampler &sampler) const = 0;
+        virtual std::tuple<Vector3f, Vector3f, Vector3f> get_triangle_vertices(Index i) const = 0;
+        virtual Index sample_triangle_index(Float u) const = 0;
+        virtual Float triangle_select_pdf(Index i) const = 0;
     };
 
     class OBJMesh final : public TriangleMesh{
@@ -143,10 +156,17 @@ namespace Caramel{
         AABB get_triangle_aabb(Index i) const override;
         Float get_triangle_area(Index i) const override;
         std::tuple<Vector3f, Vector3f, Float> get_triangle_sample_point(Index i, Sampler &sampler) const override;
+        std::tuple<Vector3f, Vector3f, Vector3f> get_triangle_vertices(Index i) const override;
+        Index sample_triangle_index(Float u) const override;
+        Float triangle_select_pdf(Index i) const override;
 
         Index get_triangle_num() const override {
             return m_vertex_indices.size();
         }
+
+        SolidAngleSamplingType get_solid_angle_sampling_type() const override;
+        Index get_polygon_vertex_count() const override;
+        const std::vector<Vector3f>& get_polygon_vertices() const override;
 
     private:
         Distrib1D m_triangle_pdf;
@@ -161,6 +181,10 @@ namespace Caramel{
         std::vector<Vector3i> m_vertex_indices;
         std::vector<Vector3i> m_normal_indices;
         std::vector<Vector3i> m_tex_coord_indices;
+
+        std::vector<Vector3f> m_polygon_vertices;
+        Index m_polygon_vertex_count = 0;
+        SolidAngleSamplingType m_sampling_type = SolidAngleSamplingType::Impossible;
     };
 
     class PLYMesh final : public TriangleMesh{
@@ -178,10 +202,17 @@ namespace Caramel{
         AABB get_triangle_aabb(Index i) const override;
         Float get_triangle_area(Index i) const override;
         std::tuple<Vector3f, Vector3f, Float> get_triangle_sample_point(Index i, Sampler &sampler) const override;
+        std::tuple<Vector3f, Vector3f, Vector3f> get_triangle_vertices(Index i) const override;
+        Index sample_triangle_index(Float u) const override;
+        Float triangle_select_pdf(Index i) const override;
 
         Index get_triangle_num() const override {
             return m_face_indices.size();
         }
+
+        SolidAngleSamplingType get_solid_angle_sampling_type() const override;
+        Index get_polygon_vertex_count() const override;
+        const std::vector<Vector3f>& get_polygon_vertices() const override;
 
     private:
         Distrib1D m_triangle_pdf;
@@ -192,6 +223,10 @@ namespace Caramel{
         std::vector<Vector3f> m_vertices;
         std::vector<Vector3f> m_normals;
         std::vector<Vector3i> m_face_indices;
+
+        std::vector<Vector3f> m_polygon_vertices;
+        Index m_polygon_vertex_count = 0;
+        SolidAngleSamplingType m_sampling_type = SolidAngleSamplingType::Impossible;
     };
 
     // u, v, t

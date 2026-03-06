@@ -33,29 +33,29 @@
 
 namespace Caramel {
     Triangle::Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2, BSDF *bsdf)
-        : Shape(bsdf, nullptr), m_p0{p0}, m_p1{p1}, m_p2{p2}, is_vn_exists{false}, is_tx_exists{false} {}
+        : Shape(bsdf, nullptr), m_points{p0, p1, p2}, is_vn_exists{false}, is_tx_exists{false} {}
 
     Triangle::Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2,
                        const Vector3f &n0, const Vector3f &n1, const Vector3f &n2, BSDF *bsdf)
-        : Shape(bsdf, nullptr), m_p0{p0}, m_p1{p1}, m_p2{p2}, m_n0{n0}, m_n1{n1}, m_n2{n2}, is_vn_exists{true}, is_tx_exists{false} {}
+        : Shape(bsdf, nullptr), m_points{p0, p1, p2}, m_normals{n0, n1, n2}, is_vn_exists{true}, is_tx_exists{false} {}
 
     Triangle::Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2,
                        const Vector3f &n0, const Vector3f &n1, const Vector3f &n2,
                        const Vector2f &uv0, const Vector2f &uv1, const Vector2f &uv2, BSDF *bsdf)
-        : Shape(bsdf, nullptr), m_p0{p0}, m_p1{p1}, m_p2{p2}, m_n0{n0}, m_n1{n1}, m_n2{n2}, is_vn_exists{true}, is_tx_exists{true},
+        : Shape(bsdf, nullptr), m_points{p0, p1, p2}, m_normals{n0, n1, n2}, is_vn_exists{true}, is_tx_exists{true},
           m_uv0{uv0}, m_uv1{uv1}, m_uv2{uv2} {}
 
     AABB Triangle::get_aabb() const{
-        return AABB(Vector3f{std::min({m_p0[0], m_p1[0], m_p2[0]}),
-                             std::min({m_p0[1], m_p1[1], m_p2[1]}),
-                             std::min({m_p0[2], m_p1[2], m_p2[2]})},
-                    Vector3f{std::max({m_p0[0], m_p1[0], m_p2[0]}),
-                             std::max({m_p0[1], m_p1[1], m_p2[1]}),
-                             std::max({m_p0[2], m_p1[2], m_p2[2]})});
+        return AABB(Vector3f{std::min({m_points[0][0], m_points[1][0], m_points[2][0]}),
+                             std::min({m_points[0][1], m_points[1][1], m_points[2][1]}),
+                             std::min({m_points[0][2], m_points[1][2], m_points[2][2]})},
+                    Vector3f{std::max({m_points[0][0], m_points[1][0], m_points[2][0]}),
+                             std::max({m_points[0][1], m_points[1][1], m_points[2][1]}),
+                             std::max({m_points[0][2], m_points[1][2], m_points[2][2]})});
     }
 
     Float Triangle::get_area() const{
-        return Vector3f::cross(m_p1 - m_p0, m_p2 - m_p0).length() * Float0_5;
+        return Vector3f::cross(m_points[1] - m_points[0], m_points[2] - m_points[0]).length() * Float0_5;
     }
 
     std::tuple<Vector3f, Vector3f, Float> Triangle::sample_point(Sampler &sampler) const{
@@ -66,10 +66,10 @@ namespace Caramel {
         const Float y = v * sqrt(Float1 - u);
         // z = 1 - x - y
 
-        return {interpolate(m_p0, m_p1, m_p2, x, y),
+        return {interpolate(m_points[0], m_points[1], m_points[2], x, y),
                 is_vn_exists ?
                              interpolate(normal(0), normal(1), normal(2), x, y).normalize() :
-                             Vector3f::cross(m_p1 - m_p0, m_p2 - m_p0).normalize(),
+                             Vector3f::cross(m_points[1] - m_points[0], m_points[2] - m_points[0]).normalize(),
                 Float1 / get_area()};
     }
 
@@ -87,11 +87,11 @@ namespace Caramel {
     std::pair<bool, RayIntersectInfo> Triangle::ray_intersect(const Ray &ray, Float maxt) const {
 
 #ifdef USE_MOLLER_TRUMBORE
-        auto [u, v, t] = moller_trumbore(ray, m_p0, m_p1, m_p2, maxt);
+        auto [u, v, t] = moller_trumbore(ray, m_points[0], m_points[1], m_points[2], maxt);
 #else
         // Default: watertight intersection (more robust at triangle edges)
         // Reference: https://jcgt.org/published/0002/01/05/paper.pdf
-        auto [u, v, t] = watertight_intersection(ray, m_p0, m_p1, m_p2, maxt);
+        auto [u, v, t] = watertight_intersection(ray, m_points[0], m_points[1], m_points[2], maxt);
 #endif
 
         if(u==-Float1 && v==-Float1 && t==-Float1){
@@ -105,12 +105,24 @@ namespace Caramel {
         ret.tex_uv[0] -= floor(ret.tex_uv[0]);
         ret.tex_uv[1] -= floor(ret.tex_uv[1]);
 
-        ret.p = interpolate(m_p0, m_p1, m_p2, u, v);
-        
-        const Vector3f n = is_vn_exists ? interpolate(m_n0, m_n1, m_n2, u, v).normalize() :
-                                          Vector3f::cross(m_p1 - m_p0, m_p2 - m_p0).normalize();
+        ret.p = interpolate(m_points[0], m_points[1], m_points[2], u, v);
+
+        const Vector3f n = is_vn_exists ? interpolate(m_normals[0], m_normals[1], m_normals[2], u, v).normalize() :
+                                          Vector3f::cross(m_points[1] - m_points[0], m_points[2] - m_points[0]).normalize();
         ret.sh_coord = Coordinate(n);
 
         return {true, ret};
+    }
+
+    SolidAngleSamplingType Triangle::get_solid_angle_sampling_type() const {
+        return SolidAngleSamplingType::SinglePolygon;
+    }
+
+    Index Triangle::get_polygon_vertex_count() const {
+        return 3;
+    }
+
+    const std::vector<Vector3f>& Triangle::get_polygon_vertices() const {
+        return m_points;
     }
 }
