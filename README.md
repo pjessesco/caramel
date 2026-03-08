@@ -2,8 +2,8 @@
 
 [![Build & Test (macOS, AppleClang)](https://github.com/pjessesco/caramel/actions/workflows/build_test_macos_appleclang.yml/badge.svg)](https://github.com/pjessesco/caramel/actions/workflows/build_test_macos_appleclang.yml)
 [![Build & Test (macOS, Clang)](https://github.com/pjessesco/caramel/actions/workflows/build_test_build_macos_clang.yml/badge.svg)](https://github.com/pjessesco/caramel/actions/workflows/build_test_build_macos_clang.yml)
-[![Build (Windows, Clang)](https://github.com/pjessesco/caramel/actions/workflows/build_windows_clang.yml/badge.svg)](https://github.com/pjessesco/caramel/actions/workflows/build_windows_clang.yml)
-[![Build (Windows, MSVC)](https://github.com/pjessesco/caramel/actions/workflows/build_windows_msvc.yml/badge.svg)](https://github.com/pjessesco/caramel/actions/workflows/build_windows_msvc.yml)
+[![Build & Test (Windows, Clang)](https://github.com/pjessesco/caramel/actions/workflows/build_test_windows_clang.yml/badge.svg)](https://github.com/pjessesco/caramel/actions/workflows/build_test_windows_clang.yml)
+[![Build & Test (Windows, MSVC)](https://github.com/pjessesco/caramel/actions/workflows/build_test_windows_msvc.yml/badge.svg)](https://github.com/pjessesco/caramel/actions/workflows/build_test_windows_msvc.yml)
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/pjessesco/caramel)
 

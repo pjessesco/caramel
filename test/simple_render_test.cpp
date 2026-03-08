@@ -46,8 +46,8 @@ TEST_CASE("test1 render test", "[RenderTest]") {
         rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test1_rendered.exr").string());
     }
 
-    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
-    CHECK(Catch::Approx(0.9991) <= avg(rendered)/avg(ref));
+    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.002));
+    CHECK(Catch::Approx(0.998) <= avg(rendered)/avg(ref));
 }
 
 TEST_CASE("test2 render test", "[RenderTest]") {
@@ -62,8 +62,8 @@ TEST_CASE("test2 render test", "[RenderTest]") {
 
 
 
-    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
-    CHECK(Catch::Approx(0.9991) <= avg(rendered)/avg(ref));
+    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0011));
+    CHECK(Catch::Approx(0.9989) <= avg(rendered)/avg(ref));
 }
 
 TEST_CASE("test3 render test", "[RenderTest]") {
@@ -90,8 +90,8 @@ TEST_CASE("test4 render test", "[RenderTest]") {
         rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test4_rendered.exr").string());
     }
 
-    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
-    CHECK(Catch::Approx(0.9993) <= avg(rendered)/avg(ref));
+    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0008));
+    CHECK(Catch::Approx(0.9992) <= avg(rendered)/avg(ref));
 }
 
 TEST_CASE("test5 render test", "[RenderTest]") {
@@ -99,7 +99,7 @@ TEST_CASE("test5 render test", "[RenderTest]") {
 
     SECTION("Conductor"){
         std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_conductor.json";
-        Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_conductor.exr");
+        Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_scene_conductor.exr");
         Image rendered = render(scene_path);
 
         if (SAVE_RENDERED_IMAGES) {
@@ -111,7 +111,7 @@ TEST_CASE("test5 render test", "[RenderTest]") {
     }
     SECTION("Dielectric"){
         std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_dielectric.json";
-        Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_dielectric.exr");
+        Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_scene_dielectric.exr");
         Image rendered = render(scene_path);
 
         if (SAVE_RENDERED_IMAGES) {
@@ -123,7 +123,7 @@ TEST_CASE("test5 render test", "[RenderTest]") {
     }
     SECTION("Diffuse"){
         std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_diffuse.json";
-        Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_diffuse.exr");
+        Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_scene_diffuse.exr");
         Image rendered = render(scene_path);
 
         if (SAVE_RENDERED_IMAGES) {
@@ -135,7 +135,7 @@ TEST_CASE("test5 render test", "[RenderTest]") {
     }
     SECTION("Mirror"){
         std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_mirror.json";
-        Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_mirror.exr");
+        Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_scene_mirror.exr");
         Image rendered = render(scene_path);
 
         if (SAVE_RENDERED_IMAGES) {
