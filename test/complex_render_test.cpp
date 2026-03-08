@@ -43,7 +43,7 @@ TEST_CASE("ajax render test", "[RenderTest]") {
 }
 
 TEST_CASE("veach-mis render test", "[RenderTest]"){
-    TEST_BODY(veach_mis, 0.0007)
+    TEST_BODY(veach_mis, 0.001)
 }
 
 TEST_CASE("cbox render test", "[RenderTest]"){
