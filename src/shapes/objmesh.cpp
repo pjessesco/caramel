@@ -219,6 +219,7 @@ namespace Caramel {
             }
 
             m_is_solid_angle_sampling_possible = true;
+            CRM_LOG("Area light solid angle sampling enabled : " + path.string())
             m_polygon_vertices.resize(boundary_indices.size());
             for (Index i = 0; i < boundary_indices.size(); ++i) {
                 m_polygon_vertices[i] = m_vertices[boundary_indices[i]];
