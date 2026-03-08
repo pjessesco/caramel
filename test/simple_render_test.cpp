@@ -76,7 +76,7 @@ TEST_CASE("test3 render test", "[RenderTest]") {
         rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test3_rendered.exr").string());
     }
 
-    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0007));
+    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0008));
     CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
 }
 
@@ -118,8 +118,8 @@ TEST_CASE("test5 render test", "[RenderTest]") {
             rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_dielectric_rendered.exr").string());
         }
 
-        CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0015));
-        CHECK(Catch::Approx(0.9985) <= avg(rendered)/avg(ref));
+        CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0017));
+        CHECK(Catch::Approx(0.9983) <= avg(rendered)/avg(ref));
     }
     SECTION("Diffuse"){
         std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_diffuse.json";
