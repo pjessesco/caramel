@@ -114,12 +114,8 @@ namespace Caramel {
         return {true, ret};
     }
 
-    SolidAngleSamplingType Triangle::get_solid_angle_sampling_type() const {
-        return SolidAngleSamplingType::SinglePolygon;
-    }
-
-    Index Triangle::get_polygon_vertex_count() const {
-        return 3;
+    bool Triangle::is_solid_angle_sampling_possible() const {
+        return true;
     }
 
     const std::vector<Vector3f>& Triangle::get_polygon_vertices() const {

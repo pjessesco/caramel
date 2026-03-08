@@ -43,8 +43,6 @@ namespace Caramel{
     class Distrib1D;
     class MeshAccel;
 
-    enum class SolidAngleSamplingType { SinglePolygon, PerTriangle, Impossible };
-
     class Shape{
     public:
         Shape(BSDF *bsdf, AreaLight *arealight);
@@ -59,8 +57,7 @@ namespace Caramel{
         // Probability to sample shapepos_world at hitpos_world respect to solid angle
         virtual Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const = 0;
 
-        virtual SolidAngleSamplingType get_solid_angle_sampling_type() const = 0;
-        virtual Index get_polygon_vertex_count() const = 0;
+        virtual bool is_solid_angle_sampling_possible() const = 0;
         virtual const std::vector<Vector3f>& get_polygon_vertices() const = 0;
 
         Vector3f get_center() const;
@@ -107,8 +104,7 @@ namespace Caramel{
         std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;
         Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const override;
 
-        SolidAngleSamplingType get_solid_angle_sampling_type() const override;
-        Index get_polygon_vertex_count() const override;
+        bool is_solid_angle_sampling_possible() const override;
         const std::vector<Vector3f>& get_polygon_vertices() const override;
 
         Vector3f point(Index i) const{
@@ -164,8 +160,7 @@ namespace Caramel{
             return m_vertex_indices.size();
         }
 
-        SolidAngleSamplingType get_solid_angle_sampling_type() const override;
-        Index get_polygon_vertex_count() const override;
+        bool is_solid_angle_sampling_possible() const override;
         const std::vector<Vector3f>& get_polygon_vertices() const override;
 
     private:
@@ -182,9 +177,9 @@ namespace Caramel{
         std::vector<Vector3i> m_normal_indices;
         std::vector<Vector3i> m_tex_coord_indices;
 
+        // for solid angle sampling
         std::vector<Vector3f> m_polygon_vertices;
-        Index m_polygon_vertex_count = 0;
-        SolidAngleSamplingType m_sampling_type = SolidAngleSamplingType::Impossible;
+        bool m_is_solid_angle_sampling_possible = false;
     };
 
     class PLYMesh final : public TriangleMesh{
@@ -210,8 +205,7 @@ namespace Caramel{
             return m_face_indices.size();
         }
 
-        SolidAngleSamplingType get_solid_angle_sampling_type() const override;
-        Index get_polygon_vertex_count() const override;
+        bool is_solid_angle_sampling_possible() const override;
         const std::vector<Vector3f>& get_polygon_vertices() const override;
 
     private:
@@ -224,9 +218,9 @@ namespace Caramel{
         std::vector<Vector3f> m_normals;
         std::vector<Vector3i> m_face_indices;
 
+        // for solid angle sampling
         std::vector<Vector3f> m_polygon_vertices;
-        Index m_polygon_vertex_count = 0;
-        SolidAngleSamplingType m_sampling_type = SolidAngleSamplingType::Impossible;
+        bool m_is_solid_angle_sampling_possible = false;
     };
 
     // u, v, t

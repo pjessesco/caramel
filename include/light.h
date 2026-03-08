@@ -113,12 +113,9 @@ namespace Caramel{
             return new AreaLight(args...);
         }
 
-        void init_is_triangle_mesh();
-
         Shape *m_shape;
         Vector3f m_radiance;
-        bool m_is_triangle_mesh = false;
-        static constexpr bool SOLID_ANGLE_SAMPLING = true;
+        static constexpr bool TRY_SOLID_ANGLE_SAMPLING = true;
     };
 
     class ConstantEnvLight final : public Light {

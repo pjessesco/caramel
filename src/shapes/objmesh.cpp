@@ -134,7 +134,7 @@ namespace Caramel {
         m_accel = std::make_unique<Octree>(*this);
         m_accel->build();
 
-        if (arealight != nullptr) {
+        if (AreaLight::TRY_SOLID_ANGLE_SAMPLING && arealight != nullptr) {
             // Check coplanarity of all triangles
             const auto& idx0 = m_vertex_indices[0];
             const Vector3f ref_normal = Vector3f::cross(
@@ -200,8 +200,7 @@ namespace Caramel {
                         current = next;
                     } while (current != start);
 
-                    m_polygon_vertex_count = boundary_indices.size();
-                    if (m_polygon_vertex_count <= MAX_POLYGON_VERTEX_COUNT) {
+                    if (boundary_indices.size() <= MAX_POLYGON_VERTEX_COUNT) {
                         // Ensure boundary winding matches original triangle winding
                         const Vector3f boundary_normal = Vector3f::cross(
                             m_vertices[boundary_indices[1]] - m_vertices[boundary_indices[0]],
@@ -210,24 +209,14 @@ namespace Caramel {
                             std::reverse(boundary_indices.begin(), boundary_indices.end());
                         }
 
-                        m_sampling_type = SolidAngleSamplingType::SinglePolygon;
-                        m_polygon_vertices.resize(m_polygon_vertex_count);
-                        for (Index i = 0; i < m_polygon_vertex_count; ++i) {
+                        m_is_solid_angle_sampling_possible = true;
+                        m_polygon_vertices.resize(boundary_indices.size());
+                        for (Index i = 0; i < boundary_indices.size(); ++i) {
                             m_polygon_vertices[i] = m_vertices[boundary_indices[i]];
                         }
-                    } else {
-                        m_sampling_type = SolidAngleSamplingType::PerTriangle;
                     }
-                } else {
-                    m_polygon_vertex_count = m_vertices.size();
-                    m_sampling_type = SolidAngleSamplingType::PerTriangle;
                 }
-            } else {
-                m_polygon_vertex_count = m_vertices.size();
-                m_sampling_type = SolidAngleSamplingType::PerTriangle;
             }
-
-            arealight->init_is_triangle_mesh();
         }
     }
 
@@ -379,12 +368,8 @@ namespace Caramel {
         return m_triangle_pdf.pdf(i);
     }
 
-    SolidAngleSamplingType OBJMesh::get_solid_angle_sampling_type() const {
-        return m_sampling_type;
-    }
-
-    Index OBJMesh::get_polygon_vertex_count() const {
-        return m_polygon_vertex_count;
+    bool OBJMesh::is_solid_angle_sampling_possible() const {
+        return m_is_solid_angle_sampling_possible;
     }
 
     const std::vector<Vector3f>& OBJMesh::get_polygon_vertices() const {
