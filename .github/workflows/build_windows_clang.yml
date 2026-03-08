@@ -1,4 +1,4 @@
-name: Build (Windows, Clang)
+name: Build & Test (Windows, Clang)
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 env:
-  BUILD_TYPE: Debug
+  BUILD_TYPE: Release
 
 jobs:
   build:
@@ -25,5 +25,7 @@ jobs:
       run: cmake -B ./build -T ClangCL
 
     - name: Build
-      # Build your program with the given configuration
-      run: cmake --build ./build --config Debug
+      run: cmake --build ./build --config Release
+
+    - name: Test
+      run: ./build/Release/caramel_test.exe
