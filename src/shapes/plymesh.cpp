@@ -170,60 +170,65 @@ namespace Caramel {
                 }
             }
 
-            if (coplanar) {
-                // Build edge map: (min_idx, max_idx) -> count
-                std::map<std::pair<Int, Int>, int> edge_count;
-                for (Index i = 0; i < m_face_indices.size(); ++i) {
-                    const auto& idx = m_face_indices[i];
-                    for (int e = 0; e < 3; ++e) {
-                        Int a = idx[e];
-                        Int b = idx[(e + 1) % 3];
-                        auto edge = std::make_pair(std::min(a, b), std::max(a, b));
-                        edge_count[edge]++;
-                    }
-                }
+            if (!coplanar) {
+                return;
+            }
 
-                // Find boundary edges (count == 1) and build adjacency
-                std::map<Int, std::vector<Int>> adjacency;
-                for (const auto& [edge, count] : edge_count) {
-                    if (count == 1) {
-                        adjacency[edge.first].push_back(edge.second);
-                        adjacency[edge.second].push_back(edge.first);
-                    }
-                }
-
-                if (!adjacency.empty()) {
-                    // Walk boundary edges to get ordered vertex indices
-                    std::vector<Int> boundary_indices;
-                    Int start = adjacency.begin()->first;
-                    Int current = start;
-                    Int prev = -1;
-                    do {
-                        boundary_indices.push_back(current);
-                        const auto& neighbors = adjacency[current];
-                        Int next = (neighbors[0] != prev) ? neighbors[0] : neighbors[1];
-                        prev = current;
-                        current = next;
-                    } while (current != start);
-
-                    if (boundary_indices.size() <= MAX_POLYGON_VERTEX_COUNT) {
-                        // Ensure boundary winding matches original triangle winding
-                        const Vector3f boundary_normal = Vector3f::cross(
-                            m_vertices[boundary_indices[1]] - m_vertices[boundary_indices[0]],
-                            m_vertices[boundary_indices[2]] - m_vertices[boundary_indices[0]]);
-                        if (ref_normal.dot(boundary_normal) < Float0) {
-                            std::reverse(boundary_indices.begin(), boundary_indices.end());
-                        }
-
-                        m_is_solid_angle_sampling_possible = true;
-                        m_polygon_vertices.resize(boundary_indices.size());
-                        for (Index i = 0; i < boundary_indices.size(); ++i) {
-                            m_polygon_vertices[i] = m_vertices[boundary_indices[i]];
-                        }
-                    }
+            // Build edge map: (min_idx, max_idx) -> count
+            std::map<std::pair<Int, Int>, int> edge_count;
+            for (Index i = 0; i < m_face_indices.size(); ++i) {
+                const auto& idx = m_face_indices[i];
+                for (int e = 0; e < 3; ++e) {
+                    Int a = idx[e];
+                    Int b = idx[(e + 1) % 3];
+                    auto edge = std::make_pair(std::min(a, b), std::max(a, b));
+                    edge_count[edge]++;
                 }
             }
 
+            // Find boundary edges (count == 1) and build adjacency
+            std::map<Int, std::vector<Int>> adjacency;
+            for (const auto& [edge, count] : edge_count) {
+                if (count == 1) {
+                    adjacency[edge.first].push_back(edge.second);
+                    adjacency[edge.second].push_back(edge.first);
+                }
+            }
+
+            if (adjacency.empty()) {
+                return;
+            }
+
+            // Walk boundary edges to get ordered vertex indices
+            std::vector<Int> boundary_indices;
+            Int start = adjacency.begin()->first;
+            Int current = start;
+            Int prev = -1;
+            do {
+                boundary_indices.push_back(current);
+                const auto& neighbors = adjacency[current];
+                Int next = (neighbors[0] != prev) ? neighbors[0] : neighbors[1];
+                prev = current;
+                current = next;
+            } while (current != start);
+
+            if (boundary_indices.size() > MAX_POLYGON_VERTEX_COUNT) {
+                return;
+            }
+
+            // Ensure boundary winding matches original triangle winding
+            const Vector3f boundary_normal = Vector3f::cross(
+                m_vertices[boundary_indices[1]] - m_vertices[boundary_indices[0]],
+                m_vertices[boundary_indices[2]] - m_vertices[boundary_indices[0]]);
+            if (ref_normal.dot(boundary_normal) < Float0) {
+                std::reverse(boundary_indices.begin(), boundary_indices.end());
+            }
+
+            m_is_solid_angle_sampling_possible = true;
+            m_polygon_vertices.resize(boundary_indices.size());
+            for (Index i = 0; i < boundary_indices.size(); ++i) {
+                m_polygon_vertices[i] = m_vertices[boundary_indices[i]];
+            }
 
         }
     }
