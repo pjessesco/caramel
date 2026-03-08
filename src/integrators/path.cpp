@@ -88,7 +88,7 @@ namespace Caramel{
             if(!is_current_specular){
                 auto [light, light_pick_pdf] = scene.sample_light(sampler);
 
-                auto [emitted_rad, light_pos, light_n_world, light_pos_pdf] = light->sample_direct_contribution(scene, info, sampler);
+                auto [emitted_rad, light_pos, light_n_world] = light->sample_direct_contribution(scene, info, sampler);
 
                 // Continue if light sampling succeed
                 if(!is_zero(emitted_rad)){

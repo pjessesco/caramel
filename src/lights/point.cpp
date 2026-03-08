@@ -48,18 +48,18 @@ namespace Caramel{
         return vec3f_zero;
     }
 
-    std::tuple<Vector3f, Vector3f, Vector3f, Float> PointLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &) const{
+    std::tuple<Vector3f, Vector3f, Vector3f> PointLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &) const{
         // If hitpoint and sampled point is not visible to each other, zero contribution
         bool is_visible = scene.is_visible(m_pos, hitpos_info.p);
 
         if(!is_visible){
-            return {vec3f_zero, vec3f_zero, vec3f_zero, Float1};
+            return {vec3f_zero, vec3f_zero, vec3f_zero};
         }
 
         const Vector3f light_to_hitpos = hitpos_info.p - m_pos;
 
         return {m_radiant_intensity / light_to_hitpos.dot(light_to_hitpos)/* = dist * dist*/,
-                m_pos, light_to_hitpos.normalize(), Float1};
+                m_pos, light_to_hitpos.normalize()};
     }
 
     Float PointLight::pdf_solidangle(const Vector3f &, const Vector3f &, const Vector3f &) const{

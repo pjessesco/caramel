@@ -83,12 +83,26 @@ namespace Caramel{
         return m_image->get_pixel_value(uv[0] * size[0], uv[1] * size[1]);
     }
 
-    std::tuple<Vector3f, Vector3f, Vector3f, Float> ImageEnvLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &sampler) const{
+    std::tuple<Vector3f, Vector3f, Vector3f> ImageEnvLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &sampler) const{
         const auto sampled_uv = m_imageDistrib.sample(sampler.sample_1d(), sampler.sample_1d());
         const auto pos_to_light_local = normalized_uv_to_vec(Vector2f{static_cast<Float>(sampled_uv[0] + Float0_5) / m_width, static_cast<Float>(sampled_uv[1] + Float0_5) / m_height});
         const Vector3f pos_to_light_world = Vector3f(m_to_world * pos_to_light_local).normalize();
 
         const Vector3f light_pos = hitpos_info.p + (pos_to_light_world * m_scene_radius * 2);
+
+        bool visible = scene.is_visible(light_pos, hitpos_info.p);
+        if (!visible) {
+            return {vec3f_zero, vec3f_zero, vec3f_zero};
+        }
+
+        return {radiance(hitpos_info.p, light_pos, -pos_to_light_world), light_pos, -pos_to_light_world};
+    }
+
+    Float ImageEnvLight::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const{
+        const auto dir = Vector3f(lightpos_world - hitpos_world).normalize();
+        const Vector2f uv = vec_to_normalized_uv(m_to_local * dir);
+        using std::abs;
+        using std::sin;
 
         // 1.
         // (i,j) (discrete) -> (u, v) (continuous)
@@ -103,22 +117,7 @@ namespace Caramel{
         // (theta, phi) -> (x, y, z) (solid angle vector)
         // |j| is known as sin(theta)
         //
-        using std::sin;
-        const auto pdf = m_width_height * m_imageDistrib.pdf/*technically it's pmf*/(sampled_uv[0], sampled_uv[1]) / (2 * PI * PI * sin(static_cast<Float>((sampled_uv[1] + Float0_5) / m_height) * PI));
 
-        bool visible = scene.is_visible(light_pos, hitpos_info.p);
-        if (!visible) {
-            return {vec3f_zero, vec3f_zero, vec3f_zero, pdf};
-        }
-
-        return {radiance(hitpos_info.p, light_pos, -pos_to_light_world), light_pos, -pos_to_light_world, pdf};
-    }
-
-    Float ImageEnvLight::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const{
-        const auto dir = Vector3f(lightpos_world - hitpos_world).normalize();
-        const Vector2f uv = vec_to_normalized_uv(m_to_local * dir);
-        using std::abs;
-        using std::sin;
         if (abs(uv[1] - Float1) < 1e-6 || abs(uv[1] - Float0) < 1e-6) {
             return 0;
         }
@@ -128,7 +127,7 @@ namespace Caramel{
             pixel_idx[0] -= m_width;
         }
 
-        return m_width_height * m_imageDistrib.pdf(pixel_idx[0], pixel_idx[1]) / (2 * PI * PI * sin(uv[1] * PI)); // ???
+        return m_width_height * m_imageDistrib.pdf/*technically it's pmf*/(pixel_idx[0], pixel_idx[1]) / (2 * PI * PI * sin(uv[1] * PI)); // ???
     }
 
     bool ImageEnvLight::is_delta() const {

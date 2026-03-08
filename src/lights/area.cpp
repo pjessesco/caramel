@@ -59,7 +59,7 @@ namespace Caramel{
         return m_radiance;
     }
 
-    std::tuple<Vector3f, Vector3f, Vector3f, Float> AreaLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &sampler) const{
+    std::tuple<Vector3f, Vector3f, Vector3f> AreaLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &sampler) const{
         // Solid angle sampling of convex polygons.
         // Based on: Christoph Peters, 2021
         //   "BRDF Importance Sampling for Polygonal Lights", Section 5 & Supplement C
@@ -68,14 +68,13 @@ namespace Caramel{
             const auto& verts = m_shape->get_polygon_vertices();
             const auto polygon = prepare_solid_angle_polygon(verts.size(), verts.data(), hitpos_info.p);
             if(polygon.solid_angle <= Float0){
-                return {vec3f_zero, vec3f_zero, vec3f_zero, Float0};
+                return {vec3f_zero, vec3f_zero, vec3f_zero};
             }
-            const Float pdf = Float1 / polygon.solid_angle;
 
             const Vector3f dir = sample_solid_angle_polygon(polygon, sampler.sample_1d(), sampler.sample_1d());
 
             if(std::isnan(dir[0]) || std::isnan(dir[1]) || std::isnan(dir[2])){
-                return {vec3f_zero, vec3f_zero, vec3f_zero, Float0};
+                return {vec3f_zero, vec3f_zero, vec3f_zero};
             }
 
             // Use light mesh intersection for exact surface point
@@ -83,36 +82,35 @@ namespace Caramel{
             const auto [hit, mesh_info] = m_shape->ray_intersect(sample_ray, INF);
 
             if(!hit){
-                return {vec3f_zero, vec3f_zero, vec3f_zero, pdf};
+                return {vec3f_zero, vec3f_zero, vec3f_zero};
             }
 
             const Vector3f light_pos = mesh_info.p;
             const Vector3f light_normal_world = mesh_info.sh_coord.m_world_n;
 
             if(light_normal_world.dot(hitpos_info.p - light_pos) <= Float0){
-                return {vec3f_zero, vec3f_zero, vec3f_zero, pdf};
+                return {vec3f_zero, vec3f_zero, vec3f_zero};
             }
 
             if(!scene.is_visible(hitpos_info.p, light_pos)){
-                return {vec3f_zero, vec3f_zero, vec3f_zero, pdf};
+                return {vec3f_zero, vec3f_zero, vec3f_zero};
             }
 
-            return {m_radiance, light_pos, light_normal_world, pdf};
+            return {m_radiance, light_pos, light_normal_world};
         }
         else /* Traditional uniform area sampling */{
             const auto [light_pos, light_normal_world, pos_pdf] = m_shape->sample_point(sampler);
             const Vector3f light_to_hitpos = hitpos_info.p - light_pos;
 
             if(light_normal_world.dot(light_to_hitpos) <= 0){
-                return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf};
+                return {vec3f_zero, vec3f_zero, vec3f_zero};
             }
 
-            bool is_visible = scene.is_visible(hitpos_info.p, light_pos);
-            if(!is_visible){
-                return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf};
+            if(!scene.is_visible(hitpos_info.p, light_pos)){
+                return {vec3f_zero, vec3f_zero, vec3f_zero};
             }
 
-            return {m_radiance, light_pos, light_normal_world, pos_pdf};
+            return {m_radiance, light_pos, light_normal_world};
         }
     }
 
