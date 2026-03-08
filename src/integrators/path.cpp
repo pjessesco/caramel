@@ -106,7 +106,12 @@ namespace Caramel{
                             const Float pdf_solidangle = light->pdf_solidangle(info.p, light_pos, light_n_world);
                             const Float bsdf_pdf = shape->get_bsdf()->pdf(local_ray_dir, hitpos_to_light_local_normal);
                             const Float light_pdf = light_pick_pdf * pdf_solidangle;
-                            ret = ret + (fr % emitted_rad % current_brdf) * abs(hitpos_to_light_local_normal[2]) * balance_heuristic(light_pdf, bsdf_pdf) / light_pdf;
+                            // Guard against division by zero when light_pdf is zero
+                            // (e.g. degenerate sample at a shared edge between geometry and light).
+                            // See test_scenes/test3 for a scene that triggers this case.
+                            if(light_pdf > Float0){
+                                ret = ret + (fr % emitted_rad % current_brdf) * abs(hitpos_to_light_local_normal[2]) * balance_heuristic(light_pdf, bsdf_pdf) / light_pdf;
+                            }
                         }
                     }
                 }

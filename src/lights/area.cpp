@@ -87,8 +87,17 @@ namespace Caramel{
 
             const Vector3f light_pos = mesh_info.p;
             const Vector3f light_normal_world = mesh_info.sh_coord.m_world_n;
+            const Vector3f light_to_hitpos = hitpos_info.p - light_pos;
 
-            if(light_normal_world.dot(hitpos_info.p - light_pos) <= Float0){
+            // Discard samples where the light point nearly coincides with the
+            // shading point (e.g. floor-wall shared edge), which would cause
+            // a degenerate normalize() and unstable MIS weights.
+            // See test_scenes/test3 for a scene that triggers this case.
+            if(light_to_hitpos.dot(light_to_hitpos) < EPSILON * EPSILON){
+                return {vec3f_zero, vec3f_zero, vec3f_zero};
+            }
+
+            if(light_normal_world.dot(light_to_hitpos) <= Float0){
                 return {vec3f_zero, vec3f_zero, vec3f_zero};
             }
 
