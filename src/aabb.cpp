@@ -79,10 +79,9 @@ namespace Caramel{
 
         for(Index i=0;i<3;i++){
             const Float o = ray.m_o[i];
-            const Float d = ray.m_d[i];
             const Float min = m_min[i];
             const Float max = m_max[i];
-            if (Peanut::is_zero(d)) {
+            if (ray.m_d_near_zero[i]) {
                 if (o < min || o > max) {
                     return {false, INF};
                 }
