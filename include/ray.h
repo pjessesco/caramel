@@ -29,10 +29,13 @@
 namespace Caramel{
     class Ray{
     public:
-        Ray(const Vector3f &o, const Vector3f &d) : m_o{o}, m_d{d.normalize()}, m_d_recip{Float1/m_d[0], Float1/m_d[1], Float1/m_d[2]} {}
+        Ray(const Vector3f &o, const Vector3f &d) : m_o{o}, m_d{d.normalize()},
+            m_d_recip{Float1/m_d[0], Float1/m_d[1], Float1/m_d[2]},
+            m_d_near_zero{Peanut::is_zero(m_d[0]), Peanut::is_zero(m_d[1]), Peanut::is_zero(m_d[2])} {}
 
         Vector3f m_o;
         Vector3f m_d;
         Vector3f m_d_recip;
+        bool m_d_near_zero[3];
     };
 }
