@@ -74,6 +74,12 @@ namespace Caramel{
     bool Scene::is_visible(const Vector3f &pos1, const Vector3f &pos2) const{
         const Vector3f vec3_1_to_2(pos2 - pos1);
         const Float len = vec3_1_to_2.length();
+        // When two positions coincide (e.g. shading point on a floor edge shared
+        // with a wall light), avoid division by zero and treat as visible.
+        // See test_scenes/test3 for a scene that triggers this case.
+        if(len < EPSILON){
+            return true;
+        }
         const Vector3f dir = vec3_1_to_2 / len;
         const Ray ray{pos1 + (dir * EPSILON), dir};
 

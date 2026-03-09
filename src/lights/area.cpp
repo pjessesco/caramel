@@ -26,12 +26,14 @@
 
 #include <light.h>
 
+#include <logger.h>
 #include <ray.h>
 #include <common.h>
 #include <sampler.h>
 #include <scene.h>
 #include <shape.h>
 #include <rayintersectinfo.h>
+#include <polygon_sampling.h>
 
 namespace Caramel{
     AreaLight::AreaLight(const Vector3f &radiance)
@@ -57,26 +59,84 @@ namespace Caramel{
         return m_radiance;
     }
 
-    std::tuple<Vector3f, Vector3f, Vector3f, Float> AreaLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &sampler) const{
-        // Sample point on the shape
-        const auto [light_pos, light_normal_world, pos_pdf] = m_shape->sample_point(sampler);
-        const Vector3f light_to_hitpos = hitpos_info.p - light_pos;
+    std::tuple<Vector3f, Vector3f, Vector3f> AreaLight::sample_direct_contribution(const Scene &scene, const RayIntersectInfo &hitpos_info, Sampler &sampler) const{
+        // Solid angle sampling of convex polygons.
+        // Based on: Christoph Peters, 2021
+        //   "BRDF Importance Sampling for Polygonal Lights", Section 5 & Supplement C
+        //   https://doi.org/10.1145/3450626.3459672
+        if (TRY_SOLID_ANGLE_SAMPLING && m_shape->is_solid_angle_sampling_possible()) {
+            const auto& verts = m_shape->get_polygon_vertices();
+            const auto polygon = prepare_solid_angle_polygon(verts.size(), verts.data(), hitpos_info.p);
+            if(polygon.solid_angle <= Float0){
+                return {vec3f_zero, vec3f_zero, vec3f_zero};
+            }
 
-        // If hitpoint is behind of a sampled point, zero contribution
-        if(light_normal_world.dot(light_to_hitpos) <= 0){
-            return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf};
+            const Vector3f dir = sample_solid_angle_polygon(polygon, sampler.sample_1d(), sampler.sample_1d());
+
+            if(std::isnan(dir[0]) || std::isnan(dir[1]) || std::isnan(dir[2])){
+                return {vec3f_zero, vec3f_zero, vec3f_zero};
+            }
+
+            // Use light mesh intersection for exact surface point
+            const Ray sample_ray(hitpos_info.p, dir);
+            const auto [hit, mesh_info] = m_shape->ray_intersect(sample_ray, INF);
+
+            if(!hit){
+                return {vec3f_zero, vec3f_zero, vec3f_zero};
+            }
+
+            const Vector3f light_pos = mesh_info.p;
+            const Vector3f light_normal_world = mesh_info.sh_coord.m_world_n;
+            const Vector3f light_to_hitpos = hitpos_info.p - light_pos;
+
+            // Discard samples where the light point nearly coincides with the
+            // shading point (e.g. floor-wall shared edge), which would cause
+            // a degenerate normalize() and unstable MIS weights.
+            // See test_scenes/test3 for a scene that triggers this case.
+            if(light_to_hitpos.dot(light_to_hitpos) < EPSILON * EPSILON){
+                return {vec3f_zero, vec3f_zero, vec3f_zero};
+            }
+
+            if(light_normal_world.dot(light_to_hitpos) <= Float0){
+                return {vec3f_zero, vec3f_zero, vec3f_zero};
+            }
+
+            if(!scene.is_visible(hitpos_info.p, light_pos)){
+                return {vec3f_zero, vec3f_zero, vec3f_zero};
+            }
+
+            return {m_radiance, light_pos, light_normal_world};
         }
+        else /* Traditional uniform area sampling */{
+            const auto [light_pos, light_normal_world, pos_pdf] = m_shape->sample_point(sampler);
+            const Vector3f light_to_hitpos = hitpos_info.p - light_pos;
 
-        // If hitpoint and sampled point is not visible to each other, zero contribution
-        bool is_visible = scene.is_visible(hitpos_info.p, light_pos);
-        if(!is_visible){
-            return {vec3f_zero, vec3f_zero, vec3f_zero, pos_pdf};
+            if(light_normal_world.dot(light_to_hitpos) <= 0){
+                return {vec3f_zero, vec3f_zero, vec3f_zero};
+            }
+
+            if(!scene.is_visible(hitpos_info.p, light_pos)){
+                return {vec3f_zero, vec3f_zero, vec3f_zero};
+            }
+
+            return {m_radiance, light_pos, light_normal_world};
         }
-
-        return {m_radiance, light_pos, light_normal_world, pos_pdf};
     }
 
     Float AreaLight::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &lightpos_world, const Vector3f &light_normal_world) const{
+        // Solid angle sampling of convex polygons.
+        // Based on: Christoph Peters, 2021
+        //   "BRDF Importance Sampling for Polygonal Lights", Section 5 & Supplement C
+        //   https://doi.org/10.1145/3450626.3459672
+        if constexpr(TRY_SOLID_ANGLE_SAMPLING) {
+            if(m_shape->is_solid_angle_sampling_possible()){
+                const auto& verts = m_shape->get_polygon_vertices();
+                const auto polygon = prepare_solid_angle_polygon(verts.size(), verts.data(), hitpos_world);
+                return (polygon.solid_angle > Float0) ? Float1 / polygon.solid_angle : Float0;
+            }
+        }
+
+        // Non-solid-angle path: area-based PDF
         return m_shape->pdf_solidangle(hitpos_world, lightpos_world, light_normal_world);
     }
 

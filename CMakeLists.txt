@@ -88,6 +88,7 @@ if(NOT EXCLUDE_TEST)
             test/simple_render_test.cpp
             test/unit_tests.cpp
             test/chi2_bsdf_test.cpp
+            test/chi2_polygon_test.cpp
             test/utils.cpp
     )
 

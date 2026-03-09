@@ -83,12 +83,12 @@ namespace Caramel{
                 break;
             }
 
-            // emiiter sampling
+            // emitter sampling
             const bool is_current_specular = shape_bsdf->is_discrete(local_ray_dir[2] < Float0);
             if(!is_current_specular){
                 auto [light, light_pick_pdf] = scene.sample_light(sampler);
 
-                auto [emitted_rad, light_pos, light_n_world, light_pos_pdf] = light->sample_direct_contribution(scene, info, sampler);
+                auto [emitted_rad, light_pos, light_n_world] = light->sample_direct_contribution(scene, info, sampler);
 
                 // Continue if light sampling succeed
                 if(!is_zero(emitted_rad)){
@@ -106,7 +106,12 @@ namespace Caramel{
                             const Float pdf_solidangle = light->pdf_solidangle(info.p, light_pos, light_n_world);
                             const Float bsdf_pdf = shape->get_bsdf()->pdf(local_ray_dir, hitpos_to_light_local_normal);
                             const Float light_pdf = light_pick_pdf * pdf_solidangle;
-                            ret = ret + (fr % emitted_rad % current_brdf) * abs(hitpos_to_light_local_normal[2]) * balance_heuristic(light_pdf, bsdf_pdf) / light_pdf;
+                            // Guard against division by zero when light_pdf is zero
+                            // (e.g. degenerate sample at a shared edge between geometry and light).
+                            // See test_scenes/test3 for a scene that triggers this case.
+                            if(light_pdf > Float0){
+                                ret = ret + (fr % emitted_rad % current_brdf) * abs(hitpos_to_light_local_normal[2]) * balance_heuristic(light_pdf, bsdf_pdf) / light_pdf;
+                            }
                         }
                     }
                 }
