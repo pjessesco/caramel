@@ -37,55 +37,52 @@ namespace Caramel{
     class RayIntersectInfo;
     class Ray;
 
+    struct LinearBVHNode {
+        AABB aabb;
+        int offset;        // primitives_offset (leaf) or second_child_offset (inner)
+        int n_primitives;  // 0 = inner node
+        int split_axis;
+    };
+
     template<typename Traits>
     class BVHBase {
     public:
         using Primitive = typename Traits::Primitive;
 
-        BVHBase(std::vector<Primitive> primitives, const Traits &traits);
+        BVHBase(std::vector<Primitive> primitives, const Traits &traits,
+                Float cost_traversal, Float cost_intersection, int subspace_count, int max_primitive_num);
         void create_child();
+        void flatten();
         std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const;
         bool is_leaf() const;
 
-        // void print_stats() const;
-
     private:
         Traits m_traits;
-        std::vector<Primitive> m_primitives;
-
-        std::unique_ptr<BVHBase> m_left;
-        std::unique_ptr<BVHBase> m_right;
-
-        AABB m_aabb;
-        int m_split_axis = -1;
 
         /*
          *      +----------------------------------+
          *      |      |      |      |      |      |  :  SUBSPACE_COUNT = 5
          *      +----------------------------------+     CUT_COUNT = 4
          */
-        static constexpr int SUBSPACE_COUNT = 12;
-        static constexpr int CUT_COUNT = SUBSPACE_COUNT - 1;
-        static constexpr int MAX_SHAPE_NUM = 4;
-        // as pbrt says so...
-        static constexpr int COST_TRAVERSAL = 1;
-        static constexpr int COST_INTERSECTION = 2;
-        static constexpr int BVH_SUBSPACE_COUNT = 12;
-        static constexpr int BVH_MAX_PRIMITIVE_NUM = 4;
+        Float m_cost_traversal;
+        Float m_cost_intersection;
+        int m_subspace_count;
+        int m_max_primitive_num;
 
-        static constexpr bool USE_SAH = true;
+        std::vector<Primitive> m_primitives;
+        std::unique_ptr<BVHBase> m_left;
+        std::unique_ptr<BVHBase> m_right;
 
-        // struct Stats {
-        //     int total_nodes = 0;
-        //     int leaf_nodes = 0;
-        //     int inner_nodes = 0;
-        //     int max_depth = 0;
-        //     int min_shapes_per_leaf = std::numeric_limits<int>::max();
-        //     int max_shapes_per_leaf = 0;
-        //     int total_shapes_in_leaves = 0;
-        // };
-        // void collect_stats(Stats &stats, int depth) const;
-        // void print_tree(std::string prefix, bool is_left, int depth, int max_depth) const;
+        AABB m_aabb;
+        int m_split_axis = -1;
+
+        // Flat BVH data (populated by flatten(), used by ray_intersect())
+        std::vector<LinearBVHNode> m_nodes;
+        std::vector<Primitive> m_ordered_primitives;
+
+        void flatten_recursive(std::vector<LinearBVHNode> &nodes,
+                               std::vector<Primitive> &ordered_prims,
+                               int *offset) const;
     };
 
     // Traits for scene-level BVH (Shape pointers)

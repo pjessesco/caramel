@@ -128,7 +128,7 @@ namespace Caramel {
 
         m_aabb = AABB({min_x, min_y, min_z}, {max_x, max_y, max_z});
 
-        m_accel = std::make_unique<Octree>(*this);
+        m_accel = std::make_unique<BVHMesh>(*this, Float1, Float1, 32, 1);
         m_accel->build();
     }
 

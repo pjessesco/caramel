@@ -31,15 +31,20 @@
 #include <shape.h>
 
 namespace Caramel{
-    BVHMesh::BVHMesh(const TriangleMesh &shape) : MeshAccel(shape), m_traits(shape) {}
+    BVHMesh::BVHMesh(const TriangleMesh &shape,
+                     Float cost_traversal, Float cost_intersection, int subspace_count, int max_primitive_num)
+    : MeshAccel(shape), m_traits(shape),
+      m_cost_traversal(cost_traversal), m_cost_intersection(cost_intersection),
+      m_subspace_count(subspace_count), m_max_primitive_num(max_primitive_num) {}
 
     void BVHMesh::build() {
         std::vector<Index> indices(m_shape.get_triangle_num());
         for (Index i = 0; i < m_shape.get_triangle_num(); i++) {
             indices[i] = i;
         }
-        m_root = std::make_unique<BVHBase<BVHMeshTraits>>(std::move(indices), m_traits);
+        m_root = std::make_unique<BVHBase<BVHMeshTraits>>(std::move(indices), m_traits, m_cost_traversal, m_cost_intersection, m_subspace_count, m_max_primitive_num);
         m_root->create_child();
+        m_root->flatten();
     }
 
     std::pair<bool, RayIntersectInfo> BVHMesh::ray_intersect(const Ray &ray, Float maxt) {
