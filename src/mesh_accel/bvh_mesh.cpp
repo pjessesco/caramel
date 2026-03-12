@@ -43,8 +43,6 @@ namespace Caramel{
             indices[i] = i;
         }
         m_root = std::make_unique<BVHBase<BVHMeshTraits>>(std::move(indices), m_traits, m_cost_traversal, m_cost_intersection, m_subspace_count, m_max_primitive_num);
-        m_root->create_child();
-        m_root->flatten();
     }
 
     std::pair<bool, RayIntersectInfo> BVHMesh::ray_intersect(const Ray &ray, Float maxt) {

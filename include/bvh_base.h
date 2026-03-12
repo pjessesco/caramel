@@ -45,44 +45,37 @@ namespace Caramel{
     };
 
     template<typename Traits>
+    struct BVHNode {
+        using Primitive = typename Traits::Primitive;
+
+        BVHNode(std::vector<Primitive> primitives, const Traits &traits);
+        bool is_leaf() const;
+        void create_child(const Traits &traits,
+                          Float cost_traversal, Float cost_intersection, int subspace_count, int max_primitive_num);
+        void flatten_recursive(std::vector<LinearBVHNode> &nodes,
+                               std::vector<Primitive> &ordered_prims,
+                               int &offset) const;
+
+        AABB m_aabb;
+        std::vector<Primitive> m_primitives;
+        std::unique_ptr<BVHNode> m_left;
+        std::unique_ptr<BVHNode> m_right;
+        int m_split_axis = -1;
+    };
+
+    template<typename Traits>
     class BVHBase {
     public:
         using Primitive = typename Traits::Primitive;
 
         BVHBase(std::vector<Primitive> primitives, const Traits &traits,
                 Float cost_traversal, Float cost_intersection, int subspace_count, int max_primitive_num);
-        void create_child();
-        void flatten();
         std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const;
-        bool is_leaf() const;
 
     private:
         Traits m_traits;
-
-        /*
-         *      +----------------------------------+
-         *      |      |      |      |      |      |  :  SUBSPACE_COUNT = 5
-         *      +----------------------------------+     CUT_COUNT = 4
-         */
-        Float m_cost_traversal;
-        Float m_cost_intersection;
-        int m_subspace_count;
-        int m_max_primitive_num;
-
-        std::vector<Primitive> m_primitives;
-        std::unique_ptr<BVHBase> m_left;
-        std::unique_ptr<BVHBase> m_right;
-
-        AABB m_aabb;
-        int m_split_axis = -1;
-
-        // Flat BVH data (populated by flatten(), used by ray_intersect())
         std::vector<LinearBVHNode> m_nodes;
         std::vector<Primitive> m_ordered_primitives;
-
-        void flatten_recursive(std::vector<LinearBVHNode> &nodes,
-                               std::vector<Primitive> &ordered_prims,
-                               int *offset) const;
     };
 
     // Traits for scene-level BVH (Shape pointers)
@@ -106,4 +99,3 @@ namespace Caramel{
         const TriangleMesh &mesh;
     };
 }
-
