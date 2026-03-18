@@ -39,8 +39,7 @@ namespace Caramel{
 
 
     void BVHScene::build(const std::vector<const Shape*> &shapes) {
-        m_bvh_root = new BVHBase<BVHSceneTraits>(shapes, BVHSceneTraits{});
-        m_bvh_root->create_child();
+        m_bvh_root = new BVHTree<BVHSceneTraits>(shapes, BVHSceneTraits{}, Float1, Float2, 12, 4);
     }
 
     std::pair<bool, RayIntersectInfo> BVHScene::ray_intersect(const Ray &ray, Float maxt) const {

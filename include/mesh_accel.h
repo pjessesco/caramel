@@ -93,14 +93,19 @@ namespace Caramel{
 
     // BVH for triangle meshes
     struct BVHMesh final : public MeshAccel{
-        explicit BVHMesh(const TriangleMesh &shape);
+        BVHMesh(const TriangleMesh &shape,
+                Float cost_traversal, Float cost_intersection, int subspace_count, int max_primitive_num);
 
         void build() override;
         std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) override;
 
     private:
         BVHMeshTraits m_traits;
-        std::unique_ptr<BVHBase<BVHMeshTraits>> m_root;
+        Float m_cost_traversal;
+        Float m_cost_intersection;
+        int m_subspace_count;
+        int m_max_primitive_num;
+        std::unique_ptr<BVHTree<BVHMeshTraits>> m_root;
     };
 
 }
