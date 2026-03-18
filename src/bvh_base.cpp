@@ -33,176 +33,214 @@
 #include <bvh_base.h>
 
 namespace Caramel{
+
+    // ---- BVHNode ----
+
     template<typename Traits>
-    BVHBase<Traits>::BVHBase(std::vector<Primitive> primitives, const Traits &traits)
-    : m_traits{traits} {
+    BVHNode<Traits>::BVHNode(std::vector<Primitive> primitives, const Traits &traits) {
         m_primitives = std::move(primitives);
         m_left = nullptr;
         m_right = nullptr;
-        m_aabb = m_traits.get_aabb(m_primitives[0]);
+        m_aabb = traits.get_aabb(m_primitives[0]);
         for (int i=1;i<m_primitives.size();i++) {
-            m_aabb = AABB::merge(m_aabb, m_traits.get_aabb(m_primitives[i]));
+            m_aabb = AABB::merge(m_aabb, traits.get_aabb(m_primitives[i]));
         }
     }
 
     template<typename Traits>
-    bool BVHBase<Traits>::is_leaf() const {
+    bool BVHNode<Traits>::is_leaf() const {
          return !m_primitives.empty();
      }
 
-    template<typename Traits>
-    std::pair<bool, RayIntersectInfo> BVHBase<Traits>::ray_intersect(const Ray &ray, Float maxt) const{
-        if (is_leaf()) {
-            bool is_hit = false;
-            RayIntersectInfo info = RayIntersectInfo();
-            info.t = maxt;
-
-            for(int i=0;i<m_primitives.size();i++){
-                auto [hit, tmp_info] = m_traits.ray_intersect(m_primitives[i], ray, info.t);
-                if(hit){
-                    is_hit = true;
-                    info = tmp_info;
-                }
-            }
-
-            return {is_hit, info};
-        }
-        else {
-            if (!m_aabb.ray_intersect(ray, maxt).first) {
-                return {false, {}};
-            }
-            std::pair<bool, RayIntersectInfo> ret = {false, {}};
-            ret.second.t = maxt;
-
-            const BVHBase *first  = (ray.m_d[m_split_axis] > 0) ? m_left.get() : m_right.get();
-            const BVHBase *second = (ray.m_d[m_split_axis] > 0) ? m_right.get() : m_left.get();
-
-            const auto first_hit = first->ray_intersect(ray, ret.second.t);
-            if (first_hit.first) {
-                ret = first_hit;
-            }
-
-            const auto second_hit = second->ray_intersect(ray, ret.second.t);
-            if (second_hit.first) {
-                ret = second_hit;
-            }
-            return ret;
-        }
-    }
 
     template<typename Traits>
-    void BVHBase<Traits>::create_child() {
+    void BVHNode<Traits>::create_child(const Traits &traits,
+                                       Float cost_traversal,
+                                       Float cost_intersection,
+                                       int subspace_count,
+                                       int max_primitive_num) {
         if (m_primitives.size() <= 2) {
             return;
         }
 
         const int longest_axis = m_aabb.longest_axis();
-        const int subspace_count = BVH_SUBSPACE_COUNT;
         const int cut_count = subspace_count - 1;
 
-        if constexpr(USE_SAH) {
-            std::vector<std::pair<int/*primitive count*/, AABB>> slices(subspace_count);
-            std::vector<Float> costs(cut_count, Float0);
+        std::vector<std::pair<int/*primitive count*/, AABB>> slices(subspace_count);
+        std::vector<Float> costs(cut_count, Float0);
 
-            // Divide aabb and initialize
-            for (const auto &prim : m_primitives) {
-                const int slice_idx = std::min(static_cast<int>(m_aabb.offset(m_traits.get_center(prim))[longest_axis] * subspace_count),
-                                               subspace_count - 1);
-                const AABB prim_aabb = m_traits.get_aabb(prim);
+        // Divide aabb and initialize
+        for (const auto &prim : m_primitives) {
+            const int slice_idx = std::min(static_cast<int>(m_aabb.offset(traits.get_center(prim))[longest_axis] * subspace_count),
+                                           subspace_count - 1);
+            const AABB prim_aabb = traits.get_aabb(prim);
 
-                if (slices[slice_idx].first == 0) {
-                    slices[slice_idx].second = prim_aabb;
-                }
-                else {
-                    slices[slice_idx].second = AABB::merge(slices[slice_idx].second, prim_aabb);
-                }
-                slices[slice_idx].first++;
+            if (slices[slice_idx].first == 0) {
+                slices[slice_idx].second = prim_aabb;
             }
-
-            // https://pbr-book.org/4ed/Primitives_and_Intersection_Acceleration/Bounding_Volume_Hierarchies#
-
-            Index lower_count = 0;
-            AABB lower_aabb = slices[0].second;
-            for (int i=0;i<cut_count;i++) {
-                lower_count += slices[i].first;
-                if (lower_count == 0) {
-                    continue;
-                }
-                lower_aabb = AABB::merge(lower_aabb, slices[i].second);
-                costs[i] = lower_aabb.surface_area() * lower_count;
+            else {
+                slices[slice_idx].second = AABB::merge(slices[slice_idx].second, prim_aabb);
             }
+            slices[slice_idx].first++;
+        }
 
-            Index upper_count = 0;
-            AABB upper_aabb = slices[cut_count].second;
-            for (int i=cut_count;i>=1;i--) {
-                upper_count += slices[i].first;
-                if (upper_count == 0) {
-                    continue;
-                }
-                upper_aabb = AABB::merge(upper_aabb, slices[i].second);
-                costs[i-1] += upper_aabb.surface_area() * upper_count;
+        // https://pbr-book.org/4ed/Primitives_and_Intersection_Acceleration/Bounding_Volume_Hierarchies#
+
+        Index lower_count = 0;
+        AABB lower_aabb = slices[0].second;
+        for (int i=0;i<cut_count;i++) {
+            lower_count += slices[i].first;
+            if (lower_count == 0) {
+                continue;
             }
+            lower_aabb = AABB::merge(lower_aabb, slices[i].second);
+            costs[i] = lower_aabb.surface_area() * lower_count;
+        }
 
-            // Find cut index with the lowest cost
-            Index lowest_cost_cut_index = 0;
-            Float lowest_cost = INF;
-            for (int i=0;i<cut_count;i++) {
-                if (lowest_cost > costs[i]) {
-                    lowest_cost_cut_index = i;
-                    lowest_cost = costs[i];
-                }
+        Index upper_count = 0;
+        AABB upper_aabb = slices[cut_count].second;
+        for (int i=cut_count;i>=1;i--) {
+            upper_count += slices[i].first;
+            if (upper_count == 0) {
+                continue;
             }
+            upper_aabb = AABB::merge(upper_aabb, slices[i].second);
+            costs[i-1] += upper_aabb.surface_area() * upper_count;
+        }
 
-            const Float total_cost = COST_TRAVERSAL + lowest_cost / m_aabb.surface_area();
-
-            if (m_primitives.size() > BVH_MAX_PRIMITIVE_NUM || total_cost < m_primitives.size() * COST_INTERSECTION) {
-                const auto mid = std::partition(m_primitives.begin(), m_primitives.end(),
-                                          [=, this](const auto &prim) {
-                                              const int slice_idx = std::min(static_cast<int>(m_aabb.offset(m_traits.get_center(prim))[longest_axis] * subspace_count),
-                                                                             subspace_count - 1);
-                                              return slice_idx <= lowest_cost_cut_index;
-                                          });
-
-                if (mid == m_primitives.begin() || mid == m_primitives.end()) {
-                    return;
-                }
-
-                std::vector<Primitive> left(mid - m_primitives.begin());
-                std::vector<Primitive> right(m_primitives.end() - mid);
-                std::move(m_primitives.begin(), mid, left.begin());
-                std::move(mid, m_primitives.end(), right.begin());
-                m_primitives.clear();
-
-                m_split_axis = longest_axis;
-                m_left = std::make_unique<BVHBase>(std::move(left), m_traits);
-                m_right = std::make_unique<BVHBase>(std::move(right), m_traits);
-                m_left->create_child();
-                m_right->create_child();
+        // Find cut index with the lowest cost
+        Index lowest_cost_cut_index = 0;
+        Float lowest_cost = INF;
+        for (int i=0;i<cut_count;i++) {
+            if (lowest_cost > costs[i]) {
+                lowest_cost_cut_index = i;
+                lowest_cost = costs[i];
             }
         }
 
-        else {
-            const Float longest_axis_mid = (m_aabb.m_min[longest_axis] + m_aabb.m_max[longest_axis]) * Float0_5;
+        const Float total_cost = cost_traversal + lowest_cost / m_aabb.surface_area();
 
-            std::vector<Primitive> left;
-            std::vector<Primitive> right;
+        if (static_cast<int>(m_primitives.size()) > max_primitive_num || total_cost < m_primitives.size() * cost_intersection) {
+            const auto mid = std::partition(m_primitives.begin(), m_primitives.end(),
+                                      [=, this](const auto &prim) {
+                                          const int slice_idx = std::min(static_cast<int>(m_aabb.offset(traits.get_center(prim))[longest_axis] * subspace_count),
+                                                                         subspace_count - 1);
+                                          return slice_idx <= lowest_cost_cut_index;
+                                      });
 
-            for (auto &p : m_primitives) {
-                ((m_traits.get_center(p)[longest_axis] < longest_axis_mid) ? left : right).push_back(p);
-            }
-
-            if (left.empty() || right.empty()) {
+            if (mid == m_primitives.begin() || mid == m_primitives.end()) {
                 return;
             }
 
-            m_left = std::make_unique<BVHBase>(std::move(left), m_traits);
-            m_right = std::make_unique<BVHBase>(std::move(right), m_traits);
-            m_split_axis = longest_axis;
+            std::vector<Primitive> left(mid - m_primitives.begin());
+            std::vector<Primitive> right(m_primitives.end() - mid);
+            std::move(m_primitives.begin(), mid, left.begin());
+            std::move(mid, m_primitives.end(), right.begin());
             m_primitives.clear();
-            m_left->create_child();
-            m_right->create_child();
+
+            m_split_axis = longest_axis;
+            m_left = std::make_unique<BVHNode>(std::move(left), traits);
+            m_right = std::make_unique<BVHNode>(std::move(right), traits);
+            m_left->create_child(traits, cost_traversal, cost_intersection, subspace_count, max_primitive_num);
+            m_right->create_child(traits, cost_traversal, cost_intersection, subspace_count, max_primitive_num);
         }
     }
+
+    template<typename Traits>
+    void BVHNode<Traits>::flatten_recursive(std::vector<LinearBVHNode> &nodes,
+                                            std::vector<Primitive> &ordered_prims,
+                                            int &offset) const {
+        const int my_offset = offset;
+        offset += 1;
+        nodes.emplace_back();
+
+        if (is_leaf()) {
+            nodes[my_offset].aabb = m_aabb;
+            nodes[my_offset].n_primitives = static_cast<int>(m_primitives.size());
+            nodes[my_offset].offset = static_cast<int>(ordered_prims.size());
+            nodes[my_offset].split_axis = -1;
+            for (const auto &p : m_primitives) {
+                ordered_prims.emplace_back(p);
+            }
+        }
+        else {
+            nodes[my_offset].aabb = m_aabb;
+            nodes[my_offset].split_axis = m_split_axis;
+            nodes[my_offset].n_primitives = 0;
+            m_left->flatten_recursive(nodes, ordered_prims, offset);
+            nodes[my_offset].offset = offset;
+            m_right->flatten_recursive(nodes, ordered_prims, offset);
+        }
+    }
+
+    // ---- BVHTree ----
+
+    template<typename Traits>
+    BVHTree<Traits>::BVHTree(std::vector<Primitive> primitives, const Traits &traits,
+                             Float cost_traversal, Float cost_intersection, int subspace_count, int max_primitive_num)
+    : m_traits{traits} {
+        BVHNode<Traits> root(std::move(primitives), traits);
+        root.create_child(traits, cost_traversal, cost_intersection, subspace_count, max_primitive_num);
+        int offset = 0;
+        root.flatten_recursive(m_nodes, m_ordered_primitives, offset);
+    }
+
+    template<typename Traits>
+    std::pair<bool, RayIntersectInfo> BVHTree<Traits>::ray_intersect(const Ray &ray, Float maxt) const{
+        bool is_hit = false;
+        RayIntersectInfo info;
+        info.t = maxt;
+
+        int to_visit_stack[64];
+        int to_visit_offset = 0;
+        int current = 0;
+
+        while (true) {
+            const LinearBVHNode &node = m_nodes[current];
+
+            if (node.aabb.ray_intersect(ray, info.t).first) {
+                if (node.n_primitives > 0) {
+                    // Leaf: test primitives
+                    for (int i = 0; i < node.n_primitives; i++) {
+                        auto [hit, tmp_info] = m_traits.ray_intersect(m_ordered_primitives[node.offset + i], ray, info.t);
+                        if (hit) {
+                            is_hit = true;
+                            info = tmp_info;
+                        }
+                    }
+                    if (to_visit_offset == 0) {
+                        break;
+                    }
+                    to_visit_offset -= 1;
+                    current = to_visit_stack[to_visit_offset];
+                }
+                else {
+                    // Inner: visit children in order
+                    if (ray.m_d[node.split_axis] > 0) {
+                        to_visit_stack[to_visit_offset] = node.offset;
+                        to_visit_offset += 1;
+                        current = current + 1;
+                    }
+                    else {
+                        to_visit_stack[to_visit_offset] = current + 1;
+                        to_visit_offset += 1;
+                        current = node.offset;
+                    }
+                }
+            }
+            else {
+                if (to_visit_offset == 0) {
+                    break;
+                }
+                to_visit_offset -= 1;
+                current = to_visit_stack[to_visit_offset];
+            }
+        }
+
+        return {is_hit, info};
+    }
+
+    // ---- Traits ----
 
     AABB BVHSceneTraits::get_aabb(const Shape *s) const {
         return s->get_aabb();
@@ -226,82 +264,8 @@ namespace Caramel{
         return mesh.get_triangle_ray_intersect(i, ray, maxt);
     }
 
-    // template<typename Traits>
-    // void BVHBase<Traits>::collect_stats(Stats &stats, int depth) const {
-    //     stats.total_nodes++;
-    //     if (is_leaf()) {
-    //         stats.leaf_nodes++;
-    //         const int n = static_cast<int>(m_primitives.size());
-    //         stats.min_shapes_per_leaf = std::min(stats.min_shapes_per_leaf, n);
-    //         stats.max_shapes_per_leaf = std::max(stats.max_shapes_per_leaf, n);
-    //         stats.total_shapes_in_leaves += n;
-    //         stats.max_depth = std::max(stats.max_depth, depth);
-    //     }
-    //     else {
-    //         stats.inner_nodes++;
-    //         m_left->collect_stats(stats, depth + 1);
-    //         m_right->collect_stats(stats, depth + 1);
-    //     }
-    // }
-    //
-    // template<typename Traits>
-    // void BVHBase<Traits>::print_tree(std::string prefix, bool is_left, int depth, int max_depth) const {
-    //     if (depth > max_depth) return;
-    //
-    //     std::cout << prefix;
-    //     std::cout << (depth == 0 ? "" : (is_left ? "├─L " : "└─R "));
-    //
-    //     if (is_leaf()) {
-    //         std::cout << "Leaf [" << m_primitives.size() << " shapes] ";
-    //     }
-    //     else {
-    //         std::cout << "Inner ";
-    //     }
-    //     std::cout << "AABB("
-    //               << std::fixed << std::setprecision(2)
-    //               << m_aabb.m_min[0] << "," << m_aabb.m_min[1] << "," << m_aabb.m_min[2]
-    //               << " ~ "
-    //               << m_aabb.m_max[0] << "," << m_aabb.m_max[1] << "," << m_aabb.m_max[2]
-    //               << ") SA=" << std::setprecision(2) << m_aabb.surface_area()
-    //               << "\n";
-    //
-    //     if (!is_leaf() && depth < max_depth) {
-    //         std::string child_prefix = prefix + (depth == 0 ? "" : (is_left ? "│   " : "    "));
-    //         m_left->print_tree(child_prefix, true, depth + 1, max_depth);
-    //         m_right->print_tree(child_prefix, false, depth + 1, max_depth);
-    //     }
-    // }
-    //
-    // template<typename Traits>
-    // void BVHBase<Traits>::print_stats() const {
-    //     Stats stats;
-    //     collect_stats(stats, 0);
-    //
-    //     std::cout << "\n====== BVH Statistics ======\n";
-    //     std::cout << "Total nodes:          " << stats.total_nodes << "\n";
-    //     std::cout << "  Inner nodes:        " << stats.inner_nodes << "\n";
-    //     std::cout << "  Leaf nodes:         " << stats.leaf_nodes << "\n";
-    //     std::cout << "Max depth:            " << stats.max_depth << "\n";
-    //     std::cout << "Shapes per leaf:\n";
-    //     std::cout << "  Min:                " << stats.min_shapes_per_leaf << "\n";
-    //     std::cout << "  Max:                " << stats.max_shapes_per_leaf << "\n";
-    //     std::cout << "  Avg:                " << std::fixed << std::setprecision(1)
-    //               << static_cast<float>(stats.total_shapes_in_leaves) / stats.leaf_nodes << "\n";
-    //     std::cout << "Root AABB:            ("
-    //               << std::setprecision(3)
-    //               << m_aabb.m_min[0] << ", " << m_aabb.m_min[1] << ", " << m_aabb.m_min[2]
-    //               << ") ~ ("
-    //               << m_aabb.m_max[0] << ", " << m_aabb.m_max[1] << ", " << m_aabb.m_max[2]
-    //               << ")\n";
-    //     std::cout << "Root surface area:    " << std::setprecision(2) << m_aabb.surface_area() << "\n";
-    //
-    //     constexpr int PRINT_DEPTH = 4;
-    //     std::cout << "\n--- Tree (depth <= " << PRINT_DEPTH << ") ---\n";
-    //     print_tree("", true, 0, PRINT_DEPTH);
-    //     std::cout << "============================\n\n";
-    // }
-
-    template class BVHBase<BVHSceneTraits>;
-    template class BVHBase<BVHMeshTraits>;
+    template struct BVHNode<BVHSceneTraits>;
+    template struct BVHNode<BVHMeshTraits>;
+    template class BVHTree<BVHSceneTraits>;
+    template class BVHTree<BVHMeshTraits>;
 }
-
