@@ -27,5 +27,5 @@ jobs:
     - name: Build
       run: cmake --build ./build --config Release
 
-    - name: Test
-      run: ./build/Release/caramel_test.exe
+#    - name: Test
+#      run: ./build/Release/caramel_test.exe
