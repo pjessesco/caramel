@@ -2,11 +2,8 @@
 
 #include <cmath>
 
-#ifdef __APPLE__
 #define GL_SILENCE_DEPRECATION
-#define GLFW_INCLUDE_GLCOREARB
-#endif
-#include <GLFW/glfw3.h>
+#include <OpenGL/gl3.h>
 
 #include <scene.h>
 #include <shape.h>

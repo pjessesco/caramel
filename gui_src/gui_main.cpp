@@ -1,7 +1,4 @@
-#ifdef __APPLE__
 #define GL_SILENCE_DEPRECATION
-#endif
-
 #include <GLFW/glfw3.h>
 
 #include <imgui.h>
@@ -29,7 +26,7 @@ int main(){
         return -1;
     }
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(1); // vsync
+    glfwSwapInterval(1);
 
     // ImGui setup
     IMGUI_CHECKVERSION();

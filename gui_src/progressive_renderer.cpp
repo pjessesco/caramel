@@ -3,11 +3,8 @@
 #include <cmath>
 #include <algorithm>
 
-#ifdef __APPLE__
 #define GL_SILENCE_DEPRECATION
-#define GLFW_INCLUDE_GLCOREARB
-#endif
-#include <GLFW/glfw3.h>
+#include <OpenGL/gl3.h>
 
 #include <camera.h>
 #include <scene.h>
