@@ -5,8 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 # Extern libs
 add_subdirectory(ext/peanut)
-include_directories(ext)
-include_directories(ext/peanut/include)
+include_directories(SYSTEM ext)
+include_directories(SYSTEM ext/peanut/include)
 
 include_directories(include)
 
@@ -150,7 +150,7 @@ add_executable(caramel_gui
 )
 
 target_compile_definitions(caramel_gui PRIVATE ENABLE_PROGRESS=0)
-target_include_directories(caramel_gui PRIVATE
+target_include_directories(caramel_gui SYSTEM PRIVATE
         ext/imgui
         ext/imgui/backends
         ext/ImGuiFileDialog

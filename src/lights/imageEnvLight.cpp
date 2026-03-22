@@ -38,9 +38,9 @@
 
 namespace Caramel{
     ImageEnvLight::ImageEnvLight(const std::string &path, Float scale, const Matrix44f &to_world)
-        : m_image(new Image(path)), m_scale(scale), m_imageDistrib(m_image->get_data_for_sampling(true)),
+        : m_scale(scale), m_image(new Image(path)), m_imageDistrib(m_image->get_data_for_sampling(true)),
           m_width(m_image->size()[0]), m_height(m_image->size()[1]), m_width_height(m_width * m_height),
-          m_to_world{Block<0, 0, 3, 3>(to_world)}, m_to_local{Block<0, 0, 3, 3>(Inverse(to_world))}{
+          m_to_world{Block<0, 0, 3, 3>(to_world)}, m_to_local{Block<0, 0, 3, 3>(Inverse(to_world))} {
 
     }
 

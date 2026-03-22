@@ -42,8 +42,8 @@ namespace Caramel {
     Triangle::Triangle(const Vector3f &p0, const Vector3f &p1, const Vector3f &p2,
                        const Vector3f &n0, const Vector3f &n1, const Vector3f &n2,
                        const Vector2f &uv0, const Vector2f &uv1, const Vector2f &uv2, BSDF *bsdf)
-        : Shape(bsdf, nullptr), m_points{p0, p1, p2}, m_normals{n0, n1, n2}, is_vn_exists{true}, is_tx_exists{true},
-          m_uv0{uv0}, m_uv1{uv1}, m_uv2{uv2} {}
+        : Shape(bsdf, nullptr), m_points{p0, p1, p2}, m_normals{n0, n1, n2}, m_uv0{uv0}, m_uv1{uv1},
+          m_uv2{uv2}, is_vn_exists{true}, is_tx_exists{true} {}
 
     AABB Triangle::get_aabb() const{
         return AABB(Vector3f{std::min({m_points[0][0], m_points[1][0], m_points[2][0]}),
