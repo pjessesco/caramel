@@ -40,7 +40,8 @@ TEST_CASE("test1 render test", "[RenderTest]") {
     std::filesystem::current_path();
     std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test1/scene.json";
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test1/gt.exr");
-    Image rendered = render(scene_path);
+    auto [_s, _i] = build_scene(scene_path);
+    Image rendered = render(_s, _i);
 
     if (SAVE_RENDERED_IMAGES) {
         rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test1_rendered.exr").string());
@@ -54,7 +55,8 @@ TEST_CASE("test2 render test", "[RenderTest]") {
     std::filesystem::current_path();
     std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test2/scene.json";
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test2/gt.exr");
-    Image rendered = render(scene_path);
+    auto [_s, _i] = build_scene(scene_path);
+    Image rendered = render(_s, _i);
 
     if (SAVE_RENDERED_IMAGES) {
         rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test2_rendered.exr").string());
@@ -70,7 +72,8 @@ TEST_CASE("test3 render test", "[RenderTest]") {
     std::filesystem::current_path();
     std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test3/scene.json";
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test3/gt.exr");
-    Image rendered = render(scene_path);
+    auto [_s, _i] = build_scene(scene_path);
+    Image rendered = render(_s, _i);
 
     if (SAVE_RENDERED_IMAGES) {
         rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test3_rendered.exr").string());
@@ -84,7 +87,8 @@ TEST_CASE("test4 render test", "[RenderTest]") {
     std::filesystem::current_path();
     std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test4/scene.json";
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test4/gt.exr");
-    Image rendered = render(scene_path);
+    auto [_s, _i] = build_scene(scene_path);
+    Image rendered = render(_s, _i);
 
     if (SAVE_RENDERED_IMAGES) {
         rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test4_rendered.exr").string());
@@ -100,7 +104,8 @@ TEST_CASE("test5 render test", "[RenderTest]") {
     SECTION("Conductor"){
         std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_conductor.json";
         Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_scene_conductor.exr");
-        Image rendered = render(scene_path);
+        auto [_s, _i] = build_scene(scene_path);
+        Image rendered = render(_s, _i);
 
         if (SAVE_RENDERED_IMAGES) {
             rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_conductor_rendered.exr").string());
@@ -112,7 +117,8 @@ TEST_CASE("test5 render test", "[RenderTest]") {
     SECTION("Dielectric"){
         std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_dielectric.json";
         Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_scene_dielectric.exr");
-        Image rendered = render(scene_path);
+        auto [_s, _i] = build_scene(scene_path);
+        Image rendered = render(_s, _i);
 
         if (SAVE_RENDERED_IMAGES) {
             rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_dielectric_rendered.exr").string());
@@ -124,7 +130,8 @@ TEST_CASE("test5 render test", "[RenderTest]") {
     SECTION("Diffuse"){
         std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_diffuse.json";
         Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_scene_diffuse.exr");
-        Image rendered = render(scene_path);
+        auto [_s, _i] = build_scene(scene_path);
+        Image rendered = render(_s, _i);
 
         if (SAVE_RENDERED_IMAGES) {
             rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_diffuse_rendered.exr").string());
@@ -136,7 +143,8 @@ TEST_CASE("test5 render test", "[RenderTest]") {
     SECTION("Mirror"){
         std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_mirror.json";
         Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_scene_mirror.exr");
-        Image rendered = render(scene_path);
+        auto [_s, _i] = build_scene(scene_path);
+        Image rendered = render(_s, _i);
 
         if (SAVE_RENDERED_IMAGES) {
             rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_mirror_rendered.exr").string());
@@ -151,7 +159,8 @@ TEST_CASE("test6 render test", "[RenderTest]") {
     std::filesystem::current_path();
     std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test6/scene.json";
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test6/gt.exr");
-    Image rendered = render(scene_path);
+    auto [_s, _i] = build_scene(scene_path);
+    Image rendered = render(_s, _i);
 
     if (SAVE_RENDERED_IMAGES) {
         rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test6_rendered.exr").string());

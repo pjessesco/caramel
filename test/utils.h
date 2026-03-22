@@ -36,7 +36,8 @@ static constexpr bool SAVE_RENDERED_IMAGES = true;
     std::filesystem::current_path();                                                                    \
     std::string scene_path = std::string(TEST_SCENE_PATH) + #DIR + "/scene.json";                       \
     Image ref(std::string(TEST_SCENE_PATH) + #DIR + "/gt.exr");                                         \
-    Image rendered = render(scene_path);                                                                \
+    auto [_scene, _integrator] = build_scene(scene_path);                                               \
+    Image rendered = render(_scene, _integrator);                                                        \
     if(SAVE_RENDERED_IMAGES){                                                                           \
         std::string rendered_name = std::string(#DIR) + "_rendered.exr";                                \
         rendered.write_exr((std::filesystem::path(scene_path).parent_path() / rendered_name).string()); \

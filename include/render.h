@@ -28,5 +28,9 @@
 
 namespace Caramel{
     class Image;
-    Image render(const std::filesystem::path &scene_path);
+    class Scene;
+    class Integrator;
+
+    std::pair<Scene*, Integrator*> build_scene(const std::filesystem::path &scene_path);
+    Image render(const Scene *scene, Integrator *integrator);
 }

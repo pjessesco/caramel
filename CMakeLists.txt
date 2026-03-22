@@ -26,6 +26,7 @@ set(SOURCES
         src/cameras/thinlens.cpp
         src/image.cpp
         src/progress.cpp
+        src/integrators/Integrator.cpp
         src/integrators/MCIntegrator.cpp
         src/integrators/depth.cpp
         src/integrators/hitpos.cpp

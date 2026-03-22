@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <atomic>
+
 #include <common.h>
 
 namespace Caramel{
@@ -35,11 +37,23 @@ namespace Caramel{
         return a / (a + b);
     }
 
+    struct RenderConfig{
+        // Override spp (0 = use integrator's m_spp)
+        Index spp = 0;
+        bool random_seed = false;
+        // External stop flag — checked per column
+        std::atomic<bool> *should_stop = nullptr;
+    };
+
     class Integrator{
     public:
         Integrator() = default;
+
+        Image render(const Scene &scene, const RenderConfig &config = {});
+
+        virtual ~Integrator() = default;
         virtual void pre_process(const Scene &scene) = 0;
-        virtual Image render(const Scene &scene) = 0;
+        virtual void render(const Scene &scene, Image &output, const RenderConfig &config = {}) = 0;
 
         template <typename Type, typename ...Param>
         static Integrator* Create(Param ...args){
@@ -51,10 +65,13 @@ namespace Caramel{
     public:
         explicit MCIntegrator(Index m_spp = 1);
         void pre_process(const Scene &scene) override;
-        Image render(const Scene &scene) override;
+        void render(const Scene &scene, Image &output, const RenderConfig &config = {}) override;
+
+        virtual Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) = 0;
+
+        Index get_spp() const{ return m_spp; }
 
     protected:
-        virtual Vector3f get_pixel_value(const Scene &scene, Float i, Float j, Sampler &sampler) = 0;
         Index m_spp;
     };
 
