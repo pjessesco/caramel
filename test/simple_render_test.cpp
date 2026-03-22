@@ -37,7 +37,6 @@
 using namespace Caramel;
 
 TEST_CASE("test1 render test", "[RenderTest]") {
-    std::filesystem::current_path();
     std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test1/scene.json";
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test1/gt.exr");
     auto [_s, _i] = build_scene(scene_path);
@@ -52,7 +51,6 @@ TEST_CASE("test1 render test", "[RenderTest]") {
 }
 
 TEST_CASE("test2 render test", "[RenderTest]") {
-    std::filesystem::current_path();
     std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test2/scene.json";
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test2/gt.exr");
     auto [_s, _i] = build_scene(scene_path);
@@ -69,7 +67,6 @@ TEST_CASE("test2 render test", "[RenderTest]") {
 }
 
 TEST_CASE("test3 render test", "[RenderTest]") {
-    std::filesystem::current_path();
     std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test3/scene.json";
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test3/gt.exr");
     auto [_s, _i] = build_scene(scene_path);
@@ -84,7 +81,6 @@ TEST_CASE("test3 render test", "[RenderTest]") {
 }
 
 TEST_CASE("test4 render test", "[RenderTest]") {
-    std::filesystem::current_path();
     std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test4/scene.json";
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test4/gt.exr");
     auto [_s, _i] = build_scene(scene_path);
@@ -99,8 +95,6 @@ TEST_CASE("test4 render test", "[RenderTest]") {
 }
 
 TEST_CASE("test5 render test", "[RenderTest]") {
-    std::filesystem::current_path();
-
     SECTION("Conductor"){
         std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_conductor.json";
         Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_scene_conductor.exr");
@@ -156,7 +150,6 @@ TEST_CASE("test5 render test", "[RenderTest]") {
 }
 
 TEST_CASE("test6 render test", "[RenderTest]") {
-    std::filesystem::current_path();
     std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test6/scene.json";
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test6/gt.exr");
     auto [_s, _i] = build_scene(scene_path);

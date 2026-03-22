@@ -33,7 +33,6 @@
 static constexpr bool SAVE_RENDERED_IMAGES = true;
 
 #define TEST_BODY(DIR, RANGE)                                                                           \
-    std::filesystem::current_path();                                                                    \
     std::string scene_path = std::string(TEST_SCENE_PATH) + #DIR + "/scene.json";                       \
     Image ref(std::string(TEST_SCENE_PATH) + #DIR + "/gt.exr");                                         \
     auto [_scene, _integrator] = build_scene(scene_path);                                               \
