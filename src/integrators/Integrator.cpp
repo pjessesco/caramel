@@ -22,45 +22,18 @@
 // SOFTWARE.
 //
 
-#include <scene_parser.h>
-#include <shape.h>
-#include <scene.h>
-#include <image.h>
 #include <integrators.h>
-#include <logger.h>
-#include <camera.h>
+
 #include <image.h>
+#include <parallel_for.h>
+#include <scene.h>
+#include <camera.h>
 
 namespace Caramel{
-
-    std::pair<Scene*, Integrator*> build_scene(const std::filesystem::path &scene_path) {
-        // Set current path
-        std::filesystem::current_path(scene_path.parent_path());
-
-        SceneParser parser(scene_path);
-        Integrator *integrator = parser.parse_integrator();
-        Camera *cam = parser.parse_camera();
-        parser.parse_bsdfs_map();
-        const std::vector<Shape*> shapes = parser.parse_shapes();
-        const std::vector<Light*> lights = parser.parse_lights();
-
-        Scene *scene = new Scene();
-        for(auto s : shapes){
-            scene->add_mesh_and_arealight(s);
-        }
-        for(auto l : lights){
-            scene->add_light(l);
-        }
-        scene->build_light_pdf();
-
-        scene->set_camera(cam);
-        scene->build_accel();
-
-        return {scene, integrator};
-    }
-
-    Image render(const Scene *scene, Integrator *integrator){
-        integrator->pre_process(*scene);
-        return integrator->render(*scene);
+    Image Integrator::render(const Scene &scene, const RenderConfig &config) {
+        auto size = scene.m_cam->get_size();
+        Image img(size.first, size.second);
+        render(scene, img, config);
+        return img;
     }
 }

@@ -538,8 +538,6 @@ TEST_CASE("Triangle::ray_intersect - 45 degree tilted triangle", "[UnitTest]") {
     const Vector3f normal = Vector3f::cross(edge1, edge2).normalize();
 
     SECTION("Hit through centroid") {
-        const Float bary_u = 1.0f / 3.0f;
-        const Float bary_v = 1.0f / 3.0f;
         const Float ray_dist = 2.0f;
 
         Vector3f centroid = (tri_p0 + tri_p1 + tri_p2) * (1.0f / 3.0f);

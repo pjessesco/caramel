@@ -37,6 +37,8 @@ namespace Caramel{
                Index w, Index h, Float fov_x);
         Camera(const Matrix44f &cam_to_world, Index w, Index h, Float fov_x);
 
+        virtual ~Camera() = default;
+
         [[nodiscard]] virtual Ray sample_ray(Float w, Float h, Sampler &sampler) const = 0;
 
         template <typename Type, typename ...Param>
@@ -53,6 +55,11 @@ namespace Caramel{
             m_w = width;
             m_h = height;
         }
+
+        Matrix44f get_cam_to_world() const{ return m_cam_to_world; }
+        Float get_fov_x() const{ return m_fov_x; }
+
+        [[nodiscard]] virtual Camera* clone_with_transform(const Matrix44f &cam_to_world, Index w, Index h) const = 0;
 
     protected:
         Vector3f m_pos;
@@ -72,6 +79,9 @@ namespace Caramel{
         Pinhole(const Matrix44f &cam_to_world, Index w, Index h, Float fov_x);
 
         [[nodiscard]] Ray sample_ray(Float w, Float h, Sampler &) const override;
+        [[nodiscard]] Camera* clone_with_transform(const Matrix44f &cam_to_world, Index w, Index h) const override{
+            return new Pinhole(cam_to_world, w, h, m_fov_x);
+        }
     };
 
     class ThinLens : public Camera {
@@ -81,6 +91,9 @@ namespace Caramel{
         ThinLens(const Matrix44f &cam_to_world, Index w, Index h, Float fov_x, Float lens_radius, Float focal_dist);
 
         [[nodiscard]] Ray sample_ray(Float w, Float h, Sampler &sampler) const override;
+        [[nodiscard]] Camera* clone_with_transform(const Matrix44f &cam_to_world, Index w, Index h) const override{
+            return new ThinLens(cam_to_world, w, h, m_fov_x, m_lens_radius, m_focal_dist);
+        }
 
     private:
         Float m_lens_radius;

@@ -5,10 +5,34 @@ set(CMAKE_CXX_STANDARD 20)
 
 # Extern libs
 add_subdirectory(ext/peanut)
-include_directories(ext)
-include_directories(ext/peanut/include)
+include_directories(SYSTEM ext)
+include_directories(SYSTEM ext/peanut/include)
 
 include_directories(include)
+
+# GLFW
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+add_subdirectory(ext/glfw)
+
+# OpenGL
+find_package(OpenGL REQUIRED)
+
+# ImGui sources
+set(IMGUI_SOURCES
+        ext/imgui/imgui.cpp
+        ext/imgui/imgui_draw.cpp
+        ext/imgui/imgui_tables.cpp
+        ext/imgui/imgui_widgets.cpp
+        ext/imgui/backends/imgui_impl_glfw.cpp
+        ext/imgui/backends/imgui_impl_opengl3.cpp
+)
+
+# ImGuiFileDialog sources
+set(IMGUI_FILE_DIALOG_SOURCES
+        ext/ImGuiFileDialog/ImGuiFileDialog.cpp
+)
 
 set(SOURCES
         src/aabb.cpp
@@ -26,6 +50,7 @@ set(SOURCES
         src/cameras/thinlens.cpp
         src/image.cpp
         src/progress.cpp
+        src/integrators/Integrator.cpp
         src/integrators/MCIntegrator.cpp
         src/integrators/depth.cpp
         src/integrators/hitpos.cpp
@@ -106,3 +131,31 @@ add_executable(caramel
         include/bvh_base.h)
 
 target_compile_definitions(caramel PRIVATE ENABLE_PROGRESS=1)
+
+# GUI target (macOS only)
+if(APPLE)
+    set(GUI_SOURCES
+            gui_src/gui_main.cpp
+            gui_src/application.cpp
+            gui_src/camera_controller.cpp
+            gui_src/preview_renderer.cpp
+            gui_src/progressive_renderer.cpp
+    )
+
+    add_executable(caramel_gui
+            ${GUI_SOURCES}
+            ${SOURCES}
+            ${HEADERS}
+            ${IMGUI_SOURCES}
+            ${IMGUI_FILE_DIALOG_SOURCES}
+    )
+
+    target_compile_definitions(caramel_gui PRIVATE ENABLE_PROGRESS=0)
+    target_include_directories(caramel_gui SYSTEM PRIVATE
+            ext/imgui
+            ext/imgui/backends
+            ext/ImGuiFileDialog
+    )
+    target_link_libraries(caramel_gui PRIVATE glfw OpenGL::GL
+            "-framework Cocoa" "-framework IOKit")
+endif()

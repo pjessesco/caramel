@@ -22,9 +22,12 @@
 // SOFTWARE.
 //
 
-#include <render.h>
+#include "scene.h"
+
+
 #include <image.h>
 #include <logger.h>
+#include <render.h>
 
 using namespace Caramel;
 
@@ -35,8 +38,9 @@ int main(int argc, char* argv[]) {
     }
 
     const std::filesystem::path scene_path((std::string(argv[1])));
+    auto [scene, integrator] = build_scene(scene_path);
 
-    Image img = render(scene_path);
+    Image img = render(scene, integrator);
     img.write_exr(scene_path.stem().string() + ".exr");
 
     return 0;

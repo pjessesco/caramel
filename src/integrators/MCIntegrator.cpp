@@ -24,6 +24,7 @@
 
 #include <chrono>
 #include <functional>
+#include <random>
 
 #include <integrators.h>
 
@@ -39,38 +40,37 @@
 namespace Caramel{
     MCIntegrator::MCIntegrator(Index spp) : Integrator(), m_spp{spp} {}
 
-    Image MCIntegrator::render(const Scene &scene){
-        if(scene.m_cam == nullptr){
-            CRM_ERROR("Camera is nullptr;");
-        }
-
+    void MCIntegrator::render(const Scene &scene, Image &output, const RenderConfig &config){
         auto size = scene.m_cam->get_size();
-        Image img(size.first/* width */, size.second/* height */);
+        const Index real_spp = config.spp > 0 ? config.spp : m_spp;
 
+#if ENABLE_PROGRESS
         ProgressBar progress_bar(size.first);
-
         CRM_LOG("Render start...");
-
         const auto time1 = std::chrono::high_resolution_clock::now();
+#endif
 
         parallel_for(0, size.first, std::function([&](int i){
-                         UniformStdSampler sampler(i);
+                         if(config.should_stop && config.should_stop->load()) return;
+                         std::random_device rd;
+                         UniformStdSampler sampler(config.random_seed ? static_cast<int>(rd()) : i);
                          for(int j=0;j<size.second;j++){
                              Vector3f rgb = vec3f_zero;
-                             for(Index s=0;s<m_spp;s++){
+                             for(Index s=0;s<real_spp;s++){
                                  rgb = rgb + get_pixel_value(scene, i + sampler.sample_1d(), j + sampler.sample_1d(), sampler);
                              }
-                             rgb = rgb / m_spp;
-
-                             img.set_pixel_value(i, j, rgb[0], rgb[1], rgb[2]);
+                             rgb = rgb / real_spp;
+                             output.set_pixel_value(i, j, rgb[0], rgb[1], rgb[2]);
                          }
+#if ENABLE_PROGRESS
                          progress_bar.increase();
+#endif
                      }));
 
+#if ENABLE_PROGRESS
         const auto time2 = std::chrono::high_resolution_clock::now();
         CRM_LOG("Render done in " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(time2 - time1).count() / 1000.0f) + " seconds");
-
-        return img;
+#endif
     }
 
     void MCIntegrator::pre_process(const Scene &scene) {}

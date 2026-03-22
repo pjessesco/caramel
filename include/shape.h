@@ -41,7 +41,7 @@ namespace Caramel{
     class Ray;
     class Sampler;
     class Distrib1D;
-    class MeshAccel;
+    struct MeshAccel;
 
     class Shape{
     public:

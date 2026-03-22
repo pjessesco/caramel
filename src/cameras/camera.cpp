@@ -32,7 +32,7 @@ namespace Caramel{
 
     // Perspective camera
     Camera::Camera(const Matrix44f &cam_to_world, Index w, Index h, Float fov_x)
-    : m_cam_to_world{cam_to_world}, m_w{w}, m_h{h}, m_fov_x{fov_x}, m_near{1e-4}, m_far{1000} {
+    : m_fov_x{fov_x}, m_w{w}, m_h{h}, m_near{1e-4}, m_far{1000}, m_cam_to_world{cam_to_world} {
         m_ratio = static_cast<Float>(m_w) / static_cast<Float>(m_h);
 
         const Float tmp1 = Float1 / (m_far - m_near);
