@@ -10,6 +10,30 @@ include_directories(ext/peanut/include)
 
 include_directories(include)
 
+# GLFW
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+add_subdirectory(ext/glfw)
+
+# OpenGL
+find_package(OpenGL REQUIRED)
+
+# ImGui sources
+set(IMGUI_SOURCES
+        ext/imgui/imgui.cpp
+        ext/imgui/imgui_draw.cpp
+        ext/imgui/imgui_tables.cpp
+        ext/imgui/imgui_widgets.cpp
+        ext/imgui/backends/imgui_impl_glfw.cpp
+        ext/imgui/backends/imgui_impl_opengl3.cpp
+)
+
+# ImGuiFileDialog sources
+set(IMGUI_FILE_DIALOG_SOURCES
+        ext/ImGuiFileDialog/ImGuiFileDialog.cpp
+)
+
 set(SOURCES
         src/aabb.cpp
         src/bvh_base.cpp
@@ -107,3 +131,32 @@ add_executable(caramel
         include/bvh_base.h)
 
 target_compile_definitions(caramel PRIVATE ENABLE_PROGRESS=1)
+
+# GUI target
+set(GUI_SOURCES
+        gui_src/gui_main.cpp
+        gui_src/application.cpp
+        gui_src/camera_controller.cpp
+        gui_src/preview_renderer.cpp
+        gui_src/progressive_renderer.cpp
+)
+
+add_executable(caramel_gui
+        ${GUI_SOURCES}
+        ${SOURCES}
+        ${HEADERS}
+        ${IMGUI_SOURCES}
+        ${IMGUI_FILE_DIALOG_SOURCES}
+)
+
+target_compile_definitions(caramel_gui PRIVATE ENABLE_PROGRESS=0)
+target_include_directories(caramel_gui PRIVATE
+        ext/imgui
+        ext/imgui/backends
+        ext/ImGuiFileDialog
+)
+target_link_libraries(caramel_gui PRIVATE glfw OpenGL::GL)
+
+if(APPLE)
+    target_link_libraries(caramel_gui PRIVATE "-framework Cocoa" "-framework IOKit")
+endif()
