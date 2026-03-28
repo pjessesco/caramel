@@ -141,4 +141,101 @@ public:
     }
 };
 
+// GGX (Trowbridge-Reitz) microfacet distribution with Smith masking-shadowing.
+//
+// Formulae:
+//   D(wm)      = 1 / (pi * a2 * cos4(theta) * (1 + tan2(theta)/a2)^2)
+//   Lambda(w)  = (sqrt(1 + a2 * tan2(theta)) - 1) / 2
+//   G1(w)      = 1 / (1 + Lambda(w))
+//   Sample_wm  = visible normal sampling (Heitz 2018)
+//   PDF(w, wm) = G1(w) / |cos(theta)| * D(wm) * |w . wm|
+class GGXDistribution final : public MicrofacetDistribution {
+public:
+    explicit GGXDistribution(Float alpha)
+        : MicrofacetDistribution(alpha) {}
+
+    Float D(const Vector3f &wm) const override {
+        using std::isinf;
+
+        const Float cos_theta = wm[2];
+        if (cos_theta <= Float0) return Float0;
+
+        const Float cos2 = cos_theta * cos_theta;
+        const Float cos4 = cos2 * cos2;
+        if (cos4 < static_cast<Float>(1e-16)) return Float0;
+
+        const Float tan2 = (wm[0]*wm[0] + wm[1]*wm[1]) / cos2;
+        if (isinf(tan2)) return Float0;
+
+        const Float a2 = m_alpha * m_alpha;
+        const Float tmp = Float1 + tan2 / a2;
+        return Float1 / (PI * a2 * cos4 * tmp * tmp);
+    }
+
+    // G1(w) = 1 / (1 + Lambda(w))
+    Float G1(const Vector3f &w) const override {
+        return Float1 / (Float1 + Lambda(w));
+    }
+
+    // Visible normal sampling (pbrt-v4 / Heitz 2018)
+    Vector3f Sample_wm(const Vector3f &w, Sampler &sampler) const override {
+        using std::sqrt;
+        using std::cos;
+        using std::sin;
+
+        // Step 1: stretch to hemisphere
+        Vector3f wh = Vector3f{m_alpha * w[0], m_alpha * w[1], w[2]}.normalize();
+        if (wh[2] < Float0) wh = -wh;
+
+        // Step 2: orthonormal basis around wh
+        Vector3f T1 = (wh[2] < static_cast<Float>(0.99999))
+            ? Vector3f::cross(Vector3f{Float0, Float0, Float1}, wh).normalize()
+            : Vector3f{Float1, Float0, Float0};
+        Vector3f T2 = Vector3f::cross(wh, T1);
+
+        // Step 3: uniform disk sample (polar)
+        const Float r = sqrt(sampler.sample_1d());
+        const Float phi = PI_2 * sampler.sample_1d();
+        Float t1 = r * cos(phi);
+        Float t2_raw = r * sin(phi);
+
+        // Step 4: visibility warp
+        const Float h = sqrt(std::max(Float0, Float1 - t1 * t1));
+        const Float s = (Float1 + wh[2]) * Float0_5;
+        const Float t2 = (Float1 - s) * h + s * t2_raw;
+
+        // Step 5: reproject to hemisphere & unstretch
+        const Float pz = sqrt(std::max(Float0, Float1 - t1*t1 - t2*t2));
+        Vector3f nh = t1 * T1 + t2 * T2 + pz * wh;
+        return Vector3f{
+            m_alpha * nh[0],
+            m_alpha * nh[1],
+            std::max(static_cast<Float>(1e-6), nh[2])
+        }.normalize();
+    }
+
+    // Visible normal PDF: D_w(wm) = G1(w) / cos(theta) * D(wm) * max(0, w . wm)
+    Float PDF(const Vector3f &w, const Vector3f &wm) const override {
+        if (w[2] <= Float0) return Float0;
+        const Float dot = w.dot(wm);
+        if (dot <= Float0) return Float0;
+        return G1(w) / w[2] * D(wm) * dot;
+    }
+
+private:
+    // Lambda(w) = (sqrt(1 + a2 * tan2(theta)) - 1) / 2
+    Float Lambda(const Vector3f &w) const {
+        using std::sqrt;
+        using std::isinf;
+
+        const Float cos2 = w[2] * w[2];
+        const Float sin2 = w[0]*w[0] + w[1]*w[1];
+        const Float tan2 = sin2 / cos2;
+        if (isinf(tan2)) return Float0;
+
+        const Float a2 = m_alpha * m_alpha;
+        return (sqrt(Float1 + a2 * tan2) - Float1) * Float0_5;
+    }
+};
+
 } // namespace Caramel

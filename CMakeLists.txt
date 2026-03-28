@@ -114,6 +114,7 @@ if(NOT EXCLUDE_TEST)
             test/unit_tests.cpp
             test/chi2_bsdf_test.cpp
             test/chi2_polygon_test.cpp
+            test/chi2_microfacet_distrib_test.cpp
             test/utils.cpp
     )
 
