@@ -28,6 +28,7 @@
 #include <unordered_map>
 
 #include <common.h>
+#include <microfacet_distrib.h>
 
 namespace Caramel{
 
@@ -164,9 +165,7 @@ namespace Caramel{
         bool is_discrete(bool /*frontside*/) const override;
 
     private:
-        Float G1(const Vector3f &wv, const Vector3f &wh) const;
-
-        Float m_alpha;
+        BeckmannDistribution m_distrib;
         Float m_in_index_of_refraction;
         Float m_ex_index_of_refraction;
         Float m_ks;

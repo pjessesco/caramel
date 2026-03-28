@@ -29,7 +29,7 @@
 
 namespace Caramel{
     Microfacet::Microfacet(Float alpha, Float in_ior, Float ex_ior, const Vector3f &kd)
-        : m_alpha{alpha}, m_in_index_of_refraction{in_ior}, m_ex_index_of_refraction{ex_ior}, m_ks{Float1 - kd.max()}, m_kd(kd) {}
+        : m_distrib{alpha}, m_in_index_of_refraction{in_ior}, m_ex_index_of_refraction{ex_ior}, m_ks{Float1 - kd.max()}, m_kd(kd) {}
 
     std::tuple<Vector3f, Vector3f, Float> Microfacet::sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &sampler) const {
         // from hitpoint to incoming point
@@ -42,7 +42,7 @@ namespace Caramel{
         }
 
         if(sampler.sample_1d() < m_ks) /* reflect */{
-            const Vector3f sampled_normal = sample_beckmann_distrib(sampler, m_alpha).first;
+            const Vector3f sampled_normal = m_distrib.Sample_wm(local_incoming_flipped, sampler);
             local_outgoing = reflect(-local_incoming_flipped, sampled_normal);
         }
         else{ // diffuse
@@ -74,7 +74,7 @@ namespace Caramel{
         const Vector3f wh = Vector3f(local_incoming_flipped + local_outgoing).normalize();
         const Float Jh = Float1 / (static_cast<Float>(4) * wh.dot(local_outgoing));
 
-        const Float pdf =  (m_ks * sample_beckmann_distrib_pdf(wh, m_alpha) * Jh) +
+        const Float pdf =  (m_ks * m_distrib.PDF(local_incoming_flipped, wh) * Jh) +
                           (Float1 - m_ks) * local_outgoing[2] * PI_INV;
 
         return pdf;
@@ -91,33 +91,17 @@ namespace Caramel{
         }
 
         const Vector3f wh = Vector3f(local_incoming_flipped + local_outgoing).normalize();
-        const Float D = sample_beckmann_distrib_pdf(wh, m_alpha);
+        const Float D = m_distrib.D(wh);
         const Float F = fresnel_dielectric(wh.dot(local_incoming_flipped), m_ex_index_of_refraction, m_in_index_of_refraction);
-        const Float G = G1(local_incoming_flipped, wh) * G1(local_outgoing, wh);
+        const Float G = m_distrib.G(local_incoming_flipped, local_outgoing);
 
-        const Float denom = static_cast<Float>(4) * local_incoming_flipped[2] * local_outgoing[2] * wh[2];
+        const Float denom = static_cast<Float>(4) * local_incoming_flipped[2] * local_outgoing[2];
         const Float spec_contrib = ((m_ks / denom) * D * F * G);
         return (m_kd * PI_INV) + Vector3f{spec_contrib, spec_contrib, spec_contrib};
     }
 
     bool Microfacet::is_discrete(bool /*frontside*/) const{
         return false;
-    }
-
-    Float Microfacet::G1(const Vector3f &wv, const Vector3f &wh) const{
-        if(wv.dot(wh) / wv[2] <= 0){
-            return Float0;
-        }
-
-        using std::sqrt;
-        const Float b = wv[2] / (sqrt(wv[0]*wv[0] + wv[1]*wv[1]) * m_alpha);
-        if(b >= static_cast<Float>(1.6)){
-            return Float1;
-        }
-
-        const Float b_2 = b * b;
-        return (static_cast<Float>(3.535) * b + static_cast<Float>(2.181) * (b_2)) /
-               (Float1 + static_cast<Float>(2.276) * b + static_cast<Float>(2.577) * b_2);
     }
 
 }
