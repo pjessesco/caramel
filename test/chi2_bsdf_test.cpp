@@ -126,3 +126,28 @@ TEST_CASE("Chi2 BSDF: Microfacet (alpha=0.6, ior=1.8)", "[chi2][bsdf]") {
     Microfacet bsdf(0.6f, 1.8f, IOR::VACUUM, Vector3f{0.3f, 0.3f, 0.3f});
     CHECK(run_chi2_test(bsdf));
 }
+
+TEST_CASE("Chi2 BSDF: RoughConductor (alpha=0.1, Au)", "[chi2][bsdf]") {
+    RoughConductor bsdf(0.1f, Conductors::Au, IOR::VACUUM);
+    CHECK(run_chi2_test(bsdf));
+}
+
+TEST_CASE("Chi2 BSDF: RoughConductor (alpha=0.3, Cu)", "[chi2][bsdf]") {
+    RoughConductor bsdf(0.3f, Conductors::Cu, IOR::VACUUM);
+    CHECK(run_chi2_test(bsdf));
+}
+
+TEST_CASE("Chi2 BSDF: RoughConductor (alpha=0.6, Ag)", "[chi2][bsdf]") {
+    RoughConductor bsdf(0.6f, Conductors::Ag, IOR::VACUUM);
+    CHECK(run_chi2_test(bsdf));
+}
+
+TEST_CASE("Chi2 BSDF: RoughDielectric (alpha=0.1, ior=1.5)", "[chi2][bsdf]") {
+    RoughDielectric bsdf(0.1f, IOR::GLASS, IOR::VACUUM);
+    CHECK(run_chi2_test(bsdf));
+}
+
+TEST_CASE("Chi2 BSDF: RoughDielectric (alpha=0.3, ior=1.5)", "[chi2][bsdf]") {
+    RoughDielectric bsdf(0.3f, IOR::GLASS, IOR::VACUUM);
+    CHECK(run_chi2_test(bsdf));
+}

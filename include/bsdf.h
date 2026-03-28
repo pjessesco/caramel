@@ -200,4 +200,63 @@ namespace Caramel{
         const BSDF *m_back;
     };
 
+    // Microfacet conductor BRDF using the GGX distribution.
+    //
+    // Models rough metallic surfaces (gold, silver, copper, aluminum) where
+    // light is only reflected, never transmitted. The BRDF is:
+    //   f_r = D(wm) * F_conductor(wo.wm) * G(wo, wi) / (4 * cos_o * cos_i)
+    //
+    // Uses visible-normal sampling for importance sampling, and the
+    // height-correlated Smith masking-shadowing function for G.
+    // When alpha < 1e-3, falls back to a perfect mirror with conductor
+    // Fresnel weighting (effectively-smooth delta BRDF).
+    class RoughConductor final : public BSDF{
+    public:
+        RoughConductor(Float alpha, const Conductors &mat, Float ex_ior);
+        std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &sampler) const override;
+        Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
+        Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const override;
+        bool is_discrete(bool /*frontside*/) const override;
+
+    private:
+        GGXDistribution m_distrib;  // Microfacet normal distribution (isotropic GGX)
+        Vector3f m_eta;             // Per-channel real part of complex IOR (from IOR table)
+        Vector3f m_k;               // Per-channel imaginary part (extinction coefficient)
+        Float m_ex_ior;             // External medium IOR (typically 1.0 for vacuum/air)
+    };
+
+    // Microfacet dielectric BSDF using the GGX distribution.
+    //
+    // Models rough transparent surfaces (glass, water, etc.) with both
+    // reflection and transmission lobes. The model is:
+    //   Reflection:   f_r = D * F * G / (4 * |cos_o| * |cos_i|)
+    //   Transmission: f_t = D * (1-F) * G * |wo.wm| * |wi.wm|
+    //                       / (|cos_o| * |cos_i| * denom^2)
+    //     where denom = dot(wi, wm) + dot(wo, wm) / eta
+    //
+    // The generalized half-vector for transmission is:
+    //   wm = normalize(eta * wi + wo)
+    //
+    // Sampling selects between reflection and transmission lobes using
+    // the Fresnel reflectance R as the probability weight: P(reflect) = R.
+    // A 1/eta^2 non-symmetric scattering correction is applied for the
+    // transmission lobe (radiance transport mode).
+    //
+    // When alpha < 1e-3, falls back to a perfect delta dielectric
+    // (specular reflection + Snell's law refraction).
+    class RoughDielectric final : public BSDF{
+    public:
+        RoughDielectric(Float alpha, Float in_ior, Float ex_ior);
+        std::tuple<Vector3f, Vector3f, Float> sample_recursive_dir(const Vector3f &local_incoming_dir, const Vector2f &, Sampler &sampler) const override;
+        Float pdf(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir) const override;
+        Vector3f get_reflection(const Vector3f &local_incoming_dir, const Vector3f &local_outgoing_dir, const Vector2f &) const override;
+        bool is_discrete(bool /*frontside*/) const override;
+
+    private:
+        GGXDistribution m_distrib;  // Microfacet normal distribution (isotropic GGX)
+        Float m_in_ior;             // Internal medium IOR (e.g. 1.5 for glass)
+        Float m_ex_ior;             // External medium IOR (e.g. 1.0 for air)
+        Float m_eta;                // Ratio in_ior / ex_ior, used for half-vector computation
+    };
+
 }

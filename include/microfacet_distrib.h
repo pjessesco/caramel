@@ -33,9 +33,8 @@ namespace Caramel {
 
 // Base class for microfacet normal distributions.
 //
-// Subclasses implement D, G1, Sample_wm, PDF.
-// G (masking-shadowing for two directions) is provided by the base class
-// as G1(wo) * G1(wi) [uncorrelated].
+// Subclasses implement D, G1, G, Sample_wm, PDF.
+// G uses height-correlated masking-shadowing: 1/(1 + Lambda(wo) + Lambda(wi)).
 //
 // Reference: microfacet_rough_bsdf_guide.md
 class MicrofacetDistribution {
@@ -57,11 +56,9 @@ public:
     // PDF(w, wm): probability density of the sampled normal
     virtual Float PDF(const Vector3f &w, const Vector3f &wm) const = 0;
 
-    // G(wo, wi): uncorrelated masking-shadowing
-    //   G = G1(wo) * G1(wi)
-    Float G(const Vector3f &wo, const Vector3f &wi) const {
-        return G1(wo) * G1(wi);
-    }
+    // G(wo, wi): height-correlated masking-shadowing
+    //   G = 1 / (1 + Lambda(wo) + Lambda(wi))
+    virtual Float G(const Vector3f &wo, const Vector3f &wi) const = 0;
 
     Float alpha() const { return m_alpha; }
 
@@ -138,6 +135,17 @@ public:
     // p(wm) = D(wm) * cos(theta_m)
     Float PDF(const Vector3f & /*w*/, const Vector3f &wm) const override {
         return D(wm) * std::max(Float0, wm[2]);
+    }
+
+    // Height-correlated G via rational approx G1:
+    //   Lambda = 1/G1 - 1
+    //   G = 1 / (1 + Lambda_o + Lambda_i) = 1 / (1/G1_o + 1/G1_i - 1)
+    Float G(const Vector3f &wo, const Vector3f &wi) const override {
+        const Float g1_o = G1(wo);
+        const Float g1_i = G1(wi);
+        if (g1_o == Float0 || g1_i == Float0) return Float0;
+        const Float denom = Float1 / g1_o + Float1 / g1_i - Float1;
+        return (denom > Float0) ? Float1 / denom : Float0;
     }
 };
 
@@ -220,6 +228,11 @@ public:
         const Float dot = w.dot(wm);
         if (dot <= Float0) return Float0;
         return G1(w) / w[2] * D(wm) * dot;
+    }
+
+    // Height-correlated G: 1 / (1 + Lambda(wo) + Lambda(wi))
+    Float G(const Vector3f &wo, const Vector3f &wi) const override {
+        return Float1 / (Float1 + Lambda(wo) + Lambda(wi));
     }
 
 private:

@@ -42,6 +42,8 @@ set(SOURCES
         src/bsdfs/conductor.cpp
         src/bsdfs/dielectric.cpp
         src/bsdfs/microfacet.cpp
+        src/bsdfs/roughconductor.cpp
+        src/bsdfs/roughdielectric.cpp
         src/bsdfs/bsdf.cpp
         src/bsdfs/orennayar.cpp
         src/bsdfs/twosided.cpp

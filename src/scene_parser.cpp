@@ -285,6 +285,21 @@ namespace Caramel{
                              /*child == "Cu" ?*/ Conductors::Cu;
             return BSDF::Create<Conductor>(c, parse_positive_float(child, "ex_ior"));
         }
+        else if(type=="roughconductor"){
+            const std::string conductor = parse_string(child, "material");
+            const Conductors c = conductor == "Au" ? Conductors::Au :
+                                 conductor == "Ag" ? Conductors::Ag :
+                                 conductor == "Al" ? Conductors::Al :
+                             /*child == "Cu" ?*/ Conductors::Cu;
+            return BSDF::Create<RoughConductor>(parse_positive_float(child, "alpha"),
+                                                c,
+                                                parse_positive_float(child, "ex_ior"));
+        }
+        else if(type=="roughdielectric"){
+            return BSDF::Create<RoughDielectric>(parse_positive_float(child, "alpha"),
+                                                 parse_positive_float(child, "in_ior"),
+                                                 parse_positive_float(child, "ex_ior"));
+        }
         else if(type=="twosided"){
             BSDF *front = parse_bsdf(child);
             Json back_wrapper;
