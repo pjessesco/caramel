@@ -142,6 +142,8 @@ namespace Caramel{
 
     class ImageEnvLight final : public Light {
     public:
+        static constexpr bool MIS_COMPENSATION = true;
+
         ImageEnvLight(const std::string &path, Float scale, const Matrix44f &to_world);
 
         Float power() const override;

@@ -58,9 +58,15 @@ namespace Caramel{
             }
             const Float sum = m_cdf.back();
 
-            for(int i=0;i<m_pdf.size();i++){
-                m_pdf[i] /= sum;
-                m_cdf[i] /= sum;
+            if (sum > Float{0}) {
+                for(int i=0;i<m_pdf.size();i++){
+                    m_pdf[i] /= sum;
+                    m_cdf[i] /= sum;
+                }
+            }
+            else {
+                std::fill(m_pdf.begin(), m_pdf.end(), Float{0});
+                std::fill(m_cdf.begin(), m_cdf.end(), Float{0});
             }
         }
 
