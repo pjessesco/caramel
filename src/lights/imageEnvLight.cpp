@@ -23,6 +23,8 @@
 //
 
 #include <tuple>
+#include <algorithm>
+#include <numeric>
 
 #include <light.h>
 
@@ -37,8 +39,50 @@
 
 
 namespace Caramel{
+
+    // MIS Compensation (Karlík et al., SIGGRAPH Asia 2019):
+    // Subtract average luminance from the sampling distribution so that
+    // environment-map samples concentrate on bright regions.
+    // https://dl.acm.org/doi/10.1145/3355089.3356565
+    static Distrib2D build_sampling_distrib(const Image *image) {
+        auto data = image->get_data_for_sampling(true);
+
+        if constexpr (ImageEnvLight::MIS_COMPENSATION) {
+            const int width = static_cast<int>(data.size());
+            const int height = width > 0 ? static_cast<int>(data[0].size()) : 0;
+            const int total_pixels = width * height;
+
+            if (total_pixels > 0) {
+                double lum_accum = 0.0;
+                Float min_lum = std::numeric_limits<Float>::max();
+
+                for (int w = 0; w < width; w++) {
+                    for (int h = 0; h < height; h++) {
+                        Float lum = data[w][h];
+                        lum_accum += static_cast<double>(lum);
+                        min_lum = std::min(min_lum, lum);
+                    }
+                }
+
+                Float luminance_offset = static_cast<Float>(lum_accum / total_pixels);
+
+                // Safety: skip if the envmap is nearly constant
+                if (luminance_offset - min_lum > static_cast<Float>(0.01) * luminance_offset) {
+                    using std::max;
+                    for (int w = 0; w < width; w++) {
+                        for (int h = 0; h < height; h++) {
+                            data[w][h] = max(data[w][h] - luminance_offset, Float{0});
+                        }
+                    }
+                }
+            }
+        }
+
+        return Distrib2D(data);
+    }
+
     ImageEnvLight::ImageEnvLight(const std::string &path, Float scale, const Matrix44f &to_world)
-        : m_scale(scale), m_image(new Image(path)), m_imageDistrib(m_image->get_data_for_sampling(true)),
+        : m_scale(scale), m_image(new Image(path)), m_imageDistrib(build_sampling_distrib(m_image)),
           m_width(m_image->size()[0]), m_height(m_image->size()[1]), m_width_height(m_width * m_height),
           m_to_world{Block<0, 0, 3, 3>(to_world)}, m_to_local{Block<0, 0, 3, 3>(Inverse(to_world))} {
 
