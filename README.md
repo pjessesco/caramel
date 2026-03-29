@@ -12,7 +12,7 @@ Caramel is a physically-based offline renderer based on [Peanut](https://github.
 <div align="center">
 <img src="resource/readme_teaser.png"/>
 <br>
-<sub>Interactive render GUI (macOS)</sub>
+<em>Interactive render GUI (macOS)</em>
 </div>
 
 ## Gallery
