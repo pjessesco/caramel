@@ -8,6 +8,8 @@
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/pjessesco/caramel)
 
 
+<img src="resource/readme_teaser.png"/>
+
 Caramel is a physically-based offline renderer based on [Peanut](https://github.com/pjessesco/peanut). 
 
 ## Features
