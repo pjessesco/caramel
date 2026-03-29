@@ -7,10 +7,13 @@
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/pjessesco/caramel)
 
+Caramel is a physically-based offline renderer based on [Peanut](https://github.com/pjessesco/peanut). 
 
 <img src="resource/readme_teaser.png"/>
 
-Caramel is a physically-based offline renderer based on [Peanut](https://github.com/pjessesco/peanut). 
+## Gallery
+
+See [caramel-scenes](https://github.com/pjessesco/caramel-scenes/blob/main/README.md) README.
 
 ## Features
 
@@ -30,6 +33,3 @@ Caramel is a physically-based offline renderer based on [Peanut](https://github.
 - Interactive render GUI (macOS)
 - End-to-end render test
 
-## Gallery
-
-See [caramel-scenes](https://github.com/pjessesco/caramel-scenes/blob/main/README.md) README.
