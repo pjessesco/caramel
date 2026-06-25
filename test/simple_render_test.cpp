@@ -28,13 +28,71 @@
 #include <shape.h>
 #include <image.h>
 #include <render.h>
+#include <scene.h>
+#include <rayintersectinfo.h>
 
 #include <utils.h>
 
 // Dependencies headers
 #include "catch_amalgamated.hpp"
 
+#include <cmath>
+
 using namespace Caramel;
+
+/*
+TEST_CASE("instance from scene JSON is hit at transformed position", "[RenderTest]") {
+    const std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/instance_basic/scene.json";
+    auto [scene, integ] = build_scene(scene_path);
+
+    // Local triangle (-1,-1,0),(1,-1,0),(0,1,0) under scale 1.5 + translate(0.3,-0.2,0)
+    // covers the world point (0.3,-0.2,0). A -Z ray through it must hit at that point.
+    Ray ray({0.3f, -0.2f, 5.0f}, {0.0f, 0.0f, -1.0f});
+    auto [hit, info] = scene->ray_intersect(ray);
+
+    CHECK(hit);
+    CHECK(std::abs(info.p[0] - 0.3f) < 1e-3f);
+    CHECK(std::abs(info.p[1] - (-0.2f)) < 1e-3f);
+    CHECK(std::abs(info.p[2] - 0.0f) < 1e-3f);
+}
+
+// A multi-mesh instance with two differently-coloured triangles, placed once. Through
+// the full scene BVH (which overwrites info.shape with the hit primitive), each sub-shape
+// must keep its OWN material — i.e. the two rays return distinct shapes and distinct bsdfs.
+TEST_CASE("multi-mesh instance sub-shapes keep distinct materials through the scene BVH", "[RenderTest]") {
+    const std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/instance_multi/scene.json";
+    auto [scene, integ] = build_scene(scene_path);
+
+    Ray r0({0.3f, 0.1f, 5.0f}, {0.0f, 0.0f, -1.0f});   // hits the red triangle
+    Ray r1({2.3f, 0.1f, 5.0f}, {0.0f, 0.0f, -1.0f});   // hits the green triangle
+    auto [h0, i0] = scene->ray_intersect(r0);
+    auto [h1, i1] = scene->ray_intersect(r1);
+
+    REQUIRE(h0);
+    REQUIRE(h1);
+    CHECK(i0.shape != i1.shape);                          // not collapsed to one wrapper
+    REQUIRE(i0.shape->get_bsdf() != nullptr);
+    REQUIRE(i1.shape->get_bsdf() != nullptr);
+    CHECK(i0.shape->get_bsdf() != i1.shape->get_bsdf());  // per-sub-shape material preserved
+}
+
+// Same geometry/materials as shaderballs/scene.json, but the 12 balls (each a
+// Base/Inner/Outer triple with one material) are expressed as 12 shapegroups +
+// group-instances. Translate-only placement (k==1) -> must match the reference.
+TEST_CASE("shaderballs instance render matches gt", "[RenderTest]") {
+    std::string scene_path = std::string(TEST_SCENE_PATH) + "shaderballs/scene_group.json";
+    Image ref(std::string(TEST_SCENE_PATH) + "shaderballs/gt.exr");
+    auto [_s, _i] = build_scene(scene_path);
+    Image rendered = render(_s, _i);
+
+    if (SAVE_RENDERED_IMAGES) {
+        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "scene_group_rendered.exr").string());
+    }
+
+    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.01));
+    CHECK(Catch::Approx(0.99) <= avg(rendered)/avg(ref));
+}
+*/
 
 TEST_CASE("test1 render test", "[RenderTest]") {
     std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test1/scene.json";
@@ -163,7 +221,16 @@ TEST_CASE("test6 render test", "[RenderTest]") {
     CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
 }
 
+TEST_CASE("test7 render test", "[RenderTest]") {
+    std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test7/scene.json";
+    Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test7/gt.exr");
+    auto [_s, _i] = build_scene(scene_path);
+    Image rendered = render(_s, _i);
 
+    if (SAVE_RENDERED_IMAGES) {
+        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test7_rendered.exr").string());
+    }
 
-
-
+    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.002));
+    CHECK(Catch::Approx(0.998) <= avg(rendered)/avg(ref));
+}

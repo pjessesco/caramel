@@ -69,8 +69,11 @@ set(SOURCES
         src/scene.cpp
         src/shapes/objmesh.cpp
         src/shapes/plymesh.cpp
+        src/shapes/triangle_mesh.cpp
+        src/shapes/inline_triangle_mesh.cpp
         src/shapes/shape.cpp
         src/shapes/triangle.cpp
+        src/shapes/instance.cpp
         src/scene_parser.cpp
         src/rayintersectinfo.cpp
         src/textures/image_texture.cpp

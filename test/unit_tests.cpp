@@ -32,6 +32,8 @@
 #include <rayintersectinfo.h>
 #include <sampler.h>
 #include <scene.h>
+#include <transform.h>
+#include <scene_parser.h>
 
 // Dependencies headers
 #include "catch_amalgamated.hpp"
@@ -1775,5 +1777,207 @@ TEST_CASE("Scene::is_visible", "[UnitTest]") {
 
     delete tri1;
     delete tri2;
+}
+
+// =============================================================================
+// Instance::ray_intersect Tests
+// =============================================================================
+
+TEST_CASE("Instance matches baked-transform geometry", "[UnitTest]") {
+    // Template triangle in LOCAL space.
+    const Vector3f p0{0.0f, 0.0f, 0.0f};
+    const Vector3f p1{1.0f, 0.0f, 0.0f};
+    const Vector3f p2{0.0f, 1.0f, 0.0f};
+    Triangle tri_local(p0, p1, p2, nullptr);
+
+    // Non-reflecting affine transform (det > 0): scale, then rotate_y, then translate.
+    const Matrix44f to_world =
+        translate(2.0f, -1.0f, 0.5f) * rotate_y(30.0f) * scale(2.0f, 2.0f, 2.0f);
+
+    Instance inst(&tri_local, to_world, nullptr);
+
+    // Reference: the SAME triangle with the transform baked into its vertices.
+    const Vector3f w0 = transform_point(p0, to_world);
+    const Vector3f w1 = transform_point(p1, to_world);
+    const Vector3f w2 = transform_point(p2, to_world);
+    Triangle tri_world(w0, w1, w2, nullptr);
+
+    // Ray from +Z toward the world-space centroid.
+    const Vector3f centroid = (w0 + w1 + w2) * (Float1 / 3.0f);
+    Ray ray = RayTestHelper::create({centroid[0], centroid[1], centroid[2] + 10.0f},
+                                    {0.0f, 0.0f, -1.0f});
+
+    auto [hit_ref,  info_ref ] = tri_world.ray_intersect(ray, INF);
+    auto [hit_inst, info_inst] = inst.ray_intersect(ray, INF);
+
+    REQUIRE(hit_ref);
+    CHECK(hit_inst == hit_ref);
+    CHECK(is_approx(info_inst.t, info_ref.t));
+    CHECK(is_approx(info_inst.p[0], info_ref.p[0]));
+    CHECK(is_approx(info_inst.p[1], info_ref.p[1]));
+    CHECK(is_approx(info_inst.p[2], info_ref.p[2]));
+
+    // World-space shading normals point the same way.
+    const Float ndot = info_inst.sh_coord.m_world_n.dot(info_ref.sh_coord.m_world_n);
+    CHECK(is_approx(ndot, Float1));
+
+    // World AABB contains the (baked) world-space geometry.
+    CHECK(inst.get_aabb().is_contain(centroid));
+}
+
+// =============================================================================
+// Instance / shapegroup parser Tests
+// =============================================================================
+
+/*
+TEST_CASE("simplified instance shares one entry-level bsdf across placements", "[UnitTest]") {
+    const std::string tri = std::string(TEST_SCENE_PATH) + "test_scenes/instance_basic/tri.obj";
+    const std::string src = std::string(R"({
+  "shape": [ {
+    "type": "instance",
+    "path": ")") + tri + R"(",
+    "bsdf": { "type": "diffuse", "albedo": [0.5, 0.5, 0.5] },
+    "instances": [
+      { "to_world": [ { "type": "translate", "value": [1, 0, 0] } ] },
+      { "to_world": [ { "type": "translate", "value": [2, 0, 0] } ] }
+    ]
+  } ]
+})";
+    SceneParser parser{nlohmann::json::parse(src)};
+    const std::vector<Shape*> shapes = parser.parse_shapes();
+
+    REQUIRE(shapes.size() == 2);
+    CHECK(shapes[0]->get_bsdf() == shapes[1]->get_bsdf());     // one shared bsdf pointer
+    const auto *i0 = dynamic_cast<const Instance*>(shapes[0]);
+    const auto *i1 = dynamic_cast<const Instance*>(shapes[1]);
+    REQUIRE(i0 != nullptr);
+    REQUIRE(i1 != nullptr);
+    CHECK(i0->geometry() == i1->geometry());                   // template loaded once, shared
+}
+
+TEST_CASE("per-placement bsdf on a path instance is rejected", "[UnitTest]") {
+    const std::string tri = std::string(TEST_SCENE_PATH) + "test_scenes/instance_basic/tri.obj";
+    const std::string src = std::string(R"({
+  "shape": [ {
+    "type": "instance",
+    "path": ")") + tri + R"(",
+    "bsdf": { "type": "diffuse", "albedo": [0.5, 0.5, 0.5] },
+    "instances": [
+      { "bsdf": { "type": "mirror" }, "to_world": [ { "type": "translate", "value": [1, 0, 0] } ] }
+    ]
+  } ]
+})";
+    SceneParser parser{nlohmann::json::parse(src)};
+    REQUIRE_THROWS(parser.parse_shapes());
+}
+
+TEST_CASE("multi-mesh instance expands per sub-shape and placement", "[UnitTest]") {
+    const std::string src = R"({
+  "shape": [ {
+    "type": "instance",
+    "shapes": [
+      { "type": "triangle", "p0": [0,0,0], "p1": [1,0,0], "p2": [0,1,0],
+        "bsdf": { "type": "diffuse", "albedo": [1,0,0] } },
+      { "type": "triangle", "p0": [2,0,0], "p1": [3,0,0], "p2": [2,1,0],
+        "bsdf": { "type": "diffuse", "albedo": [0,1,0] } }
+    ],
+    "instances": [
+      { "to_world": [ { "type": "translate", "value": [0,0,0] } ] },
+      { "to_world": [ { "type": "translate", "value": [10,0,0] } ] },
+      { "to_world": [ { "type": "translate", "value": [20,0,0] } ] }
+    ]
+  } ]
+})";
+    SceneParser parser{nlohmann::json::parse(src)};
+    const std::vector<Shape*> shapes = parser.parse_shapes();
+
+    REQUIRE(shapes.size() == 6);    // 2 template sub-shapes x 3 placements
+
+    auto inst = [](Shape *s){ return dynamic_cast<const Instance*>(s); };
+    for(Shape *s : shapes){ REQUIRE(inst(s) != nullptr); }
+
+    // Emission order is placement-outer, sub-shape-inner:
+    // [g0@p0, g1@p0, g0@p1, g1@p1, g0@p2, g1@p2].
+    // Sub-shape 0 geometry is reused across placements, distinct from sub-shape 1.
+    CHECK(inst(shapes[0])->geometry() == inst(shapes[2])->geometry());
+    CHECK(inst(shapes[0])->geometry() != inst(shapes[1])->geometry());
+    // bsdf is per sub-shape (red vs green), shared across placements.
+    CHECK(shapes[0]->get_bsdf() == shapes[2]->get_bsdf());
+    CHECK(shapes[0]->get_bsdf() != shapes[1]->get_bsdf());
+}
+
+TEST_CASE("instance schema is validated", "[UnitTest]") {
+    const std::string tri = std::string(TEST_SCENE_PATH) + "test_scenes/instance_basic/tri.obj";
+    auto parse = [](const std::string &src){
+        SceneParser parser{nlohmann::json::parse(src)};
+        return parser.parse_shapes();
+    };
+    const std::string one_tri = R"("shapes":[{"type":"triangle","p0":[0,0,0],"p1":[1,0,0],"p2":[0,1,0],"bsdf":{"type":"diffuse"}}])";
+
+    SECTION("both path and shapes present") {
+        REQUIRE_THROWS(parse(std::string(R"({"shape":[{"type":"instance","path":")") + tri +
+            R"(","bsdf":{"type":"mirror"},)" + one_tri + R"(,"instances":[{"to_world":[]}]}]})"));
+    }
+    SECTION("neither path nor shapes") {
+        REQUIRE_THROWS(parse(R"({"shape":[{"type":"instance","instances":[{"to_world":[]}]}]})"));
+    }
+    SECTION("multi-mesh instance carrying an entry-level bsdf") {
+        REQUIRE_THROWS(parse(std::string(R"({"shape":[{"type":"instance","bsdf":{"type":"mirror"},)") +
+            one_tri + R"(,"instances":[{"to_world":[]}]}]})"));
+    }
+    SECTION("empty shapes array") {
+        REQUIRE_THROWS(parse(R"({"shape":[{"type":"instance","shapes":[],"instances":[{"to_world":[]}]}]})"));
+    }
+    SECTION("sub-shape with arealight") {
+        REQUIRE_THROWS(parse(R"({"shape":[{"type":"instance","shapes":[{"type":"triangle","p0":[0,0,0],"p1":[1,0,0],"p2":[0,1,0],"bsdf":{"type":"diffuse"},"arealight":{"radiance":[1,1,1]}}],"instances":[{"to_world":[]}]}]})"));
+    }
+    SECTION("per-placement bsdf on a multi-mesh instance") {
+        REQUIRE_THROWS(parse(std::string(R"({"shape":[{"type":"instance",)") + one_tri +
+            R"(,"instances":[{"bsdf":{"type":"mirror"},"to_world":[]}]}]})"));
+    }
+}
+*/
+
+// =============================================================================
+// InlineTriangleMesh (inline "trianglemesh") Tests
+// =============================================================================
+
+TEST_CASE("InlineTriangleMesh intersects an inline quad and reports area", "[UnitTest]") {
+    // Unit square in z=0 plane: two triangles.
+    std::vector<Vector3f> P   = { Vector3f{0.f,0.f,0.f}, Vector3f{1.f,0.f,0.f}, Vector3f{1.f,1.f,0.f}, Vector3f{0.f,1.f,0.f} };
+    std::vector<Vector3i> idx = { Vector3i{0,1,2}, Vector3i{0,2,3} };
+    InlineTriangleMesh mesh(P, idx, {}, nullptr, nullptr, Matrix44f::identity());
+
+    CHECK(mesh.get_triangle_num() == 2);
+    CHECK(is_approx(mesh.get_area(), 1.0f));            // unit square -> area 1
+
+    Ray ray = RayTestHelper::create({0.5f, 0.5f, 5.0f}, {0.0f, 0.0f, -1.0f});
+    auto [hit, info] = mesh.ray_intersect(ray, INF);
+    CHECK(hit);
+    CHECK(is_approx(info.p[0], 0.5f));
+    CHECK(is_approx(info.p[1], 0.5f));
+    CHECK(std::abs(info.p[2]) < 1e-3f);
+    CHECK(is_approx(std::abs(info.sh_coord.m_world_n[2]), 1.0f));   // normal faces +/-z
+}
+
+TEST_CASE("trianglemesh shape parses from JSON and intersects", "[UnitTest]") {
+    const std::string src = R"({
+  "shape": [ {
+    "type": "trianglemesh",
+    "P": [0,0,0, 1,0,0, 1,1,0, 0,1,0],
+    "indices": [0,1,2, 0,2,3],
+    "bsdf": { "type": "diffuse", "albedo": [0.5,0.5,0.5] }
+  } ]
+})";
+    SceneParser parser{nlohmann::json::parse(src)};
+    const std::vector<Shape*> shapes = parser.parse_shapes();
+
+    REQUIRE(shapes.size() == 1);
+    REQUIRE(dynamic_cast<const InlineTriangleMesh*>(shapes[0]) != nullptr);
+
+    Ray ray = RayTestHelper::create({0.5f, 0.5f, 5.0f}, {0.0f, 0.0f, -1.0f});
+    auto [hit, info] = shapes[0]->ray_intersect(ray, INF);
+    CHECK(hit);
+    CHECK(std::abs(info.p[2]) < 1e-3f);
 }
 
