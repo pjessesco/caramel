@@ -60,6 +60,11 @@ namespace Caramel {
             triangle_area_vec[i] = ith_tri_area;
             m_area += ith_tri_area;
         }
+
+        if(m_face_indices.empty() || m_area <= Float0){
+            CRM_ERROR(name + " : mesh has no triangles or zero surface area");
+        }
+
         m_triangle_pdf = Distrib1D(triangle_area_vec);
 
         m_accel = std::make_unique<BVHMesh>(*this, Float1, Float1, 32, 1);
