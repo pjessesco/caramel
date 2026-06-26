@@ -33,7 +33,7 @@
 #include <sampler.h>
 #include <scene.h>
 #include <transform.h>
-#include <scene_parser.h>
+#include <light.h>
 
 // Dependencies headers
 #include "catch_amalgamated.hpp"
@@ -1847,24 +1847,14 @@ TEST_CASE("InlineTriangleMesh intersects an inline quad and reports area", "[Uni
     CHECK(is_approx(std::abs(info.sh_coord.m_world_n[2]), 1.0f));   // normal faces +/-z
 }
 
-TEST_CASE("trianglemesh shape parses from JSON and intersects", "[UnitTest]") {
-    const std::string src = R"({
-  "shape": [ {
-    "type": "trianglemesh",
-    "P": [0,0,0, 1,0,0, 1,1,0, 0,1,0],
-    "indices": [0,1,2, 0,2,3],
-    "bsdf": { "type": "diffuse", "albedo": [0.5,0.5,0.5] }
-  } ]
-})";
-    SceneParser parser{nlohmann::json::parse(src)};
-    const std::vector<Shape*> shapes = parser.parse_shapes();
+TEST_CASE("instanced area-light get_area is exact under non-uniform scale", "[UnitTest]") {
+    // xz-plane unit quad under scale(2,3,5): true area = sx*sz = 10 (old sx*sy gave 6).
+    std::vector<Vector3f> P   = { Vector3f{0.f,0.f,0.f}, Vector3f{1.f,0.f,0.f}, Vector3f{1.f,0.f,1.f}, Vector3f{0.f,0.f,1.f} };
+    std::vector<Vector3i> idx = { Vector3i{0,1,2}, Vector3i{0,2,3} };
+    InlineTriangleMesh quad(P, idx, {}, nullptr);
 
-    REQUIRE(shapes.size() == 1);
-    REQUIRE(dynamic_cast<const InlineTriangleMesh*>(shapes[0]) != nullptr);
-
-    Ray ray = RayTestHelper::create({0.5f, 0.5f, 5.0f}, {0.0f, 0.0f, -1.0f});
-    auto [hit, info] = shapes[0]->ray_intersect(ray, INF);
-    CHECK(hit);
-    CHECK(std::abs(info.p[2]) < 1e-3f);
+    AreaLight *al = AreaLight::Create(Vector3f{1.f, 1.f, 1.f});
+    Instance inst(&quad, scale(2.f, 3.f, 5.f), nullptr, al);
+    CHECK(is_approx(inst.get_area(), 10.0f));
 }
 

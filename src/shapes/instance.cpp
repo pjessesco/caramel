@@ -46,15 +46,42 @@ namespace Caramel{
             }
             return {mn, mx};
         }
+
+        Float transformed_triangle_area(const Vector3f &a, const Vector3f &b, const Vector3f &c, const Matrix44f &m){
+            const Vector3f w0 = transform_point(a, m);
+            const Vector3f w1 = transform_point(b, m);
+            const Vector3f w2 = transform_point(c, m);
+            return Vector3f::cross(w1 - w0, w2 - w0).length() * Float0_5;
+        }
+
+        Float compute_world_area(const Shape *geom, const Matrix44f &to_world){
+            if(const auto *mesh = dynamic_cast<const TriangleMesh*>(geom)){
+                Float area = Float0;
+                for(Index i = 0; i < mesh->get_triangle_num(); ++i){
+                    const auto [a, b, c] = mesh->get_triangle_vertices(i);
+                    area += transformed_triangle_area(a, b, c, to_world);
+                }
+                return area;
+            }
+            const std::vector<Vector3f> &poly = geom->get_polygon_vertices();
+            Float area = Float0;
+            for(std::size_t i = 1; i + 1 < poly.size(); ++i){
+                area += transformed_triangle_area(poly[0], poly[i], poly[i + 1], to_world);
+            }
+            return area;
+        }
     }
 
     Instance::Instance(const Shape *geometry, const Matrix44f &to_world, BSDF *bsdf, AreaLight *arealight)
         : Shape{bsdf, arealight}, m_geometry{geometry}, m_to_world{to_world},
           m_to_local{Inverse(to_world)},
           m_world_aabb{transform_aabb(geometry->get_aabb(), to_world)} {
-        if(m_geometry->is_solid_angle_sampling_possible()){
-            for(const auto &v : m_geometry->get_polygon_vertices()){
-                m_world_polygon_vertices.push_back(transform_point(v, to_world));
+        if(arealight != nullptr){
+            m_world_area = compute_world_area(geometry, to_world);
+            if(m_geometry->is_solid_angle_sampling_possible()){
+                for(const auto &v : m_geometry->get_polygon_vertices()){
+                    m_world_polygon_vertices.push_back(transform_point(v, to_world));
+                }
             }
         }
     }
@@ -88,22 +115,14 @@ namespace Caramel{
     }
 
     Float Instance::get_area() const{
-        // Approximation: area scales by sx * sy (exact for uniform scale)
-        Float sx = Vector3f(m_to_world(0,0), m_to_world(1,0), m_to_world(2,0)).length();
-        Float sy = Vector3f(m_to_world(0,1), m_to_world(1,1), m_to_world(2,1)).length();
-        return m_geometry->get_area() * sx * sy;
+        return m_world_area;
     }
 
     std::tuple<Vector3f, Vector3f, Float> Instance::sample_point(Sampler &sampler) const{
-        auto [local_p, local_n, local_pdf] = m_geometry->sample_point(sampler);
-        Vector3f world_p = transform_point(local_p, m_to_world);
-        Matrix44f normal_mat = T(m_to_local);
-        Vector3f world_n = transform_vector(local_n, normal_mat).normalize();
-        
-        Float sx = Vector3f(m_to_world(0,0), m_to_world(1,0), m_to_world(2,0)).length();
-        Float sy = Vector3f(m_to_world(0,1), m_to_world(1,1), m_to_world(2,1)).length();
-        Float pdf = local_pdf / (sx * sy);
-        return {world_p, world_n, pdf};
+        const auto [local_p, local_n, local_pdf] = m_geometry->sample_point(sampler);
+        const Vector3f world_p = transform_point(local_p, m_to_world);
+        const Vector3f world_n = transform_vector(local_n, T(m_to_local)).normalize();
+        return {world_p, world_n, Float1 / m_world_area};
     }
 
     Float Instance::pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const{
