@@ -211,6 +211,7 @@ namespace Caramel{
         Matrix44f m_to_local;          // Inverse(to_world)
         AABB m_world_aabb;
         Float m_world_area = Float0;
+        Distrib1D m_world_triangle_pdf;
         std::vector<Vector3f> m_world_polygon_vertices;
     };
 

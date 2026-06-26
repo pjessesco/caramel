@@ -73,7 +73,9 @@ namespace Caramel {
             Int tri[3];
             for (int k = 0; k < 3; ++k) {
                 const auto &idx = indices[i + k];
-                const auto key = std::make_tuple(idx.vertex_index, idx.normal_index, idx.texcoord_index);
+                const auto key = std::make_tuple(idx.vertex_index,
+                                                 is_vn_exists ? idx.normal_index : 0,
+                                                 is_tx_exists ? idx.texcoord_index : 0);
                 auto [it, inserted] = welded.try_emplace(key, static_cast<Int>(m_vertices.size()));
                 if (inserted) {
                     const int v = idx.vertex_index;

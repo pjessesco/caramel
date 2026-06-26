@@ -30,6 +30,7 @@
 #include <rayintersectinfo.h>
 #include <transform.h>
 #include <aabb.h>
+#include <sampler.h>
 
 namespace Caramel{
     namespace {
@@ -54,16 +55,7 @@ namespace Caramel{
             return Vector3f::cross(w1 - w0, w2 - w0).length() * Float0_5;
         }
 
-        Float compute_world_area(const Shape *geom, const Matrix44f &to_world){
-            if(const auto *mesh = dynamic_cast<const TriangleMesh*>(geom)){
-                Float area = Float0;
-                for(Index i = 0; i < mesh->get_triangle_num(); ++i){
-                    const auto [a, b, c] = mesh->get_triangle_vertices(i);
-                    area += transformed_triangle_area(a, b, c, to_world);
-                }
-                return area;
-            }
-            const std::vector<Vector3f> &poly = geom->get_polygon_vertices();
+        Float polygon_world_area(const std::vector<Vector3f> &poly, const Matrix44f &to_world){
             Float area = Float0;
             for(std::size_t i = 1; i + 1 < poly.size(); ++i){
                 area += transformed_triangle_area(poly[0], poly[i], poly[i + 1], to_world);
@@ -77,7 +69,24 @@ namespace Caramel{
           m_to_local{Inverse(to_world)},
           m_world_aabb{transform_aabb(geometry->get_aabb(), to_world)} {
         if(arealight != nullptr){
-            m_world_area = compute_world_area(geometry, to_world);
+            // World area must be exact under an arbitrary (non-uniform / sheared) to_world,
+            // which no single scalar captures, so a mesh emitter is measured per-triangle in
+            // world space. Templates carry no arealight, so finalize() built no boundary
+            // polygon to reuse -- hence the type check. m_world_triangle_pdf weights triangles
+            // by world area so sample_point()'s 1/m_world_area pdf is exact.
+            if(const auto *mesh = dynamic_cast<const TriangleMesh*>(geometry)){
+                std::vector<Float> world_tri_areas(mesh->get_triangle_num());
+                m_world_area = Float0;
+                for(Index i = 0; i < mesh->get_triangle_num(); ++i){
+                    const auto [a, b, c] = mesh->get_triangle_vertices(i);
+                    world_tri_areas[i] = transformed_triangle_area(a, b, c, to_world);
+                    m_world_area += world_tri_areas[i];
+                }
+                m_world_triangle_pdf = Distrib1D(world_tri_areas);
+            }
+            else{
+                m_world_area = polygon_world_area(m_geometry->get_polygon_vertices(), to_world);
+            }
             if(m_geometry->is_solid_angle_sampling_possible()){
                 for(const auto &v : m_geometry->get_polygon_vertices()){
                     m_world_polygon_vertices.push_back(transform_point(v, to_world));
@@ -119,7 +128,12 @@ namespace Caramel{
     }
 
     std::tuple<Vector3f, Vector3f, Float> Instance::sample_point(Sampler &sampler) const{
-        const auto [local_p, local_n, local_pdf] = m_geometry->sample_point(sampler);
+        // Pick a triangle by its WORLD area, then sample uniformly within it, so the
+        // world-space density is exactly 1/m_world_area even under non-uniform scale.
+        const TriangleMesh *mesh = dynamic_cast<const TriangleMesh*>(m_geometry);
+        const auto [local_p, local_n, local_pdf] = mesh
+            ? mesh->get_triangle_sample_point(m_world_triangle_pdf.sample(sampler.sample_1d()), sampler)
+            : m_geometry->sample_point(sampler);
         const Vector3f world_p = transform_point(local_p, m_to_world);
         const Vector3f world_n = transform_vector(local_n, T(m_to_local)).normalize();
         return {world_p, world_n, Float1 / m_world_area};
