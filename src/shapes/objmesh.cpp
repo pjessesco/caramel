@@ -62,8 +62,13 @@ namespace Caramel {
         is_vn_exists = !attrib.normals.empty();
         is_tx_exists = !attrib.texcoords.empty();
 
-        std::map<std::tuple<int, int, int>, Int> welded;
         const auto &indices = shapes[0].mesh.indices;
+        for(const auto &idx : indices){
+            if(idx.normal_index < 0)   is_vn_exists = false;
+            if(idx.texcoord_index < 0) is_tx_exists = false;
+        }
+
+        std::map<std::tuple<int, int, int>, Int> welded;
         for (size_t i = 0; i + 2 < indices.size(); i += 3) {
             Int tri[3];
             for (int k = 0; k < 3; ++k) {

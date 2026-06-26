@@ -167,13 +167,23 @@ namespace Caramel{
         std::vector<Vector3f> radiances;
 
         const Json sub_shapes = get_unique_first_elem(shape_json, "shapes");
+        if(!sub_shapes.is_array() || sub_shapes.empty()){
+            CRM_ERROR("instance 'shapes' must be a non-empty array");
+        }
+
+        // One Instance per (template sub-shape x placement); geometry shared across placements.
+        const Json instance_list = get_unique_first_elem(shape_json, "instances");
+        if(!instance_list.is_array() || instance_list.empty()){
+            CRM_ERROR("instance 'instances' must be a non-empty array");
+        }
+
         for(const auto &s : sub_shapes){
-            // parse_shape loads the geometry once (group-local; any sub-shape to_world
-            // is baked in) and carries its own bsdf, reused across placements.
-            Shape *geometry = parse_shape(s);
+            Json geom = s;
+            geom.erase("arealight");
+            Shape *geometry = parse_shape(geom);
             geometries.emplace_back(geometry);
             bsdfs.emplace_back(geometry->get_bsdf());
-            
+
             if(s.contains("arealight")){
                 const Json al_child = get_unique_first_elem(s, "arealight");
                 radiances.emplace_back(parse_vector3f(al_child, "radiance"));
@@ -182,8 +192,6 @@ namespace Caramel{
             }
         }
 
-        // One Instance per (template sub-shape x placement); geometry shared across placements.
-        const Json instance_list = get_unique_first_elem(shape_json, "instances");
         for(const auto &inst : instance_list){
             const Matrix44f to_world = parse_matrix44f(inst, "to_world");
             for(std::size_t i = 0; i < geometries.size(); ++i){
@@ -270,6 +278,13 @@ namespace Caramel{
             std::vector<Vector3i> indices;
             for(std::size_t i = 0; i + 2 < Ij.size(); i += 3){
                 indices.push_back(Vector3i{static_cast<Int>(Ij[i]), static_cast<Int>(Ij[i+1]), static_cast<Int>(Ij[i+2])});
+            }
+            for(const auto &t : indices){
+                for(int k = 0; k < 3; ++k){
+                    if(t[k] < 0 || static_cast<std::size_t>(t[k]) >= positions.size()){
+                        CRM_ERROR("trianglemesh index out of range");
+                    }
+                }
             }
             std::vector<Vector3f> normals;
             if(shape_json.contains("N")){

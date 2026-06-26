@@ -65,7 +65,7 @@ namespace Caramel {
         m_accel = std::make_unique<BVHMesh>(*this, Float1, Float1, 32, 1);
         m_accel->build();
 
-        if (AreaLight::TRY_SOLID_ANGLE_SAMPLING && arealight != nullptr) {
+        if (AreaLight::TRY_SOLID_ANGLE_SAMPLING && arealight != nullptr && !m_face_indices.empty()) {
             // Check coplanarity of all triangles
             const auto& idx0 = m_face_indices[0];
             const Vector3f ref_normal = Vector3f::cross(
@@ -122,6 +122,11 @@ namespace Caramel {
 
             if (adjacency.empty()) {
                 return;
+            }
+            for (const auto& kv : adjacency) {
+                if (kv.second.size() != 2) {
+                    return;
+                }
             }
 
             // Walk boundary edges to get ordered vertex indices
