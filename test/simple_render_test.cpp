@@ -28,11 +28,15 @@
 #include <shape.h>
 #include <image.h>
 #include <render.h>
+#include <scene.h>
+#include <rayintersectinfo.h>
 
 #include <utils.h>
 
 // Dependencies headers
 #include "catch_amalgamated.hpp"
+
+#include <cmath>
 
 using namespace Caramel;
 
@@ -163,7 +167,16 @@ TEST_CASE("test6 render test", "[RenderTest]") {
     CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
 }
 
+TEST_CASE("test7 render test", "[RenderTest]") {
+    std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test7/scene.json";
+    Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test7/gt.exr");
+    auto [_s, _i] = build_scene(scene_path);
+    Image rendered = render(_s, _i);
 
+    if (SAVE_RENDERED_IMAGES) {
+        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test7_rendered.exr").string());
+    }
 
-
-
+    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.002));
+    CHECK(Catch::Approx(0.998) <= avg(rendered)/avg(ref));
+}

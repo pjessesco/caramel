@@ -32,6 +32,8 @@
 #include <rayintersectinfo.h>
 #include <sampler.h>
 #include <scene.h>
+#include <transform.h>
+#include <light.h>
 
 // Dependencies headers
 #include "catch_amalgamated.hpp"
@@ -1775,5 +1777,84 @@ TEST_CASE("Scene::is_visible", "[UnitTest]") {
 
     delete tri1;
     delete tri2;
+}
+
+// =============================================================================
+// Instance::ray_intersect Tests
+// =============================================================================
+
+TEST_CASE("Instance matches baked-transform geometry", "[UnitTest]") {
+    // Template triangle in LOCAL space.
+    const Vector3f p0{0.0f, 0.0f, 0.0f};
+    const Vector3f p1{1.0f, 0.0f, 0.0f};
+    const Vector3f p2{0.0f, 1.0f, 0.0f};
+    Triangle tri_local(p0, p1, p2, nullptr);
+
+    // Non-reflecting affine transform (det > 0): scale, then rotate_y, then translate.
+    const Matrix44f to_world =
+        translate(2.0f, -1.0f, 0.5f) * rotate_y(30.0f) * scale(2.0f, 2.0f, 2.0f);
+
+    Instance inst(&tri_local, to_world, nullptr);
+
+    // Reference: the SAME triangle with the transform baked into its vertices.
+    const Vector3f w0 = transform_point(p0, to_world);
+    const Vector3f w1 = transform_point(p1, to_world);
+    const Vector3f w2 = transform_point(p2, to_world);
+    Triangle tri_world(w0, w1, w2, nullptr);
+
+    // Ray from +Z toward the world-space centroid.
+    const Vector3f centroid = (w0 + w1 + w2) * (Float1 / 3.0f);
+    Ray ray = RayTestHelper::create({centroid[0], centroid[1], centroid[2] + 10.0f},
+                                    {0.0f, 0.0f, -1.0f});
+
+    auto [hit_ref,  info_ref ] = tri_world.ray_intersect(ray, INF);
+    auto [hit_inst, info_inst] = inst.ray_intersect(ray, INF);
+
+    REQUIRE(hit_ref);
+    CHECK(hit_inst == hit_ref);
+    CHECK(is_approx(info_inst.t, info_ref.t));
+    CHECK(is_approx(info_inst.p[0], info_ref.p[0]));
+    CHECK(is_approx(info_inst.p[1], info_ref.p[1]));
+    CHECK(is_approx(info_inst.p[2], info_ref.p[2]));
+
+    // World-space shading normals point the same way.
+    const Float ndot = info_inst.sh_coord.m_world_n.dot(info_ref.sh_coord.m_world_n);
+    CHECK(is_approx(ndot, Float1));
+
+    // World AABB contains the (baked) world-space geometry.
+    CHECK(inst.get_aabb().is_contain(centroid));
+}
+
+// =============================================================================
+// InlineTriangleMesh (inline "trianglemesh") Tests
+// =============================================================================
+
+TEST_CASE("InlineTriangleMesh intersects an inline quad and reports area", "[UnitTest]") {
+    // Unit square in z=0 plane: two triangles.
+    std::vector<Vector3f> P   = { Vector3f{0.f,0.f,0.f}, Vector3f{1.f,0.f,0.f}, Vector3f{1.f,1.f,0.f}, Vector3f{0.f,1.f,0.f} };
+    std::vector<Vector3i> idx = { Vector3i{0,1,2}, Vector3i{0,2,3} };
+    InlineTriangleMesh mesh(P, idx, {}, nullptr, nullptr, Matrix44f::identity());
+
+    CHECK(mesh.get_triangle_num() == 2);
+    CHECK(is_approx(mesh.get_area(), 1.0f));            // unit square -> area 1
+
+    Ray ray = RayTestHelper::create({0.5f, 0.5f, 5.0f}, {0.0f, 0.0f, -1.0f});
+    auto [hit, info] = mesh.ray_intersect(ray, INF);
+    CHECK(hit);
+    CHECK(is_approx(info.p[0], 0.5f));
+    CHECK(is_approx(info.p[1], 0.5f));
+    CHECK(std::abs(info.p[2]) < 1e-3f);
+    CHECK(is_approx(std::abs(info.sh_coord.m_world_n[2]), 1.0f));   // normal faces +/-z
+}
+
+TEST_CASE("instanced area-light get_area is exact under non-uniform scale", "[UnitTest]") {
+    // xz-plane unit quad under scale(2,3,5): true area = sx*sz = 10 (old sx*sy gave 6).
+    std::vector<Vector3f> P   = { Vector3f{0.f,0.f,0.f}, Vector3f{1.f,0.f,0.f}, Vector3f{1.f,0.f,1.f}, Vector3f{0.f,0.f,1.f} };
+    std::vector<Vector3i> idx = { Vector3i{0,1,2}, Vector3i{0,2,3} };
+    InlineTriangleMesh quad(P, idx, {}, nullptr);
+
+    AreaLight *al = AreaLight::Create(Vector3f{1.f, 1.f, 1.f});
+    Instance inst(&quad, scale(2.f, 3.f, 5.f), nullptr, al);
+    CHECK(is_approx(inst.get_area(), 10.0f));
 }
 

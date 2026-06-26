@@ -63,6 +63,10 @@ namespace Caramel{
     private:
         Shape* parse_shape(const Json &shape_json) const;
 
+        // Expands a {"type":"instance", "shapes":[...], "instances":[...]} entry into one
+        // Instance per (template sub-shape x placement); templates are loaded once and shared.
+        void parse_instanced_shapes(const Json &shape_json, std::vector<Shape*> &out) const;
+
         Light* parse_light(const Json &light_json) const;
 
         // Other lights are handled in `parse_light()`

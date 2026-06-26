@@ -148,10 +148,60 @@ namespace Caramel{
         const Json child = get_unique_first_elem(m_scene_json, "shape");
         if(child.is_array()){
             for(const auto &ch : child){
-                shapes.emplace_back(parse_shape(ch));
+                if(parse_string(ch, "type") == "instance"){
+                    parse_instanced_shapes(ch, shapes);
+                }
+                else{
+                    shapes.emplace_back(parse_shape(ch));
+                }
             }
         }
         return shapes;
+    }
+
+    void SceneParser::parse_instanced_shapes(const SceneParser::Json &shape_json, std::vector<Shape*> &out) const {
+        // Build the template once (group-local space): parallel geometry + bsdf arrays.
+        //   shapes-form : many sub-shapes, each carrying its own geometry + bsdf.
+        std::vector<const Shape*> geometries;
+        std::vector<BSDF*> bsdfs;
+        std::vector<Vector3f> radiances;
+
+        const Json sub_shapes = get_unique_first_elem(shape_json, "shapes");
+        if(!sub_shapes.is_array() || sub_shapes.empty()){
+            CRM_ERROR("instance 'shapes' must be a non-empty array");
+        }
+
+        // One Instance per (template sub-shape x placement); geometry shared across placements.
+        const Json instance_list = get_unique_first_elem(shape_json, "instances");
+        if(!instance_list.is_array() || instance_list.empty()){
+            CRM_ERROR("instance 'instances' must be a non-empty array");
+        }
+
+        for(const auto &s : sub_shapes){
+            Json geom = s;
+            geom.erase("arealight");
+            Shape *geometry = parse_shape(geom);
+            geometries.emplace_back(geometry);
+            bsdfs.emplace_back(geometry->get_bsdf());
+
+            if(s.contains("arealight")){
+                const Json al_child = get_unique_first_elem(s, "arealight");
+                radiances.emplace_back(parse_vector3f(al_child, "radiance"));
+            } else {
+                radiances.emplace_back(Vector3f{-1.0f, -1.0f, -1.0f});
+            }
+        }
+
+        for(const auto &inst : instance_list){
+            const Matrix44f to_world = parse_matrix44f(inst, "to_world");
+            for(std::size_t i = 0; i < geometries.size(); ++i){
+                AreaLight *al = nullptr;
+                if(radiances[i][0] >= 0.0f){
+                    al = AreaLight::Create(radiances[i]);
+                }
+                out.emplace_back(Shape::Create<Instance>(geometries[i], to_world, bsdfs[i], al));
+            }
+        }
     }
 
     std::vector<Light*> SceneParser::parse_lights() const{
@@ -211,6 +261,45 @@ namespace Caramel{
                                                parse_vector3f(shape_json, "p2"),
                                                parse_bsdf(shape_json));
             }
+        }
+        else if(type=="trianglemesh"){
+            const Json Pj = get_unique_first_elem(shape_json, "P");
+            const Json Ij = get_unique_first_elem(shape_json, "indices");
+            if(!Pj.is_array() || Pj.size() % 3 != 0){
+                CRM_ERROR("trianglemesh 'P' must be a flat array of 3*N numbers");
+            }
+            if(!Ij.is_array() || Ij.size() % 3 != 0){
+                CRM_ERROR("trianglemesh 'indices' must be a flat array of 3*M integers");
+            }
+            std::vector<Vector3f> positions;
+            for(std::size_t i = 0; i + 2 < Pj.size(); i += 3){
+                positions.push_back(Vector3f{static_cast<Float>(Pj[i]), static_cast<Float>(Pj[i+1]), static_cast<Float>(Pj[i+2])});
+            }
+            std::vector<Vector3i> indices;
+            for(std::size_t i = 0; i + 2 < Ij.size(); i += 3){
+                indices.push_back(Vector3i{static_cast<Int>(Ij[i]), static_cast<Int>(Ij[i+1]), static_cast<Int>(Ij[i+2])});
+            }
+            for(const auto &t : indices){
+                for(int k = 0; k < 3; ++k){
+                    if(t[k] < 0 || static_cast<std::size_t>(t[k]) >= positions.size()){
+                        CRM_ERROR("trianglemesh index out of range");
+                    }
+                }
+            }
+            std::vector<Vector3f> normals;
+            if(shape_json.contains("N")){
+                const Json Nj = get_unique_first_elem(shape_json, "N");
+                if(!Nj.is_array() || Nj.size() != Pj.size()){
+                    CRM_ERROR("trianglemesh 'N' must be a flat per-vertex array matching 'P' length");
+                }
+                for(std::size_t i = 0; i + 2 < Nj.size(); i += 3){
+                    normals.push_back(Vector3f{static_cast<Float>(Nj[i]), static_cast<Float>(Nj[i+1]), static_cast<Float>(Nj[i+2])});
+                }
+            }
+            return Shape::Create<InlineTriangleMesh>(positions, indices, normals,
+                                                     parse_bsdf(shape_json),
+                                                     shape_json.contains("arealight") ? parse_arealight(shape_json) : nullptr,
+                                                     shape_json.contains("to_world") ? parse_matrix44f(shape_json, "to_world") : Matrix44f::identity());
         }
 
         CRM_ERROR("Unsupported shape type : " + type);

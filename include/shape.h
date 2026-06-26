@@ -123,23 +123,10 @@ namespace Caramel{
         const bool is_tx_exists;
     };
 
-    // Interface for triangle mesh shapes (used by acceleration structures)
     class TriangleMesh : public Shape{
     public:
-        using Shape::Shape;
-        virtual Index get_triangle_num() const = 0;
-        virtual std::pair<bool, RayIntersectInfo> get_triangle_ray_intersect(Index i, const Ray &ray, Float maxt) const = 0;
-        virtual AABB get_triangle_aabb(Index i) const = 0;
-        virtual Float get_triangle_area(Index i) const = 0;
-        virtual std::tuple<Vector3f, Vector3f, Float> get_triangle_sample_point(Index i, Sampler &sampler) const = 0;
-        virtual std::tuple<Vector3f, Vector3f, Vector3f> get_triangle_vertices(Index i) const = 0;
-        virtual Index sample_triangle_index(Float u) const = 0;
-        virtual Float triangle_select_pdf(Index i) const = 0;
-    };
-
-    class OBJMesh final : public TriangleMesh{
-    public:
-        OBJMesh(const std::filesystem::path &path, BSDF *bsdf, AreaLight *arealight = nullptr, const Matrix44f &transform = Matrix44f::identity());
+        TriangleMesh(BSDF *bsdf, AreaLight *arealight);
+        ~TriangleMesh() override;
 
         std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const override;
         AABB get_aabb() const override;
@@ -147,35 +134,31 @@ namespace Caramel{
         // point, normal, probability
         std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;
         Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const override;
-
-        std::pair<bool, RayIntersectInfo> get_triangle_ray_intersect(Index i, const Ray &ray, Float maxt) const override;
-        AABB get_triangle_aabb(Index i) const override;
-        Float get_triangle_area(Index i) const override;
-        std::tuple<Vector3f, Vector3f, Float> get_triangle_sample_point(Index i, Sampler &sampler) const override;
-        std::tuple<Vector3f, Vector3f, Vector3f> get_triangle_vertices(Index i) const override;
-        Index sample_triangle_index(Float u) const override;
-        Float triangle_select_pdf(Index i) const override;
-
-        Index get_triangle_num() const override {
-            return m_vertex_indices.size();
-        }
-
         bool is_solid_angle_sampling_possible() const override;
         const std::vector<Vector3f>& get_polygon_vertices() const override;
 
-    private:
+        Index get_triangle_num() const { return m_face_indices.size(); }
+        std::pair<bool, RayIntersectInfo> get_triangle_ray_intersect(Index i, const Ray &ray, Float maxt) const;
+        AABB get_triangle_aabb(Index i) const;
+        Float get_triangle_area(Index i) const;
+        std::tuple<Vector3f, Vector3f, Float> get_triangle_sample_point(Index i, Sampler &sampler) const;
+        std::tuple<Vector3f, Vector3f, Vector3f> get_triangle_vertices(Index i) const;
+        Index sample_triangle_index(Float u) const;
+        Float triangle_select_pdf(Index i) const;
+
+    protected:
+        void finalize(AreaLight *arealight, const std::string &name);
+
         Distrib1D m_triangle_pdf;
-        Float m_area;
+        Float m_area = Float0;
         AABB m_aabb;
-        bool is_vn_exists;
-        bool is_tx_exists;
+        bool is_vn_exists = false;
+        bool is_tx_exists = false;
         std::unique_ptr<MeshAccel> m_accel;
         std::vector<Vector3f> m_vertices;
         std::vector<Vector3f> m_normals;
         std::vector<Vector2f> m_tex_coords;
-        std::vector<Vector3i> m_vertex_indices;
-        std::vector<Vector3i> m_normal_indices;
-        std::vector<Vector3i> m_tex_coord_indices;
+        std::vector<Vector3i> m_face_indices;
 
         // for solid angle sampling
         std::vector<Vector3f> m_polygon_vertices;
@@ -185,42 +168,51 @@ namespace Caramel{
     class PLYMesh final : public TriangleMesh{
     public:
         PLYMesh(const std::filesystem::path &path, BSDF *bsdf, AreaLight *arealight = nullptr, const Matrix44f &transform = Matrix44f::identity());
+    };
+
+    class OBJMesh final : public TriangleMesh{
+    public:
+        OBJMesh(const std::filesystem::path &path, BSDF *bsdf, AreaLight *arealight = nullptr, const Matrix44f &transform = Matrix44f::identity());
+    };
+
+    class InlineTriangleMesh final : public TriangleMesh{
+    public:
+        InlineTriangleMesh(std::vector<Vector3f> positions,
+                           std::vector<Vector3i> indices,
+                           std::vector<Vector3f> normals,
+                           BSDF *bsdf, AreaLight *arealight = nullptr,
+                           const Matrix44f &transform = Matrix44f::identity());
+    };
+
+    // Instanced geometry. Shares a template Shape (kept in LOCAL space) and
+    // applies a per-placement transform at intersection time, so one template's
+    // geometry can be reused across many placements without copying vertices.
+    class Instance final : public Shape{
+    public:
+        // bsdf belongs to this placement: the scene BVH overwrites info.shape with
+        // the top-level Shape* (this Instance), so the integrator reads get_bsdf()
+        // from here, not from the template.
+        Instance(const Shape *geometry, const Matrix44f &to_world, BSDF *bsdf, AreaLight *arealight = nullptr);
 
         std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const override;
         AABB get_aabb() const override;
         Float get_area() const override;
-        // point, normal, probability
         std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;
         Float pdf_solidangle(const Vector3f &hitpos_world, const Vector3f &shapepos_world, const Vector3f &shape_normal_world) const override;
-
-        std::pair<bool, RayIntersectInfo> get_triangle_ray_intersect(Index i, const Ray &ray, Float maxt) const override;
-        AABB get_triangle_aabb(Index i) const override;
-        Float get_triangle_area(Index i) const override;
-        std::tuple<Vector3f, Vector3f, Float> get_triangle_sample_point(Index i, Sampler &sampler) const override;
-        std::tuple<Vector3f, Vector3f, Vector3f> get_triangle_vertices(Index i) const override;
-        Index sample_triangle_index(Float u) const override;
-        Float triangle_select_pdf(Index i) const override;
-
-        Index get_triangle_num() const override {
-            return m_face_indices.size();
-        }
-
         bool is_solid_angle_sampling_possible() const override;
         const std::vector<Vector3f>& get_polygon_vertices() const override;
 
-    private:
-        Distrib1D m_triangle_pdf;
-        Float m_area;
-        AABB m_aabb;
-        bool is_vn_exists;
-        std::unique_ptr<MeshAccel> m_accel;
-        std::vector<Vector3f> m_vertices;
-        std::vector<Vector3f> m_normals;
-        std::vector<Vector3i> m_face_indices;
+        // The shared template geometry pointer (test accessor for sharing checks).
+        const Shape *geometry() const { return m_geometry; }
 
-        // for solid angle sampling
-        std::vector<Vector3f> m_polygon_vertices;
-        bool m_is_solid_angle_sampling_possible = false;
+    private:
+        const Shape *m_geometry;       // shared template, LOCAL space (intersection only)
+        Matrix44f m_to_world;
+        Matrix44f m_to_local;          // Inverse(to_world)
+        AABB m_world_aabb;
+        Float m_world_area = Float0;
+        Distrib1D m_world_triangle_pdf;
+        std::vector<Vector3f> m_world_polygon_vertices;
     };
 
     // u, v, t
