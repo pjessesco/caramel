@@ -1,0 +1,974 @@
+<title>pbrt-v4 Curve Shape 완전 정복 — caramel</title><meta name="description" content="pbrt-v4 Curve shape 의 정의·수학·caramel 포팅을 다루는 학습 자료: cubic Bezier, blossoming, de Casteljau subdivision, ray-space 교차."><meta name="viewport" content="width=device-width, initial-scale=1"><style>
+*{box-sizing:border-box}
+:root{
+ --ground:#F4F6F8; --surface:#FFFFFF; --ink:#15181E; --muted:#586071; --faint:#8C94A3;
+ --hair:#E1E5EB; --hair2:#EDEFF3; --teal:#0F766E; --teal2:#0B5B55; --teal-soft:#E4F1EF;
+ --amber:#B45309; --amber-soft:#FBEFE2; --code-bg:#12151C; --code-fg:#E7EAF0; --code-dim:#8A93A6;
+ --sans:"Pretendard",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",Segoe UI,sans-serif;
+ --mono:"SF Mono","JetBrains Mono",Menlo,Consolas,"Liberation Mono",monospace;
+ --serif:"Iowan Old Style",Georgia,"Times New Roman",serif;
+}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+ font-size:16.5px;line-height:1.85;-webkit-font-smoothing:antialiased;font-feature-settings:"tnum" 0;}
+.page{max-width:1200px;margin:0 auto;padding:0 28px}
+
+/* header */
+header.top{padding:64px 0 30px;border-bottom:1px solid var(--hair)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:600}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.12;font-weight:800;letter-spacing:-.02em;margin:.32em 0 .15em;text-wrap:balance}
+.sub{font-size:clamp(16px,2.4vw,20px);color:var(--muted);font-weight:500;margin:0}
+.metarow{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:22px;font-family:var(--mono);font-size:12px;color:var(--faint)}
+.metarow b{color:var(--muted);font-weight:600}
+
+/* layout */
+.grid{display:grid;grid-template-columns:230px minmax(0,1fr);gap:48px;align-items:start;padding:38px 0 80px}
+main{max-width:760px;min-width:0}
+
+/* toc */
+.toc{position:sticky;top:24px;font-family:var(--mono);font-size:12.5px;line-height:1.5;display:flex;flex-direction:column;gap:2px;border-left:2px solid var(--hair);padding-left:2px}
+.toclabel{letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:600;font-size:11px;margin:0 0 10px 14px}
+.toc a{color:var(--muted);text-decoration:none;padding:3px 0 3px 14px;border-left:2px solid transparent;margin-left:-2px;transition:color .12s,border-color .12s}
+.toc a:hover{color:var(--teal)}
+.toc2{font-weight:600;color:var(--ink) !important;margin-top:8px}
+.toc2:hover{color:var(--teal) !important}
+.toc3{padding-left:26px !important;font-size:12px;color:var(--muted)}
+.toc a.active{color:var(--teal) !important;border-left-color:var(--teal)}
+
+/* typography */
+.sec{margin:0 0 8px}
+h2.sechead{font-size:27px;font-weight:800;letter-spacing:-.015em;margin:54px 0 18px;padding-top:26px;border-top:1px solid var(--hair);text-wrap:balance}
+#intro h2.sechead:first-child{border-top:0;margin-top:8px;padding-top:0}
+h3{font-size:19px;font-weight:700;letter-spacing:-.01em;margin:34px 0 12px;padding-left:14px;position:relative}
+h3::before{content:"";position:absolute;left:0;top:.18em;bottom:.18em;width:4px;border-radius:2px;background:var(--teal)}
+h4{font-size:15.5px;font-weight:700;color:var(--teal2);margin:24px 0 8px;font-family:var(--mono);letter-spacing:-.01em}
+p{margin:0 0 16px}
+strong{font-weight:700;color:var(--ink)}
+a{color:var(--teal);text-decoration-color:var(--hair)}
+ul,ol{margin:0 0 18px;padding-left:1.3em}
+li{margin:6px 0}
+ul li::marker{color:var(--teal)}
+hr{border:0;border-top:1px solid var(--hair);margin:30px 0}
+
+/* inline code */
+code{font-family:var(--mono);font-size:.86em;background:var(--hair2);color:var(--teal2);
+ padding:.1em .38em;border-radius:5px;border:1px solid var(--hair);word-break:break-word}
+
+/* callout */
+.callout{background:var(--teal-soft);border:1px solid #CFE6E2;border-left:3px solid var(--teal);
+ border-radius:0 10px 10px 0;padding:14px 18px;margin:20px 0;font-size:15px;line-height:1.7;color:#1c3b38}
+.callout strong{color:var(--teal2)}
+.callout code{background:#fff;border-color:#CFE6E2}
+
+/* tables */
+.tablewrap{overflow-x:auto;margin:20px 0;border:1px solid var(--hair);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:480px}
+th,td{text-align:left;padding:9px 14px;border-bottom:1px solid var(--hair2);vertical-align:top}
+th{background:#F0F2F5;font-weight:700;font-size:13px;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+td code{font-size:.84em}
+
+/* equations */
+.eq{font-family:var(--serif);font-size:18px;text-align:center;color:#23262e;margin:18px 0;
+ padding:14px 18px;background:#FBFCFD;border:1px solid var(--hair);border-radius:10px;overflow-x:auto;line-height:2.1}
+.eqmulti{text-align:left}
+.eqrow{display:block;padding:2px 0}
+.m{font-family:var(--serif);font-size:1.02em;white-space:nowrap}
+.rm{font-style:normal}
+sub,sup{font-size:.72em;line-height:0}
+.frac{display:inline-flex;flex-direction:column;vertical-align:-0.55em;text-align:center;margin:0 .18em}
+.frac .fn{border-bottom:1.4px solid currentColor;padding:0 .45em}
+.frac .fd{padding:0 .45em}
+.rad{border-top:1.3px solid currentColor;padding:0 .12em}
+.cases{display:inline-flex;align-items:center;gap:.5em;text-align:left}
+.cbrace{font-size:2.6em;font-weight:200;line-height:.8}
+.crows{display:inline-flex;flex-direction:column;gap:.45em}
+.caserow{display:flex;gap:1.4em;align-items:baseline}
+.cval{min-width:9em}
+.ccond{color:var(--muted);font-size:.86em}
+
+/* code card */
+.codecard{margin:22px 0;border-radius:12px;overflow:hidden;border:1px solid #20242e;box-shadow:0 10px 30px -18px rgba(15,23,30,.5)}
+.codebar{background:#0C0F15;color:var(--code-dim);font-family:var(--mono);font-size:12px;padding:9px 16px;border-bottom:1px solid #20242e;letter-spacing:.02em}
+pre{margin:0;background:var(--code-bg);color:var(--code-fg);padding:18px 18px;overflow-x:auto;
+ font-family:var(--mono);font-size:13px;line-height:1.65;tab-size:4}
+pre code{background:none;border:0;color:inherit;padding:0;font-size:13px}
+
+/* figures */
+figure{margin:26px 0;background:var(--surface);border:1px solid var(--hair);border-radius:12px;overflow:hidden}
+.figbox{padding:14px 16px 4px;overflow-x:auto;background:linear-gradient(180deg,#FCFDFE,#F7F9FB)}
+.figbox svg{display:block;width:100%;height:auto;min-width:520px}
+figcaption{font-family:var(--mono);font-size:12.5px;color:var(--muted);padding:10px 18px;border-top:1px solid var(--hair2);background:#FAFBFC;line-height:1.5}
+
+/* svg element styles */
+svg .cv{fill:none;stroke:var(--teal);stroke-width:2.6;stroke-linecap:round}
+svg .cvmini{fill:none;stroke:var(--teal);stroke-width:2}
+svg .cvmini2{fill:none;stroke:var(--teal);stroke-width:1.6}
+svg .poly{fill:none;stroke:#A6AEBC;stroke-width:1.3;stroke-dasharray:5 5}
+svg .thin{fill:none;stroke:#C2C9D4;stroke-width:1}
+svg .cp{fill:var(--ink)}
+svg .cpl{fill:var(--teal)}
+svg .cvdot{fill:var(--amber)}
+svg .qL{fill:var(--teal)}
+svg .qR{fill:#C77D2A}
+svg .childL{fill:none;stroke:var(--teal);stroke-width:1.6;stroke-dasharray:3 3}
+svg .childR{fill:none;stroke:var(--amber);stroke-width:1.6;stroke-dasharray:3 3}
+svg .ray{fill:none;stroke:var(--amber);stroke-width:2.2}
+svg .rayhead,svg .dxhead{fill:var(--amber)}
+svg .rayo{fill:var(--amber)}
+svg .dx{fill:none;stroke:#8C94A3;stroke-width:1.6}
+svg .zaxis{stroke:var(--amber);stroke-width:2.2}
+svg .axis{stroke:#C7CDD7;stroke-width:1.2}
+svg .origin{fill:var(--amber)}
+svg .disk{fill:var(--teal);fill-opacity:.12;stroke:var(--teal);stroke-width:1.3}
+svg .hit{fill:var(--teal);fill-opacity:.20;stroke:var(--teal);stroke-width:1.2}
+svg .rej{fill:var(--amber);fill-opacity:.14}
+svg .cap{stroke:var(--amber);stroke-width:1.4;stroke-dasharray:4 3}
+svg .perp{stroke:var(--muted);stroke-width:1.3}
+svg .vline{stroke:var(--teal);stroke-width:1.4;stroke-dasharray:2 2}
+svg .rightangle{fill:none;stroke:var(--muted);stroke-width:1}
+svg .insetbg{fill:#fff;stroke:var(--hair);stroke-width:1.2}
+svg .segbox{fill:none;stroke:var(--teal);stroke-width:1.3}
+svg .segbox2{fill:var(--teal);fill-opacity:.07;stroke:var(--teal);stroke-width:1.1;stroke-dasharray:3 2}
+svg .slice{fill:var(--teal-soft);stroke:var(--teal);stroke-width:1.1}
+svg .commonbox{fill:#FFF8EE;stroke:var(--amber);stroke-width:1.3}
+svg .bvhbox{fill:#F3F5F8;stroke:var(--hair);stroke-width:1.2}
+svg .flow{fill:none;stroke:var(--muted);stroke-width:1.4;marker-end:url(#ah)}
+svg .branch{stroke:#AEB6C2;stroke-width:1.4}
+svg .ruler{stroke:var(--hair2);stroke-width:1;stroke-dasharray:2 4}
+svg .node{fill:#fff;stroke:var(--teal);stroke-width:1.4}
+svg .nodecull{fill:#FAFAFB;stroke:var(--hair);stroke-width:1.3}
+svg .leaf{fill:var(--teal-soft);stroke:var(--teal);stroke-width:1.4}
+svg .cull{fill:var(--amber);font:600 11px var(--mono,monospace)}
+svg .nrm{stroke:var(--teal);stroke-width:1.8;fill:none}
+svg .nrmf{stroke:#5FA59E;stroke-width:1.4;fill:none}
+svg .bandflat{fill:var(--teal);fill-opacity:.14;stroke:var(--teal);stroke-width:2}
+svg .bandrib{fill:var(--amber);fill-opacity:.10;stroke:var(--teal);stroke-width:2}
+svg .lab{font:500 12px var(--mono,monospace);fill:#3C4350}
+svg .labm{font:500 11px var(--mono,monospace);fill:#6B7484}
+svg .figttl{font:700 13px var(--sans);fill:var(--ink)}
+svg text{font-family:var(--mono)}
+
+/* focus */
+a:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:3px}
+
+@media (max-width:900px){
+ .grid{grid-template-columns:1fr;gap:0;padding-top:18px}
+ .toc{position:static;border-left:0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);
+  flex-flow:row wrap;gap:4px 14px;padding:16px 0;margin-bottom:26px}
+ .toc .toc3{display:none}
+ .toclabel{display:none}
+ .toc a{padding:2px 0;border-left:0}
+ main{max-width:100%}
+}
+</style><header class="top"><div class="page"><div class="eyebrow">caramel · rendering internals</div><h1>pbrt-v4 Curve Shape 완전 정복</h1><p class="sub">정의 · 수학적 원리 · caramel 포팅 가이드</p><div class="metarow"><span><b>source</b> pbrt-v4 · pbr-book.org/4ed/Shapes/Curves</span><span><b>target</b> caramel Shape</span><span><b>scene</b> Moana Island — 5.36M cylinder · 34K flat</span></div></div></header><div class="page"><div class="grid"><nav class="toc" aria-label="목차"><div class="toclabel">목차</div><a class="toc2" href="#h1">들어가며: 왜 Curve 인가</a><a class="toc2" href="#h2">이 문서의 구성</a><a class="toc2" href="#h3">Section 1 — Curve 정의 방법</a><a class="toc3" href="#h4">1.1 Curve 는 &quot;일반화된 원기둥(generalized cylinder)&quot;</a><a class="toc3" href="#h5">1.2 CurveType: Flat / Cylinder / Ribbon — 왜, 어디에, 어떻게 다른가</a><a class="toc3" href="#h6">1.3 정의 데이터: CurveCommon 과 Curve</a><a class="toc3" href="#h7">1.4 그려진 곡선이 segment 가 되는 두 단계</a><a class="toc2" href="#h8">Section 2 — 수학적 원리</a><a class="toc3" href="#h9">2.1 Cubic Bezier 의 기본: Bernstein 기저와 그 성질의 유도</a><a class="toc3" href="#h10">2.2 Blossoming (극형식, polar form): 모든 마법의 근원</a><a class="toc3" href="#h11">2.3 평가와 미분: de Casteljau</a><a class="toc3" href="#h12">2.4 de Casteljau 중점 분할 (Subdivision)</a><a class="toc3" href="#h13">2.5 Bounding: convex hull 과 variation diminishing</a><a class="toc3" href="#h14">2.6 Degree elevation 과 B-spline → Bezier 변환</a><a class="toc3" href="#h15">2.7 Ray-space LookAt 투영: 핵심 트릭</a><a class="toc3" href="#h16">2.8 재귀 깊이 휴리스틱: 얼마나 쪼갤 것인가</a><a class="toc3" href="#h17">2.9 재귀 교차: 분기와 leaf</a><a class="toc3" href="#h18">2.10 매개화 요약</a><a class="toc2" href="#h19">Section 3 — caramel 구현 방법</a><a class="toc3" href="#h20">3.1 클래스를 어디에 둘 것인가</a><a class="toc3" href="#h21">3.2 오버라이드할 7개 메서드</a><a class="toc3" href="#h22">3.3 RayIntersectInfo 필드 채우기</a><a class="toc3" href="#h23">3.4 caramel 에 없는 것: LookAt 을 직접 만들기</a><a class="toc3" href="#h24">3.5 교차 알고리즘 포팅 (단계별)</a><a class="toc3" href="#h25">3.6 포팅해야 할 Bezier 프리미티브</a><a class="toc3" href="#h26">3.7 pbrt → caramel 대응표</a><a class="toc3" href="#h27">3.8 watertightness 와 splitDepth 스케일링</a><a class="toc3" href="#h28">3.9 정밀도</a><a class="toc3" href="#h29">3.10 장면 와이어링</a><a class="toc2" href="#h_code">부록 — caramel Curve 구현 (전체 코드)</a></nav><main><section id="intro" class="sec "><h2 class="sechead" id="h1">들어가며: 왜 Curve 인가</h2>
+<p>머리카락, 털(fur), 잔디, 스파게티 같은 가늘고 긴 기하는 삼각형 메시로 모델링하기에는 너무 얇다. 한 가닥의 머리카락을 원기둥 메시로 만들면 수십 개의 삼각형이 필요한데, 장면에 수백만 가닥이 있다면 메모리와 BVH 가 감당하지 못한다. pbrt-v4 의 <strong>Curve</strong> shape 는 이 문제를 정면으로 해결한다. 하나의 가닥을 <strong>3차 베지에(cubic Bezier) 중심선(centerline) + 폭(width)</strong> 으로 표현하여, 메시 한 가닥당 수십 개 삼각형 대신 단 4개의 control point 와 2개의 width 값으로 끝낸다.</p>
+<p>이 자료가 다루는 실전 맥락은 <strong>Moana Island Scene 을 caramel 로 임포트</strong> 하는 작업이다. 이 장면은 약 <strong>536만 개의 cylinder hair 곡선</strong>과 <strong>3.4만 개의 flat 곡선</strong>을 포함한다. 즉 Curve 를 제대로 포팅하지 못하면 섬의 식생과 야자수 잎을 렌더링할 수 없다. 곡선 한 개당 메모리를 1바이트라도 아끼는 것이 곧 장면 전체를 메모리에 올릴 수 있느냐를 가른다.</p>
+<p>곡선 교차의 핵심 아이디어는 의외로 단순하다. <strong>레이를 +z 축으로 만드는 좌표계로 곡선을 투영</strong>하면, "레이가 곡선에 맞는가"라는 3D 문제가 "곡선이 (x,y)=(0,0) 축에서 반-폭(half-width) 이내를 지나는가"라는 2D 디스크 문제로 붕괴한다. 그리고 곡선이 충분히 평평해질 때까지 <strong>재귀적으로 절반씩 쪼개는(de Casteljau subdivision)</strong> 것으로 그 2D 문제를 선형 근사로 푼다. 베지에의 두 가지 핵심 성질 — *convex hull property* (곡선은 control point 의 볼록 껍질 안에 있다) 와 *variation diminishing* (쪼갤수록 곡선이 직선에 가까워진다) — 이 이 알고리즘의 정확성을 떠받친다.</p>
+<h2 class="sechead" id="h2">이 문서의 구성</h2>
+<ul><li><strong>Section 1 — Curve 정의 방법</strong>: control point, B-spline vs Bezier basis, degree, width/taper, CurveType(Flat/Cylinder/Ribbon), 그리고 "그려진 곡선"이 어떻게 segment 로 분해되는가.</li><li><strong>Section 2 — 수학적 원리</strong>: Bezier/B-spline basis, blossoming, de Casteljau subdivision, ray-space LookAt 투영, 재귀 깊이 휴리스틱, leaf 교차 테스트, u/v 매개화와 dpdu/dpdv. *무엇을 하는가*가 아니라 *왜 그렇게 하는가*를 설명한다.</li><li><strong>Section 3 — caramel 구현 방법</strong>: caramel 의 <code>Shape</code> 인터페이스에 맞춘 실제 포팅. 어떤 메서드를 채우고, <code>RayIntersectInfo</code> 의 어떤 필드를 어떻게 채우며, pbrt 와 caramel 의 관용구가 어떻게 대응되는가.</li></ul>
+<p>독자는 레이 트레이싱의 기초(레이-삼각형 교차, BVH, 셰이딩 좌표계)를 안다고 가정한다. 산문은 한국어, 식별자/코드/수식은 영어 및 표준 표기를 따른다.</p></section><section id="s1" class="sec "><h2 class="sechead" id="h3">Section 1 — Curve 정의 방법</h2>
+<h3 id="h4">1.1 Curve 는 "일반화된 원기둥(generalized cylinder)"</h3>
+<p>pbrt 의 Curve 는 한 문장으로 요약된다: <strong>3차 베지에 중심선을 따라 원(또는 리본)을 휩쓸어(sweep) 만든 곡면</strong>. 중심선은 4개의 control point 로 정의되는 cubic Bezier 이고, 그 위 각 점에서 중심선에 수직인 두 방향으로 <code>width/2</code> 만큼 양쪽으로 오프셋하면 곡면(엄밀히는 평평한 2D 리본)이 만들어진다. width 는 시작점과 끝점에서 각각 주어지고 그 사이는 선형 보간된다.</p>
+<p>여기서 결정적인 설계 사실 하나: <strong>이 서브시스템 전체는 내부적으로 오직 "control point 4개짜리 cubic Bezier 한 segment"만 다룬다.</strong> B-spline, 2차(quadratic) 곡선, 여러 segment 로 이어진 체인 — 이 모든 것은 장면 파싱 시점에 cubic Bezier segment 들로 변환되어 들어온다. 런타임 교차 경로(hot path)는 절대로 quadratic 이나 B-spline 을 보지 않는다. 이 단순함이 곧 성능이다.</p>
+<h3 id="h5">1.2 CurveType: Flat / Cylinder / Ribbon — 왜, 어디에, 어떻게 다른가</h3>
+<p>휩쓸어 만든 리본을 "어떻게 향하게 하고 어떻게 셰이딩할지"가 <code>CurveType</code> (shapes.h:1195, <code>enum class CurveType { Flat, Cylinder, Ribbon }</code>) 으로 결정된다. 세 타입은 <strong>같은 중심선·같은 width·같은 교차 코드</strong>를 공유한다. 차이는 단 두 군데뿐이다: (a) <strong>충돌 폭(hitWidth)을 보정하는가</strong>, (b) <strong>셰이딩 노멀을 어떻게 만드는가</strong>. 그런데 이 두 군데가 시각적으로 완전히 다른 결과를 낳는다. 각 타입을 <strong>왜 존재하는지 / 어디에 쓰는지 / 기하와 셰이딩이 어떻게 다른지</strong> 세 축으로 본다.</p>
+<p>caramel 은 <strong>세 타입을 모두 지원</strong>한다. caramel 은 hit 당 dpdu/dpdv 를 저장하지 않고 노멀에서 유도한 ONB(<code>Coordinate</code>) 하나만 저장하므로, 타입별 미분 계산은 오직 <strong>셰이딩 노멀 n 을 만들어 내기 위한 수단</strong>으로만 존재한다 (Section 2.9, 3 참조).</p>
+<h4>Flat — 레이를 향하는 빌보드</h4>
+<ul><li><strong>왜</strong>: 가장 싸다. 화면에서 1픽셀도 안 되는 가느다란 hair/fur 는 단면이 원인지 평면인지 눈이 구분하지 못한다. 그러면 "항상 카메라(정확히는 레이)를 정면으로 바라보는 납작한 띠"로 충분하다. 단면을 레이에 수직으로 세워 두면 어느 각도에서 봐도 폭이 그대로 보이므로, 둥근 튜브의 실루엣을 공짜로 흉내 낸다.</li><li><strong>어디에</strong>: 멀리 있는 fur/hair, 화면 기여가 작은 ground cover. <strong>Moana Island 에서 34,018 개의 Flat curve</strong> 가 <code>xgGrass</code>, <code>xgFronds</code>, <code>xgLeaves</code> 같은 지표 식생(ground cover)에 쓰인다 — 카메라에서 멀어 평평함이 드러나지 않는 잎·풀 더미다.</li><li><strong>기하</strong>: 평평한 리본. 단면(폭 방향)이 항상 레이에 수직인 평면 안에 놓이도록 ray space 에서 폭을 펼친다.</li><li><strong>셰이딩</strong>: 노멀은 <strong>그냥 레이 반대 방향</strong> <span class="m">n = -<span class="rm">ray.d</span></span> 이다 (빌보드라 폭을 가로질러도 노멀이 변하지 않는다). pbrt 에서는 <span class="m"><span class="rm">dpdv</span> = <span class="rm">objectFromRay</span>(<span class="rm">Normalize</span>(-<span class="rm">dpduPlane</span>.y, <span class="rm">dpduPlane</span>.x, 0)·<span class="rm">hitWidth</span>)</span> 로 폭 벡터를 만들고 <span class="m">n = <span class="rm">Cross</span>(<span class="rm">dpdu</span>, <span class="rm">dpdv</span>)</span> 가 되는데, 이 cross 는 ray space 의 +z(= 레이 방향)와 정렬되어 결과적으로 <span class="m">n ∥ -<span class="rm">ray.d</span></span> 이다. <strong>caramel 은 미분 없이 곧장 <span class="m">n = -<span class="rm">ray.d</span></span> 로 둘 수 있다</strong> — 이것이 Flat 의 핵심 단순화다.</li></ul>
+<h4>Cylinder — 평평한 기하 + 비튼 노멀로 둥근 튜브 흉내</h4>
+<ul><li><strong>왜</strong>: hair 가 화면에서 몇 픽셀 두께로 보이기 시작하면 빌보드의 "평평함"이 드러난다 — 폭 전체가 똑같은 밝기로 셰이딩되어 종이처럼 보인다. 진짜 둥근 튜브라면 가장자리로 갈수록 노멀이 시선에서 멀어져 어두워지는 음영(self-shading gradient)이 있어야 한다. Cylinder 는 <strong>기하는 그대로 평평하게 두고 셰이딩 노멀만 폭을 가로질러 비틀어</strong> 이 음영을 만든다. 즉 비용은 Flat 과 거의 같은데 실루엣 안쪽에 둥근 입체감이 생긴다.</li><li><strong>어디에</strong>: 가까운 머리카락·털 — 평평함이 눈에 띄는 거리. <strong>Moana Island 에서 5,363,484 개의 Cylinder curve</strong> 가 동물 털/머리카락(animal hair/fur)에 쓰인다. 섬 곡선의 절대다수가 이 타입이다.</li><li><strong>기하</strong>: Flat 과 <strong>완전히 동일</strong>하다 (같은 평평한 리본, 같은 폭 펼침). 기하만 보면 Flat 과 Cylinder 는 구분할 수 없다.</li><li><strong>셰이딩</strong>: 노멀을 폭 좌표 <span class="m">v</span> 에 따라 접선축 둘레로 회전시킨다. 충돌점에서 <span class="m">θ = <span class="rm">Lerp</span>(v, -90°, +90°)</span> 만큼 폭 벡터를 접선(dpdu) 둘레로 돌린 뒤 <span class="m">n = <span class="rm">Cross</span>(<span class="rm">dpdu</span>, <span class="rm">dpdv</span>)</span> 를 취하면, 노멀이 한쪽 가장자리(<span class="m">v=0</span>)에서 <span class="m">-90°</span>, 중심선(<span class="m">v=0.5</span>)에서 정면, 반대 가장자리(<span class="m">v=1</span>)에서 <span class="m">+90°</span> 로 <strong>반-원기둥(half-cylinder) 단면의 노멀을 정확히 재현</strong>한다. 왜 <span class="m">± 90°</span> 가 반-원기둥을 만드는지는 Section 2.9 에서 유도한다. caramel 은 이를 위해 dpdu(전역 접선)와 ray-space 폭 벡터가 필요하다.</li></ul>
+<figure id="cylinder-normal-twist"><div class="figbox"><svg viewBox="0 0 680 330" role="img" aria-label="cylinder normal twist">
+  <defs>
+    <marker id="nh" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#0F766E"/></marker>
+    <linearGradient id="cylbr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5b6470"/><stop offset="0.5" stop-color="#eef1f4"/><stop offset="1" stop-color="#5b6470"/></linearGradient>
+  </defs>
+  <text x="20" y="22" class="figttl">Cylinder — 폭 단면 (ray space)</text>
+  <path d="M60 240 A120 120 0 0 1 300 240" class="poly"/>
+  <line x1="48" y1="240" x2="312" y2="240" class="axis"/>
+  <text x="46" y="258" class="labm">v=0</text><text x="160" y="258" class="labm">v=0.5</text><text x="288" y="258" class="labm">v=1</text>
+  <line x1="60" y1="240" x2="36" y2="240" class="nrm" marker-end="url(#nh)"/><text x="16" y="232" class="labm">−90°</text>
+  <line x1="95" y1="155" x2="76" y2="136" class="nrm" marker-end="url(#nh)"/><text x="50" y="130" class="labm">−45°</text>
+  <line x1="180" y1="120" x2="180" y2="92" class="nrm" marker-end="url(#nh)"/><text x="186" y="100" class="labm">0°</text>
+  <line x1="265" y1="155" x2="284" y2="136" class="nrm" marker-end="url(#nh)"/><text x="288" y="130" class="labm">+45°</text>
+  <line x1="300" y1="240" x2="324" y2="240" class="nrm" marker-end="url(#nh)"/><text x="318" y="232" class="labm">+90°</text>
+  <circle cx="180" cy="240" r="6" class="insetbg"/><circle cx="180" cy="240" r="1.8" class="cp"/>
+  <text x="120" y="298" class="labm">⊙ dpdu (화면 안쪽) — 노멀이 이 축 둘레로 회전</text>
+  <text x="180" y="320" class="figttl" text-anchor="middle">θ = Lerp(v, −90°, +90°)</text>
+  <text x="398" y="22" class="figttl">정면 — 평평한 기하, 둥근 음영</text>
+  <rect x="398" y="118" width="252" height="82" rx="6" fill="url(#cylbr)" stroke="#A6AEBC" stroke-width="1.2"/>
+  <path d="M356 158 L392 158" class="flow"/><text x="344" y="150" class="labm">노멀 → 밝기</text>
+  <text x="402" y="216" class="labm">v=0 어두움</text><text x="496" y="216" class="labm">v=0.5 밝음</text><text x="606" y="216" class="labm">v=1</text>
+  <text x="524" y="240" class="labm" text-anchor="middle">기하는 평평, 셰이딩만 둥근 튜브</text>
+</svg></div><figcaption>Cylinder 타입: 평평한 리본 기하 위에서 셰이딩 노멀이 폭을 가로질러 -90°에서 +90°로 비틀리며 반-원기둥 단면의 노멀을 흉내 내는 방식. 기하는 평평하지만 셰이딩만 둥글다.</figcaption></figure>
+<h4>Ribbon — 진짜로 방향이 있는 비틀린 띠</h4>
+<ul><li><strong>왜</strong>: 잎사귀나 잔디 날은 <strong>실제로 납작한 면</strong>이고 고유한 앞/뒷면(authored normal)이 있다. 이들을 빌보드로 두면 카메라가 옆에서 봐도 정면 폭으로 보여 잎이 항상 마주 보는 부자연스러움이 생기고, Cylinder 로 두면 둥글게 음영져 잎이 튜브처럼 보인다. Ribbon 은 양 끝점에 <strong>명시적 노멀 <code>n[0]</code>, <code>n[1]</code></strong> 을 주고 그 사이를 구면 선형 보간(slerp)하여, 곡선이 길이를 따라 비틀리는(예: 바람에 꼬인 잎) 진짜 방향성 있는 면을 만든다. <strong>레이마다 다시 방향을 잡지 않는 유일한 타입</strong>이라 물리적으로 일관적이다.</li><li><strong>어디에</strong>: 명시적 노멀이 authored 된 잎·꽃잎·잔디. <strong>Moana Island 자체에는 Ribbon 이 0개</strong>다(섬 식생은 멀어서 Flat/Cylinder 로 충분). 그러나 잎/풀을 <strong>노멀까지 정확히</strong> 표현하려는 일반적 용도에서는 Ribbon 이 물리적으로 올바른 유일한 선택이다 — caramel 이 잎·풀을 제대로 셰이딩하려면 이 타입이 필요하다.</li><li><strong>기하</strong>: 폭 방향이 끝점 노멀로 정의되는 평면 안에 놓이며, 그 평면이 <span class="m">u</span> 를 따라 비틀린다. Flat/Cylinder 와 달리 <strong>폭 방향이 레이에 의존하지 않는다.</strong> 대신 리본이 레이에 비스듬히 서면 겉보기 폭이 줄어드는 것을 반영해 hitWidth 를 단축(foreshorten)한다: <span class="m"><span class="rm">hitWidth</span> *= |n<sub><span class="rm">hit</span></sub> · <span class="rm">ray.d</span>| / |<span class="rm">ray.d</span>|</span>.</li><li><strong>셰이딩</strong>: 노멀은 보간된 <span class="m">n<sub><span class="rm">hit</span></sub></span> 자체가 아니라 그것으로 만든 폭 벡터에서 나온다 — <span class="m"><span class="rm">dpdv</span> = <span class="rm">Normalize</span>(<span class="rm">Cross</span>(n<sub><span class="rm">hit</span></sub>, <span class="rm">dpdu</span>))·<span class="rm">hitWidth</span></span>, 그리고 <span class="m">n = <span class="rm">Cross</span>(<span class="rm">dpdu</span>, <span class="rm">dpdv</span>)</span>. 결과적으로 셰이딩 노멀은 <span class="m">n<sub><span class="rm">hit</span></sub></span> 방향과 일치한다(폭을 가로질러 일정). slerp 공식의 유도는 Section 2.9.</li></ul>
+<figure id="ribbon-normal-slerp"><div class="figbox"><svg viewBox="0 0 680 430" role="img" aria-label="ribbon normal slerp">
+  <defs>
+    <marker id="nh" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#0F766E"/></marker>
+    <marker id="nha" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#B45309"/></marker>
+  </defs>
+  <text x="20" y="22" class="figttl">단위 구면 위 slerp</text>
+  <circle cx="170" cy="130" r="95" class="poly"/>
+  <circle cx="170" cy="130" r="3" class="cp"/>
+  <path d="M81 98 A95 95 0 0 1 210 44" class="cv"/>
+  <line x1="81" y1="98" x2="210" y2="44" class="poly"/>
+  <line x1="170" y1="130" x2="81" y2="98" class="nrm" marker-end="url(#nh)"/><text x="50" y="92" class="labm">n0</text>
+  <line x1="170" y1="130" x2="210" y2="44" class="nrm" marker-end="url(#nh)"/><text x="216" y="40" class="labm">n1</text>
+  <line x1="170" y1="130" x2="134" y2="42" class="ray" marker-end="url(#nha)"/><text x="104" y="34" class="cvdot" style="fill:#B45309">n_hit(u)</text>
+  <text x="150" y="78" class="labm">θ</text>
+  <text x="120" y="64" class="labm">uθ</text><text x="186" y="60" class="labm">(1−u)θ</text>
+  <rect x="338" y="64" width="324" height="84" rx="8" class="commonbox"/>
+  <text x="500" y="92" class="figttl" text-anchor="middle">n_hit = ( sin((1−u)θ)·n0 + sin(uθ)·n1 ) / sinθ</text>
+  <text x="500" y="114" class="labm" text-anchor="middle">θ=0 → n_hit = n0</text>
+  <text x="500" y="132" class="labm" text-anchor="middle">slerp(호, 실선) = 단위 길이 유지 ↔ lerp(직선, 점선)</text>
+  <text x="20" y="252" class="figttl">리본이 u 따라 비틀림 (twist)</text>
+  <path d="M80 372 C220 312 380 412 580 342" class="cv"/>
+  <line x1="80" y1="372" x2="62" y2="346" class="nrm" marker-end="url(#nh)"/><line x1="66" y1="390" x2="98" y2="356" class="poly"/>
+  <text x="56" y="408" class="labm">u=0 · n0</text>
+  <line x1="322" y1="358" x2="322" y2="330" class="ray" marker-end="url(#nha)"/><line x1="302" y1="368" x2="342" y2="348" class="poly"/>
+  <text x="298" y="408" class="labm">u=0.5 · n_hit</text>
+  <line x1="580" y1="342" x2="598" y2="316" class="nrm" marker-end="url(#nh)"/><line x1="566" y1="358" x2="594" y2="326" class="poly"/>
+  <text x="556" y="408" class="labm">u=1 · n1</text>
+  <text x="660" y="278" class="labm" text-anchor="end">폭 방향 = Cross(n_hit, dpdu)</text>
+</svg></div><figcaption>Ribbon 타입: 양 끝점 노멀 n_0, n_1 을 곡선 길이 u 를 따라 구면 선형 보간(slerp)하여 비틀린 띠의 방향을 만드는 방식. n_hit 가 n_0 와 n_1 사이 호를 따라 일정한 각속도로 회전한다.</figcaption></figure>
+<h4>솔직함 노트(책의 경고)와 비교표</h4>
+<div class="callout"><strong>Flat/Cylinder 는 물리적으로 실현 불가능하다.</strong> 둘 다 폭 단면이 <strong>레이에 의존</strong>해 방향을 잡으므로(매 레이마다 곡면이 다시 정렬됨) "고정된 3D 형상에 대응하지 않는다." 약간의 비일관성(예: 인접 픽셀 간 미세한 셰이딩 점프)이 생길 수 있지만 가느다란 hair/fur 에는 허용된다. <strong>Ribbon 만이</strong> 레이와 무관한 고정 형상을 가지므로 일관적이다.</div>
+<div class="tablewrap"><table><tr><th></th><th><strong>Flat</strong></th><th><strong>Cylinder</strong></th><th><strong>Ribbon</strong></th></tr><tr><td>단면 방향 결정</td><td>레이를 향함(billboard)</td><td>레이를 향함(Flat 과 동일)</td><td>끝점 노멀 <code>n[0..1]</code> slerp (레이 무관)</td></tr><tr><td>기하 형상</td><td>평평</td><td>평평(Flat 과 동일)</td><td>평평하나 <span class="m">u</span> 따라 비틀림</td></tr><tr><td>셰이딩 노멀</td><td><span class="m">n = -<span class="rm">ray.d</span></span> (상수)</td><td>폭 가로질러 <span class="m">-90°→+90°</span> 비틀림</td><td><span class="m">n ∥ n<sub><span class="rm">hit</span></sub></span> (slerp)</td></tr><tr><td>hitWidth 보정</td><td>없음</td><td>없음</td><td><span class="m">× |n<sub><span class="rm">hit</span></sub>·<span class="rm">ray.d</span>|/|<span class="rm">ray.d</span>|</span></td></tr><tr><td>물리적 일관성</td><td>아니오</td><td>아니오</td><td><strong>예</strong></td></tr><tr><td>주 용도</td><td>먼 fur/hair, ground cover</td><td>가까운 hair/fur</td><td>authored 노멀 있는 잎·풀</td></tr><tr><td>Moana Island 개수</td><td>34,018 (xgGrass/Fronds/Leaves)</td><td>5,363,484 (animal hair/fur)</td><td>0</td></tr><tr><td>caramel 미분 필요</td><td>없음(n 직접)</td><td>dpdu + ray-space 폭 벡터</td><td>dpdu + <span class="m">n<sub><span class="rm">hit</span></sub></span></td></tr></table></div>
+<figure id="fig-curvetype-comparison"><div class="figbox"><svg viewBox="0 0 680 420" role="img" aria-label="three curve types">
+  <!-- FLAT -->
+  <text x="20" y="40" class="figttl">Flat</text>
+  <path d="M120 70 C220 30 360 90 470 50" class="bandflat"/>
+  <path d="M610 60 L500 56" class="ray"/><polygon points="500,56 514,50 512,64" class="rayhead"/>
+  <text x="540" y="44" class="labm">ray</text>
+  <path d="M470 50 L500 38" class="nrm"/><text x="486" y="34" class="labm">n = −ray.d</text>
+  <text x="120" y="100" class="labm">빌보드 · 항상 레이 향함 · 가장 저렴 · 먼 hair/fur</text>
+
+  <!-- CYLINDER -->
+  <text x="20" y="170" class="figttl">Cylinder</text>
+  <defs><linearGradient id="cylg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#0F766E" stop-opacity="0.05"/><stop offset="0.5" stop-color="#0F766E" stop-opacity="0.35"/><stop offset="1" stop-color="#0F766E" stop-opacity="0.05"/></linearGradient></defs>
+  <rect x="120" y="190" width="360" height="44" rx="22" fill="url(#cylg)" stroke="#0F766E" stroke-width="1.2"/>
+  <path d="M150 234 L136 216" class="nrm"/><path d="M205 234 L197 212" class="nrm"/><path d="M260 234 L258 210" class="nrm"/><path d="M315 234 L317 210" class="nrm"/><path d="M370 234 L378 212" class="nrm"/><path d="M425 234 L439 216" class="nrm"/>
+  <text x="120" y="262" class="labm">평평한 기하 + 노멀을 폭 방향 비틀기 θ=Lerp(v,−90°,+90°) · 근접 hair</text>
+
+  <!-- RIBBON -->
+  <text x="20" y="310" class="figttl">Ribbon</text>
+  <path d="M120 350 C240 320 380 360 480 330" class="bandrib"/>
+  <path d="M120 350 L108 314" class="nrm"/><text x="86" y="308" class="labm">n0</text>
+  <path d="M480 330 L495 297" class="nrm"/><text x="486" y="292" class="labm">n1</text>
+  <path d="M270 342 L272 312" class="nrmf"/><path d="M340 340 L344 310" class="nrmf"/><path d="M410 338 L416 308" class="nrmf"/><path d="M480 336 L488 306" class="nrmf"/>
+  <text x="120" y="384" class="labm">진짜 방향 있는 띠 · nHit = slerp(n0,n1) · 잔디 / 잎 · 물리적 일관</text>
+  <text x="660" y="410" class="labm" text-anchor="end">u: 중심선 0→1   ·   v: 폭 0→1 (중심 0.5)</text>
+</svg></div><figcaption>그림 7 — 세 가지 CurveType: Flat / Cylinder / Ribbon 의 기하·노멀·용도</figcaption></figure>
+<h3 id="h6">1.3 정의 데이터: CurveCommon 과 Curve</h3>
+<p>데이터는 두 구조로 나뉜다. 하나의 논리적(그려진) 곡선의 모든 segment 가 <strong>공유</strong>하는 데이터와, 각 segment 가 개별로 갖는 데이터다.</p>
+<p><strong><code>CurveCommon</code></strong> (shapes.h:1200, 공유 데이터):</p>
+<ul><li><code>CurveType type;</code></li><li><code>Point3f cpObj[4];</code> — 4개의 cubic Bezier control point. <strong>object space 에 그대로 저장된다</strong>(render space 로 변환하지 않음; 생성자 shapes.cpp:471 의 <code>cpObj[i] = c[i]</code>). 항상 정확히 4개(<code>CHECK_EQ(c.size(), 4)</code>).</li><li><code>Float width[2];</code> — u=0, u=1 에서의 폭. 사이는 선형 보간</li><li><code>Normal3f n[2];</code> — Ribbon 의 양끝 노멀(생성자에서 <code>Normalize</code>)</li><li><code>Float normalAngle, invSinNormalAngle;</code> — <code>AngleBetween(n[0], n[1])</code> 와 <span class="m">1/sin</span> 값. slerp 용 미리 계산값(Ribbon 전용)</li><li><code>const Transform *renderFromObject, *objectFromRender;</code> — 변환 쌍(서로 역행렬). cpObj 가 object space 이므로 교차 시 레이를 object space 로 끌어오고, hit 을 다시 render space 로 보낼 때 쓴다.</li><li><code>bool reverseOrientation, transformSwapsHandedness;</code> — 후자는 <code>renderFromObject-&gt;SwapsHandedness()</code> 로 생성자에서 캐시된다.</li></ul>
+<p><strong><code>Curve</code></strong> (shapes.h:1219, 실제 Shape) 는 놀랄 만큼 작다:</p>
+<ul><li><code>const CurveCommon *common;</code> — 공유 데이터 포인터</li><li><code>Float uMin, uMax;</code> — 이 Curve 인스턴스가 담당하는 <span class="m">[0,1]</span> 의 부분 구간</li></ul>
+<p>즉 <strong><code>Curve</code> = (공유 중심선) + (u 부분 구간)</strong>. 이것이 메모리 트릭의 핵심이다. 한 논리적 곡선의 N 개 segment 인스턴스가 단 하나의 <code>CurveCommon</code> 을 공유하고, 서로는 <code>(uMin, uMax)</code> 만 다르다. 536만 개의 hair 가 메모리에 들어가는 이유가 바로 이것이다.</p>
+<h3 id="h7">1.4 그려진 곡선이 segment 가 되는 두 단계</h3>
+<p>장면 파일이 준 "긴 곡선" 하나가 BVH 의 여러 leaf 가 되기까지 <strong>두 단계의 분할</strong>을 거친다.</p>
+<h4>Level A — basis/degree → cubic Bezier segment 들 (Curve::Create, shapes.cpp:761)</h4>
+<p>장면 파일은 다음을 준다: <code>P</code>(control point 배열), <code>degree</code>(2 또는 3, 기본 3), <code>basis</code>("bezier" 또는 "bspline", 기본 bezier), <code>width</code>/<code>width0</code>/<code>width1</code>, <code>type</code>, <code>N</code>(ribbon 노멀), <code>splitdepth</code>(기본 3).</p>
+<p><strong>segment 개수</strong> 결정 (shapes.cpp 의 실제 검사식):</p>
+<ul><li><strong>bezier basis</strong>: <span class="m">(<span class="rm">nP</span>-1-<span class="rm">degree</span>)  mod  <span class="rm">degree</span> = 0</span> 이어야 하고, <span class="m"><span class="rm">nSegments</span> = (<span class="rm">nP</span>-1)/<span class="rm">degree</span></span>. segment 들은 끝점 하나를 공유하며 겹친다 — 첫 segment 는 <code>degree+1</code> 개 점을 쓰고, 이후 각 segment 는 직전 segment 의 마지막 점 + 새 점 <code>degree</code> 개를 재사용한다. control point 오프셋(<code>cpOffset</code>)이 segment 마다 <code>degree</code> 씩 전진.</li><li><strong>bspline basis</strong>: <span class="m"><span class="rm">nP</span> ≥ <span class="rm">degree</span>+1</span> 이어야 하고, <span class="m"><span class="rm">nSegments</span> = <span class="rm">nP</span> - <span class="rm">degree</span></span>. <code>degree+1</code> 개 점의 슬라이딩 윈도우가 한 칸씩(<code>cpOffset += 1</code>) 전진한다. 윈도우가 겹치는 것이 바로 B-spline 을 <span class="m">C<sup>2</sup></span> 연속으로 만드는 이유다.</li></ul>
+<p>각 segment 마다 4-점 cubic Bezier <code>segCpBezier</code> 를 만든다:</p>
+<ul><li>bezier+degree3: 4점 그대로 복사</li><li>bezier+degree2: 3점에 <code>ElevateQuadraticBezierToCubic</code></li><li>bspline+degree3: 4점 윈도우에 <code>CubicBSplineToBezier</code></li><li>bspline+degree2: 3점 윈도우에 <code>QuadraticBSplineToBezier</code> 후 <code>ElevateQuadraticBezierToCubic</code></li></ul>
+<p>width 도 함께 쪼갠다: 이 segment 의 양끝 폭 = <code>Lerp(seg/nSegments, width0, width1)</code> 와 <code>Lerp((seg+1)/nSegments, width0, width1)</code>.</p>
+<p><strong>Ribbon 노멀의 쪼갬</strong>: <code>N</code> 은 <code>nSegments+1</code> 개여야 하고(끝점마다 하나), segment <code>seg</code> 는 <code>n[seg]</code>, <code>n[seg+1]</code> 두 개를 받는다.</p>
+<h4>Level B — splitdepth 에 의한 기하 사전 분할 (CreateCurve, shapes.cpp:494)</h4>
+<p>cubic Bezier segment 하나가 주어지면 <span class="m">2<sup><span class="rm">splitdepth</span></sup></span> 개(기본 splitdepth=3 → 8개)의 <code>Curve</code> 인스턴스를 만든다. 각각 <code>uMin = i/n</code>, <code>uMax = (i+1)/n</code> 이고 <strong>모두 같은 <code>CurveCommon</code> 을 가리킨다</strong>. 이것은 빌드 시점에 한 번 수행되는 <strong>정적·균일 u 분할</strong>로, BVH 가 더 작은(타이트한) leaf 박스를 갖게 하고 런타임 재귀가 더 작은 호(arc)에서 시작하도록 한다. CreateCurve 는 기하를 다시 분할하지 않는다 — u 도메인만 자른다. <code>cpObj</code> 는 전체 4 control point 그대로이고, 각 인스턴스는 필요할 때 <code>CubicBezierControlPoints(cpObj, uMin, uMax)</code> 로 자기 부분 호를 평가한다. (GPU 경로에서는 <code>splitdepth=0</code> 으로 두어 분할을 GPU dicing 에 맡긴다.)</p>
+<p><strong>정리</strong>: 그려진 곡선 → (Level A) M 개 cubic Bezier segment → (Level B) <span class="m">M × 2<sup><span class="rm">splitdepth</span></sup></span> 개 <code>Curve</code> Shape 인스턴스가 BVH 에 들어간다.</p>
+<div class="callout"><strong>두 종류의 "depth" 를 혼동하지 말 것.</strong> <code>splitdepth</code> (파싱 시점, 기본 3 → 곡선당 8개 고정 segment, 각각 BVH leaf shape)는 <code>maxDepth</code> (레이마다, segment 마다 평탄도 휴리스틱으로 정해지는 재귀 깊이, Section 2.8)와 전혀 다르다. caramel 은 둘 다 필요하다 — BVH 친화적 정적 segment 와 런타임 적응 재귀.</div>
+<figure id="fig-two-level-segmentation"><div class="figbox"><svg viewBox="0 0 680 320" role="img" aria-label="two level segmentation pipeline">
+  <text x="20" y="26" class="figttl">장면 파일: P[ ], degree, basis</text>
+  <g><circle cx="40" cy="48" r="4" class="cp"/><circle cx="66" cy="48" r="4" class="cp"/><circle cx="92" cy="48" r="4" class="cp"/><circle cx="118" cy="48" r="4" class="cp"/><circle cx="144" cy="48" r="4" class="cp"/><circle cx="170" cy="48" r="4" class="cp"/><circle cx="196" cy="48" r="4" class="cp"/></g>
+  <text x="232" y="52" class="labm">P[7]</text>
+
+  <path d="M40 70 L40 96" class="flow"/><text x="48" y="90" class="labm">Level A — basis/degree → cubic Bezier</text>
+
+  <!-- bezier case -->
+  <text x="40" y="120" class="labm">bezier: 끝점 1개 공유, window += degree</text>
+  <g><circle cx="40" cy="138" r="3.5" class="cp"/><circle cx="62" cy="138" r="3.5" class="cp"/><circle cx="84" cy="138" r="3.5" class="cp"/><circle cx="106" cy="138" r="3.5" class="cpl"/><circle cx="128" cy="138" r="3.5" class="cp"/><circle cx="150" cy="138" r="3.5" class="cp"/><circle cx="172" cy="138" r="3.5" class="cp"/></g>
+  <rect x="33" y="128" width="86" height="20" rx="4" class="segbox"/><rect x="121" y="128" width="86" height="20" rx="4" class="segbox"/>
+  <text x="62" y="166" class="labm">seg0</text><text x="150" y="166" class="labm">seg1 (p3 공유)</text>
+
+  <!-- bspline case -->
+  <text x="360" y="120" class="labm">bspline: 4점 window, +1 슬라이딩 → C² 연속</text>
+  <g><circle cx="360" cy="138" r="3.5" class="cp"/><circle cx="382" cy="138" r="3.5" class="cp"/><circle cx="404" cy="138" r="3.5" class="cp"/><circle cx="426" cy="138" r="3.5" class="cp"/><circle cx="448" cy="138" r="3.5" class="cp"/><circle cx="470" cy="138" r="3.5" class="cp"/></g>
+  <rect x="353" y="130" width="74" height="16" rx="4" class="segbox"/><rect x="375" y="130" width="74" height="16" rx="4" class="segbox2"/><rect x="397" y="130" width="74" height="16" rx="4" class="segbox"/>
+
+  <path d="M120 178 L120 206" class="flow"/><text x="128" y="200" class="labm">Level B — splitdepth → 2^d 개 Curve 인스턴스 (정적 u 분할)</text>
+
+  <!-- u slices sharing one CurveCommon -->
+  <g><rect x="40" y="222" width="26" height="14" rx="3" class="slice"/><rect x="70" y="222" width="26" height="14" rx="3" class="slice"/><rect x="100" y="222" width="26" height="14" rx="3" class="slice"/><rect x="130" y="222" width="26" height="14" rx="3" class="slice"/><rect x="160" y="222" width="26" height="14" rx="3" class="slice"/><rect x="190" y="222" width="26" height="14" rx="3" class="slice"/><rect x="220" y="222" width="26" height="14" rx="3" class="slice"/><rect x="250" y="222" width="26" height="14" rx="3" class="slice"/></g>
+  <text x="40" y="252" class="labm">8 u-slices ( [u_min,u_max] 만 다름 )</text>
+  <rect x="430" y="218" width="220" height="44" rx="8" class="commonbox"/>
+  <text x="540" y="238" class="figttl" text-anchor="middle">CurveCommon</text>
+  <text x="540" y="254" class="labm" text-anchor="middle">cpObj[4] · width[2] · type</text>
+  <path d="M53 222 L520 250" class="thin"/><path d="M113 222 L520 250" class="thin"/><path d="M173 222 L520 250" class="thin"/><path d="M233 222 L520 250" class="thin"/>
+
+  <rect x="40" y="284" width="610" height="26" rx="6" class="bvhbox"/>
+  <text x="52" y="301" class="labm">BVH (TLAS) — 각 slice = 독립 leaf · Curve = CurveCommon* + (u_min, u_max)</text>
+</svg></div><figcaption>그림 1 — 두 단계 분할 파이프라인: 그려진 곡선이 어떻게 BVH leaf 가 되는가</figcaption></figure></section><section id="s2" class="sec "><h2 class="sechead" id="h8">Section 2 — 수학적 원리</h2>
+<div class="callout"><strong>표기 규약 (절대 중요).</strong> pbrt 의 보간은 <span class="m"><span class="rm">Lerp</span>(t, a, b) = (1-t) a + t b</span> 로, <strong><span class="m">t</span> 가 첫 번째 인자</strong>다. 아래 모든 식이 이 순서를 따른다. caramel 로 포팅할 때 lerp 인자 순서가 다르면 모든 식이 조용히 뒤집힌다.</div>
+<h3 id="h9">2.1 Cubic Bezier 의 기본: Bernstein 기저와 그 성질의 유도</h3>
+<p>4개 control point <span class="m">p<sub>0</sub>, p<sub>1</sub>, p<sub>2</sub>, p<sub>3</sub></span> 로 정의되는 cubic Bezier 곡선은 (책 식 6.16):</p>
+<p><div class="eq">p(u) = (1-u)<sup>3</sup> p<sub>0</sub> + 3(1-u)<sup>2</sup> u  p<sub>1</sub> + 3(1-u) u<sup>2</sup> p<sub>2</sub> + u<sup>3</sup> p<sub>3</sub>,     u ∈ [0,1].</div></p>
+<p>계수들은 <strong>Bernstein 기저 다항식</strong> <span class="m">B<sub>i</sub><sup>n</sup>(u)</span> 다. degree <span class="m">n</span>, 인덱스 <span class="m">i</span> 에 대해 이항계수 <span class="m">C(n,i) = <span class="frac"><span class="fn">n!</span><span class="fd">i! (n-i)!</span></span></span> 를 써서</p>
+<p><div class="eq">B<sub>i</sub><sup>n</sup>(u) = C(n,i) u<sup>i</sup> (1-u)<sup>n-i</sup>,       i = 0,…,n.</div></p>
+<p>cubic(<span class="m">n=3</span>)이면 <span class="m">B<sub>0</sub><sup>3</sup>=(1-u)<sup>3</sup>, B<sub>1</sub><sup>3</sup>=3(1-u)<sup>2</sup>u, B<sub>2</sub><sup>3</sup>=3(1-u)u<sup>2</sup>, B<sub>3</sub><sup>3</sup>=u<sup>3</sup></span> 로 위 식의 네 항과 정확히 일치한다.</p>
+<p><strong>(성질 1) 단위 분할(partition of unity).</strong> 이항정리에 의해</p>
+<p><div class="eq">∑<sub>i=0</sub><sup>n</sup> B<sub>i</sub><sup>n</sup>(u) = ∑<sub>i=0</sub><sup>n</sup> C(n,i) u<sup>i</sup>(1-u)<sup>n-i</sup> = (u + (1-u))<sup>n</sup> = 1<sup>n</sup> = 1.</div></p>
+<p><strong>(성질 2) 비음성(non-negativity).</strong> <span class="m">u ∈ [0,1]</span> 이면 <span class="m">u ≥ 0</span>, <span class="m">1-u ≥ 0</span>, <span class="m">C(n,i) > 0</span> 이므로 <span class="m">B<sub>i</sub><sup>n</sup>(u) ≥ 0</span>.</p>
+<p><strong>(성질 3) 볼록 껍질(convex hull).</strong> 성질 1+2 에 의해 임의의 <span class="m">u ∈ [0,1]</span> 에서 <span class="m">p(u)</span> 는 control point 들의 <strong>볼록 결합(convex combination)</strong> — 계수가 음 아니고 합이 1 — 이다. 볼록 결합은 정의상 점들의 볼록 껍질 안에 있다. 따라서 <strong>곡선 전체가 control point 의 볼록 껍질 안에 놓인다.</strong> 이것이 뒤의 모든 bounding box 컬링(2.5)의 정당성이다: control point 만 감싸면 곡선은 자동으로 포함된다.</p>
+<p><strong>보간 성질</strong>: <span class="m">u=0</span> 이면 <span class="m">B<sub>0</sub><sup>3</sup>(0)=1</span>, 나머지 0 → <span class="m">p(0)=p<sub>0</sub></span>. <span class="m">u=1</span> 이면 <span class="m">B<sub>3</sub><sup>3</sup>(1)=1</span> → <span class="m">p(1)=p<sub>3</sub></span>. 즉 곡선은 <span class="m">p<sub>0</sub>, p<sub>3</sub></span> 를 통과하지만 <span class="m">p<sub>1</sub>, p<sub>2</sub></span> 는 통과하지 않는다 — 이 둘은 형상을 "끌어당기는" 역할만 한다.</p>
+<p><strong>(성질 4) variation diminishing 의 직관.</strong> 임의의 직선(또는 평면)과 control polygon 의 교차 횟수가 <span class="m">k</span> 이면, 곡선과 그 직선의 교차 횟수는 <span class="m">k</span> 이하다. 즉 곡선은 control polygon 보다 "덜 구불거린다." 이 성질의 정량적 형태(쪼갤수록 현에 가까워지는 <span class="m">4<sup>-d</sup></span> 수렴)는 2.5, 2.8 에서 쓴다.</p>
+<p><strong>미분(접선)</strong>: Bernstein 기저의 미분 공식 <span class="m"><span class="frac"><span class="fn">d</span><span class="fd">du</span></span>B<sub>i</sub><sup>n</sup> = n(B<sub>i-1</sub><sup>n-1</sup> - B<sub>i</sub><sup>n-1</sup>)</span> 을 대입해 정리하면 degree 가 하나 내려간 Bezier 형태가 된다:</p>
+<p><div class="eq">p'(u) = 3 ∑<sub>i=0</sub><sup>2</sup> B<sub>i</sub><sup>2</sup>(u) (p<sub>i+1</sub> - p<sub>i</sub>) = 3[(1-u)<sup>2</sup>(p<sub>1</sub>-p<sub>0</sub>) + 2(1-u)u(p<sub>2</sub>-p<sub>1</sub>) + u<sup>2</sup>(p<sub>3</sub>-p<sub>2</sub>)].</div></p>
+<p>즉 "degree-<span class="m">n</span> Bezier 의 미분 = <span class="m">n</span> 곱하기, 1차 차분 <span class="m">(p<sub>i+1</sub>-p<sub>i</sub>)</span> 을 control point 로 하는 degree-<span class="m">(n-1)</span> Bezier." 이 형태가 2.3 의 de Casteljau 미분 규칙과 2.8 의 2차 차분 곡률 측정에 직접 연결된다.</p>
+<p><strong>2차 미분</strong>: 위를 한 번 더 미분하면 (2.8 에서 결정적으로 쓰임)</p>
+<p><div class="eq">p''(u) = 6[(1-u) Δ<sup>2</sup> p<sub>0</sub> + u Δ<sup>2</sup> p<sub>1</sub>],       Δ<sup>2</sup> p<sub>i</sub> = p<sub>i+2</sub> - 2p<sub>i+1</sub> + p<sub>i</sub>,</div></p>
+<p>즉 2차 차분 <span class="m">Δ<sup>2</sup> p<sub>i</sub></span> 를 control point 로 하는 degree-1 Bezier 에 <span class="m">n(n-1)=6</span> 을 곱한 것이다. 따라서 <span class="m">max<sub>u</sub> |p''(u)| ≤ 6max(|Δ<sup>2</sup> p<sub>0</sub>|, |Δ<sup>2</sup> p<sub>1</sub>|)</span> — 이 부등식이 2.8 의 상수 6의 출처다.</p>
+<h3 id="h10">2.2 Blossoming (극형식, polar form): 모든 마법의 근원</h3>
+<p>cubic 의 <strong>blossom</strong> <span class="m">f(u<sub>0</sub>, u<sub>1</sub>, u<sub>2</sub>)</span> 는 다음 세 조건을 만족하는 함수다:</p>
+<ol><li><strong>대각 성질(diagonal)</strong>: <span class="m">f(u,u,u) = p(u)</span>.</li><li><strong>대칭(symmetric)</strong>: 인자 순서를 바꿔도 같다, <span class="m">f(u<sub>0</sub>,u<sub>1</sub>,u<sub>2</sub>)=f(u<sub>σ(0)</sub>,u<sub>σ(1)</sub>,u<sub>σ(2)</sub>)</span>.</li><li><strong>다중 아핀(multi-affine)</strong>: 각 인자에 대해 따로 보면 아핀(1차)이다, 예컨대 <span class="m">f(<span class="rm">Lerp</span>(t,a,b), u<sub>1</sub>,u<sub>2</sub>) = <span class="rm">Lerp</span>(t, f(a,u<sub>1</sub>,u<sub>2</sub>), f(b,u<sub>1</sub>,u<sub>2</sub>))</span>.</li></ol>
+<p><strong>유일성</strong>: degree-<span class="m">n</span> 다항식에 대해 이 세 조건을 만족하는 <span class="m">n</span>-변수 blossom 은 <strong>유일</strong>하다(blossoming principle). 이유: 다중 아핀+대칭이면 <span class="m">f</span> 는 각 변수의 1차 단항식들의 대칭합으로 전개되고, 그 계수들은 대각 성질 <span class="m">f(u,…,u)=p(u)</span> 가 곧 <span class="m">p</span> 의 계수를 못 박으므로 완전히 결정된다. 이 유일성 덕분에 "blossom 으로 계산한 control point" 는 표현 방식과 무관하게 같은 곡선을 준다 — 이 사실이 2.6 의 변환들을 정당화한다.</p>
+<p>계산은 de Casteljau 인데 <strong>각 레벨에서 보간 매개변수가 다르다</strong> (splines.h:18, <code>BlossomCubicBezier</code>):</p>
+<p><div class="eq eqmulti"><span class="eqrow">a<sub>k</sub>  = <span class="rm">Lerp</span>(u<sub>0</sub>,  p<sub>k</sub>,  p<sub>k+1</sub>),     k=0,1,2</span><span class="eqrow">b<sub>j</sub>  = <span class="rm">Lerp</span>(u<sub>1</sub>,  a<sub>j</sub>,  a<sub>j+1</sub>),     j=0,1</span><span class="eqrow">f(u<sub>0</sub>,u<sub>1</sub>,u<sub>2</sub>)  = <span class="rm">Lerp</span>(u<sub>2</sub>,  b<sub>0</sub>,  b<sub>1</sub>).</span></div></p>
+<p>레벨 1 이 <span class="m">u<sub>0</sub></span>, 레벨 2 가 <span class="m">u<sub>1</sub></span>, 레벨 3 이 <span class="m">u<sub>2</sub></span> 를 쓴다. 세 인자가 모두 같으면(<span class="m">u<sub>0</sub>=u<sub>1</sub>=u<sub>2</sub>=u</span>) 보통의 de Casteljau(2.3)로 환원된다.</p>
+<p><strong>왜 중요한가 — 구간 제한과 blossom 값</strong>: 동일한 cubic 을 구간 <span class="m">[a,b]</span> 로 <strong>제한했을 때의 4개 Bezier control point</strong> 가 정확히 다음 blossom 값이다:</p>
+<p><div class="eq">  f(a,a,a), f(a,a,b), f(a,b,b), f(b,b,b)  .</div></p>
+<p><strong>왜 하필 이 네 값인가</strong> (유도): 새 곡선 <span class="m">q(s) = p(<span class="rm">Lerp</span>(s,a,b)), s∈[0,1]</span> 의 Bezier control point <span class="m">q<sub>i</sub></span> 를 구하고 싶다. 일반 정리에 의해 degree-3 Bezier 의 <span class="m">i</span> 번째 control point 는 "세 인자 중 <span class="m">i</span> 개를 끝값 <span class="m">b</span> 로, 나머지 <span class="m">3-i</span> 개를 시작값 <span class="m">a</span> 로 둔 blossom" 이다. 즉 <span class="m">q<sub>0</sub>=f(a,a,a), q<sub>1</sub>=f(a,a,b), q<sub>2</sub>=f(a,b,b), q<sub>3</sub>=f(b,b,b)</span>. 직관: control point <span class="m">q<sub>0</sub></span> 은 <span class="m">s=0</span>(전부 <span class="m">a</span>)에서의 위치라 <span class="m">f(a,a,a)=p(a)</span>, <span class="m">q<sub>3</sub></span> 은 <span class="m">s=1</span>(전부 <span class="m">b</span>)이라 <span class="m">f(b,b,b)=p(b)</span> 로 끝점을 정확히 맞춘다. 중간 두 점 <span class="m">f(a,a,b), f(a,b,b)</span> 는 다중 아핀성 덕분에 끝점 접선까지 정확히 재현하도록 자동으로 결정된다. 이로써 위 네 값이 나온다. ∎</p>
+<p>이 단 하나의 사실이 (1) 부분 호 추출(<code>CubicBezierControlPoints</code>)과 (2) B-spline → Bezier 변환을 동시에 떠받친다. <code>Curve(uMin, uMax)</code> 인스턴스가 자기 u 부분 구간 + 공유 <code>cpObj</code> 로부터 구체적인 4-점 cubic 을 얻는 방법이 바로 이것이다 (splines.h:56):</p>
+<p><div class="eq"><span class="rm">CP</span>_[u<sub>min</sub>, u<sub>max</sub>] =  f(u<sub>min</sub>,u<sub>min</sub>,u<sub>min</sub>), f(u<sub>min</sub>,u<sub>min</sub>,u<sub>max</sub>), f(u<sub>min</sub>,u<sub>max</sub>,u<sub>max</sub>), f(u<sub>max</sub>,u<sub>max</sub>,u<sub>max</sub>) .</div></p>
+<p>임의의 <span class="m">[u<sub>min</sub>, u<sub>max</sub>]</span> (절반만이 아닌)에 작동하므로, 단순 절반 분할이 아니라 blossom 이 필요하다.</p>
+<figure id="fig-blossom-decasteljau"><div class="figbox"><svg viewBox="0 0 680 340" role="img" aria-label="blossom de Casteljau triangle">
+  <!-- edges -->
+  <g class="thin">
+   <path d="M95 300 L175 222"/><path d="M255 300 L175 222"/>
+   <path d="M255 300 L335 222"/><path d="M415 300 L335 222"/>
+   <path d="M415 300 L495 222"/><path d="M575 300 L495 222"/>
+   <path d="M175 222 L255 144"/><path d="M335 222 L255 144"/>
+   <path d="M335 222 L415 144"/><path d="M495 222 L415 144"/>
+   <path d="M255 144 L335 66"/><path d="M415 144 L335 66"/>
+  </g>
+  <!-- base p0..p3 -->
+  <g class="cp"><circle cx="95" cy="300" r="5"/><circle cx="255" cy="300" r="5"/><circle cx="415" cy="300" r="5"/><circle cx="575" cy="300" r="5"/></g>
+  <text x="95" y="322" class="labm" text-anchor="middle">p0</text><text x="255" y="322" class="labm" text-anchor="middle">p1</text><text x="415" y="322" class="labm" text-anchor="middle">p2</text><text x="575" y="322" class="labm" text-anchor="middle">p3</text>
+  <!-- a0 a1 a2 -->
+  <g class="cpl"><circle cx="175" cy="222" r="5"/><circle cx="335" cy="222" r="5"/><circle cx="495" cy="222" r="5"/></g>
+  <text x="175" y="216" class="labm" text-anchor="middle">a0</text><text x="335" y="216" class="labm" text-anchor="middle">a1</text><text x="495" y="216" class="labm" text-anchor="middle">a2</text>
+  <!-- b0 b1 -->
+  <g class="cpl"><circle cx="255" cy="144" r="5"/><circle cx="415" cy="144" r="5"/></g>
+  <text x="255" y="138" class="labm" text-anchor="middle">b0</text><text x="415" y="138" class="labm" text-anchor="middle">b1</text>
+  <!-- apex -->
+  <circle cx="335" cy="66" r="6" class="cvdot"/>
+  <text x="335" y="56" class="labm" text-anchor="middle">f(u₀,u₁,u₂)</text>
+
+  <text x="40" y="250" class="figttl" fill="#0F766E">level 1: u₀</text>
+  <text x="40" y="172" class="figttl" fill="#0F766E">level 2: u₁</text>
+  <text x="40" y="94"  class="figttl" fill="#0F766E">apex: u₂</text>
+  <text x="600" y="250" class="labm" text-anchor="end">Evaluate(u):</text>
+  <text x="600" y="266" class="labm" text-anchor="end">모든 레벨 동일 u</text>
+  <text x="600" y="290" class="labm" text-anchor="end">C(u) = f(u,u,u)</text>
+
+  <rect x="150" y="2" width="380" height="34" rx="6" class="commonbox"/>
+  <text x="340" y="24" class="labm" text-anchor="middle">[a,b] 부분 호 CP = { f(a,a,a), f(a,a,b), f(a,b,b), f(b,b,b) }</text>
+</svg></div><figcaption>그림 2 — Blossom / de Casteljau 삼각형: 평가와 blossom 의 유일한 차이는 레벨별 매개변수</figcaption></figure>
+<h3 id="h11">2.3 평가와 미분: de Casteljau</h3>
+<p>값만 필요할 때 <span class="m"><span class="rm">EvaluateCubicBezier</span>(u) = f(u,u,u)</span> — 평범한 de Casteljau (splines.h:26):</p>
+<p><div class="eq eqmulti"><span class="eqrow"><span class="rm">level 1:</span>      c<sup>1</sup><sub>k</sub> = <span class="rm">Lerp</span>(u, p<sub>k</sub>, p<sub>k+1</sub>),     k=0,1,2</span><span class="eqrow"><span class="rm">level 2:</span>      c<sup>2</sup><sub>j</sub> = <span class="rm">Lerp</span>(u, c<sup>1</sup><sub>j</sub>, c<sup>1</sup><sub>j+1</sub>),     j=0,1</span><span class="eqrow"><span class="rm">point:</span>      p(u) = <span class="rm">Lerp</span>(u, c<sup>2</sup><sub>0</sub>, c<sup>2</sup><sub>1</sub>).</span></div></p>
+<p>미분이 필요하면 같은 nested Lerp 를 레벨 2까지 돌린 뒤 (splines.h:35):</p>
+<p><div class="eq">p'(u) = 3 (c<sup>2</sup><sub>1</sub> - c<sup>2</sup><sub>0</sub>).</div></p>
+<p><strong>왜 이게 맞는가</strong> (유도): 레벨-2 점은 그 자체가 끝점이 <span class="m">c<sup>1</sup></span> 인 1차 보간이다. de Casteljau 의 마지막 단계는 <span class="m">p(u)=<span class="rm">Lerp</span>(u,c<sup>2</sup><sub>0</sub>,c<sup>2</sup><sub>1</sub>)=(1-u)c<sup>2</sup><sub>0</sub>+u c<sup>2</sup><sub>1</sub></span>. 그런데 <span class="m">c<sup>2</sup><sub>0</sub>, c<sup>2</sup><sub>1</sub></span> 는 degree-1 Bezier(즉 직선 구간)의 끝점이고, 일반 미분 공식 <span class="m">p'(u) = n∑ B<sub>i</sub><sup>n-1</sup>(u)(p<sub>i+1</sub>-p<sub>i</sub>)</span> 에서 <span class="m">n=3</span> 일 때 마지막 비축약 단계가 정확히 <span class="m">3(c<sup>2</sup><sub>1</sub> - c<sup>2</sup><sub>0</sub>)</span> 를 준다. 계수 3은 degree <span class="m">n</span> 이다 — "degree-<span class="m">n</span> Bezier 의 미분 = <span class="m">n</span> 곱하기 마지막에서 두 번째 de Casteljau 점들의 차." 차수 <span class="m">n</span> 일반화: <span class="m">p'(u) = n (c<sup>n-1</sup><sub>1</sub> - c<sup>n-1</sup><sub>0</sub>)</span>.</p>
+<div class="callout"><strong>영-접선 폴백(load-bearing).</strong> <span class="m">c<sup>2</sup><sub>1</sub> = c<sup>2</sup><sub>0</sub></span> (control point 가 겹쳐 접선이 0) 이면 <span class="m">p'(u) = p<sub>3</sub> - p<sub>0</sub></span> (현, chord) 로 폴백한다 (splines.h:40, <code>LengthSquared(cp2[1]-cp2[0]) &gt; 0</code> 검사). dpdu 가 절대 영벡터가 되어선 안 되기 때문이다(<code>RecursiveIntersect</code> 가 <code>CHECK_NE(Vector3f(0,0,0), dpdu)</code>, shapes.cpp:691). dpdu 가 0 이면 <span class="m"><span class="rm">Cross</span>(<span class="rm">dpdu</span>,<span class="rm">dpdv</span>)</span> 노멀이 0 이 되어 정규화에서 NaN 이 난다. <strong>현으로 폴백하는 이유</strong>: 접선이 국소적으로 0 이어도 곡선의 전체 진행 방향은 <span class="m">p<sub>3</sub> - p<sub>0</sub></span> 이 가장 합리적인 대용이고, 절대 0 이 아니다(겹친 끝점이 아닌 한). 값-전용 평가기를 포팅하고 미분을 따로 계산할 때 이 폴백을 빠뜨리면 dpdv/노멀에서 NaN 이 난다.</div>
+<h3 id="h12">2.4 de Casteljau 중점 분할 (Subdivision)</h3>
+<p><span class="m">u=0.5</span> 에서 cubic 을 두 개의 cubic 으로 쪼개면, <span class="m">u=0.5</span> 가 모든 Lerp 를 단순 평균 <span class="m"><span class="frac"><span class="fn">a+b</span><span class="fd">2</span></span></span> 로 만들어 닫힌 형식(closed form)이 된다 (splines.h:45). 7개 점을 반환하고 두 자식이 가운데 점 <span class="m">q<sub>3</sub></span> 를 공유한다:</p>
+<p><div class="eq eqmulti"><span class="eqrow">q<sub>0</sub>  = p<sub>0</sub>   q<sub>1</sub>  = <span class="frac"><span class="fn">p<sub>0</sub>+p<sub>1</sub></span><span class="fd">2</span></span>   q<sub>2</sub>  = <span class="frac"><span class="fn">p<sub>0</sub>+2p<sub>1</sub>+p<sub>2</sub></span><span class="fd">4</span></span></span><span class="eqrow">q<sub>3</sub>  = <span class="frac"><span class="fn">p<sub>0</sub>+3p<sub>1</sub>+3p<sub>2</sub>+p<sub>3</sub></span><span class="fd">8</span></span>   q<sub>4</sub>  = <span class="frac"><span class="fn">p<sub>1</sub>+2p<sub>2</sub>+p<sub>3</sub></span><span class="fd">4</span></span>   q<sub>5</sub>  = <span class="frac"><span class="fn">p<sub>2</sub>+p<sub>3</sub></span><span class="fd">2</span></span></span><span class="eqrow">q<sub>6</sub>  = p<sub>3</sub>.</span></div></p>
+<p><strong>유도</strong> (왼쪽 자식, <span class="m">u=1/2</span> de Casteljau 를 전개): <span class="m">c<sup>1</sup><sub>0</sub>=<span class="frac"><span class="fn">p<sub>0</sub>+p<sub>1</sub></span><span class="fd">2</span></span></span>, <span class="m">c<sup>1</sup><sub>1</sub>=<span class="frac"><span class="fn">p<sub>1</sub>+p<sub>2</sub></span><span class="fd">2</span></span></span>, <span class="m">c<sup>1</sup><sub>2</sub>=<span class="frac"><span class="fn">p<sub>2</sub>+p<sub>3</sub></span><span class="fd">2</span></span></span>. 레벨 2: <span class="m">c<sup>2</sup><sub>0</sub>=<span class="frac"><span class="fn">c<sup>1</sup><sub>0</sub>+c<sup>1</sup><sub>1</sub></span><span class="fd">2</span></span>=<span class="frac"><span class="fn">p<sub>0</sub>+2p<sub>1</sub>+p<sub>2</sub></span><span class="fd">4</span></span></span>, <span class="m">c<sup>2</sup><sub>1</sub>=<span class="frac"><span class="fn">c<sup>1</sup><sub>1</sub>+c<sup>1</sup><sub>2</sub></span><span class="fd">2</span></span>=<span class="frac"><span class="fn">p<sub>1</sub>+2p<sub>2</sub>+p<sub>3</sub></span><span class="fd">4</span></span></span>. 레벨 3: <span class="m">p(frac12)=<span class="frac"><span class="fn">c<sup>2</sup><sub>0</sub>+c<sup>2</sup><sub>1</sub></span><span class="fd">2</span></span>=<span class="frac"><span class="fn">p<sub>0</sub>+3p<sub>1</sub>+3p<sub>2</sub>+p<sub>3</sub></span><span class="fd">8</span></span></span>. 왼쪽 자식의 Bezier control point 는 de Casteljau 의 "왼쪽 가장자리" 값들 <span class="m">p<sub>0</sub>, c<sup>1</sup><sub>0</sub>, c<sup>2</sup><sub>0</sub>, p(frac12) = q<sub>0</sub>,q<sub>1</sub>,q<sub>2</sub>,q<sub>3</sub></span> 이고, 오른쪽은 "오른쪽 가장자리" <span class="m">p(frac12), c<sup>2</sup><sub>1</sub>, c<sup>1</sup><sub>2</sub>, p<sub>3</sub> = q<sub>3</sub>,q<sub>4</sub>,q<sub>5</sub>,q<sub>6</sub></span> 다. ∎</p>
+<p>가중치가 이항계수 <span class="m">(1,1)/2</span>, <span class="m">(1,2,1)/4</span>, <span class="m">(1,3,3,1)/8</span> — 즉 <span class="m">C(k,·)/2<sup>k</sup></span> — 임에 주목. <code>RecursiveIntersect</code> 가 u 방향으로 segment 를 이등분할 때 쓴다. (검증 팁: <span class="m">q<sub>3</sub> = <span class="rm">EvaluateCubicBezier</span>(<span class="rm">cp</span>, 0.5)</span> 인지 확인.)</p>
+<figure id="fig-subdivide-midpoint"><div class="figbox"><svg viewBox="0 0 680 330" role="img" aria-label="midpoint subdivision">
+  <!-- control polygon -->
+  <path d="M70 250 L210 70 L470 70 L610 250" class="poly"/>
+  <!-- bezier curve -->
+  <path d="M70 250 C210 70 470 70 610 250" class="cv"/>
+  <!-- p0..p3 -->
+  <circle cx="70" cy="250" r="5" class="cp"/><circle cx="210" cy="70" r="5" class="cp"/>
+  <circle cx="470" cy="70" r="5" class="cp"/><circle cx="610" cy="250" r="5" class="cp"/>
+  <text x="60" y="270" class="labm">p0=q0</text><text x="196" y="60" class="labm">p1</text>
+  <text x="456" y="60" class="labm">p2</text><text x="600" y="270" class="labm">p3=q6</text>
+  <!-- q points (de Casteljau at u=.5) -->
+  <circle cx="140" cy="160" r="4.5" class="qL"/><text x="98" y="150" class="labm">q1=(p0+p1)/2</text>
+  <circle cx="240" cy="115" r="4.5" class="qL"/><text x="232" y="108" class="labm">q2</text>
+  <circle cx="340" cy="123" r="6" class="cvdot"/><text x="318" y="150" class="labm">q3 (u=0.5)</text>
+  <circle cx="440" cy="115" r="4.5" class="qR"/><text x="448" y="108" class="labm">q4</text>
+  <circle cx="540" cy="160" r="4.5" class="qR"/><text x="500" y="150" class="labm">q5=(p2+p3)/2</text>
+  <!-- left/right child polygons -->
+  <path d="M70 250 L140 160 L240 115 L340 123" class="childL"/>
+  <path d="M340 123 L440 115 L540 160 L610 250" class="childR"/>
+  <rect x="150" y="282" width="380" height="34" rx="6" class="commonbox"/>
+  <text x="340" y="297" class="labm" text-anchor="middle">가중치 = 이항 (1,2,1)/4, (1,3,3,1)/8  ·  좌/우 자식이 q3 공유</text>
+  <text x="340" y="312" class="labm" text-anchor="middle">q3 == EvaluateCubicBezier(cp, 0.5)</text>
+</svg></div><figcaption>그림 3 — 중점 분할(de Casteljau at u=0.5): 7개 점과 이항 가중치, 두 자식이 q3 공유</figcaption></figure>
+<h3 id="h13">2.5 Bounding: convex hull 과 variation diminishing</h3>
+<p><div class="eq"><span class="rm">BoundCubicBezier</span>(<span class="rm">cp</span>) = <span class="rm">Union</span>(<span class="rm">AABB</span>(p<sub>0</sub>, p<sub>1</sub>), <span class="rm">AABB</span>(p<sub>2</sub>, p<sub>3</sub>)).</div></p>
+<p>곡선이 control point 의 볼록 껍질 안에 있으므로(2.1 성질 3) 이 박스는 보수적(곡선을 반드시 포함)이다. 4개 점을 모두 묶는 대신 두 개의 segment-box <span class="m"><span class="rm">AABB</span>(p<sub>0</sub>,p<sub>1</sub>)</span>, <span class="m"><span class="rm">AABB</span>(p<sub>2</sub>,p<sub>3</sub>)</span> 를 union 하는 것은 — 네 점을 다 포함하므로 — 동등하면서 약간 더 싸다. 부분 구간 버전(splines.h:68)은 먼저 <code>CubicBezierControlPoints</code> 로 부분 호의 CP 를 뽑은 뒤 그것을 묶으므로 <strong>훨씬 타이트한</strong> 박스를 준다(<span class="m">u<sub>min</sub>=0,u<sub>max</sub>=1</span> 이면 전체 버전으로 단락).</p>
+<p><strong>Variation diminishing property (정량 버전)</strong>: 핵심 교육 포인트는 "AABB 는 구불구불한 곡선을 타이트하게 감싸지 못하지만, Bezier 를 쪼개면 덜 구불거리게 된다." 이를 정량화하면: 곡선과 그 <strong>현(chord, <span class="m">p<sub>0</sub> → p<sub>3</sub></span>)</strong> 사이의 최대 거리는 2차 차분으로 한계 지어지고, 한 번 이등분할 때마다 그 한계가 <strong>1/4</strong> 로 준다. 유도는 다음과 같다.</p>
+<p><strong>(a) 현으로부터의 편차 <span class="m">≤</span> (1/8)·max 2차 미분.</strong> 표준 결과로, 구간 길이 1 위에서 함수 <span class="m">g</span> 와 그 끝점을 잇는 직선(현) 사이의 최대 편차는 <span class="m"><span class="frac"><span class="fn">1</span><span class="fd">8</span></span>max|g''|</span> 이하다(보간 오차 정리; 1차 보간의 나머지항 <span class="m"><span class="frac"><span class="fn">g''(ξ)</span><span class="fd">2</span></span>s(1-s)</span> 의 최대값이 <span class="m">s=1/2</span> 에서 <span class="m"><span class="frac"><span class="fn">1</span><span class="fd">8</span></span>max|g''|</span>). Bezier 의 각 좌표 성분에 적용하면</p>
+<p><div class="eq">‖p - <span class="rm">chord</span>‖<sub>∞, <span class="rm">성분당</span></sub> ≤ <span class="frac"><span class="fn">1</span><span class="fd">8</span></span>max<sub>u</sub> |p''(u)|.</div></p>
+<p><strong>(b) max 2차 미분 <span class="m">≤ 6 L<sub>0</sub></span>.</strong> 2.1 에서 <span class="m">p''(u)=6[(1-u)Δ<sup>2</sup> p<sub>0</sub> + uΔ<sup>2</sup> p<sub>1</sub>]</span> 이므로 (성분당) <span class="m">max<sub>u</sub>|p''| ≤ 6max(|Δ<sup>2</sup> p<sub>0</sub>|,|Δ<sup>2</sup> p<sub>1</sub>|) =: 6 L<sub>0</sub></span>.</p>
+<p><strong>(c) 이등분 시 2차 차분이 1/4.</strong> 2.4 의 왼쪽 자식에 대해</p>
+<p><div class="eq">Δ<sup>2</sup> q<sub>0</sub> = q<sub>0</sub> - 2q<sub>1</sub> + q<sub>2</sub> = p<sub>0</sub> - (p<sub>0</sub>+p<sub>1</sub>) + <span class="frac"><span class="fn">p<sub>0</sub>+2p<sub>1</sub>+p<sub>2</sub></span><span class="fd">4</span></span> = <span class="frac"><span class="fn">p<sub>0</sub> - 2p<sub>1</sub> + p<sub>2</sub></span><span class="fd">4</span></span> = <span class="frac"><span class="fn">1</span><span class="fd">4</span></span> Δ<sup>2</sup> p<sub>0</sub>.</div></p>
+<p>(오른쪽 자식·<span class="m">Δ<sup>2</sup> q<sub>1</sub></span> 도 같은 식으로 <span class="m">frac14Δ<sup>2</sup> p<sub>1</sub></span>.) 따라서 한 번 이등분하면 <span class="m">L<sub>0</sub> → L<sub>0</sub>/4</span>, <span class="m">d</span> 번이면 <span class="m">L<sub>0</sub>/4<sup>d</sup></span>. 즉 <strong>현으로부터의 편차는 <span class="m">d</span> 회 이등분 후 <span class="m">∼ L<sub>0</sub>/4<sup>d</sup></span> 로 기하급수적으로 작아진다.</strong> ∎</p>
+<p>이 (a)(b)(c)가 (1) 쪼갤수록 BVH 박스가 현에 밀착해 타이트해지고 (2) 재귀 교차(2.9)에서 leaf 를 직선(현)으로 근사하는 것을 정당화하며 (3) 2.8 의 깊이 공식을 그대로 만든다.</p>
+<h3 id="h14">2.6 Degree elevation 과 B-spline → Bezier 변환</h3>
+<p>이 변환들은 모두 2.2 의 blossom 유일성에서 나온다 — "같은 곡선의 blossom 값은 표현 무관하게 같다."</p>
+<p><strong>Degree elevation</strong> (quadratic <span class="m">Q<sub>0</sub>, Q<sub>1</sub>, Q<sub>2</sub></span> → cubic, splines.h:76):</p>
+<p><div class="eq">  Q<sub>0</sub>, <span class="rm">Lerp</span>(<span class="frac"><span class="fn">2</span><span class="fd">3</span></span>, Q<sub>0</sub>, Q<sub>1</sub>), <span class="rm">Lerp</span>(<span class="frac"><span class="fn">1</span><span class="fd">3</span></span>, Q<sub>1</sub>, Q<sub>2</sub>), Q<sub>2</sub>  .</div></p>
+<p><strong>유도</strong>: degree 를 <span class="m">n</span> 에서 <span class="m">n+1</span> 로 올릴 때 새 control point 는 <span class="m">Q'<sub>i</sub> = <span class="frac"><span class="fn">i</span><span class="fd">n+1</span></span>Q<sub>i-1</sub> + (1-<span class="frac"><span class="fn">i</span><span class="fd">n+1</span></span>)Q<sub>i</sub></span> (표준 차수 상승 공식). <span class="m">n=2 → n+1=3</span>:</p>
+<ul><li><span class="m">i=0</span>: <span class="m">Q'<sub>0</sub> = Q<sub>0</sub></span>.</li><li><span class="m">i=1</span>: <span class="m">Q'<sub>1</sub> = frac13 Q<sub>0</sub> + frac23 Q<sub>1</sub> = <span class="rm">Lerp</span>(frac23, Q<sub>0</sub>, Q<sub>1</sub>)</span> (Lerp 의 <span class="m">t=frac23</span> 이 <span class="m">Q<sub>1</sub></span> 쪽 가중치 <span class="m">frac23</span>).</li><li><span class="m">i=2</span>: <span class="m">Q'<sub>2</sub> = frac23 Q<sub>1</sub> + frac13 Q<sub>2</sub> = <span class="rm">Lerp</span>(frac13, Q<sub>1</sub>, Q<sub>2</sub>)</span>.</li><li><span class="m">i=3</span>: <span class="m">Q'<sub>3</sub> = Q<sub>2</sub></span>.</li></ul>
+<p>같은 quadratic 을 cubic 으로 <strong>정확히</strong>(근사가 아니라) 표현한다 — 두 곡선이 모든 <span class="m">u</span> 에서 동일.</p>
+<p><strong>Quadratic B-spline → Bezier</strong> (균일 노트 위 점 <span class="m">p<sub>01</sub>, p<sub>12</sub>, p<sub>23</sub></span>, splines.h:81):</p>
+<p><div class="eq">  <span class="rm">Lerp</span>(<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>, p<sub>01</sub>, p<sub>12</sub>), p<sub>12</sub>, <span class="rm">Lerp</span>(<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>, p<sub>12</sub>, p<sub>23</sub>)  .</div></p>
+<p>코드 주석의 라벨링(p01,p12,p23 → p11,p12,p22)대로, 균일 노트에서 한 span 의 Bezier 끝점은 인접 B-spline 점의 중점이고 가운데는 그대로다. <span class="m">frac12</span> 는 균일 노트 간격에서 양옆 blossom 인자가 대칭이라 나온다.</p>
+<p><strong>Cubic B-spline → Bezier</strong> (균일 노트 위 점 <span class="m">p<sub>012</sub>, p<sub>123</sub>, p<sub>234</sub>, p<sub>345</sub></span>, splines.h:93):</p>
+<p><div class="eq eqmulti"><span class="eqrow">p<sub>122</sub>  = <span class="rm">Lerp</span>(<span class="frac"><span class="fn">2</span><span class="fd">3</span></span>, p<sub>012</sub>, p<sub>123</sub>),   p<sub>223</sub>  = <span class="rm">Lerp</span>(<span class="frac"><span class="fn">1</span><span class="fd">3</span></span>, p<sub>123</sub>, p<sub>234</sub>),</span><span class="eqrow">p<sub>233</sub>  = <span class="rm">Lerp</span>(<span class="frac"><span class="fn">2</span><span class="fd">3</span></span>, p<sub>123</sub>, p<sub>234</sub>),   p<sub>334</sub>  = <span class="rm">Lerp</span>(<span class="frac"><span class="fn">1</span><span class="fd">3</span></span>, p<sub>234</sub>, p<sub>345</sub>),</span><span class="eqrow"><span class="rm">결과</span>  =   <span class="rm">Lerp</span>(<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>, p<sub>122</sub>, p<sub>223</sub>), p<sub>223</sub>, p<sub>233</sub>, <span class="rm">Lerp</span>(<span class="frac"><span class="fn">1</span><span class="fd">2</span></span>, p<sub>233</sub>, p<sub>334</sub>)  .</span></div></p>
+<p><strong><span class="m">1/3, 2/3, 1/2</span> 의 출처</strong>: B-spline 의 한 control point 는 blossom 으로 <span class="m">p<sub>i,i+1,i+2</sub>=f(t<sub>i</sub>,t<sub>i+1</sub>,t<sub>i+2</sub>)</span> (연속한 세 노트에서의 blossom 값)다. 우리가 원하는 Bezier 점은 현재 span <span class="m">[t<sub>2</sub>,t<sub>3</sub>]</span> 의 끝값 <span class="m">a=t<sub>2</sub>, b=t<sub>3</sub></span> 로 평가한 <span class="m">f(a,a,a),f(a,a,b),f(a,b,b),f(b,b,b)</span> (2.2). 균일 노트 <span class="m">t<sub>i</sub> = i</span> 로 두면 각 목표 blossom 값을 주어진 <span class="m">p</span> 들로부터 다중 아핀성으로 풀어 쓸 때 보간 비율이 정확히 <span class="m">1/3, 2/3</span>(노트 세 칸 중 한 칸·두 칸 위치)과 <span class="m">1/2</span>(대칭 평균)로 떨어진다. 이것이 코드의 Lerp 상수다. (참고 그림: 코드 주석의 berkeley cubicbsplinepoints.)</p>
+<p><strong>이 변환들은 전부 파싱 시점(<code>Curve::Create</code>)에서 끝낸다 — hot path 는 단일 4-점 cubic 만 본다.</strong></p>
+<h3 id="h15">2.7 Ray-space LookAt 투영: 핵심 트릭</h3>
+<p>이제 교차의 심장부다. 목표는 <strong>레이를 +z 축으로 만드는 좌표계</strong>로 곡선을 옮기는 것. 그러면 레이 원점 → <span class="m">(0,0,0)</span>, 레이 방향 → <span class="m">+z</span> 가 되어, "레이가 곡선에 맞는가"가 2D 문제로 붕괴한다: "곡선 위 점의 <span class="m">x<sup>2</sup>+y<sup>2</sup> ≤ (w/2)<sup>2</sup></span> 가 어떤 <span class="m">z ∈ [0, |<span class="rm">ray.d</span>|· t<sub>max</sub>]</span> 에서 성립하는가." <span class="m">x, y</span> 는 레이로부터의 수직 거리, <span class="m">z</span> 는 레이를 따라간 거리다. 반복되는 leaf 테스트가 전부 2D 점/선/디스크 + 1D z-범위 테스트로 단순해지므로 연산이 대폭 줄어든다.</p>
+<p><strong>up 벡터 선택과 왜 <span class="m"><span class="rm">dx</span> = <span class="rm">ray.d</span> × <span class="rm">chord</span></span> 가 최적인가</strong> (책 그림 6.33): bounding box 는 ray space 의 x,y 축에 정렬된 AABB 다. 곡선 전체가 대략 현 <span class="m">p<sub>0</sub> → p<sub>3</sub></span> 방향으로 뻗어 있으므로, <strong>현을 한 축(여기선 x축)에 맞추면</strong> 곡선이 그 축을 따라 길고 수직 축으로는 얇아져 AABB 가 가장 타이트해진다. ray space 에서 z 는 레이 방향으로 고정되어 있으니, 남은 자유도는 x,y 평면의 회전뿐 — 이를 현이 x축에 오도록 고정한다. LookAt 의 up 벡터를 <span class="m"><span class="rm">dx</span> = <span class="rm">ray.d</span> × (p<sub>3</sub> - p<sub>0</sub>)</span> 로 주면, LookAt 내부에서 <span class="m"><span class="rm">right</span> = <span class="rm">Normalize</span>(<span class="rm">up</span> × <span class="rm">dir</span>)</span> 가 만들어지고 <span class="m"><span class="rm">dir</span>=<span class="rm">Normalize</span>(<span class="rm">ray.d</span>)</span> 이므로</p>
+<p><div class="eq"><span class="rm">right</span> = <span class="rm">Normalize</span>((<span class="rm">ray.d</span>×<span class="rm">chord</span>)×<span class="rm">ray.d</span>).</div></p>
+<p>벡터 삼중곱 <span class="m">(a× b)× a = |a|<sup>2</sup> b - (a· b)a</span> 에 의해 이는 chord 에서 ray.d 성분을 제거한 것 — 즉 <strong>chord 의 레이수직 평면으로의 사영</strong>이다. 따라서 right(=x축)가 곡선이 뻗는 방향(투영된 현)과 정렬되어 AABB 가 최소가 된다. <span class="m"><span class="rm">dx</span></span> 자체는 ray.d 와 chord 둘 다에 수직이라 곧 ray space 의 y축이 된다.</p>
+<p>레이가 현과 평행하면 <span class="m"><span class="rm">ray.d</span>×<span class="rm">chord</span>=0</span>, <span class="m">|<span class="rm">dx</span>|<sup>2</sup> = 0</span> 이 되어 특이(singular)해지므로, 이때는 <code>CoordinateSystem(ray.d)</code> 로 임의의 수직 기저를 잡는다 (Duff et al. 의 branchless ONB). 현이 한 점으로 보이는 경우라 어느 회전을 잡아도 무방하다.</p>
+<p><div class="eq"><span class="rm">rayFromObject</span> = <span class="rm">LookAt</span>(<span class="rm">ray.o</span>, <span class="rm">ray.o</span> + <span class="rm">ray.d</span>, <span class="rm">dx</span>),       <span class="rm">cp</span><sub>i</sub> = <span class="rm">rayFromObject</span>(<span class="rm">cpObj</span><sub>i</sub>).</div></p>
+<p>pbrt 의 <code>LookAt(pos, look, up)</code> (transform.cpp:81)은 다음 열(column)을 갖는 worldFromCamera 를 만든다: <span class="m"><span class="rm">dir</span>=<span class="rm">Normalize</span>(<span class="rm">look</span>-<span class="rm">pos</span>)</span>, <span class="m"><span class="rm">right</span>=<span class="rm">Normalize</span>(<span class="rm">Cross</span>(<span class="rm">Normalize</span>(<span class="rm">up</span>),<span class="rm">dir</span>))</span>, <span class="m"><span class="rm">newUp</span>=<span class="rm">Cross</span>(<span class="rm">dir</span>,<span class="rm">right</span>)</span>, 그리고 열 순서 <span class="m">(<span class="rm">right</span>, <span class="rm">newUp</span>, <span class="rm">dir</span>, <span class="rm">pos</span>)</span>. 반환은 <code>Transform(cameraFromWorld, worldFromCamera)</code> — 즉 그 객체의 <strong>forward 변환은 cameraFromWorld</strong> 다. forward 를 점에 적용하면 object → ray space 로 간다. 여기서 <span class="m"><span class="rm">dir</span> = <span class="rm">Normalize</span>(<span class="rm">ray.d</span>)</span> 가 세 번째(+z) 기저이므로 <strong>z 가 레이를 따라 증가</strong>하고, ray space 에서 <span class="m"><span class="rm">ray.o</span> ↦ (0,0,0)</span>, <span class="m"><span class="rm">ray.d</span> ↦ (0,0,|<span class="rm">ray.d</span>|)</span> 가 된다.</p>
+<div class="callout"><strong>caramel 에는 LookAt 이 없다.</strong> 직접 만들어야 한다(Section 3.4). pbrt 는 left-handed look 을 쓴다(<span class="m"><span class="rm">right</span> = <span class="rm">Normalize</span>(<span class="rm">up</span> × <span class="rm">dir</span>)</span>, 이 순서, transform.cpp). cross product 순서를 정확히 복제하지 않으면 x/y 가 거울 반전되고, 이는 edgeFunc(2.9 L5)를 통해 v 부호를 뒤집을 뿐 아니라 현 기반 up 벡터 처리를 어긋나게 한다. <strong>검증법</strong>: 만든 변환으로 ray.o 가 원점, ray.o+ray.d 가 <span class="m">(0,0,|<span class="rm">ray.d</span>|)</span> 로 가는지, <span class="m">p<sub>3</sub> - p<sub>0</sub></span> 가 대략 +x 를 향하는지 확인.</div>
+<figure id="fig-rayspace-lookat"><div class="figbox"><svg viewBox="0 0 680 350" role="img" aria-label="ray space projection">
+  <!-- LEFT: world space -->
+  <text x="20" y="24" class="figttl">world / object space</text>
+  <path d="M40 250 C100 120 220 300 300 150" class="cv"/>
+  <path d="M40 250 L300 150" class="poly"/>
+  <text x="150" y="230" class="labm">chord p0→p3</text>
+  <!-- ray -->
+  <path d="M30 300 L300 200" class="ray"/><polygon points="300,200 286,198 292,210" class="rayhead"/>
+  <circle cx="30" cy="300" r="4" class="rayo"/><text x="14" y="318" class="labm">ray.o</text>
+  <text x="250" y="210" class="labm">ray.d</text>
+  <!-- dx -->
+  <path d="M170 222 L150 178" class="dx"/><polygon points="150,178 150,192 160,184" class="dxhead"/>
+  <text x="120" y="172" class="labm">dx = ray.d × (p3−p0)</text>
+
+  <path d="M312 175 L372 175" class="flow"/><text x="316" y="166" class="labm">LookAt</text>
+
+  <!-- RIGHT: ray space -->
+  <text x="392" y="24" class="figttl">ray space ( ray.d → +z )</text>
+  <line x1="470" y1="70" x2="470" y2="290" class="zaxis"/><polygon points="470,62 464,76 476,76" class="dxhead"/>
+  <text x="478" y="80" class="labm">+z</text>
+  <circle cx="470" cy="250" r="4" class="rayo"/><text x="430" y="266" class="labm">(0,0,0)=ray.o</text>
+  <path d="M520 290 C540 200 470 200 500 110" class="cv"/>
+  <!-- 2D inset disk -->
+  <circle cx="600" cy="200" r="48" class="insetbg"/>
+  <circle cx="600" cy="200" r="3" class="cp"/><text x="606" y="214" class="labm">origin</text>
+  <circle cx="588" cy="188" r="26" class="hit"/>
+  <text x="560" y="262" class="labm" text-anchor="middle">(x,y) 평면</text>
+  <text x="600" y="150" class="labm" text-anchor="middle">x²+y² ≤ (w/2)²</text>
+</svg></div><figcaption>그림 4 — Ray-space LookAt 투영 (핵심 그림): 3D 교차를 2D 디스크 문제로 붕괴</figcaption></figure>
+<h3 id="h16">2.8 재귀 깊이 휴리스틱: 얼마나 쪼갤 것인가</h3>
+<p>교차 전에 "이 호를 몇 번 이등분할지"를 정한다. 책의 표현: "가장 미세한 정제 수준에서 선형화된 곡선과의 최대 거리가 작은 고정 거리보다 작도록" 충분히 쪼갠다.</p>
+<p><strong>curviness 측정</strong> = control point 의 <strong>2차 차분(second difference)</strong> 의 최대 성분 (ray-space CP, shapes.cpp:586):</p>
+<p><div class="eq">L<sub>0</sub> = max_i ∈ 0,1 max( |Δ<sup>2</sup> <span class="rm">cp</span><sub>i</sub>.x|, |Δ<sup>2</sup> <span class="rm">cp</span><sub>i</sub>.y|, |Δ<sup>2</sup> <span class="rm">cp</span><sub>i</sub>.z| ),     Δ<sup>2</sup> <span class="rm">cp</span><sub>i</sub> = <span class="rm">cp</span><sub>i</sub> - 2 <span class="rm">cp</span><sub>i+1</sub> + <span class="rm">cp</span><sub>i+2</sub>.</div></p>
+<p>2.1·2.5 에서 보였듯 2차 차분은 곡선이 직선(현)에서 벗어나는 정도를 한계 짓고(<span class="m">p''=6·</span>[2차 차분의 degree-1 Bezier]), cubic 의 현으로부터 최대 편차가 이 값의 상수배로 묶인다. ray-space 에서 측정하므로 width 와 같은 단위다.</p>
+<p><div class="eq"><span class="rm">eps</span> = 0.05 · max(w<sub>0</sub>, w<sub>1</sub>)     (= <span class="rm">width</span>/20),      
+<span class="rm">maxDepth</span> = <span class="rm">Clamp</span>( <span class="frac"><span class="fn">1</span><span class="fd">2</span></span> <span class="rm">Log2Int</span>( <span class="frac"><span class="fn">√<span class="rad">2</span>· 6 · L<sub>0</sub></span><span class="fd">8 · <span class="rm">eps</span></span></span> ), 0, 10 ).</div></p>
+<p><span class="m">L<sub>0</sub> ≤ 0</span> (직선)이면 maxDepth <span class="m">=0</span>.</p>
+<p><strong>완전한 유도 (상수 <span class="m">√2·6/8</span> 포함)</strong>: 목표는 "<span class="m">d</span> 번 이등분 후 현으로부터의 편차 <span class="m">≤ <span class="rm">eps</span></span>" 인 최소 <span class="m">d</span>. 2.5 의 결과들을 합치면, <span class="m">d</span> 회 이등분한 가장 미세한 sub-curve 의 (성분당) 현 편차는</p>
+<p><div class="eq"><span class="rm">편차</span>(d) ≤ <span class="frac"><span class="fn">1</span><span class="fd">8</span></span> max<sub>u</sub>|p''(u)| · <span class="frac"><span class="fn">1</span><span class="fd">4<sup>d</sup></span></span> ≤ <span class="frac"><span class="fn">6 L<sub>0</sub></span><span class="fd">8</span></span>·<span class="frac"><span class="fn">1</span><span class="fd">4<sup>d</sup></span></span>.</div></p>
+<ul><li><span class="m"><span class="frac"><span class="fn">1</span><span class="fd">8</span></span></span> : 길이-1 구간에서 1차 보간(현) 나머지항 <span class="m"><span class="frac"><span class="fn">g''</span><span class="fd">2</span></span>s(1-s)</span> 의 최대값 <span class="m"><span class="frac"><span class="fn">1</span><span class="fd">8</span></span>max|g''|</span> (2.5a).</li><li><span class="m">6</span> : <span class="m">max|p''| ≤ 6 L<sub>0</sub></span> (2.1, 2.5b — cubic 의 <span class="m">n(n-1)=6</span>).</li><li><span class="m"><span class="frac"><span class="fn">1</span><span class="fd">4<sup>d</sup></span></span></span> : 이등분 1회마다 2차 차분 <span class="m">×frac14</span> (2.5c).</li></ul>
+<p>x,y 두 성분을 따로 묶은 AABB 의 대각선 여유를 보태기 위해 <span class="m">√2</span> 를 곱한다(평면 거리 <span class="m">√<span class="rad">e<sub>x</sub><sup>2</sup>+e<sub>y</sub><sup>2</sup></span> ≤ √2 max(e<sub>x</sub>,e<sub>y</sub>)</span>). 따라서 안전한 편차 한계는</p>
+<p><div class="eq"><span class="rm">편차</span>(d) ≤ <span class="frac"><span class="fn">√2· 6 L<sub>0</sub></span><span class="fd">8</span></span>·<span class="frac"><span class="fn">1</span><span class="fd">4<sup>d</sup></span></span>.</div></p>
+<p>이를 <span class="m">≤ <span class="rm">eps</span></span> 로 만들려면</p>
+<p><div class="eq"><span class="frac"><span class="fn">√2·6 L<sub>0</sub></span><span class="fd">8· 4<sup>d</sup></span></span> ≤ <span class="rm">eps</span>  ⇒ 4<sup>d</sup> ≥ <span class="frac"><span class="fn">√2·6 L<sub>0</sub></span><span class="fd">8 <span class="rm">eps</span></span></span>  ⇒ d ≥ log<sub>4</sub><span class="frac"><span class="fn">√2·6 L<sub>0</sub></span><span class="fd">8 <span class="rm">eps</span></span></span> = <span class="frac"><span class="fn">1</span><span class="fd">2</span></span>log<sub>2</sub><span class="frac"><span class="fn">√2·6 L<sub>0</sub></span><span class="fd">8 <span class="rm">eps</span></span></span>.</div></p>
+<p>이것이 코드의 <span class="m">frac12<span class="rm">Log2Int</span>(√2·6 L<sub>0</sub>/(8 <span class="rm">eps</span>))</span> 와 정확히 일치한다. 나누기 2가 <span class="m">log<sub>2</sub></span> 를 <span class="m">log<sub>4</sub></span> 로 바꾼다. 상수 <span class="m">√2·6/8 ≈ 1.0607</span> 은 (b)(a)의 <span class="m">6/8</span> 에 (x,y 평면) <span class="m">√2</span> 안전계수를 접어 넣은 것이다. tolerance 가 width 에 비례하는 이유: 곡선 폭의 1/20 보다 훨씬 작은 오차는 눈에 보이지 않으므로 더 쪼갤 필요가 없다. <span class="m">[0,10]</span> 클램프로 최악의 경우 작업량을 제한한다(<span class="m">2<sup>10</sup></span> leaf).</p>
+<div class="callout">pbrt 의 <code>Log2Int(float)</code> 는 <strong>반올림(round-to-nearest)</strong> 이지 floor 가 아니다 (math.h:372, significand 를 <span class="m">2<sup>1.5</sup></span> 의 significand 와 비교해 +1). <span class="m">L<sub>0</sub>/<span class="rm">eps</span></span> 가 4의 거듭제곱 경계 바로 아래일 때 floor 기반보다 깊이가 1 더 나올 수 있다(미관상 차이, 정확성 무관). caramel 이 <code>std::log2</code>+floor 를 쓰면 가장자리 케이스에서 깊이가 ~1 다를 수 있다.</div>
+<figure id="fig-recursive-subdivision-tree"><div class="figbox"><svg viewBox="0 0 680 350" role="img" aria-label="recursive subdivision tree with culling">
+  <text x="20" y="22" class="labm">depth = maxDepth</text>
+  <text x="20" y="170" class="labm">depth−1</text>
+  <text x="20" y="300" class="labm">depth = 0</text>
+  <line x1="120" y1="40" x2="660" y2="40" class="ruler"/>
+  <line x1="120" y1="190" x2="660" y2="190" class="ruler"/>
+  <line x1="120" y1="300" x2="660" y2="300" class="ruler"/>
+
+  <!-- root -->
+  <rect x="330" y="50" width="120" height="40" rx="6" class="node"/>
+  <path d="M340 60 q40 -22 100 0" class="cvmini"/>
+  <text x="390" y="84" class="labm" text-anchor="middle">root + AABB</text>
+  <!-- children -->
+  <path d="M360 90 L250 150" class="branch"/><path d="M420 90 L530 150" class="branch"/>
+  <rect x="190" y="150" width="120" height="38" rx="6" class="node"/>
+  <path d="M200 162 q40 -16 100 0" class="cvmini"/><text x="250" y="182" class="labm" text-anchor="middle">child L</text>
+  <rect x="470" y="150" width="120" height="38" rx="6" class="nodecull"/>
+  <text x="530" y="166" class="labm" text-anchor="middle">child R</text>
+  <text x="530" y="182" class="cull" text-anchor="middle">✕ !Overlaps → cull</text>
+  <!-- grandchildren of L to leaf -->
+  <path d="M220 188 L170 250" class="branch"/><path d="M280 188 L330 250" class="branch"/>
+  <rect x="110" y="250" width="120" height="36" rx="6" class="node"/><path d="M120 262 q40 -10 100 0" class="cvmini2"/>
+  <rect x="280" y="250" width="120" height="36" rx="6" class="node"/><path d="M290 262 L380 262" class="cvmini2"/>
+  <path d="M170 286 L300 308" class="branch"/>
+  <rect x="240" y="308" width="160" height="32" rx="6" class="leaf"/>
+  <text x="320" y="329" class="labm" text-anchor="middle">🔍 leaf: edge → w → disk</text>
+  <text x="660" y="120" class="labm" text-anchor="end">variation diminishing:</text>
+  <text x="660" y="136" class="labm" text-anchor="end">깊을수록 직선 → 박스 타이트</text>
+</svg></div><figcaption>그림 5 — 재귀 분할 트리 + AABB 컬링: variation diminishing 으로 가지치기</figcaption></figure>
+<h3 id="h17">2.9 재귀 교차: 분기와 leaf</h3>
+<p><code>RecursiveIntersect</code> 는 두 모드다. <code>rayLength = Length(ray.d)</code> 를 매 호출마다 다시 구하는데, 여기서 <code>cp</code> 는 ray space 지만 전달되는 <code>ray</code> 변수는 <strong>object-space 레이</strong>임에 주의 — z 비교가 rayLength 로 단위 변환을 한다(ray space 의 z 는 <span class="m">|<span class="rm">ray.d</span>|</span> 단위, object t 는 1 단위).</p>
+<p><strong>depth &gt; 0 (분기)</strong>: <code>SubdivideCubicBezier(cp)</code> 로 7점/두 자식을 만들고 <span class="m">u = u<sub>0</sub>, (u<sub>0</sub>+u<sub>1</sub>)/2, u<sub>1</sub></span>. 각 자식에 대해 maxWidth(양끝 u 의 width 최대)로 박스를 0.5·maxWidth 확장하여 rayBounds 와 겹침 검사(겹치지 않으면 <code>continue</code>), depth<span class="m">-1</span> 로 재귀. shadow ray(si==nullptr)면 첫 hit 에서 즉시 true 반환(any-hit 빠른 종료).</p>
+<p><strong>depth == 0 (leaf, 실제 테스트)</strong>: ray-space <span class="m">(x,y)</span> 평면의 2D 테스트 + z 범위 검사. 순서대로:</p>
+<p><strong>(L1) 끝점 edge 테스트</strong> — segment 끝 너머의 점을 기각 (이웃 segment 가 담당해야 함). 각 끝점에서 접선을 법선으로 하는 반평면에 대한 2D edge function:</p>
+<p><div class="eq">e<sub><span class="rm">start</span></sub> = (<span class="rm">cp</span><sub>1</sub>.y - <span class="rm">cp</span><sub>0</sub>.y)(-<span class="rm">cp</span><sub>0</sub>.y) + <span class="rm">cp</span><sub>0</sub>.x(<span class="rm">cp</span><sub>0</sub>.x - <span class="rm">cp</span><sub>1</sub>.x) ≥ 0,</div> <div class="eq">e<sub><span class="rm">end</span></sub> = (<span class="rm">cp</span><sub>2</sub>.y - <span class="rm">cp</span><sub>3</sub>.y)(-<span class="rm">cp</span><sub>3</sub>.y) + <span class="rm">cp</span><sub>3</sub>.x(<span class="rm">cp</span><sub>3</sub>.x - <span class="rm">cp</span><sub>2</sub>.x) ≥ 0.</div></p>
+<p><strong>유도/해석</strong>: 시작점에서 접선 방향은 <span class="m">t = <span class="rm">cp</span><sub>1</sub> - <span class="rm">cp</span><sub>0</sub></span>. 시작 캡을 지나며 <strong>법선이 이 접선인 평면</strong>을 생각하면, edge function 은 <span class="m">t</span> 와 시작 캡에서 원점으로의 벡터 <span class="m">-<span class="rm">cp</span><sub>0</sub></span> 의 내적이다: <span class="m">e<sub><span class="rm">start</span></sub> = (<span class="rm">cp</span><sub>1</sub> - <span class="rm">cp</span><sub>0</sub>)·(-<span class="rm">cp</span><sub>0</sub>) = (<span class="rm">cp</span><sub>1</sub>.x-<span class="rm">cp</span><sub>0</sub>.x)(-<span class="rm">cp</span><sub>0</sub>.x) + (<span class="rm">cp</span><sub>1</sub>.y-<span class="rm">cp</span><sub>0</sub>.y)(-<span class="rm">cp</span><sub>0</sub>.y)</span>. pbrt 가 쓴 <span class="m"><span class="rm">cp</span><sub>0</sub>.x(<span class="rm">cp</span><sub>0</sub>.x-<span class="rm">cp</span><sub>1</sub>.x)</span> 항은 <span class="m">(<span class="rm">cp</span><sub>1</sub>.x-<span class="rm">cp</span><sub>0</sub>.x)(-<span class="rm">cp</span><sub>0</sub>.x)</span> 와 같다. <span class="m">e<sub><span class="rm">start</span></sub> ≥ 0</span> 이면 원점이 시작 캡 평면의 “앞쪽”(접선이 가리키는 segment 안쪽)에 있다는 뜻이라 통과, 아니면 이웃 segment 의 영역이라 기각한다. <span class="m">e<sub><span class="rm">end</span></sub></span> 는 접선을 뒤집어(<span class="m"><span class="rm">cp</span><sub>2</sub> - <span class="rm">cp</span><sub>3</sub></span>, segment 안쪽을 향함) 같은 식으로 본다: <span class="m">e<sub><span class="rm">end</span></sub> = (<span class="rm">cp</span><sub>2</sub> - <span class="rm">cp</span><sub>3</sub>)·(-<span class="rm">cp</span><sub>3</sub>)</span>. 이렇게 segment 경계에서 이중 카운트/누락을 막는다.</p>
+<p><strong>(L2) 현에 원점 투영</strong> → 매개변수 <span class="m">w</span> (점-선 투영, 책 그림 6.37):</p>
+<p><div class="eq"><span class="rm">segDir</span> = <span class="rm">cp</span><sub>3</sub>.xy - <span class="rm">cp</span><sub>0</sub>.xy,       w = <span class="frac"><span class="fn">(-<span class="rm">cp</span><sub>0</sub>.xy) · <span class="rm">segDir</span></span><span class="fd">|<span class="rm">segDir</span>|<sup>2</sup></span></span>.</div></p>
+<p><strong>유도</strong>: 현을 직선 <span class="m">ℓ(w) = <span class="rm">cp</span><sub>0</sub>.xy + w·<span class="rm">segDir</span></span> 로 보고 원점 <span class="m">(0,0)</span> 에 가장 가까운 <span class="m">w</span> 를 구한다. <span class="m"><span class="frac"><span class="fn">d</span><span class="fd">dw</span></span>|ℓ(w)|<sup>2</sup> = 0 ⇒ 2 <span class="rm">segDir</span>·(<span class="rm">cp</span><sub>0</sub>.xy + w <span class="rm">segDir</span>)=0 ⇒ w = <span class="frac"><span class="fn">-<span class="rm">cp</span><sub>0</sub>.xy·<span class="rm">segDir</span></span><span class="fd">|<span class="rm">segDir</span>|<sup>2</sup></span></span></span>. 이것이 원점의 현 위로의 정사영 매개변수다. <span class="m">|<span class="rm">segDir</span>|<sup>2</sup> = 0</span> (퇴화: 현이 한 점)이면 기각.</p>
+<p><strong>(L3) u 와 hitWidth</strong>:</p>
+<p><div class="eq">u = <span class="rm">Clamp</span>(<span class="rm">Lerp</span>(w, u<sub>0</sub>, u<sub>1</sub>), u<sub>0</sub>, u<sub>1</sub>),       <span class="rm">hitWidth</span> = <span class="rm">Lerp</span>(u, <span class="rm">width</span><sub>0</sub><sup><span class="rm">full</span></sup>, <span class="rm">width</span><sub>1</sub><sup><span class="rm">full</span></sup>).</div></p>
+<p>hitWidth 는 <strong>전역 width[]</strong> 를 <strong>전역 u</strong> 로 평가한다(width 는 논리적 곡선 전체에 대한 단일 선형 함수이므로 <span class="m"><span class="rm">common->width[0..1]</span></span> 에 전역 <span class="m">u</span> 를 넣는다 — segment-local 폭이 아님).</p>
+<p><strong>Ribbon 조정</strong> — u 에서 노멀 slerp 후 폭을 단축(foreshorten):</p>
+<p><div class="eq">n<sub><span class="rm">hit</span></sub> = <span class="frac"><span class="fn">sin((1-u)θ)  n<sub>0</sub> + sin(uθ)  n<sub>1</sub></span><span class="fd">sinθ</span></span>,     θ = <span class="rm">normalAngle</span>,       <span class="rm">hitWidth</span> *= <span class="frac"><span class="fn">|n<sub><span class="rm">hit</span></sub> · <span class="rm">ray.d</span>|</span><span class="fd">|<span class="rm">ray.d</span>|</span></span>.</div></p>
+<p><strong>slerp 공식의 유도</strong>: 단위 노멀 <span class="m">n<sub>0</sub>, n<sub>1</sub></span> 사이 각이 <span class="m">θ = ∠(n<sub>0</sub>,n<sub>1</sub>)</span> 일 때, 구면 선형 보간은 <span class="m">n(u)</span> 를 두 벡터가 펼치는 평면 안에서 <span class="m">n<sub>0</sub></span> 로부터 각 <span class="m">uθ</span> 만큼, <span class="m">n<sub>1</sub></span> 로부터 각 <span class="m">(1-u)θ</span> 만큼 떨어지도록 정의한다. <span class="m">n(u) = α n<sub>0</sub> + β n<sub>1</sub></span> 로 놓고 두 조건 <span class="m">n(u)· n<sub>0</sub> = cos(uθ)</span>, <span class="m">n(u)· n<sub>1</sub> = cos((1-u)θ)</span> 를 <span class="m">n<sub>0</sub>· n<sub>1</sub>=cosθ</span> 와 함께 풀면</p>
+<p><div class="eq">α + βcosθ = cos(uθ),       αcosθ + β = cos((1-u)θ).</div></p>
+<p>이 2×2 선형계의 해는 <span class="m">α = <span class="frac"><span class="fn">sin((1-u)θ)</span><span class="fd">sinθ</span></span></span>, <span class="m">β = <span class="frac"><span class="fn">sin(uθ)</span><span class="fd">sinθ</span></span></span> (삼각 항등식 <span class="m">cos(uθ) - cos((1-u)θ)cosθ = sin((1-u)θ)sinθ</span> 사용). 따라서</p>
+<p><div class="eq">n<sub><span class="rm">hit</span></sub> = n(u) = <span class="frac"><span class="fn">sin((1-u)θ)</span><span class="fd">sinθ</span></span> n<sub>0</sub> + <span class="frac"><span class="fn">sin(uθ)</span><span class="fd">sinθ</span></span> n<sub>1</sub>,</div></p>
+<p>코드의 <code>sin0 = sin((1-u)θ)·invSinNormalAngle</code>, <code>sin1 = sin(uθ)·invSinNormalAngle</code> 와 정확히 일치한다. <span class="m">θ = 0</span> (두 노멀 동일, <span class="m">sinθ=0</span> 으로 나눌 수 없음)이면 <span class="m">n<sub><span class="rm">hit</span></sub> = n<sub>0</sub></span> 로 단락한다(shapes.cpp:659). <strong>단축(foreshorten)의 이유</strong>: 리본 면이 레이에 비스듬할수록 화면 투영 폭이 줄어든다. 단위 레이 방향을 <span class="m">d = <span class="rm">ray.d</span>/|<span class="rm">ray.d</span>|</span> 라 하면 겉보기 폭 비율은 면 노멀과 레이가 이루는 각의 코사인 <span class="m">= |n<sub><span class="rm">hit</span></sub>· d|</span> 이므로 hitWidth 에 이를 곱한다(코드에서는 <span class="m">|n<sub><span class="rm">hit</span></sub>·<span class="rm">ray.d</span>|/|<span class="rm">ray.d</span>|</span>).</p>
+<p><strong>(L4) 곡선 점 평가 + 반-폭 디스크 테스트</strong>:</p>
+<p><div class="eq"><span class="rm">pc</span> = <span class="rm">EvaluateCubicBezier</span>(<span class="rm">cp</span>, <span class="rm">Clamp</span>(w, 0, 1), \&<span class="rm">dpcdw</span>),       <span class="rm">ptCurveDist</span><sup>2</sup> = <span class="rm">pc</span>.x<sup>2</sup> + <span class="rm">pc</span>.y<sup>2</sup>.</div> <div class="eq"><span class="rm">기각 if </span> <span class="rm">ptCurveDist</span><sup>2</sup> > <span class="rm">hitWidth</span><sup>2</sup> · 0.25  (<span class="rm">즉 dist</span> > <span class="rm">hitWidth</span>/2),       <span class="rm">기각 if </span> <span class="rm">pc</span>.z < 0 <span class="rm"> 또는 </span> <span class="rm">pc</span>.z > <span class="rm">rayLength</span> · t<sub>max</sub>.</div></p>
+<p>이 <span class="m"><span class="rm">pc</span>.x<sup>2</sup> + <span class="rm">pc</span>.y<sup>2</sup> ≤ (<span class="rm">hitWidth</span>/2)<sup>2</sup></span> 가 바로 원기둥/리본 단면 테스트다: ray space 에서 레이가 z 축(<span class="m">x=y=0</span> 인 직선)이므로, 곡선 위 점 pc 를 중심으로 한 반-폭 디스크(반지름 hitWidth/2)가 레이축까지 닿는지 = pc 의 <span class="m">(x,y)</span> 거리가 반-폭 이하인지를 본다. 제곱 비교 <span class="m"><span class="rm">ptCurveDist</span><sup>2</sup> ≤ <span class="rm">hitWidth</span><sup>2</sup>·0.25</span> 로 기각 경로에서 sqrt 를 피한다. z 범위는 레이의 유효 구간 <span class="m">[0, |<span class="rm">ray.d</span>|t<sub>max</sub>]</span> 안인지 확인(ray space z 가 <span class="m">|<span class="rm">ray.d</span>|</span> 단위이므로 <span class="m">t<sub>max</sub></span> 에 rayLength 를 곱함).</p>
+<p><strong>(L5) hit 정보 빌드</strong> (si 가 필요할 때, shapes.cpp:682):</p>
+<p><div class="eq">t<sub><span class="rm">hit</span></sub> = <span class="frac"><span class="fn"><span class="rm">pc</span>.z</span><span class="fd"><span class="rm">rayLength</span></span></span>.</div></p>
+<p>기존에 더 가까운 hit 가 있으면(<span class="m">t<sub><span class="rm">hit</span></sub> > <span class="rm">si</span>→t<sub><span class="rm">hit</span></sub></span>) 기각.</p>
+<p><strong>v 매개화</strong>:</p>
+<p><div class="eq"><span class="rm">ptCurveDist</span> = √<span class="rad"><span class="rm">ptCurveDist</span><sup>2</sup></span>,     <span class="rm">edgeFunc</span> = <span class="rm">dpcdw</span>.x(-<span class="rm">pc</span>.y) + <span class="rm">pc</span>.x·<span class="rm">dpcdw</span>.y,</div> <div class="eq"><span class="cases"><span class="cbrace">{</span><span class="crows"><span class="caserow"><span class="cval">v =  0.5 + <span class="rm">ptCurveDist</span>/<span class="rm">hitWidth</span></span><span class="ccond"><span class="rm">edgeFunc</span> > 0</span></span><span class="caserow"><span class="cval">0.5 - <span class="rm">ptCurveDist</span>/<span class="rm">hitWidth</span></span><span class="ccond"><span class="rm">그 외.</span></span></span></span></span></div></p>
+<p><span class="m">v ∈ [0,1]</span>, 중심선에서 <span class="m">v=0.5</span>, 양 가장자리에서 <span class="m">v=0</span> 또는 <span class="m">1</span>. edgeFunc 는 곡선 접선 dpcdw 의 2D 법선과 pc 의 외적 부호로 점이 중심선의 어느 쪽인지 가른다.</p>
+<p><strong>dpdu / dpdv 와 타입별 노멀</strong>:</p>
+<p><div class="eq"><span class="rm">dpdu</span> = <span class="rm">EvaluateCubicBezier</span>(<span class="rm">common</span>→<span class="rm">cpObj</span>, u, \&<span class="rm">dpdu</span>).</div></p>
+<p><strong>전체 곡선의 control point 를 전역 u 로</strong> 평가한다(segment 의 cp 가 아니라!). segment 의 local cp + local w 로 평가하면 chain-rule 인자 <span class="m">(u<sub>max</sub>-u<sub>min</sub>)</span> 만큼 크기가 틀린 접선이 나온다.</p>
+<p><div class="eq"><span class="cases"><span class="cbrace">{</span><span class="crows"><span class="caserow"><span class="cval"><span class="rm">dpdv</span> = 
+<span class="rm">Normalize</span>(<span class="rm">Cross</span>(n<sub><span class="rm">hit</span></sub>, <span class="rm">dpdu</span>)) · <span class="rm">hitWidth</span></span><span class="ccond"><span class="rm">Ribbon</span></span></span><span class="caserow"><span class="cval"><span class="rm">objectFromRay</span>( <span class="rm">Normalize</span>(-<span class="rm">dpduPlane</span>.y, <span class="rm">dpduPlane</span>.x, 0) · <span class="rm">hitWidth</span> )</span><span class="ccond"><span class="rm">Flat</span></span></span><span class="caserow"><span class="cval"><span class="rm">objectFromRay</span>( <span class="rm">Rotate</span>(-θ<sub>c</sub>, <span class="rm">dpduPlane</span>) (<span class="rm">dpdvPlane</span>) ), θ<sub>c</sub> = <span class="rm">Lerp</span>(v, -90°, +90°)</span><span class="ccond"><span class="rm">Cylinder</span></span></span></span></span></div></p>
+<p>여기서 <span class="m"><span class="rm">dpduPlane</span> = <span class="rm">objectFromRay.ApplyInverse</span>(<span class="rm">dpdu</span>)</span> (접선을 ray space 로), <span class="m"><span class="rm">dpdvPlane</span> = <span class="rm">Normalize</span>(-<span class="rm">dpduPlane</span>.y, <span class="rm">dpduPlane</span>.x, 0)·<span class="rm">hitWidth</span></span> (ray-space 폭 벡터; 접선의 2D 수직).</p>
+<p><strong>노멀은 어떻게 나오는가 (caramel 의 핵심).</strong> pbrt 는 SurfaceInteraction 생성자에 dpdu, dpdv 를 넘기고 dndu/dndv 는 <code>Normal3f()</code>(0)로 둔다(shapes.cpp:724). 셰이딩 노멀은 생성자 안에서</p>
+<p><div class="eq">n = <span class="rm">normalize</span>(<span class="rm">Cross</span>(<span class="rm">dpdu</span>, <span class="rm">dpdv</span>))</div></p>
+<p>로 만들어진다(필요시 reverseOrientation ^ transformSwapsHandedness 로 뒤집음). caramel 은 dpdu/dpdv 를 저장하지 않고 <strong>노멀 1개 + 그로부터 만든 ONB(Coordinate)</strong> 만 저장하므로, 위 미분 작업은 오직 이 한 줄의 <span class="m">n</span> 을 얻기 위해 존재한다.</p>
+<ul><li><strong>Flat</strong>: <span class="m"><span class="rm">dpdu</span></span> 는 곡선 접선, <span class="m"><span class="rm">dpdv</span></span> 는 ray space 의 <span class="m">(x,y)</span> 수직을 object 로 되돌린 것 → <span class="m"><span class="rm">Cross</span>(<span class="rm">dpdu</span>,<span class="rm">dpdv</span>)</span> 가 ray space 의 +z(레이 방향)와 정렬되어 <span class="m">n = -<span class="rm">ray.d</span></span> 가 된다. <strong>그래서 caramel 은 Flat 을 미분 없이 곧장 <span class="m">n=-<span class="rm">ray.d</span></span> 로 둘 수 있다.</strong></li><li><strong>Ribbon</strong>: <span class="m">n = <span class="rm">Cross</span>(<span class="rm">dpdu</span>, <span class="rm">Normalize</span>(<span class="rm">Cross</span>(n<sub><span class="rm">hit</span></sub>,<span class="rm">dpdu</span>))·<span class="rm">hitWidth</span>)</span>. <span class="m"><span class="rm">Cross</span>(<span class="rm">dpdu</span>, <span class="rm">Cross</span>(n<sub><span class="rm">hit</span></sub>,<span class="rm">dpdu</span>)) = |<span class="rm">dpdu</span>|<sup>2</sup> n<sub><span class="rm">hit</span></sub> - (<span class="rm">dpdu</span>· n<sub><span class="rm">hit</span></sub>)<span class="rm">dpdu</span></span> — 삼중곱이 <span class="m">n<sub><span class="rm">hit</span></sub></span> 에서 접선 성분을 뺀 것이므로, <strong>셰이딩 노멀이 <span class="m">n<sub><span class="rm">hit</span></sub></span> 방향과 일치</strong>한다(폭을 가로질러 일정). caramel 은 dpdu 와 <span class="m">n<sub><span class="rm">hit</span></sub></span> 만으로 노멀을 얻는다.</li><li><strong>Cylinder</strong>: 아래에서 따로 유도.</li></ul>
+<p><strong>Cylinder twist 의 유도 — 왜 <span class="m">θ<sub>c</sub> = <span class="rm">Lerp</span>(v,-90°,+90°)</span> 가 반-원기둥 노멀인가.</strong> ray space 에서 곡선을 반지름 <span class="m">R = <span class="rm">hitWidth</span>/2</span> 인 원기둥으로 본다고 하자. 단위 접선을 <span class="m">t = <span class="rm">dpduPlane</span></span> 방향, 그에 수직인 단위 폭 방향을 <span class="m">w = <span class="rm">dpdvPlane</span></span> 방향이라 두자. 진짜 원기둥의 표면점은 단면각 <span class="m">φ</span> 로 매개화되며 표면 노멀은 단면 안에서 <span class="m">n(φ) = sinφ w + cosφ (t× w)</span> 처럼 접선축 둘레로 도는 벡터다. 우리는 평평한 리본 위 폭 좌표 <span class="m">v∈[0,1]</span> 를 원기둥 둘레의 보이는 반쪽(앞면, <span class="m">φ∈[-90°,+90°]</span>)에 사상하려 한다 — <span class="m">v=0</span>(한 가장자리)→<span class="m">φ=-90°</span>, <span class="m">v=0.5</span>(중심선)→<span class="m">φ=0</span>(정면), <span class="m">v=1</span>(반대 가장자리)→<span class="m">φ=+90°</span>. 이 선형 사상이 정확히 <span class="m">φ = θ<sub>c</sub> = <span class="rm">Lerp</span>(v,-90°,+90°)</span> 다.</p>
+<p>코드는 이를 노멀 대신 <strong>폭 벡터 dpdvPlane 을 접선 dpduPlane 둘레로 <span class="m">-θ<sub>c</sub></span> 회전</strong>시켜 구현한다: <span class="m"><span class="rm">Rotate</span>(-θ<sub>c</sub>, <span class="rm">dpduPlane</span>)</span>. 회전된 dpdv 와 dpdu 의 cross 를 취하면 노멀이 접선축 둘레로 <span class="m">θ<sub>c</sub></span> 만큼 돈 셈이 되어, 가장자리(<span class="m">v=0,1</span>)에서는 노멀이 시선(<span class="m">+z</span>)에 대해 <span class="m">±90°</span> 기울어(거의 옆을 향해) 어둡게, 중심선(<span class="m">v=0.5</span>)에서는 정면을 향해 밝게 셰이딩된다. 즉 <strong>평평한 기하 위에 둥근 튜브의 음영 그라디언트</strong>가 생긴다. 부호(<span class="m">-θ<sub>c</sub></span>)는 회전 방향과 cross 순서를 맞춰 <span class="m">v</span> 가 증가할 때 노멀이 올바른 쪽으로 쓸리도록 한다. 최종 노멀 <span class="m">n=<span class="rm">Cross</span>(<span class="rm">dpdu</span>,<span class="rm">dpdv</span>)</span> 는 이 회전된 dpdv 를 그대로 받는다.</p>
+<p>마지막으로 hit 을 SurfaceInteraction 으로 만들고 <code>renderFromObject</code> 로 render space 에 되돌린다. <code>flipNormal = reverseOrientation ^ transformSwapsHandedness</code>. wo 로는 <span class="m">-<span class="rm">ray.d</span></span>(object space) 를 넘긴다.</p>
+<div class="callout"><strong>Ribbon tHit FIXME</strong>(shapes.cpp:685): 리본은 hitWidth 가 단축되었으므로 <span class="m"><span class="rm">pc</span>.z</span> 가 현 투영을 따른 값이라 실제 t 가 약간 틀릴 수 있다. 셰이딩에는 허용 가능.</div>
+<figure id="fig-leaf-test-2d"><div class="figbox"><svg viewBox="0 0 680 360" role="img" aria-label="leaf 2d test">
+  <!-- axes -->
+  <line x1="60" y1="200" x2="640" y2="200" class="axis"/><line x1="350" y1="40" x2="350" y2="340" class="axis"/>
+  <circle cx="350" cy="200" r="5" class="origin"/><text x="356" y="222" class="labm">origin (0,0) = ray</text>
+  <!-- chord + curve -->
+  <path d="M120 270 L600 150" class="poly"/>
+  <path d="M120 270 C280 150 420 250 600 150" class="cv"/>
+  <circle cx="120" cy="270" r="4.5" class="cp"/><text x="100" y="290" class="labm">cp0</text>
+  <circle cx="600" cy="150" r="4.5" class="cp"/><text x="590" y="142" class="labm">cp3</text>
+  <!-- endpoint caps (reject regions) -->
+  <path d="M120 270 L96 174" class="cap"/><polygon points="120,270 70,250 96,300" class="rej"/>
+  <text x="60" y="160" class="cull">reject (이웃 segment)</text>
+  <path d="M600 150 L624 246" class="cap"/>
+  <!-- foot of perpendicular -->
+  <line x1="350" y1="200" x2="316" y2="237" class="perp"/>
+  <rect x="320" y="223" width="10" height="10" class="rightangle"/>
+  <text x="300" y="255" class="labm">w (현 투영)</text>
+  <!-- pc + disk -->
+  <circle cx="316" cy="237" r="6" class="cvdot"/><text x="262" y="237" class="labm">pc</text>
+  <circle cx="316" cy="237" r="62" class="disk"/>
+  <text x="378" y="300" class="labm">disk 반지름 = hitWidth/2</text>
+  <text x="378" y="316" class="labm">pc.x²+pc.y² ≤ (hitWidth/2)² → HIT</text>
+  <!-- v -->
+  <line x1="316" y1="237" x2="350" y2="200" class="vline"/><text x="356" y="180" class="labm">v: 중심선 0.5, 가장자리 0/1</text>
+</svg></div><figcaption>그림 6 — Leaf 단계 2D 테스트 (ray-space x,y 평면): edge -&gt; 투영 -&gt; 디스크 -&gt; v</figcaption></figure>
+<h3 id="h18">2.10 매개화 요약</h3>
+<ul><li><strong><span class="m">u ∈ [0,1]</span></strong>: 중심선을 따라(논리적 곡선 전역). 각 <code>Curve</code> 인스턴스는 <span class="m">[u<sub>min</sub>, u<sub>max</sub>]</span> 를 담당. leaf 가 현 매개 <span class="m">w</span> 를 <span class="m">u = <span class="rm">Clamp</span>(<span class="rm">Lerp</span>(w, u<sub>0</sub>, u<sub>1</sub>), u<sub>0</sub>, u<sub>1</sub>)</span> 로 사상.</li><li><strong><span class="m">v ∈ [0,1]</span></strong>: 폭을 가로질러. 중심선에서 <span class="m">v=0.5</span>, <span class="m">v = 0.5 ± <span class="rm">ptCurveDist</span>/<span class="rm">hitWidth</span></span> (부호는 edgeFunc).</li><li><strong>dpdu</strong>: object space 곡선 접선 (<span class="m"><span class="rm">EvaluateCubicBezier</span>(<span class="rm">cpObj</span>, u)</span>, 전역 u).</li><li><strong>dpdv</strong>: 폭 방향 <span class="m">×</span> hitWidth, CurveType 별. Cylinder 는 추가로 dpdu 둘레 <span class="m">θ<sub>c</sub> = <span class="rm">Lerp</span>(v, -90°, +90°)</span> 회전.</li><li><strong>노멀</strong>: 모든 타입이 <span class="m">n = <span class="rm">normalize</span>(<span class="rm">Cross</span>(<span class="rm">dpdu</span>, <span class="rm">dpdv</span>))</span>. Flat 은 <span class="m">-<span class="rm">ray.d</span></span> 로 단순화, Ribbon 은 <span class="m">n<sub><span class="rm">hit</span></sub></span> 방향, Cylinder 는 폭 가로질러 비틀림. caramel 은 이 <span class="m">n</span> 하나만 저장(ONB 로 확장).</li><li><strong><span class="m"><span class="rm">width</span>(u) = <span class="rm">Lerp</span>(u, <span class="rm">width</span><sub>0</sub>, <span class="rm">width</span><sub>1</sub>)</span></strong> (선형 taper).</li></ul></section><section id="s3" class="sec "><h2 class="sechead" id="h19">Section 3 — caramel 구현 방법</h2>
+<h3 id="h20">3.1 클래스를 어디에 둘 것인가</h3>
+<p>Curve 는 <strong>메시가 아닌 leaf Shape</strong> 다 — <code>Triangle</code> 과 같은 부류이지 <code>Instance</code>(변환 래퍼) 가 아니다. (참고: pbrt 의 <code>Curve</code> 는 엄밀히는 <code>: public Shape</code> 서브클래스가 아니라 tagged-pointer Shape variant 라 <code>: public Shape</code> 로 grep 해도 안 나온다 — 여기서 "leaf Shape" 는 caramel 에서의 모델이다.) 다만 <code>Instance</code> 의 "레이를 local space 로 보내고 노멀을 변환하는 패턴"은 그대로 복사할 좋은 템플릿이다.</p>
+<p><code>class Curve final : public Shape</code> 를 <code>include/shape.h</code> 의 <code>Triangle</code> 옆(자유 함수 블록 L218 전)에 선언하고, 구현은 <code>src/shapes/curve.cpp</code> 에 둔다. 추가로 <code>struct CurveCommon</code> (공유 cpObj/width/type/normals)을 두어 다중 segment 곡선이 하나의 <code>CurveCommon</code> 을 공유하는 N 개 <code>Curve</code> Shape 가 되게 한다 — pbrt 를 그대로 미러링하며 각 Shape 를 단일 Bezier segment(저렴한 AABB + BVH leaf)로 유지한다. caramel 의 BVH 는 <code>vector&lt;const Shape*&gt;</code> 위에 구성되므로(scene.cpp:100), 각 segment-Curve 가 TLAS 의 독립 leaf 가 된다. <strong>이것이 자연스러운 단위</strong>다: 하나의 <code>Curve</code> Shape == <span class="m">[u<sub>min</sub>, u<sub>max</sub>]</span> 를 가진 하나의 cubic Bezier segment.</p>
+<h3 id="h21">3.2 오버라이드할 7개 메서드</h3>
+<p><code>Shape</code> 의 7개 순수 가상 함수 전부를 정의해야 한다(shape.h:52-61). 핵심 통찰: <strong>7개 중 4개는 stub</strong> 다 — 곡선은 영역 광원(area light)이 될 수 없으므로(pbrt 가 <code>Sample</code>/<code>PDF</code> 를 <code>LOG_FATAL</code> 처리).</p>
+<div class="tablewrap"><table><tr><th>메서드</th><th>Curve 의 구현</th></tr><tr><td><code>ray_intersect(ray, maxt)</code></td><td><strong>실제 작업.</strong> pbrt IntersectRay + RecursiveIntersect 포팅 (3.5절).</td></tr><tr><td><code>get_aabb()</code></td><td>부분 호 4 control point 의 박스를 <span class="m">0.5 · max(w<sub>0</sub>, w<sub>1</sub>)</span> 로 확장. world space cp 면 변환 불필요.</td></tr><tr><td><code>get_area()</code></td><td><span class="m">≈</span> control polygon 길이 <span class="m">×</span> 평균 폭. 광원이 아니므로 사실상 dead code 지만 순수 가상이라 정의 필수.</td></tr><tr><td><code>sample_point(sampler)</code></td><td><strong>stub</strong>: <code>{vec3f_zero, {0,0,1}, Float0}</code>. 곡선이 광원이 아니므로 절대 호출 안 됨.</td></tr><tr><td><code>pdf_solidangle(...)</code></td><td><strong>stub</strong>: <code>Float0</code>.</td></tr><tr><td><code>is_solid_angle_sampling_possible()</code></td><td><code>return false;</code></td></tr><tr><td><code>get_polygon_vertices()</code></td><td>빈 멤버 벡터 <code>m_empty</code> 반환.</td></tr></table></div>
+<div class="callout"><code>get_center()</code> 는 비가상(shape.cpp:42, <code>get_aabb()</code> 사용)이라 추가 작업 불필요. <code>Shape</code> 생성자는 <code>Shape(BSDF*, AreaLight*)</code> 이고, Curve 생성자는 <strong>반드시 <code>Shape(bsdf, nullptr)</code></strong> 를 호출해야 한다(곡선은 절대 광원이 아님).</div>
+<h3 id="h22">3.3 RayIntersectInfo 필드 채우기</h3>
+<p>hit 시 다음을 채운다(Triangle::ray_intersect L101 비교).</p>
+<div class="tablewrap"><table><tr><th>필드</th><th>출처</th></tr><tr><td><code>ret.t</code></td><td>world-space 레이 매개변수. caramel 의 <code>Ray.m_d</code> 는 <strong>단위 벡터</strong>(ray.h:32 가 정규화)라 caramel world space 에서 rayLength==1, 즉 <span class="m">t = <span class="rm">pc</span>.z</span>.</td></tr><tr><td><code>ret.p</code></td><td><code>ray.m_o + ray.m_d * ret.t</code> (m_d 가 단위라 정확). pc 를 역변환하는 것보다 간단.</td></tr><tr><td><code>ret.sh_coord</code></td><td><code>Coordinate(world_normal)</code>. <strong>pbrt 와의 핵심 차이</strong> — 아래 참조.</td></tr><tr><td><code>ret.tex_uv</code></td><td><code>{u, v}</code>. u 와 v 모두 이미 <span class="m">[0,1]</span> 이라 frac-wrap 불필요(해도 무해).</td></tr><tr><td><code>ret.shape</code></td><td><strong>설정하지 말 것.</strong> TLAS(bvh_scene.cpp:36 <code>if (hit) info.shape = s;</code>)가 top-level <code>Curve*</code> 로 덮어쓴다. Triangle/Instance 와 동일.</td></tr><tr><td><code>ret.tri_index</code></td><td>0 그대로(TriangleMesh 전용).</td></tr></table></div>
+<p><strong>노멀 축소(reduction) — 가장 중요한 caramel 적응.</strong> caramel 은 dpdu/dpdv 를 저장하지 않고 <strong>노멀에서 유도한 ONB(<code>Coordinate</code>)만</strong> 저장한다(coordinate.h). 따라서 pbrt 의 <span class="m">(<span class="rm">dpdu</span>, <span class="rm">dpdv</span>)</span> 를 단일 셰이딩 노멀로 붕괴시켜야 한다:</p>
+<ul><li><strong>Ribbon/Cylinder</strong>: <span class="m">n = <span class="rm">normalize</span>(<span class="rm">cross</span>(<span class="rm">dpdu</span>, <span class="rm">dpdv</span>))</span>. <span class="m">n · (-<span class="rm">ray.m\<sub>d</sub></span>) < 0</span> 이면 뒤집기(양면).</li><li><strong>Flat</strong>: <span class="m">n = -<span class="rm">ray.m\<sub>d</sub></span></span> (리본이 항상 레이를 향함; pbrt Flat 은 고유 노멀이 없고 ray-space 구성에서 자동으로 <span class="m">-<span class="rm">ray.d</span></span> 가 나옴 — 명시적으로 특수 처리하는 편이 명확).</li></ul>
+<p>그 다음 <code>ret.sh_coord = Coordinate(n)</code>. <code>Coordinate</code> 가 axis1/axis2 를 스스로 만든다(pbrt 의 정확한 접선 정렬은 잃지만, caramel 의 등방성 BSDF 는 <span class="m">n</span> 둘레의 일관된 ONB 만 필요하고 Triangle 도 동일하게 동작). <strong>알려진 축소</strong>: 이방성 셰이딩이나 접선공간 노멀맵은 깨진다.</p>
+<p>miss 시: <code>return {false, RayIntersectInfo()}</code> (Triangle L98 과 동일).</p>
+<h3 id="h23">3.4 caramel 에 없는 것: LookAt 을 직접 만들기</h3>
+<p>caramel 에는 LookAt 이 <strong>없다</strong>(grep 확인). 4×4 행렬을 만들고 역행렬을 구할 필요 없이, <strong>dot product 로 ONB 투영</strong>하는 것이 가장 싸고 caramel 의 <code>Coordinate</code> 관용구와 맞다.</p>
+<p>ray-space 기저를 만든다:</p>
+<ul><li>forward (z) <span class="m">= <span class="rm">ray.m\<sub>d</sub></span></span> (이미 단위)</li><li>right (x) <span class="m">= <span class="rm">normalize</span>(<span class="rm">cross</span>(<span class="rm">dx</span>, <span class="rm">ray.m\<sub>d</sub></span>))</span>, where <span class="m"><span class="rm">dx</span> = <span class="rm">cross</span>(<span class="rm">ray.m\<sub>d</sub></span>, p<sub>3</sub> - p<sub>0</sub>)</span>; dx 가 0 이면 <code>Coordinate{ray.m_d}.m_axis1</code></li><li>up (y) <span class="m">= <span class="rm">cross</span>(<span class="rm">ray.m\<sub>d</sub></span>, <span class="rm">right</span>)</span></li></ul>
+<p><code>Coordinate</code> 의 멤버 <span class="m">(<span class="rm">m\<sub>a</sub>xis1</span>, <span class="rm">m\<sub>a</sub>xis2</span>, <span class="rm">m\<sub>w</sub>orld\<sub>n</sub></span>) = (<span class="rm">right</span>, <span class="rm">up</span>, <span class="rm">forward</span>)</span> 로 채우면:</p>
+<ul><li><strong>world → ray space</strong> (점): <code>ray_frame.to_local(p - ray.m_o)</code> — <span class="m">(x,y,z)</span> 의 z 가 레이를 따른 거리.</li><li><strong>ray space → world</strong> (역 = ONB 의 전치): <code>ray_frame.to_world(v)</code>. Flat/Cylinder 의 dpdv 를 world 로 되돌릴 때만 필요.</li></ul>
+<p>4×4 inverse 없이 dot product 만으로 끝난다. (벡터를 ray space 로 보낼 때는 <code>to_local</code> 에 점이 아닌 벡터를 넣되 <code>- ray.m_o</code> 를 빼지 않는다.)</p>
+<h3 id="h24">3.5 교차 알고리즘 포팅 (단계별)</h3>
+<p><strong>STEP A (object space 변환)</strong>: control point 를 <strong>world space 로 저장</strong>하면 이 단계를 <strong>건너뛴다</strong>. caramel 의 큰 단순화 — 곡선은 배치된 후 쓸모 있는 "object space" 가 없다. (대안: to_world 를 저장하고 Instance 처럼 <code>transform_point/transform_vector</code> + k 재조정 — 비추천.)</p>
+<p><strong>STEP B (ray-space 기저)</strong>: 3.4절. 4개 cp 를 <code>ray_frame.to_local(cp_obj[i] - ray.m_o)</code> 로 투영.</p>
+<p><strong>STEP C (컬링)</strong>: maxWidth = <span class="m">max(<span class="rm">Lerp</span>(u<sub>min</sub>, w<sub>0</sub>, w<sub>1</sub>), <span class="rm">Lerp</span>(u<sub>max</sub>, w<sub>0</sub>, w<sub>1</sub>))</span>. curveBounds = <span class="m"><span class="rm">Union</span>(<span class="rm">Bounds</span>(<span class="rm">cp</span><sub>0</sub>, <span class="rm">cp</span><sub>1</sub>), <span class="rm">Bounds</span>(<span class="rm">cp</span><sub>2</sub>, <span class="rm">cp</span><sub>3</sub>))</span> 를 <span class="m">0.5 · <span class="rm">maxWidth</span></span> 로 (x, y, z 3축 모두) 확장. rayBounds = <span class="m">(0,0,0)</span> 에서 <span class="m">(0,0,<span class="rm">maxt</span>)</span> (<span class="m">|<span class="rm">ray.d</span>|=1</span>). <code>AABB::is_overlap</code> 으로 겹침 검사, 안 겹치면 miss.</p>
+<p><strong>STEP D (재귀 깊이)</strong>: Section 2.8 식. <span class="m">L<sub>0</sub></span>, eps = <span class="m">0.05 · max(w<sub>0</sub>, w<sub>1</sub>)</span>, maxDepth = Clamp<span class="m">(·, 0, 10)</span>. caramel 에는 <code>Log2Int</code> 가 없으니 <code>std::ilogb</code> 또는 작은 헬퍼를 쓰고 <code>L0 &gt; 0</code> 을 먼저 가드한다.</p>
+<p><strong>STEP E (재귀)</strong>: <code>recursive_intersect</code>. depth&gt;0 이면 <code>subdivide_bezier</code> → 7점/2 자식, 각 자식 박스를 rayBounds 와 겹침 검사 후 depth<span class="m">-1</span> 재귀. depth==0 이면 leaf 테스트(Section 2.9 의 L1~L5).</p>
+<div class="callout"><strong>한 곡선 내 closest-hit</strong>: Triangle 과 달리 한 <code>Curve</code> 의 재귀가 여러 leaf 에서 서로 다른 t 의 hit 를 찾을 수 있다. <strong>직접 최소 t 를 추적</strong>해야 한다 — <code>best.t = maxt</code> 로 시작, 더 작은 t 만 유지. 외부 BVH 는 <strong>서로 다른</strong> shape 끼리만 t 를 비교하지, 한 shape 내부 segment 끼리는 비교하지 않는다.</div>
+<h3 id="h25">3.6 포팅해야 할 Bezier 프리미티브</h3>
+<p>전부 <code>Vector3f</code> 위에서 동작하며 Peanut 의 <code>+</code>, <code>*</code>, <code>Vector3f::cross</code>, <code>.dot()</code>, <code>.length()</code>, <code>.normalize()</code> 로 자명하게 구현된다. LookAt 스타일 ONB 와 정수 log2 외에 새 수학 인프라는 없다.</p>
+<ul><li><code>eval_bezier(cp, u, &amp;deriv)</code>: de Casteljau 평가 + 미분(영-접선 폴백 유지!)</li><li><code>blossom</code> / <code>sub_control_points(cp, uMin, uMax)</code>: 부분 segment 4 control point 추출(곡선이 segment 로 쪼개질 때)</li><li><code>subdivide_bezier(cp) → [7]</code>: 중점 분할</li><li><code>get_aabb</code> 용 부분 호 bound</li></ul>
+<h3 id="h26">3.7 pbrt → caramel 대응표</h3>
+<div class="tablewrap"><table><tr><th>pbrt</th><th>caramel</th><th>비고</th></tr><tr><td><code>Lerp(t, a, b)</code></td><td><code>lerp(t, a, b)</code> (직접 정의)</td><td><strong>t 가 첫 인자!</strong> caramel 의 <code>interpolate</code> 와 시그니처 다름</td></tr><tr><td><code>Length(ray.d)</code></td><td><code>1</code> (world space)</td><td><code>Ray</code> ctor 가 m_d 정규화(ray.h:32)</td></tr><tr><td><code>LookAt(...)</code></td><td><code>Coordinate{right,up,forward}</code> + <code>to_local</code>/<code>to_world</code></td><td>caramel 에 LookAt 없음; dot 투영</td></tr><tr><td><code>CoordinateSystem(ray.d)</code></td><td><code>Coordinate{ray.m_d}</code> 의 axis1/axis2</td><td>dx==0 폴백</td></tr><tr><td><code>Cross(a, b)</code></td><td><code>Vector3f::cross(a, b)</code></td><td>static</td></tr><tr><td><code>Dot(a, b)</code></td><td><code>a.dot(b)</code></td><td></td></tr><tr><td><code>Bounds3f</code> / <code>Expand</code> / <code>Overlaps</code></td><td><code>AABB</code> / 수동 ± / <code>is_overlap</code></td><td>aabb.h</td></tr><tr><td><code>SurfaceInteraction(dpdu, dpdv, n, ...)</code></td><td><code>Coordinate(n)</code> (dpdu/dpdv 축소)</td><td>caramel 은 노멀-ONB 만</td></tr><tr><td><code>renderFromObject(intr)</code></td><td>(world cp 면) 불필요</td><td></td></tr><tr><td><code>Log2Int(float)</code></td><td><code>std::ilogb</code> 헬퍼 + <code>/2</code></td><td>round-to-nearest vs floor 차이 무관</td></tr><tr><td><code>info.shape = this</code></td><td><strong>하지 말 것</strong></td><td>BVH 가 덮어씀(bvh_scene.cpp:36)</td></tr><tr><td><code>Sample</code>/<code>PDF</code> <code>LOG_FATAL</code></td><td>stub (<code>Float0</code>)</td><td>곡선은 광원 불가</td></tr></table></div>
+<h3 id="h27">3.8 watertightness 와 splitDepth 스케일링</h3>
+<p>caramel 의 Triangle 은 공유 모서리 누수를 막기 위해 기본적으로 watertight 교차(shape.cpp:79, JCGT 2013)를 쓴다. <strong>곡선은 공유 모서리 watertightness 문제가 없다</strong> — 각 곡선은 고립된 리본/튜브이고, 한 곡선의 segment 들은 정확한 모서리 공유가 아니라 반-폭 디스크의 설계상 겹침으로 join 에서 만난다. 따라서 Curve 포팅은 watertight 로직이 <strong>필요 없다</strong>. 곡선의 견고함은 재귀 깊이 한계(eps = width/20)가 선형화 오차를 sub-pixel 로 보장하는 데서 온다.</p>
+<p><strong>splitDepth 권장</strong>: 런타임 <code>RecursiveIntersect</code> 가 깊이를 적응적으로 정하므로 Level B 정적 분할을 생략(splitdepth=0)해도 정확성은 유지된다 — Level B 는 BVH leaf 타이트함에만 기여한다. <strong>다만 BVH 품질을 위해 작은 splitdepth(예: 2~3)는 유지 권장.</strong> 536만 hair 의 Moana 장면에서 splitdepth 가 메모리(<span class="m">× 2<sup>d</sup></span> 개 Shape)와 BVH 트래버설 비용을 정면으로 좌우하므로, 장면 규모에 맞춰 튜닝해야 한다.</p>
+<h3 id="h28">3.9 정밀도</h3>
+<p>caramel 은 단정밀도 <code>Float=float</code>(common.h:32). pbrt 곡선 코드도 알고리즘상 float-stable 하다 — 2차 차분 깊이 휴리스틱과 eps=width/20 tolerance, 그리고 클램프들이 fp 오차를 흡수한다. 전부 <code>Float</code> 로 유지하고, <code>L0 &gt; 0</code> / <code>denom == 0</code> / <code>LengthSquared == 0</code> 가드를 정확히 보존한다. <code>EPSILON = 1e-3</code>(common.h:55)은 재귀 레이 원점 오프셋(rayintersectinfo.cpp:38)에 쓰여 곡선에도 자동 적용되므로 자기교차(self-intersection) 방지에 별도 작업 불필요.</p>
+<h3 id="h29">3.10 장면 와이어링</h3>
+<p><code>scene_parser.cpp</code> 의 <code>parse_shape</code>(L226)에 <code>else if (type == "curve")</code> 분기를 추가하고, JSON 필드 <code>P</code>/<code>width</code>/<code>width0</code>/<code>width1</code>/<code>degree</code>/<code>basis</code>/<code>type</code>/<code>N</code>/<code>to_world</code> 를 파싱한다. (Ribbon 의 <code>N</code> 은 정점당 노멀 배열로 nSegments+1 개이며, segment 마다 양끝 노멀 <code>n[seg]</code>, <code>n[seg+1]</code> 2개를 슬라이스해 그 segment 의 <code>CurveCommon</code> 에 넣는다.) <strong>B-spline→Bezier 변환과 segment 분할은 생성 시점에</strong> 수행하고(pbrt <code>Curve::Create</code> 처럼), <code>parse_instanced_shapes</code>(L162)가 여러 Instance 를 push 하는 선례를 따라 <strong>Bezier segment 당 하나의 <code>Curve</code> Shape 를 shapes 벡터에 emit</strong> 한다(각자 <code>CurveCommon</code> 공유). control point 는 생성 시 to_world 를 한 번 적용해 <strong>world space 로 저장</strong>하면 ray_intersect 가 레이마다 변환할 필요가 없다. 파싱 후 <code>Scene::add_mesh_and_arealight</code>(scene.cpp:53)가 Shape 마다 호출되는데, Curve 는 <code>is_light()==false</code> 라 기하로만 추가되고 <code>build_accel</code>(L100)이 BVH 에 넣는다 — scene.h/scene.cpp 는 손댈 것이 없다.</p></section><section id="code" class="sec"><h2 class="sechead" id="h_code">부록 — caramel Curve 구현 (전체 코드)</h2><p>아래는 Section 3 의 설계를 그대로 옮긴 idiom-correct 한 caramel <code>Curve</code> 스켈레톤이다. control point 는 world space 저장, 컬링 박스는 ray-space 3축 확장, 한 곡선 내 최근접 hit 추적까지 반영했다. 컴파일러에 그대로 넣기보다 포팅의 뼈대로 읽을 것.</p><div class="codecard"><div class="codebar">include/curve.h · src/shapes/curve.cpp</div><pre><code>// ============================================================================
+// include/curve.h  (실전에서는 shape.h 의 Triangle 옆에 Curve 를 선언)
+// ============================================================================
+#pragma once
+
+#include &lt;array&gt;
+#include &lt;memory&gt;
+#include &lt;vector&gt;
+
+#include &lt;shape.h&gt;
+#include &lt;common.h&gt;
+
+namespace Caramel {
+
+    // CurveType: 휩쓸린 리본을 어떻게 향하게/셰이딩할지 결정.
+    //   Flat     : 리본이 레이를 향해 빌보드 (가장 저렴; 먼 거리 hair/fur)
+    //   Cylinder : Flat 기하지만 셰이딩 노멀을 폭 방향으로 비틀어 둥근 튜브처럼 (근접 hair)
+    //   Ribbon   : 양끝 노멀이 주어지고 u 를 따라 slerp 되는 진짜 방향 있는 띠 (잔디, 잎)
+    enum class CurveType { Flat, Cylinder, Ribbon };
+
+    // 하나의 논리적(그려진) 곡선의 모든 segment 가 공유하는 데이터. 다중 segment
+    // 곡선은 N 개의 Curve shape 가 되어 모두 하나의 CurveCommon 을 가리키고 서로는
+    // [u_min, u_max] 부분 구간만 다르다 -- 수백만 가닥을 메모리에 담는 핵심 트릭.
+    struct CurveCommon {
+        CurveCommon(const std::array&lt;Vector3f, 4&gt; &amp;cp, Float w0, Float w1,
+                    CurveType type, const Vector3f *n /* Ribbon 외에는 nullptr */);
+
+        CurveType m_type;
+        std::array&lt;Vector3f, 4&gt; m_cp;   // 4개 cubic Bezier control point, WORLD space
+        Float m_width[2];               // u=0, u=1 에서의 폭 (선형 taper)
+
+        // Ribbon 전용; Flat/Cylinder 는 기본값으로 둠.
+        Vector3f m_n[2];                       // 양끝 노멀 (생성자에서 정규화)
+        Float m_normal_angle = Float0;         // AngleBetween(n0, n1)
+        Float m_inv_sin_normal_angle = Float0; // 1 / sin(normal_angle), slerp 용
+    };
+
+    class Curve final : public Shape {
+    public:
+        // 하나의 Curve == [u_min, u_max] 로 제한된 하나의 cubic Bezier segment.
+        // arealight 는 항상 nullptr: 곡선은 절대 area light 가 될 수 없다.
+        Curve(std::shared_ptr&lt;const CurveCommon&gt; common, Float u_min, Float u_max, BSDF *bsdf);
+
+        std::pair&lt;bool, RayIntersectInfo&gt; ray_intersect(const Ray &amp;ray, Float maxt) const override;
+        AABB get_aabb() const override;
+        Float get_area() const override;
+
+        // --- 네 개의 stub: 곡선은 emitter 로 샘플링 불가 -----------------------
+        std::tuple&lt;Vector3f, Vector3f, Float&gt; sample_point(Sampler &amp;sampler) const override;
+        Float pdf_solidangle(const Vector3f &amp;, const Vector3f &amp;, const Vector3f &amp;) const override;
+        bool is_solid_angle_sampling_possible() const override { return false; }
+        const std::vector&lt;Vector3f&gt;&amp; get_polygon_vertices() const override { return m_empty; }
+
+    private:
+        // depth&gt;0 -&gt; 분할; depth==0 -&gt; 실제 leaf 레이/곡선 테스트.
+        // cp_ray 는 이미 ray space 로 투영된 4개 control point.
+        // best 는 지금까지의 가장 가까운 hit (best.t 는 maxt 로 시작).
+        bool recursive_intersect(const Ray &amp;ray, Float maxt,
+                                 const std::array&lt;Vector3f, 4&gt; &amp;cp_ray,
+                                 const Coordinate &amp;ray_frame,
+                                 Float u0, Float u1, int depth,
+                                 RayIntersectInfo &amp;best) const;
+
+        std::shared_ptr&lt;const CurveCommon&gt; m_common;
+        Float m_u_min, m_u_max;
+        std::vector&lt;Vector3f&gt; m_empty;  // get_polygon_vertices() 가 반환
+    };
+
+}
+
+// ============================================================================
+// src/shapes/curve.cpp
+// ============================================================================
+#include &lt;algorithm&gt;
+#include &lt;cmath&gt;
+
+#include &lt;curve.h&gt;
+#include &lt;ray.h&gt;
+#include &lt;rayintersectinfo.h&gt;
+#include &lt;aabb.h&gt;
+
+namespace Caramel {
+    namespace {
+        // pbrt 규약: lerp(t, a, b) = (1-t)a + t b  (t 가 첫 인자).
+        template &lt;typename T&gt;
+        T lerp(Float t, const T &amp;a, const T &amp;b) { return a * (Float1 - t) + b * t; }
+
+        // Blossom f(u0,u1,u2): 레벨마다 다른 매개변수로 de Casteljau.
+        Vector3f blossom(const std::array&lt;Vector3f, 4&gt; &amp;p, Float u0, Float u1, Float u2) {
+            const Vector3f a0 = lerp(u0, p[0], p[1]);
+            const Vector3f a1 = lerp(u0, p[1], p[2]);
+            const Vector3f a2 = lerp(u0, p[2], p[3]);
+            const Vector3f b0 = lerp(u1, a0, a1);
+            const Vector3f b1 = lerp(u1, a1, a2);
+            return lerp(u2, b0, b1);
+        }
+
+        // [u_min, u_max] 로 제한한 곡선의 4개 Bezier control point.
+        std::array&lt;Vector3f, 4&gt; sub_control_points(const std::array&lt;Vector3f, 4&gt; &amp;cp,
+                                                   Float u_min, Float u_max) {
+            return {blossom(cp, u_min, u_min, u_min), blossom(cp, u_min, u_min, u_max),
+                    blossom(cp, u_min, u_max, u_max), blossom(cp, u_max, u_max, u_max)};
+        }
+
+        // 점 + 접선 (de Casteljau). 영-접선일 때 현으로 폴백하는 것이 load-bearing:
+        // dpdu 는 절대 영벡터가 되어선 안 된다.
+        Vector3f eval_bezier(const std::array&lt;Vector3f, 4&gt; &amp;cp, Float u, Vector3f *deriv) {
+            const Vector3f a0 = lerp(u, cp[0], cp[1]);
+            const Vector3f a1 = lerp(u, cp[1], cp[2]);
+            const Vector3f a2 = lerp(u, cp[2], cp[3]);
+            const Vector3f b0 = lerp(u, a0, a1);
+            const Vector3f b1 = lerp(u, a1, a2);
+            if (deriv) {
+                *deriv = (b1 - b0).length() &gt; Float0 ? (b1 - b0) * static_cast&lt;Float&gt;(3)
+                                                     : cp[3] - cp[0];
+            }
+            return lerp(u, b0, b1);
+        }
+
+        // u=0.5 에서 가운데 점을 공유하는 두 cubic 으로 분할 (7개 점).
+        std::array&lt;Vector3f, 7&gt; subdivide_bezier(const std::array&lt;Vector3f, 4&gt; &amp;c) {
+            return {c[0],
+                    (c[0] + c[1]) * Float0_5,
+                    (c[0] + c[1] * Float2 + c[2]) * static_cast&lt;Float&gt;(0.25),
+                    (c[0] + c[1] * static_cast&lt;Float&gt;(3) + c[2] * static_cast&lt;Float&gt;(3) + c[3]) * static_cast&lt;Float&gt;(0.125),
+                    (c[1] + c[2] * Float2 + c[3]) * static_cast&lt;Float&gt;(0.25),
+                    (c[2] + c[3]) * Float0_5,
+                    c[3]};
+        }
+
+        // BoundCubicBezier 의 절반 (convex hull property).
+        AABB bound_two(const Vector3f &amp;a, const Vector3f &amp;b) { return AABB{a, b}; }
+
+        // pbrt Log2Int(float) 미러: round-to-nearest (floor 아님).
+        // caramel 에 Log2Int 가 없어 std::ilogb 로 근사. L0&gt;0 가드 후에만 호출할 것.
+        Float int_log2_round(Float v) {
+            if (v &lt;= Float0) return Float0;
+            const int lo = std::ilogb(v);
+            // 1.5*2^lo 가 경계: v 가 그 위면 lo+1 로 반올림.
+            return static_cast&lt;Float&gt;(v &gt;= static_cast&lt;Float&gt;(1.5) * std::ldexp(Float1, lo) ? lo + 1 : lo);
+        }
+    } // namespace
+
+    CurveCommon::CurveCommon(const std::array&lt;Vector3f, 4&gt; &amp;cp, Float w0, Float w1,
+                             CurveType type, const Vector3f *n)
+        : m_type{type}, m_cp{cp}, m_width{w0, w1} {
+        if (type == CurveType::Ribbon &amp;&amp; n) {
+            m_n[0] = n[0].normalize();
+            m_n[1] = n[1].normalize();
+            using std::acos; using std::sin;
+            m_normal_angle = acos(std::clamp(m_n[0].dot(m_n[1]), -Float1, Float1));
+            m_inv_sin_normal_angle = Float1 / sin(m_normal_angle);
+        }
+    }
+
+    Curve::Curve(std::shared_ptr&lt;const CurveCommon&gt; common, Float u_min, Float u_max, BSDF *bsdf)
+        : Shape{bsdf, nullptr}, m_common{std::move(common)}, m_u_min{u_min}, m_u_max{u_max} {}
+
+    AABB Curve::get_aabb() const {
+        const auto cp = sub_control_points(m_common-&gt;m_cp, m_u_min, m_u_max);
+        AABB box = AABB::merge(bound_two(cp[0], cp[1]), bound_two(cp[2], cp[3]));
+        const Float w0 = lerp(m_u_min, m_common-&gt;m_width[0], m_common-&gt;m_width[1]);
+        const Float w1 = lerp(m_u_max, m_common-&gt;m_width[0], m_common-&gt;m_width[1]);
+        const Float r = std::max(w0, w1) * Float0_5;  // 폭의 절반(반지름)만큼 확장
+        return AABB{box.m_min - Vector3f{r, r, r}, box.m_max + Vector3f{r, r, r}};
+    }
+
+    Float Curve::get_area() const {
+        // 광원이 아니라 실제로는 dead code 지만 순수 가상이라 정의 필수.
+        const auto cp = sub_control_points(m_common-&gt;m_cp, m_u_min, m_u_max);
+        const Float len = (cp[1] - cp[0]).length() + (cp[2] - cp[1]).length() + (cp[3] - cp[2]).length();
+        const Float avg_w = (m_common-&gt;m_width[0] + m_common-&gt;m_width[1]) * Float0_5;
+        return len * avg_w;
+    }
+
+    std::tuple&lt;Vector3f, Vector3f, Float&gt; Curve::sample_point(Sampler &amp;) const {
+        return {vec3f_zero, Vector3f{Float0, Float0, Float1}, Float0};  // 호출 안 됨: 곡선은 광원 불가
+    }
+    Float Curve::pdf_solidangle(const Vector3f &amp;, const Vector3f &amp;, const Vector3f &amp;) const {
+        return Float0;
+    }
+
+    std::pair&lt;bool, RayIntersectInfo&gt; Curve::ray_intersect(const Ray &amp;ray, Float maxt) const {
+        // control point 를 WORLD space 로 저장 =&gt; object-space 변환 불필요 (pbrt STEP A 생략).
+        const auto cp_obj = sub_control_points(m_common-&gt;m_cp, m_u_min, m_u_max);
+
+        // --- ray-space 기저: +z 가 ray.d, 원점이 ray.o (pbrt LookAt 대체) ----
+        // up 힌트 = 레이 방향과 p0-&gt;p3 현 둘 다에 수직 (가장 타이트한 bbox);
+        // 레이가 현과 평행하면 임의 ONB 로 폴백.
+        Vector3f dx = Vector3f::cross(ray.m_d, cp_obj[3] - cp_obj[0]);
+        if (dx.dot(dx) == Float0) dx = Coordinate{ray.m_d}.m_axis1;
+        // ray_frame.{m_axis1,m_axis2,m_world_n} = {right, up, forward};
+        // to_local 이 world VECTOR 를 ray space 로, to_world 가 되돌린다 (역 == 전치).
+        Coordinate ray_frame;
+        ray_frame.m_world_n = ray.m_d;                                    // forward = +z
+        ray_frame.m_axis1  = Vector3f::cross(dx, ray.m_d).normalize();    // right    = +x
+        ray_frame.m_axis2  = Vector3f::cross(ray.m_d, ray_frame.m_axis1); // up       = +y
+
+        std::array&lt;Vector3f, 4&gt; cp;
+        for (int i = 0; i &lt; 4; ++i) cp[i] = ray_frame.to_local(cp_obj[i] - ray.m_o);
+
+        // --- 조기 컬링: 레이(원점..maxt, +z 축)와 곡선 박스 겹침 검사 ----------
+        const Float w0 = lerp(m_u_min, m_common-&gt;m_width[0], m_common-&gt;m_width[1]);
+        const Float w1 = lerp(m_u_max, m_common-&gt;m_width[0], m_common-&gt;m_width[1]);
+        const Float r = std::max(w0, w1) * Float0_5;
+        AABB cb = AABB::merge(bound_two(cp[0], cp[1]), bound_two(cp[2], cp[3]));
+        cb = AABB{cb.m_min - Vector3f{r, r, r}, cb.m_max + Vector3f{r, r, r}};
+        const AABB ray_box{Vector3f{Float0, Float0, Float0}, Vector3f{Float0, Float0, maxt}};
+        if (!cb.is_overlap(ray_box)) return {false, RayIntersectInfo()};
+
+        // --- 2차 차분(&quot;구불거림&quot;)으로 재귀 깊이 결정 --------------------------
+        Float L0 = Float0;
+        for (int i = 0; i &lt; 2; ++i)
+            for (int a = 0; a &lt; 3; ++a)
+                L0 = std::max(L0, std::abs(cp[i][a] - Float2 * cp[i + 1][a] + cp[i + 2][a]));
+        int max_depth = 0;
+        if (L0 &gt; Float0) {
+            const Float eps = std::max(w0, w1) * static_cast&lt;Float&gt;(0.05);  // width/20
+            const Float d = int_log2_round(static_cast&lt;Float&gt;(1.41421356237) * static_cast&lt;Float&gt;(6) * L0 /
+                                           (static_cast&lt;Float&gt;(8) * eps)) * Float0_5;  // /2 = log4 변환
+            max_depth = std::clamp(static_cast&lt;int&gt;(d), 0, 10);
+        }
+
+        RayIntersectInfo best;
+        best.t = maxt;
+        const bool hit = recursive_intersect(ray, maxt, cp, ray_frame, m_u_min, m_u_max, max_depth, best);
+        return hit ? std::pair{true, best} : std::pair{false, RayIntersectInfo()};
+    }
+
+    bool Curve::recursive_intersect(const Ray &amp;ray, Float maxt,
+                                    const std::array&lt;Vector3f, 4&gt; &amp;cp,
+                                    const Coordinate &amp;ray_frame,
+                                    Float u0, Float u1, int depth,
+                                    RayIntersectInfo &amp;best) const {
+        if (depth &gt; 0) {
+            // --- 분기: u=0.5 에서 이등분, 각 자식 박스를 컬링 후 재귀 ----------
+            const auto s = subdivide_bezier(cp);
+            const Float um = (u0 + u1) * Float0_5;
+            const Float ub[3] = {u0, um, u1};
+            bool any = false;
+            for (int seg = 0; seg &lt; 2; ++seg) {
+                const std::array&lt;Vector3f, 4&gt; child{s[3 * seg], s[3 * seg + 1], s[3 * seg + 2], s[3 * seg + 3]};
+                const Float cw0 = lerp(ub[seg],     m_common-&gt;m_width[0], m_common-&gt;m_width[1]);
+                const Float cw1 = lerp(ub[seg + 1], m_common-&gt;m_width[0], m_common-&gt;m_width[1]);
+                const Float r = std::max(cw0, cw1) * Float0_5;
+                AABB cb = AABB::merge(bound_two(child[0], child[1]), bound_two(child[2], child[3]));
+                cb = AABB{cb.m_min - Vector3f{r, r, r}, cb.m_max + Vector3f{r, r, r}};
+                const AABB ray_box{Vector3f{Float0, Float0, Float0}, Vector3f{Float0, Float0, best.t}};
+                if (!cb.is_overlap(ray_box)) continue;
+                any |= recursive_intersect(ray, maxt, child, ray_frame, ub[seg], ub[seg + 1], depth - 1, best);
+            }
+            return any;
+        }
+
+        // ---- LEAF: ray-space (x,y) 평면의 2D 테스트 + z 범위 검사 ------------
+        // (L1) 양끝 캡 너머의 점 기각 (edge function). 이웃 segment 가 담당.
+        if ((cp[1][1] - cp[0][1]) * (-cp[0][1]) + cp[0][0] * (cp[0][0] - cp[1][0]) &lt; Float0) return false;
+        if ((cp[2][1] - cp[3][1]) * (-cp[3][1]) + cp[3][0] * (cp[3][0] - cp[2][0]) &lt; Float0) return false;
+
+        // (L2) 원점 (0,0) 을 현에 투영 -&gt; 매개변수 w.
+        const Vector2f seg_dir{cp[3][0] - cp[0][0], cp[3][1] - cp[0][1]};
+        const Float denom = seg_dir.dot(seg_dir);
+        if (denom == Float0) return false;
+        const Float w = (Vector2f{-cp[0][0], -cp[0][1]}).dot(seg_dir) / denom;
+
+        // (L3) 전역 u + hit 시 폭 (전체 곡선 width 함수 사용).
+        const Float u = std::clamp(lerp(w, u0, u1), u0, u1);
+        Float hit_width = lerp(u, m_common-&gt;m_width[0], m_common-&gt;m_width[1]);
+
+        // (L4-Ribbon) 노멀 slerp + 폭 단축(foreshorten).
+        Vector3f n_hit;
+        if (m_common-&gt;m_type == CurveType::Ribbon) {
+            using std::sin;
+            if (m_common-&gt;m_normal_angle == Float0) n_hit = m_common-&gt;m_n[0];
+            else {
+                const Float A = m_common-&gt;m_normal_angle, is = m_common-&gt;m_inv_sin_normal_angle;
+                n_hit = m_common-&gt;m_n[0] * (sin((Float1 - u) * A) * is) + m_common-&gt;m_n[1] * (sin(u * A) * is);
+            }
+            hit_width *= std::abs(n_hit.dot(ray.m_d));  // caramel 에서 |ray.m_d| == 1
+        }
+
+        // (L4) 실제 곡선 점 평가 + 반-폭 디스크 테스트 (sqrt 회피 위해 제곱 비교).
+        Vector3f dpcdw;
+        const Vector3f pc = eval_bezier(cp, std::clamp(w, Float0, Float1), &amp;dpcdw);
+        const Float dist2 = pc[0] * pc[0] + pc[1] * pc[1];
+        if (dist2 &gt; hit_width * hit_width * static_cast&lt;Float&gt;(0.25)) return false;  // (hitWidth/2)^2
+        if (pc[2] &lt; Float0 || pc[2] &gt; maxt) return false;   // rayLength == 1
+
+        const Float t_hit = pc[2];          // pc.z / rayLength, rayLength == 1
+        if (t_hit &gt; best.t) return false;   // 이 곡선 내 가장 가까운 hit 유지
+
+        // (L5) hit 빌드. v 는 폭을 가로질러, dpdu/dpdv 는 CurveType 별.
+        const Float dist = std::sqrt(dist2);
+        const Float edge = dpcdw[0] * (-pc[1]) + pc[0] * dpcdw[1];
+        const Float v = edge &gt; Float0 ? Float0_5 + dist / hit_width : Float0_5 - dist / hit_width;
+
+        Vector3f dpdu;  // 전체 곡선 접선을 전역 u 로 평가 (leaf cp 가 아니라!)
+        eval_bezier(m_common-&gt;m_cp, u, &amp;dpdu);
+
+        Vector3f dpdv;
+        if (m_common-&gt;m_type == CurveType::Ribbon) {
+            dpdv = Vector3f::cross(n_hit, dpdu).normalize() * hit_width;
+        } else {
+            const Vector3f dpdu_plane = ray_frame.to_local(dpdu);  // 접선을 ray space 로
+            Vector3f dpdv_plane = Vector3f{-dpdu_plane[1], dpdu_plane[0], Float0}.normalize() * hit_width;
+            if (m_common-&gt;m_type == CurveType::Cylinder) {
+                // 폭 벡터를 dpdu_plane 둘레로 -theta 회전 -&gt; 노멀이 폭을 가로질러 -90..+90 휩쓺.
+                const Float theta = deg_to_rad(lerp(v, static_cast&lt;Float&gt;(-90), static_cast&lt;Float&gt;(90)));
+                const Vector3f axis = dpdu_plane.normalize();
+                using std::cos; using std::sin;
+                const Float c = cos(-theta), si = sin(-theta);
+                // Rodrigues 회전 (axis 둘레로 dpdv_plane 회전).
+                dpdv_plane = dpdv_plane * c
+                           + Vector3f::cross(axis, dpdv_plane) * si
+                           + axis * (axis.dot(dpdv_plane) * (Float1 - c));
+            }
+            dpdv = ray_frame.to_world(dpdv_plane);  // world 로 되돌림
+        }
+
+        // caramel 은 노멀-ONB 만 저장: (dpdu, dpdv) 를 단일 노멀로 축소.
+        Vector3f n = (m_common-&gt;m_type == CurveType::Flat)
+                         ? ray.m_d * static_cast&lt;Float&gt;(-1)            // Flat 은 항상 레이를 향함
+                         : Vector3f::cross(dpdu, dpdv).normalize();
+        if (n.dot(ray.m_d) &gt; Float0) n = n * static_cast&lt;Float&gt;(-1);   // 양면: 레이 쪽으로
+
+        best.t = t_hit;
+        best.p = ray.m_o + ray.m_d * t_hit;     // m_d 가 단위라 정확
+        best.tex_uv = Vector2f{u, v};
+        best.sh_coord = Coordinate{n};
+        // best.shape 은 nullptr 그대로: 장면 BVH 가 이 Curve* 로 덮어쓴다.
+        return true;
+    }
+
+}
+</code></pre></div></section></main></div></div><script>
+const links=[...document.querySelectorAll('.toc a')];
+const map=new Map(links.map(a=>[a.getAttribute('href').slice(1),a]));
+const obs=new IntersectionObserver((es)=>{es.forEach(e=>{const a=map.get(e.target.id);if(a&&e.isIntersecting){links.forEach(l=>l.classList.remove('active'));a.classList.add('active');}});},{rootMargin:'-10% 0px -80% 0px'});
+document.querySelectorAll('h2[id],h3[id]').forEach(h=>obs.observe(h));
+</script>
