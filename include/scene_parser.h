@@ -71,6 +71,9 @@ namespace Caramel{
         // segment-slice (see create_curve); appended to out, like parse_instanced_shapes.
         void parse_curve_shapes(const Json &shape_json, std::vector<Shape*> &out) const;
 
+        // Bulk curves from a binary file (int32 count + count*12 float32). See impl.
+        void parse_curve_file_shapes(const Json &shape_json, std::vector<Shape*> &out) const;
+
         Light* parse_light(const Json &light_json) const;
 
         // Other lights are handled in `parse_light()`

@@ -23,6 +23,7 @@
 //
 
 #include <fstream>
+#include <cstdint>
 
 #include <scene_parser.h>
 
@@ -155,6 +156,9 @@ namespace Caramel{
                 else if(type == "curve"){
                     parse_curve_shapes(ch, shapes);
                 }
+                else if(type == "curvefile"){
+                    parse_curve_file_shapes(ch, shapes);
+                }
                 else{
                     shapes.emplace_back(parse_shape(ch));
                 }
@@ -254,6 +258,45 @@ namespace Caramel{
 
         BSDF *bsdf = parse_bsdf(shape_json);
         create_curve(std::move(P), degree, bspline, type, w0, w1, normals, split_depth, bsdf, out);
+    }
+
+    // Bulk curves from a binary file: int32 count, then count * 12 float32 (4 control points each).
+    // All curves share the entry's width/type/bsdf. Used for huge sets (e.g. bunny-fur's 1.5M curves)
+    // where one JSON object per curve would be impractically large and slow to parse.
+    void SceneParser::parse_curve_file_shapes(const SceneParser::Json &shape_json, std::vector<Shape*> &out) const {
+        const std::string path = parse_string(shape_json, "path");
+        std::ifstream f(path, std::ios::binary);
+        if(!f){ CRM_ERROR("curvefile does not exist : " + path); }
+        std::int32_t n = 0;
+        f.read(reinterpret_cast<char*>(&n), sizeof(n));
+        if(n <= 0){ CRM_ERROR("curvefile has no curves : " + path); }
+
+        CurveType type = CurveType::Flat;
+        if(shape_json.contains("curve_type")){
+            const std::string s = parse_string(shape_json, "curve_type");
+            if(s == "cylinder")    type = CurveType::Cylinder;
+            else if(s == "ribbon") type = CurveType::Ribbon;
+            else if(s != "flat")   CRM_ERROR("curvefile 'curve_type' must be flat, cylinder or ribbon");
+        }
+        Float w0, w1;
+        if(shape_json.contains("width0") || shape_json.contains("width1")){ w0 = parse_float(shape_json, "width0"); w1 = parse_float(shape_json, "width1"); }
+        else if(shape_json.contains("width")){ w0 = w1 = parse_float(shape_json, "width"); }
+        else { w0 = w1 = Float1; }
+        const int split_depth = shape_json.contains("splitdepth") ? static_cast<int>(parse_nonnegative_int(shape_json, "splitdepth")) : 0;
+        const Matrix44f to_world = shape_json.contains("to_world") ? parse_matrix44f(shape_json, "to_world") : Matrix44f::identity();
+        BSDF *bsdf = parse_bsdf(shape_json);
+
+        out.reserve(out.size() + static_cast<std::size_t>(n) * (static_cast<std::size_t>(1) << split_depth));
+        float buf[12];
+        for(std::int32_t c = 0; c < n; ++c){
+            f.read(reinterpret_cast<char*>(buf), sizeof(buf));
+            std::vector<Vector3f> P = {
+                transform_point(Vector3f{buf[0], buf[1], buf[2]}, to_world),
+                transform_point(Vector3f{buf[3], buf[4], buf[5]}, to_world),
+                transform_point(Vector3f{buf[6], buf[7], buf[8]}, to_world),
+                transform_point(Vector3f{buf[9], buf[10], buf[11]}, to_world)};
+            create_curve(std::move(P), 3, false, type, w0, w1, {}, split_depth, bsdf, out);
+        }
     }
 
     std::vector<Light*> SceneParser::parse_lights() const{
