@@ -24,6 +24,7 @@
 
 #include <fstream>
 #include <cstdint>
+#include <array>
 
 #include <scene_parser.h>
 
@@ -286,17 +287,22 @@ namespace Caramel{
         const Matrix44f to_world = shape_json.contains("to_world") ? parse_matrix44f(shape_json, "to_world") : Matrix44f::identity();
         BSDF *bsdf = parse_bsdf(shape_json);
 
-        out.reserve(out.size() + static_cast<std::size_t>(n) * (static_cast<std::size_t>(1) << split_depth));
+        if(type == CurveType::Ribbon){ CRM_ERROR("curvefile does not support ribbon (no per-curve normals); use flat or cylinder"); }
+
+        // All curves -> ONE CurveMesh (single TLAS leaf + its own inner BVH), like TriangleMesh.
+        std::vector<CurveCommon> commons;
+        commons.reserve(static_cast<std::size_t>(n));
         float buf[12];
         for(std::int32_t c = 0; c < n; ++c){
             f.read(reinterpret_cast<char*>(buf), sizeof(buf));
-            std::vector<Vector3f> P = {
+            const std::array<Vector3f, 4> cp = {
                 transform_point(Vector3f{buf[0], buf[1], buf[2]}, to_world),
                 transform_point(Vector3f{buf[3], buf[4], buf[5]}, to_world),
                 transform_point(Vector3f{buf[6], buf[7], buf[8]}, to_world),
                 transform_point(Vector3f{buf[9], buf[10], buf[11]}, to_world)};
-            create_curve(std::move(P), 3, false, type, w0, w1, {}, split_depth, bsdf, out);
+            commons.emplace_back(cp, w0, w1, type, nullptr);
         }
+        out.push_back(new CurveMesh(std::move(commons), split_depth, bsdf));
     }
 
     std::vector<Light*> SceneParser::parse_lights() const{

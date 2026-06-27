@@ -45,6 +45,8 @@ namespace Caramel{
     class Distrib1D;
     struct MeshAccel;
     struct Coordinate;
+    template<typename> class BVHTree;
+    struct CurveMeshTraits;
 
     class Shape{
     public:
@@ -262,6 +264,37 @@ namespace Caramel{
     void create_curve(std::vector<Vector3f> P, int degree, bool bspline, CurveType type,
                       Float width0, Float width1, const std::vector<Vector3f> &normals,
                       int split_depth, BSDF *bsdf, std::vector<Shape*> &out);
+
+    // Many curves under ONE Shape with its own inner BVH (like TriangleMesh for triangles):
+    // a single TLAS leaf instead of one per curve. The natural unit for fur/hair at scale.
+    class CurveMesh final : public Shape {
+    public:
+        CurveMesh(std::vector<CurveCommon> commons, int split_depth, BSDF *bsdf);
+        ~CurveMesh() override;
+
+        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const override;
+        AABB get_aabb() const override;
+        Float get_area() const override;
+        std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;
+        Float pdf_solidangle(const Vector3f &, const Vector3f &, const Vector3f &) const override;
+        bool is_solid_angle_sampling_possible() const override { return false; }
+        const std::vector<Vector3f>& get_polygon_vertices() const override;
+
+        // accessors for the inner BVH (CurveMeshTraits)
+        Index slice_num() const;
+        AABB slice_aabb(Index i) const;
+        Vector3f slice_center(Index i) const;
+        std::pair<bool, RayIntersectInfo> slice_intersect(Index i, const Ray &ray, Float maxt) const;
+
+    private:
+        struct Slice { Index common_idx; Float u_min, u_max; };
+        std::vector<CurveCommon> m_commons;     // one per drawn curve segment
+        std::vector<Slice> m_slices;            // 2^splitdepth per segment; inner BVH primitives
+        std::vector<AABB> m_slice_aabb;
+        std::vector<Vector3f> m_slice_center;
+        AABB m_aabb;
+        std::unique_ptr<BVHTree<CurveMeshTraits>> m_bvh;
+    };
 
     // u, v, t
     std::tuple<Float, Float, Float> moller_trumbore(const Ray &ray, const Vector3f &p0, const Vector3f &p1, const Vector3f &p2, Float maxt);

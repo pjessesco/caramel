@@ -264,8 +264,24 @@ namespace Caramel{
         return mesh.get_triangle_ray_intersect(i, ray, maxt);
     }
 
+    CurveMeshTraits::CurveMeshTraits(const CurveMesh &m) : mesh(m) {}
+
+    AABB CurveMeshTraits::get_aabb(Index i) const {
+        return mesh.slice_aabb(i);
+    }
+
+    Vector3f CurveMeshTraits::get_center(Index i) const {
+        return mesh.slice_center(i);
+    }
+
+    std::pair<bool, RayIntersectInfo> CurveMeshTraits::ray_intersect(Index i, const Ray &ray, Float maxt) const {
+        return mesh.slice_intersect(i, ray, maxt);
+    }
+
     template struct BVHNode<BVHSceneTraits>;
     template struct BVHNode<BVHMeshTraits>;
+    template struct BVHNode<CurveMeshTraits>;
     template class BVHTree<BVHSceneTraits>;
     template class BVHTree<BVHMeshTraits>;
+    template class BVHTree<CurveMeshTraits>;
 }
