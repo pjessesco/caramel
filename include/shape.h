@@ -27,6 +27,8 @@
 #include <vector>
 #include <tuple>
 #include <filesystem>
+#include <memory>
+#include <array>
 
 #include <aabb.h>
 #include <common.h>
@@ -42,6 +44,7 @@ namespace Caramel{
     class Sampler;
     class Distrib1D;
     struct MeshAccel;
+    struct Coordinate;
 
     class Shape{
     public:
@@ -214,6 +217,51 @@ namespace Caramel{
         Distrib1D m_world_triangle_pdf;
         std::vector<Vector3f> m_world_polygon_vertices;
     };
+
+    // Curve: a cubic Bezier centerline swept into a ribbon of given width.
+    //   Flat     - ribbon billboards toward the ray (cheapest; distant hair/fur, ground cover)
+    //   Cylinder - flat geometry, shading normal twisted across width to fake a round tube (near hair)
+    //   Ribbon   - genuinely oriented strip, endpoint normals slerped along u (leaves/grass)
+    enum class CurveType { Flat, Cylinder, Ribbon };
+
+    // Per-(drawn-curve-segment) data shared by the 2^splitdepth Curve slices that cover it.
+    struct CurveCommon {
+        CurveCommon(const std::array<Vector3f, 4> &cp, Float w0, Float w1, CurveType type, const Vector3f *n);
+
+        CurveType m_type;
+        std::array<Vector3f, 4> m_cp;   // 4 cubic Bezier control points (world space)
+        Float m_width[2];               // width at u=0 and u=1 (linear taper)
+        Vector3f m_n[2];                // Ribbon endpoint normals
+        Float m_normal_angle = Float0;
+        Float m_inv_sin_normal_angle = Float0;
+    };
+
+    class Curve final : public Shape {
+    public:
+        // One Curve == one cubic Bezier segment restricted to [u_min, u_max]; arealight is always nullptr.
+        Curve(std::shared_ptr<const CurveCommon> common, Float u_min, Float u_max, BSDF *bsdf);
+
+        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const override;
+        AABB get_aabb() const override;
+        Float get_area() const override;
+        std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;
+        Float pdf_solidangle(const Vector3f &, const Vector3f &, const Vector3f &) const override;
+        bool is_solid_angle_sampling_possible() const override { return false; }
+        const std::vector<Vector3f>& get_polygon_vertices() const override;
+
+    private:
+        bool recursive_intersect(const Ray &ray, Float maxt, const std::array<Vector3f, 4> &cp,
+                                 const Coordinate &ray_frame, Float u0, Float u1, int depth,
+                                 RayIntersectInfo &best) const;
+
+        std::shared_ptr<const CurveCommon> m_common;
+        Float m_u_min, m_u_max;
+    };
+
+    // Expands one logical curve into per-segment Curve shapes (basis->cubic-Bezier, then 2^splitdepth slices).
+    void create_curve(std::vector<Vector3f> P, int degree, bool bspline, CurveType type,
+                      Float width0, Float width1, const std::vector<Vector3f> &normals,
+                      int split_depth, BSDF *bsdf, std::vector<Shape*> &out);
 
     // u, v, t
     std::tuple<Float, Float, Float> moller_trumbore(const Ray &ray, const Vector3f &p0, const Vector3f &p1, const Vector3f &p2, Float maxt);

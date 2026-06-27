@@ -1858,3 +1858,42 @@ TEST_CASE("instanced area-light get_area is exact under non-uniform scale", "[Un
     CHECK(is_approx(inst.get_area(), 10.0f));
 }
 
+TEST_CASE("Curve flat cubic bezier: intersect, width, miss", "[UnitTest]") {
+    // Straight-ish cubic Bezier along x through the origin, constant width 0.2 (radius 0.1).
+    std::array<Vector3f, 4> cp = { Vector3f{-1.f, 0.f, 0.f}, Vector3f{-0.333f, 0.f, 0.f},
+                                   Vector3f{0.333f, 0.f, 0.f}, Vector3f{1.f, 0.f, 0.f} };
+    auto common = std::make_shared<const CurveCommon>(cp, 0.2f, 0.2f, CurveType::Flat, nullptr);
+    Curve curve(common, 0.f, 1.f, nullptr);
+
+    Ray center = RayTestHelper::create({0.f, 0.f, 5.f}, {0.f, 0.f, -1.f});
+    auto [hit_c, info_c] = curve.ray_intersect(center, INF);
+    CHECK(hit_c);
+    CHECK(is_approx(info_c.t, 5.0f));
+    CHECK(std::abs(info_c.p[0]) < 1e-2f);
+    CHECK(std::abs(info_c.p[1]) < 1e-2f);
+    CHECK(std::abs(info_c.p[2]) < 1e-2f);
+
+    Ray near = RayTestHelper::create({0.f, 0.08f, 5.f}, {0.f, 0.f, -1.f});   // within half-width
+    CHECK(curve.ray_intersect(near, INF).first);
+
+    Ray far = RayTestHelper::create({0.f, 0.5f, 5.f}, {0.f, 0.f, -1.f});     // beyond half-width
+    CHECK(!curve.ray_intersect(far, INF).first);
+}
+
+TEST_CASE("Curve cylinder/ribbon produce a ray-facing normal", "[UnitTest]") {
+    std::array<Vector3f, 4> cp = { Vector3f{-1.f, 0.f, 0.f}, Vector3f{-0.333f, 0.f, 0.f},
+                                   Vector3f{0.333f, 0.f, 0.f}, Vector3f{1.f, 0.f, 0.f} };
+    Ray ray = RayTestHelper::create({0.f, 0.f, 5.f}, {0.f, 0.f, -1.f});
+
+    auto cyl = std::make_shared<const CurveCommon>(cp, 0.4f, 0.4f, CurveType::Cylinder, nullptr);
+    auto [hit_cy, info_cy] = Curve(cyl, 0.f, 1.f, nullptr).ray_intersect(ray, INF);
+    CHECK(hit_cy);
+    CHECK(info_cy.sh_coord.m_world_n.dot(ray.m_d) < 0.f);   // normal faces the ray
+
+    Vector3f N[2] = { Vector3f{0.f, 0.f, 1.f}, Vector3f{0.f, 0.f, 1.f} };
+    auto rib = std::make_shared<const CurveCommon>(cp, 0.4f, 0.4f, CurveType::Ribbon, N);
+    auto [hit_r, info_r] = Curve(rib, 0.f, 1.f, nullptr).ray_intersect(ray, INF);
+    CHECK(hit_r);
+    CHECK(info_r.sh_coord.m_world_n.dot(ray.m_d) < 0.f);
+}
+
