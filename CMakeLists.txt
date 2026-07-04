@@ -74,6 +74,7 @@ set(SOURCES
         src/shapes/shape.cpp
         src/shapes/triangle.cpp
         src/shapes/instance.cpp
+        src/shapes/curve.cpp
         src/scene_parser.cpp
         src/rayintersectinfo.cpp
         src/textures/image_texture.cpp

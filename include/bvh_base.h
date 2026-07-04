@@ -34,6 +34,7 @@ namespace Caramel{
 
     class Shape;
     class TriangleMesh;
+    class CurveMesh;
     class RayIntersectInfo;
     class Ray;
 
@@ -106,5 +107,17 @@ namespace Caramel{
         std::pair<bool, RayIntersectInfo> ray_intersect(Primitive p, const Ray &ray, Float maxt) const;
 
         const TriangleMesh &mesh;
+    };
+
+    // Traits for a CurveMesh's inner BVH (primitive = curve-slice index)
+    struct CurveMeshTraits {
+        using Primitive = Index;
+        explicit CurveMeshTraits(const CurveMesh &m);
+
+        AABB get_aabb(Primitive p) const;
+        Vector3f get_center(Primitive p) const;
+        std::pair<bool, RayIntersectInfo> ray_intersect(Primitive p, const Ray &ray, Float maxt) const;
+
+        const CurveMesh &mesh;
     };
 }

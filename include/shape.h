@@ -27,6 +27,8 @@
 #include <vector>
 #include <tuple>
 #include <filesystem>
+#include <memory>
+#include <array>
 
 #include <aabb.h>
 #include <common.h>
@@ -42,6 +44,9 @@ namespace Caramel{
     class Sampler;
     class Distrib1D;
     struct MeshAccel;
+    struct Coordinate;
+    template<typename> class BVHTree;
+    struct CurveMeshTraits;
 
     class Shape{
     public:
@@ -213,6 +218,82 @@ namespace Caramel{
         Float m_world_area = Float0;
         Distrib1D m_world_triangle_pdf;
         std::vector<Vector3f> m_world_polygon_vertices;
+    };
+
+    class Curve final : public Shape {
+    public:
+        // Curve: a cubic Bezier centerline swept into a ribbon of given width.
+        //   Flat     - ribbon billboards toward the ray (cheapest; distant hair/fur, ground cover)
+        //   Cylinder - flat geometry, shading normal twisted across width to fake a round tube (near hair)
+        //   Ribbon   - genuinely oriented strip, endpoint normals slerped along u (leaves/grass)
+        enum class Type { Flat, Cylinder, Ribbon };
+
+        // Per-(drawn-curve-segment) data shared by the 2^splitdepth Curve slices that cover it.
+        struct Common {
+            Common(const std::array<Vector3f, 4> &cp, Float w0, Float w1, Curve::Type type, const Vector3f *n);
+
+            Curve::Type m_type;
+            std::array<Vector3f, 4> m_cp;   // 4 cubic Bezier control points (world space)
+            Float m_width[2];               // width at u=0 and u=1 (linear taper)
+            Vector3f m_n[2];                // Ribbon endpoint normals
+            Float m_normal_angle = Float0;
+            Float m_inv_sin_normal_angle = Float0;
+        };
+
+        // One Curve == one cubic Bezier segment restricted to [u_min, u_max]; arealight is always nullptr.
+        Curve(std::shared_ptr<const Curve::Common> common, Float u_min, Float u_max, BSDF *bsdf);
+
+        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const override;
+        AABB get_aabb() const override;
+        Float get_area() const override;
+        std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;
+        Float pdf_solidangle(const Vector3f &, const Vector3f &, const Vector3f &) const override;
+        bool is_solid_angle_sampling_possible() const override { return false; }
+        const std::vector<Vector3f>& get_polygon_vertices() const override;
+
+    private:
+        bool recursive_intersect(const Ray &ray, Float maxt, const std::array<Vector3f, 4> &cp,
+                                 const Coordinate &ray_frame, Float u0, Float u1, int depth,
+                                 RayIntersectInfo &best) const;
+
+        std::shared_ptr<const Curve::Common> m_common;
+        Float m_u_min, m_u_max;
+    };
+
+    // Expands one logical curve into per-segment Curve shapes (basis->cubic-Bezier, then 2^splitdepth slices).
+    void create_curve(std::vector<Vector3f> P, int degree, bool bspline, Curve::Type type,
+                      Float width0, Float width1, const std::vector<Vector3f> &normals,
+                      int split_depth, BSDF *bsdf, std::vector<Shape*> &out);
+
+    // Many curves under ONE Shape with its own inner BVH (like TriangleMesh for triangles):
+    // a single TLAS leaf instead of one per curve. The natural unit for fur/hair at scale.
+    class CurveMesh final : public Shape {
+    public:
+        CurveMesh(std::vector<Curve::Common> commons, int split_depth, BSDF *bsdf);
+        ~CurveMesh() override;
+
+        std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const override;
+        AABB get_aabb() const override;
+        Float get_area() const override;
+        std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;
+        Float pdf_solidangle(const Vector3f &, const Vector3f &, const Vector3f &) const override;
+        bool is_solid_angle_sampling_possible() const override { return false; }
+        const std::vector<Vector3f>& get_polygon_vertices() const override;
+
+        // accessors for the inner BVH (CurveMeshTraits)
+        Index slice_num() const;
+        AABB slice_aabb(Index i) const;
+        Vector3f slice_center(Index i) const;
+        std::pair<bool, RayIntersectInfo> slice_intersect(Index i, const Ray &ray, Float maxt) const;
+
+    private:
+        struct Slice { Index common_idx; Float u_min, u_max; };
+        std::vector<Curve::Common> m_commons;     // one per drawn curve segment
+        std::vector<Slice> m_slices;            // 2^splitdepth per segment; inner BVH primitives
+        std::vector<AABB> m_slice_aabb;
+        std::vector<Vector3f> m_slice_center;
+        AABB m_aabb;
+        std::unique_ptr<BVHTree<CurveMeshTraits>> m_bvh;
     };
 
     // u, v, t

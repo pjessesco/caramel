@@ -23,6 +23,8 @@
 //
 
 #include <fstream>
+#include <cstdint>
+#include <array>
 
 #include <scene_parser.h>
 
@@ -148,8 +150,15 @@ namespace Caramel{
         const Json child = get_unique_first_elem(m_scene_json, "shape");
         if(child.is_array()){
             for(const auto &ch : child){
-                if(parse_string(ch, "type") == "instance"){
+                const std::string type = parse_string(ch, "type");
+                if(type == "instance"){
                     parse_instanced_shapes(ch, shapes);
+                }
+                else if(type == "curve"){
+                    parse_curve_shapes(ch, shapes);
+                }
+                else if(type == "curvefile"){
+                    parse_curve_file_shapes(ch, shapes);
                 }
                 else{
                     shapes.emplace_back(parse_shape(ch));
@@ -202,6 +211,98 @@ namespace Caramel{
                 out.emplace_back(Shape::Create<Instance>(geometries[i], to_world, bsdfs[i], al));
             }
         }
+    }
+
+    void SceneParser::parse_curve_shapes(const SceneParser::Json &shape_json, std::vector<Shape*> &out) const {
+        const Json Pj = get_unique_first_elem(shape_json, "P");
+        if(!Pj.is_array() || Pj.size() % 3 != 0 || Pj.size() < 12){
+            CRM_ERROR("curve 'P' must be a flat array of 3*N floats with N >= 4");
+        }
+        const Matrix44f to_world = shape_json.contains("to_world")
+            ? parse_matrix44f(shape_json, "to_world") : Matrix44f::identity();
+
+        std::vector<Vector3f> P;
+        for(std::size_t i = 0; i + 2 < Pj.size(); i += 3){
+            P.push_back(transform_point(Vector3f{static_cast<Float>(Pj[i]), static_cast<Float>(Pj[i+1]), static_cast<Float>(Pj[i+2])}, to_world));
+        }
+
+        const int degree = shape_json.contains("degree") ? static_cast<int>(parse_positive_int(shape_json, "degree")) : 3;
+        if(degree != 2 && degree != 3){ CRM_ERROR("curve 'degree' must be 2 or 3"); }
+        const bool bspline = shape_json.contains("basis") && parse_string(shape_json, "basis") == "bspline";
+
+        Curve::Type type = Curve::Type::Flat;
+        if(shape_json.contains("curve_type")){
+            const std::string s = parse_string(shape_json, "curve_type");
+            if(s == "cylinder")      type = Curve::Type::Cylinder;
+            else if(s == "ribbon")   type = Curve::Type::Ribbon;
+            else if(s != "flat")     CRM_ERROR("curve 'curve_type' must be flat, cylinder or ribbon");
+        }
+
+        Float w0, w1;
+        if(shape_json.contains("width0") || shape_json.contains("width1")){
+            w0 = parse_float(shape_json, "width0");
+            w1 = parse_float(shape_json, "width1");
+        }
+        else if(shape_json.contains("width")){ w0 = w1 = parse_float(shape_json, "width"); }
+        else { w0 = w1 = Float1; }
+
+        std::vector<Vector3f> normals;
+        if(shape_json.contains("N")){
+            const Json Nj = get_unique_first_elem(shape_json, "N");
+            if(!Nj.is_array() || Nj.size() % 3 != 0){ CRM_ERROR("curve 'N' must be a flat array of 3*M floats"); }
+            for(std::size_t i = 0; i + 2 < Nj.size(); i += 3){
+                normals.push_back(transform_normal(Vector3f{static_cast<Float>(Nj[i]), static_cast<Float>(Nj[i+1]), static_cast<Float>(Nj[i+2])}, to_world));
+            }
+        }
+
+        const int split_depth = shape_json.contains("splitdepth") ? static_cast<int>(parse_nonnegative_int(shape_json, "splitdepth")) : 2;
+
+        BSDF *bsdf = parse_bsdf(shape_json);
+        create_curve(std::move(P), degree, bspline, type, w0, w1, normals, split_depth, bsdf, out);
+    }
+
+    // Bulk curves from a binary file: int32 count, then count * 12 float32 (4 control points each).
+    // All curves share the entry's width/type/bsdf. Used for huge sets (e.g. bunny-fur's 1.5M curves)
+    // where one JSON object per curve would be impractically large and slow to parse.
+    void SceneParser::parse_curve_file_shapes(const SceneParser::Json &shape_json, std::vector<Shape*> &out) const {
+        const std::string path = parse_string(shape_json, "path");
+        std::ifstream f(path, std::ios::binary);
+        if(!f){ CRM_ERROR("curvefile does not exist : " + path); }
+        std::int32_t n = 0;
+        f.read(reinterpret_cast<char*>(&n), sizeof(n));
+        if(n <= 0){ CRM_ERROR("curvefile has no curves : " + path); }
+
+        Curve::Type type = Curve::Type::Flat;
+        if(shape_json.contains("curve_type")){
+            const std::string s = parse_string(shape_json, "curve_type");
+            if(s == "cylinder")    type = Curve::Type::Cylinder;
+            else if(s == "ribbon") type = Curve::Type::Ribbon;
+            else if(s != "flat")   CRM_ERROR("curvefile 'curve_type' must be flat, cylinder or ribbon");
+        }
+        Float w0, w1;
+        if(shape_json.contains("width0") || shape_json.contains("width1")){ w0 = parse_float(shape_json, "width0"); w1 = parse_float(shape_json, "width1"); }
+        else if(shape_json.contains("width")){ w0 = w1 = parse_float(shape_json, "width"); }
+        else { w0 = w1 = Float1; }
+        const int split_depth = shape_json.contains("splitdepth") ? static_cast<int>(parse_nonnegative_int(shape_json, "splitdepth")) : 0;
+        const Matrix44f to_world = shape_json.contains("to_world") ? parse_matrix44f(shape_json, "to_world") : Matrix44f::identity();
+        BSDF *bsdf = parse_bsdf(shape_json);
+
+        if(type == Curve::Type::Ribbon){ CRM_ERROR("curvefile does not support ribbon (no per-curve normals); use flat or cylinder"); }
+
+        // All curves -> ONE CurveMesh (single TLAS leaf + its own inner BVH), like TriangleMesh.
+        std::vector<Curve::Common> commons;
+        commons.reserve(static_cast<std::size_t>(n));
+        float buf[12];
+        for(std::int32_t c = 0; c < n; ++c){
+            f.read(reinterpret_cast<char*>(buf), sizeof(buf));
+            const std::array<Vector3f, 4> cp = {
+                transform_point(Vector3f{buf[0], buf[1], buf[2]}, to_world),
+                transform_point(Vector3f{buf[3], buf[4], buf[5]}, to_world),
+                transform_point(Vector3f{buf[6], buf[7], buf[8]}, to_world),
+                transform_point(Vector3f{buf[9], buf[10], buf[11]}, to_world)};
+            commons.emplace_back(cp, w0, w1, type, nullptr);
+        }
+        out.push_back(new CurveMesh(std::move(commons), split_depth, bsdf));
     }
 
     std::vector<Light*> SceneParser::parse_lights() const{
