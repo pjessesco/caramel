@@ -50,8 +50,10 @@ TEST_CASE("test1 render test", "[RenderTest]") {
         rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test1_rendered.exr").string());
     }
 
-    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.002));
-    CHECK(Catch::Approx(0.998) <= avg(rendered)/avg(ref));
+    Image diff_image(1, 1);
+    const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
+
+    CHECK(flip_error_value <= Catch::Approx(0.004));
 }
 
 TEST_CASE("test2 render test", "[RenderTest]") {
@@ -64,10 +66,10 @@ TEST_CASE("test2 render test", "[RenderTest]") {
         rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test2_rendered.exr").string());
     }
 
+    Image diff_image(1, 1);
+    const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
 
-
-    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0011));
-    CHECK(Catch::Approx(0.9989) <= avg(rendered)/avg(ref));
+    CHECK(flip_error_value <= Catch::Approx(0.004));
 }
 
 TEST_CASE("test3 render test", "[RenderTest]") {
@@ -80,8 +82,10 @@ TEST_CASE("test3 render test", "[RenderTest]") {
         rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test3_rendered.exr").string());
     }
 
-    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0008));
-    CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
+    Image diff_image(1, 1);
+    const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
+
+    CHECK(flip_error_value <= Catch::Approx(0.054));
 }
 
 TEST_CASE("test4 render test", "[RenderTest]") {
@@ -94,8 +98,10 @@ TEST_CASE("test4 render test", "[RenderTest]") {
         rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test4_rendered.exr").string());
     }
 
-    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0008));
-    CHECK(Catch::Approx(0.9992) <= avg(rendered)/avg(ref));
+    Image diff_image(1, 1);
+    const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
+
+    CHECK(flip_error_value <= Catch::Approx(0.221));
 }
 
 TEST_CASE("test5 render test", "[RenderTest]") {
@@ -109,8 +115,10 @@ TEST_CASE("test5 render test", "[RenderTest]") {
             rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_conductor_rendered.exr").string());
         }
 
-        CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
-        CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
+        Image diff_image(1, 1);
+        const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
+
+        CHECK(flip_error_value <= Catch::Approx(0.058));
     }
     SECTION("Dielectric"){
         std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_dielectric.json";
@@ -122,8 +130,10 @@ TEST_CASE("test5 render test", "[RenderTest]") {
             rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_dielectric_rendered.exr").string());
         }
 
-        CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0017));
-        CHECK(Catch::Approx(0.9983) <= avg(rendered)/avg(ref));
+        Image diff_image(1, 1);
+        const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
+
+        CHECK(flip_error_value <= Catch::Approx(0.247));
     }
     SECTION("Diffuse"){
         std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_diffuse.json";
@@ -135,8 +145,10 @@ TEST_CASE("test5 render test", "[RenderTest]") {
             rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_diffuse_rendered.exr").string());
         }
 
-        CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
-        CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
+        Image diff_image(1, 1);
+        const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
+
+        CHECK(flip_error_value <= Catch::Approx(0.046));
     }
     SECTION("Mirror"){
         std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_mirror.json";
@@ -148,8 +160,31 @@ TEST_CASE("test5 render test", "[RenderTest]") {
             rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_mirror_rendered.exr").string());
         }
 
-        CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
-        CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
+        Image diff_image(1, 1);
+        const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
+
+        CHECK(flip_error_value <= Catch::Approx(0.058));
+    }
+    SECTION("Microfacet"){
+        std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_microfacet.json";
+        Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_scene_microfacet.exr");
+        auto [_s, _i] = build_scene(scene_path);
+        Image rendered = render(_s, _i);
+        CHECK(flip_error(ref, rendered) <= Catch::Approx(0.053));
+    }
+    SECTION("OrenNayar"){
+        std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_orennayar.json";
+        Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_scene_orennayar.exr");
+        auto [_s, _i] = build_scene(scene_path);
+        Image rendered = render(_s, _i);
+        CHECK(flip_error(ref, rendered) <= Catch::Approx(0.047));
+    }
+    SECTION("TwoSided"){
+        std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/test5/scene_twosided.json";
+        Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_scene_twosided.exr");
+        auto [_s, _i] = build_scene(scene_path);
+        Image rendered = render(_s, _i);
+        CHECK(flip_error(ref, rendered) <= Catch::Approx(0.049));
     }
 }
 
@@ -163,8 +198,10 @@ TEST_CASE("test6 render test", "[RenderTest]") {
         rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test6_rendered.exr").string());
     }
 
-    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.0005));
-    CHECK(Catch::Approx(0.9995) <= avg(rendered)/avg(ref));
+    Image diff_image(1, 1);
+    const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
+
+    CHECK(flip_error_value <= Catch::Approx(0.035));
 }
 
 TEST_CASE("test7 render test", "[RenderTest]") {
@@ -177,6 +214,40 @@ TEST_CASE("test7 render test", "[RenderTest]") {
         rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test7_rendered.exr").string());
     }
 
-    CHECK(avg(rendered)/avg(ref) <= Catch::Approx(1.002));
-    CHECK(Catch::Approx(0.998) <= avg(rendered)/avg(ref));
+    Image diff_image(1, 1);
+    const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
+
+    CHECK(flip_error_value <= Catch::Approx(0.007));
+}
+
+TEST_CASE("furnace render test", "[RenderTest]") {
+    std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/furnace/scene.json";
+    Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/furnace/gt.exr");
+    auto [_s, _i] = build_scene(scene_path);
+    Image rendered = render(_s, _i);
+    CHECK(flip_error(ref, rendered) <= Catch::Approx(0.008));
+}
+
+TEST_CASE("thinlens render test", "[RenderTest]") {
+    std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/thinlens/scene.json";
+    Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/thinlens/gt.exr");
+    auto [_s, _i] = build_scene(scene_path);
+    Image rendered = render(_s, _i);
+    CHECK(flip_error(ref, rendered) <= Catch::Approx(0.038));
+}
+
+TEST_CASE("texture render test", "[RenderTest]") {
+    std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/texture/scene.json";
+    Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/texture/gt.exr");
+    auto [_s, _i] = build_scene(scene_path);
+    Image rendered = render(_s, _i);
+    CHECK(flip_error(ref, rendered) <= Catch::Approx(0.016));
+}
+
+TEST_CASE("ply render test", "[RenderTest]") {
+    std::string scene_path = std::string(TEST_SCENE_PATH) + "test_scenes/ply/scene.json";
+    Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/ply/gt.exr");
+    auto [_s, _i] = build_scene(scene_path);
+    Image rendered = render(_s, _i);
+    CHECK(flip_error(ref, rendered) <= Catch::Approx(0.041));
 }
