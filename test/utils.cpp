@@ -34,44 +34,9 @@
 #include <image.h>
 #include <integrators.h>
 #include <camera.h>
+#include <FLIP.h>
 
 namespace Caramel {
-    
-    // abs
-    Image diff(const Image &img1, const Image &img2){
-        if((img1.size()[0] != img2.size()[0]) || (img1.size()[1] != img2.size()[1])){
-            CRM_ERROR("size diff");
-        }
-
-        const Index w = img1.size()[0];
-        const Index h = img1.size()[1];
-        Image img(w, h);
-
-        for(int i=0;i<w;i++){
-            for(int j=0;j<h;j++){
-                const Vector3f val1 = img1.get_pixel_value(i, j);
-                const Vector3f val2 = img2.get_pixel_value(i, j);
-                const Vector3f diff = val1 - val2;
-                img.set_pixel_value(i, j, abs(diff[0]), abs(diff[1]), abs(diff[2]));
-            }
-        }
-        return img;
-    }
-
-    Image square(const Image &img){
-        const Index w = img.size()[0];
-        const Index h = img.size()[1];
-        Image sq_img(w, h);
-
-        for(int i=0;i<w;i++){
-            for(int j=0;j<h;j++){
-                const Vector3f val = img.get_pixel_value(i, j);
-
-                sq_img.set_pixel_value(i, j, val[0]*val[0], val[1]*val[1], val[2]*val[2]);
-            }
-        }
-        return sq_img;
-    }
 
     Float avg(const Image &img){
         Float sum = Float0;
@@ -86,34 +51,52 @@ namespace Caramel {
         return sum / (w * h * 3);
     }
 
-    Float mse(const Image &img1, const Image &img2){
-        return avg(square(diff(img1, img2)));
-    }
-
-    // TODO : add test
-    Float rmse(const Image &img1, const Image &img2){
-        if((img1.size()[0] != img2.size()[0]) || (img1.size()[1] != img2.size()[1])){
+    Float flip_error(const Image &reference, const Image &test, bool useHDR, Image *diff_image_out) {
+        if ((reference.size()[0] != test.size()[0]) || (reference.size()[1] != test.size()[1])) {
             CRM_ERROR("size diff");
         }
 
-        const Index w = img1.size()[0];
-        const Index h = img1.size()[1];
+        const Index w = reference.size()[0];
+        const Index h = reference.size()[1];
 
-        Float sum = Float0;
-        constexpr Float epsilon = 1e-2;
+        std::vector<float> ref_buf(static_cast<size_t>(w) * h * 3);
+        std::vector<float> test_buf(static_cast<size_t>(w) * h * 3);
 
-        for(int i=0;i<w;i++){
-            for(int j=0;j<h;j++){
-                const Vector3f val1 = img1.get_pixel_value(i, j);
-                const Vector3f val2 = img2.get_pixel_value(i, j);
-                const Vector3f diff = val1 - val2;
-
-                sum += (diff[0]*diff[0]) / (val2[0]*val2[0] + epsilon);
-                sum += (diff[1]*diff[1]) / (val2[1]*val2[1] + epsilon);
-                sum += (diff[2]*diff[2]) / (val2[2]*val2[2] + epsilon);
+        for (int i = 0; i < w; i++) {
+            for (int j = 0; j < h; j++) {
+                const Vector3f ref_val = reference.get_pixel_value(i, j);
+                const Vector3f test_val = test.get_pixel_value(i, j);
+                const size_t idx = (static_cast<size_t>(j) * w + i) * 3;
+                ref_buf[idx + 0] = ref_val[0];
+                ref_buf[idx + 1] = ref_val[1];
+                ref_buf[idx + 2] = ref_val[2];
+                test_buf[idx + 0] = test_val[0];
+                test_buf[idx + 1] = test_val[1];
+                test_buf[idx + 2] = test_val[2];
             }
         }
-        return sum / (w * h * 3);
+
+        FLIP::Parameters params;
+        const bool want_diff_image = (diff_image_out != nullptr);
+        float mean_error = 0.0f;
+        float *error_map = nullptr;
+
+        FLIP::evaluate(ref_buf.data(), test_buf.data(), static_cast<int>(w), static_cast<int>(h),
+                       useHDR, params, want_diff_image, true, mean_error, &error_map);
+
+        if (want_diff_image) {
+            *diff_image_out = Image(w, h);
+            for (int i = 0; i < w; i++) {
+                for (int j = 0; j < h; j++) {
+                    const size_t idx = (static_cast<size_t>(j) * w + i) * 3;
+                    diff_image_out->set_pixel_value(i, j, error_map[idx + 0], error_map[idx + 1], error_map[idx + 2]);
+                }
+            }
+        }
+
+        delete[] error_map;
+
+        return static_cast<Float>(mean_error);
     }
 
 }
