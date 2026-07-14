@@ -45,14 +45,8 @@ TEST_CASE("test1 render test", "[RenderTest]") {
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test1/gt.exr");
     auto [_s, _i] = build_scene(scene_path);
     Image rendered = render(_s, _i);
-
-    if (SAVE_RENDERED_IMAGES) {
-        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test1_rendered.exr").string());
-    }
-
     Image diff_image(1, 1);
     const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
-
     CHECK(flip_error_value <= Catch::Approx(0.004));
 }
 
@@ -61,14 +55,8 @@ TEST_CASE("test2 render test", "[RenderTest]") {
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test2/gt.exr");
     auto [_s, _i] = build_scene(scene_path);
     Image rendered = render(_s, _i);
-
-    if (SAVE_RENDERED_IMAGES) {
-        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test2_rendered.exr").string());
-    }
-
     Image diff_image(1, 1);
     const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
-
     CHECK(flip_error_value <= Catch::Approx(0.004));
 }
 
@@ -77,14 +65,8 @@ TEST_CASE("test3 render test", "[RenderTest]") {
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test3/gt.exr");
     auto [_s, _i] = build_scene(scene_path);
     Image rendered = render(_s, _i);
-
-    if (SAVE_RENDERED_IMAGES) {
-        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test3_rendered.exr").string());
-    }
-
     Image diff_image(1, 1);
     const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
-
     CHECK(flip_error_value <= Catch::Approx(0.054));
 }
 
@@ -93,14 +75,8 @@ TEST_CASE("test4 render test", "[RenderTest]") {
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test4/gt.exr");
     auto [_s, _i] = build_scene(scene_path);
     Image rendered = render(_s, _i);
-
-    if (SAVE_RENDERED_IMAGES) {
-        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test4_rendered.exr").string());
-    }
-
     Image diff_image(1, 1);
     const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
-
     CHECK(flip_error_value <= Catch::Approx(0.221));
 }
 
@@ -110,14 +86,8 @@ TEST_CASE("test5 render test", "[RenderTest]") {
         Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_scene_conductor.exr");
         auto [_s, _i] = build_scene(scene_path);
         Image rendered = render(_s, _i);
-
-        if (SAVE_RENDERED_IMAGES) {
-            rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_conductor_rendered.exr").string());
-        }
-
         Image diff_image(1, 1);
         const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
-
         CHECK(flip_error_value <= Catch::Approx(0.058));
     }
     SECTION("Dielectric"){
@@ -125,14 +95,8 @@ TEST_CASE("test5 render test", "[RenderTest]") {
         Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_scene_dielectric.exr");
         auto [_s, _i] = build_scene(scene_path);
         Image rendered = render(_s, _i);
-
-        if (SAVE_RENDERED_IMAGES) {
-            rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_dielectric_rendered.exr").string());
-        }
-
         Image diff_image(1, 1);
         const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
-
         CHECK(flip_error_value <= Catch::Approx(0.247));
     }
     SECTION("Diffuse"){
@@ -140,14 +104,8 @@ TEST_CASE("test5 render test", "[RenderTest]") {
         Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_scene_diffuse.exr");
         auto [_s, _i] = build_scene(scene_path);
         Image rendered = render(_s, _i);
-
-        if (SAVE_RENDERED_IMAGES) {
-            rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_diffuse_rendered.exr").string());
-        }
-
         Image diff_image(1, 1);
         const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
-
         CHECK(flip_error_value <= Catch::Approx(0.046));
     }
     SECTION("Mirror"){
@@ -155,14 +113,8 @@ TEST_CASE("test5 render test", "[RenderTest]") {
         Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test5/gt_scene_mirror.exr");
         auto [_s, _i] = build_scene(scene_path);
         Image rendered = render(_s, _i);
-
-        if (SAVE_RENDERED_IMAGES) {
-            rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test5_mirror_rendered.exr").string());
-        }
-
         Image diff_image(1, 1);
         const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
-
         CHECK(flip_error_value <= Catch::Approx(0.058));
     }
     SECTION("Microfacet"){
@@ -193,14 +145,8 @@ TEST_CASE("test6 render test", "[RenderTest]") {
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test6/gt.exr");
     auto [_s, _i] = build_scene(scene_path);
     Image rendered = render(_s, _i);
-
-    if (SAVE_RENDERED_IMAGES) {
-        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test6_rendered.exr").string());
-    }
-
     Image diff_image(1, 1);
     const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
-
     CHECK(flip_error_value <= Catch::Approx(0.035));
 }
 
@@ -209,14 +155,8 @@ TEST_CASE("test7 render test", "[RenderTest]") {
     Image ref(std::string(TEST_SCENE_PATH) + "test_scenes/test7/gt.exr");
     auto [_s, _i] = build_scene(scene_path);
     Image rendered = render(_s, _i);
-
-    if (SAVE_RENDERED_IMAGES) {
-        rendered.write_exr((std::filesystem::path(scene_path).parent_path() / "test7_rendered.exr").string());
-    }
-
     Image diff_image(1, 1);
     const Float flip_error_value = flip_error(ref, rendered, true, &diff_image);
-
     CHECK(flip_error_value <= Catch::Approx(0.007));
 }
 
