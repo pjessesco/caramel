@@ -50,13 +50,8 @@ namespace Caramel {
 
     Image render_for_test(const std::filesystem::path &scene_path, Index w=0, Index h=0);
 
-    // img1 - img2
-    Image diff(const Image &img1, const Image &img2);
-    // img^2
-    Image square(const Image &img);
-    // Average pixel value
+    // Average pixel value (used by complex-scene avg-ratio tests)
     Float avg(const Image &img);
-    Float mse(const Image &img1, const Image &img2);
-    Float rmse(const Image &img1, const Image &img2);
 
+    Float flip_error(const Image &reference, const Image &test, bool useHDR = true, Image *diff_image_out = nullptr);
 }
