@@ -31,10 +31,17 @@
 #include <shape.h>
 
 namespace Caramel{
-    std::pair<bool, RayIntersectInfo> BVHSceneTraits::ray_intersect(const Shape *s, const Ray &ray, Float maxt) const {
+    std::optional<RayIntersectInfo> BVHSceneTraits::intersect(const Shape *s, const Ray &ray, Float maxt) const {
         auto [hit, info] = s->ray_intersect(ray, maxt);
-        if (hit) info.shape = s;
-        return {hit, info};
+        if (!hit) {
+            return std::nullopt;
+        }
+        info.shape = s;
+        return info;
+    }
+
+    RayIntersectInfo BVHSceneTraits::finalize(const RayIntersectInfo &hit, const Ray &) const {
+        return hit;
     }
 
 

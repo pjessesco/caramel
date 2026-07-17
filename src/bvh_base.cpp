@@ -188,8 +188,8 @@ namespace Caramel{
     template<typename Traits>
     std::pair<bool, RayIntersectInfo> BVHTree<Traits>::ray_intersect(const Ray &ray, Float maxt) const{
         bool is_hit = false;
-        RayIntersectInfo info;
-        info.t = maxt;
+        Hit best;
+        Float best_t = maxt;
 
         int to_visit_stack[64];
         int to_visit_offset = 0;
@@ -198,14 +198,15 @@ namespace Caramel{
         while (true) {
             const LinearBVHNode &node = m_nodes[current];
 
-            if (node.aabb.ray_intersect(ray, info.t).first) {
+            if (node.aabb.ray_intersect(ray, best_t).first) {
                 if (node.n_primitives > 0) {
                     // Leaf: test primitives
                     for (int i = 0; i < node.n_primitives; i++) {
-                        auto [hit, tmp_info] = m_traits.ray_intersect(m_ordered_primitives[node.offset + i], ray, info.t);
+                        std::optional<Hit> hit = m_traits.intersect(m_ordered_primitives[node.offset + i], ray, best_t);
                         if (hit) {
                             is_hit = true;
-                            info = tmp_info;
+                            best = *hit;
+                            best_t = hit->t;
                         }
                     }
                     if (to_visit_offset == 0) {
@@ -237,7 +238,10 @@ namespace Caramel{
             }
         }
 
-        return {is_hit, info};
+        if (!is_hit) {
+            return {false, RayIntersectInfo()};
+        }
+        return {true, m_traits.finalize(best, ray)};
     }
 
     // ---- Traits ----
@@ -260,8 +264,12 @@ namespace Caramel{
         return mesh.get_triangle_aabb(i).get_center();
     }
 
-    std::pair<bool, RayIntersectInfo> BVHMeshTraits::ray_intersect(Index i, const Ray &ray, Float maxt) const {
-        return mesh.get_triangle_ray_intersect(i, ray, maxt);
+    std::optional<TriHit> BVHMeshTraits::intersect(Index i, const Ray &ray, Float maxt) const {
+        return mesh.intersect_triangle(i, ray, maxt);
+    }
+
+    RayIntersectInfo BVHMeshTraits::finalize(const TriHit &hit, const Ray &) const {
+        return mesh.fill_intersect_info(hit.prim, hit.t, hit.u, hit.v);
     }
 
     template struct BVHNode<BVHSceneTraits>;

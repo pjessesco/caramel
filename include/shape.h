@@ -26,9 +26,11 @@
 
 #include <vector>
 #include <tuple>
+#include <optional>
 #include <filesystem>
 
 #include <aabb.h>
+#include <bvh_base.h>
 #include <common.h>
 #include <distribution.h>
 
@@ -138,6 +140,8 @@ namespace Caramel{
         const std::vector<Vector3f>& get_polygon_vertices() const override;
 
         Index get_triangle_num() const { return m_face_indices.size(); }
+        std::optional<TriHit> intersect_triangle(Index i, const Ray &ray, Float maxt) const;
+        RayIntersectInfo fill_intersect_info(Index i, Float t, Float u, Float v) const;
         std::pair<bool, RayIntersectInfo> get_triangle_ray_intersect(Index i, const Ray &ray, Float maxt) const;
         AABB get_triangle_aabb(Index i) const;
         Float get_triangle_area(Index i) const;

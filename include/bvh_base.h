@@ -26,9 +26,11 @@
 
 #include <vector>
 #include <memory>
+#include <optional>
 
 #include <common.h>
 #include <aabb.h>
+#include <rayintersectinfo.h>
 
 namespace Caramel{
 
@@ -36,6 +38,13 @@ namespace Caramel{
     class TriangleMesh;
     class RayIntersectInfo;
     class Ray;
+
+    struct TriHit {
+        Float t;
+        Float u;
+        Float v;
+        Index prim;
+    };
 
     struct LinearBVHNode {
         AABB aabb;
@@ -76,6 +85,7 @@ namespace Caramel{
     class BVHTree {
     public:
         using Primitive = typename Traits::Primitive;
+        using Hit = typename Traits::Hit;
 
         BVHTree(std::vector<Primitive> primitives, const Traits &traits,
                 Float cost_traversal, Float cost_intersection, int subspace_count, int max_primitive_num);
@@ -90,20 +100,24 @@ namespace Caramel{
     // Traits for scene-level BVH (Shape pointers)
     struct BVHSceneTraits {
         using Primitive = const Shape *;
+        using Hit = RayIntersectInfo;
 
         AABB get_aabb(Primitive p) const;
         Vector3f get_center(Primitive p) const;
-        std::pair<bool, RayIntersectInfo> ray_intersect(Primitive p, const Ray &ray, Float maxt) const;
+        std::optional<Hit> intersect(Primitive p, const Ray &ray, Float maxt) const;
+        RayIntersectInfo finalize(const Hit &hit, const Ray &ray) const;
     };
 
     // Traits for mesh-level BVH (triangle indices)
     struct BVHMeshTraits {
         using Primitive = Index;
+        using Hit = TriHit;
         explicit BVHMeshTraits(const TriangleMesh &m);
 
         AABB get_aabb(Primitive p) const;
         Vector3f get_center(Primitive p) const;
-        std::pair<bool, RayIntersectInfo> ray_intersect(Primitive p, const Ray &ray, Float maxt) const;
+        std::optional<Hit> intersect(Primitive p, const Ray &ray, Float maxt) const;
+        RayIntersectInfo finalize(const Hit &hit, const Ray &ray) const;
 
         const TriangleMesh &mesh;
     };

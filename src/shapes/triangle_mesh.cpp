@@ -234,7 +234,7 @@ namespace Caramel {
                 Float1 / get_triangle_area(i)};
     }
 
-    std::pair<bool, RayIntersectInfo> TriangleMesh::get_triangle_ray_intersect(Index i, const Ray &ray, Float maxt) const {
+    std::optional<TriHit> TriangleMesh::intersect_triangle(Index i, const Ray &ray, Float maxt) const {
         const Vector3i& idx = m_face_indices[i];
         const Vector3f &p0 = m_vertices[idx[0]];
         const Vector3f &p1 = m_vertices[idx[1]];
@@ -249,8 +249,17 @@ namespace Caramel {
 #endif
 
         if(u==-Float1 && v==-Float1 && t==-Float1){
-            return {false, RayIntersectInfo()};
+            return std::nullopt;
         }
+
+        return TriHit{t, u, v, i};
+    }
+
+    RayIntersectInfo TriangleMesh::fill_intersect_info(Index i, Float t, Float u, Float v) const {
+        const Vector3i& idx = m_face_indices[i];
+        const Vector3f &p0 = m_vertices[idx[0]];
+        const Vector3f &p1 = m_vertices[idx[1]];
+        const Vector3f &p2 = m_vertices[idx[2]];
 
         RayIntersectInfo ret;
         ret.t = t;
@@ -281,7 +290,15 @@ namespace Caramel {
         }
         ret.sh_coord = Coordinate(n);
 
-        return {true, ret};
+        return ret;
+    }
+
+    std::pair<bool, RayIntersectInfo> TriangleMesh::get_triangle_ray_intersect(Index i, const Ray &ray, Float maxt) const {
+        const std::optional<TriHit> hit = intersect_triangle(i, ray, maxt);
+        if (!hit) {
+            return {false, RayIntersectInfo()};
+        }
+        return {true, fill_intersect_info(hit->prim, hit->t, hit->u, hit->v)};
     }
 
     AABB TriangleMesh::get_triangle_aabb(Index i) const {
