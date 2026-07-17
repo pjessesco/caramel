@@ -78,24 +78,13 @@ namespace Caramel {
     // https://jcgt.org/published/0002/01/05/paper.pdf
     std::tuple<Float, Float, Float> watertight_intersection(const Ray &ray, const Vector3f &p0, const Vector3f &p1, const Vector3f &p2, Float maxt){
 
-        // Calculate dimension where the ray direction is maximal (using absolute values)
-        using std::abs;
-        const Index idx_z = abs(ray.m_d[0]) > abs(ray.m_d[1]) ?
-                            abs(ray.m_d[0]) > abs(ray.m_d[2]) ? 0 : 2 :
-                            abs(ray.m_d[1]) > abs(ray.m_d[2]) ? 1 : 2;
+        const Index idx_x = ray.m_shear_axis[0];
+        const Index idx_y = ray.m_shear_axis[1];
+        const Index idx_z = ray.m_shear_axis[2];
 
-        Index idx_x = idx_z == 2 ? 0 : idx_z + 1;
-        Index idx_y = idx_x == 2 ? 0 : idx_x + 1;
-
-        // Swap kx and ky dimension to preserve winding direction of triangles
-        if(ray.m_d[idx_z] < Float0){
-            std::swap(idx_x, idx_y);
-        }
-
-        // Calculate shear constants
-        const Float sx = ray.m_d[idx_x] / ray.m_d[idx_z];
-        const Float sy = ray.m_d[idx_y] / ray.m_d[idx_z];
-        const Float sz = Float1 / ray.m_d[idx_z];
+        const Float sx = ray.m_shear[0];
+        const Float sy = ray.m_shear[1];
+        const Float sz = ray.m_shear[2];
 
         // Calculate vertices relative to ray origin
         const Vector3f A = p0 - ray.m_o;

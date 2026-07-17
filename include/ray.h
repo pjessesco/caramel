@@ -24,6 +24,9 @@
 
 #pragma once
 
+#include <array>
+#include <utility>
+
 #include <common.h>
 
 namespace Caramel{
@@ -31,11 +34,25 @@ namespace Caramel{
     public:
         Ray(const Vector3f &o, const Vector3f &d) : m_o{o}, m_d{d.normalize()},
             m_d_recip{Float1/m_d[0], Float1/m_d[1], Float1/m_d[2]},
-            m_d_near_zero{Peanut::is_zero(m_d[0]), Peanut::is_zero(m_d[1]), Peanut::is_zero(m_d[2])} {}
+            m_d_near_zero{Peanut::is_zero(m_d[0]), Peanut::is_zero(m_d[1]), Peanut::is_zero(m_d[2])} {
+            using std::abs;
+            const Index idx_z = abs(m_d[0]) > abs(m_d[1]) ?
+                                abs(m_d[0]) > abs(m_d[2]) ? 0 : 2 :
+                                abs(m_d[1]) > abs(m_d[2]) ? 1 : 2;
+            Index idx_x = idx_z == 2 ? 0 : idx_z + 1;
+            Index idx_y = idx_x == 2 ? 0 : idx_x + 1;
+            if(m_d[idx_z] < Float0){
+                std::swap(idx_x, idx_y);
+            }
+            m_shear_axis = {idx_x, idx_y, idx_z};
+            m_shear = Vector3f{m_d[idx_x] / m_d[idx_z], m_d[idx_y] / m_d[idx_z], Float1 / m_d[idx_z]};
+        }
 
         Vector3f m_o;
         Vector3f m_d;
         Vector3f m_d_recip;
         bool m_d_near_zero[3];
+        std::array<Index, 3> m_shear_axis;
+        Vector3f m_shear;
     };
 }
