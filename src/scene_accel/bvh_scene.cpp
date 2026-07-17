@@ -44,6 +44,10 @@ namespace Caramel{
         return hit;
     }
 
+    bool BVHSceneTraits::occluded(const Shape *s, const Ray &ray, Float maxt) const {
+        return s->ray_occluded(ray, maxt);
+    }
+
 
     void BVHScene::build(const std::vector<const Shape*> &shapes) {
         m_bvh_root = new BVHTree<BVHSceneTraits>(shapes, BVHSceneTraits{}, Float1, Float2, 12, 4);
@@ -51,6 +55,10 @@ namespace Caramel{
 
     std::pair<bool, RayIntersectInfo> BVHScene::ray_intersect(const Ray &ray, Float maxt) const {
         return m_bvh_root->ray_intersect(ray, maxt);
+    }
+
+    bool BVHScene::ray_occluded(const Ray &ray, Float maxt) const {
+        return m_bvh_root->ray_occluded(ray, maxt);
     }
 
 }// namespace Caramel

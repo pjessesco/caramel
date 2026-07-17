@@ -83,9 +83,7 @@ namespace Caramel{
         const Vector3f dir = vec3_1_to_2 / len;
         const Ray ray{pos1 + (dir * EPSILON), dir};
 
-        const auto [is_hit, info] = ray_intersect(ray, len);
-        using std::abs;
-        return !is_hit || abs(len - info.t) <= (EPSILON * static_cast<Float>(1.1));
+        return !m_accel->ray_occluded(ray, len - (EPSILON * static_cast<Float>(1.1)));
     }
 
     std::pair<const Light*, Float> Scene::sample_light(Sampler &sampler) const{

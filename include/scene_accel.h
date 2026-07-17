@@ -43,12 +43,14 @@ namespace Caramel{
     public:
         virtual void build(const std::vector<const Shape*> &shapes) = 0;
         virtual std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const = 0;
+        virtual bool ray_occluded(const Ray &ray, Float maxt) const = 0;
     };
 
     class BVHScene final : public SceneAccel {
     public:
         void build(const std::vector<const Shape*> &shapes) override;
         std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const override;
+        bool ray_occluded(const Ray &ray, Float maxt) const override;
 
     public:
         BVHTree<BVHSceneTraits> *m_bvh_root;

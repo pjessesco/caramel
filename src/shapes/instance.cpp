@@ -119,6 +119,13 @@ namespace Caramel{
         // integrator reads the BSDF carried by this Instance (gotcha 3 in the design doc).
     }
 
+    bool Instance::ray_occluded(const Ray &ray, Float maxt) const{
+        const Vector3f d_local = transform_vector(ray.m_d, m_to_local);
+        const Float k = d_local.length();
+        const Ray local{transform_point(ray.m_o, m_to_local), d_local};
+        return m_geometry->ray_occluded(local, maxt * k);
+    }
+
     AABB Instance::get_aabb() const{
         return m_world_aabb;
     }

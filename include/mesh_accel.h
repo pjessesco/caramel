@@ -49,6 +49,10 @@ namespace Caramel{
 
         // Trace ray
         virtual std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) = 0;
+        virtual bool ray_occluded(const Ray &ray, Float maxt) {
+            const auto [hit, info] = ray_intersect(ray, maxt);
+            return hit && info.t < maxt;
+        }
 
         const TriangleMesh &m_shape;
     };
@@ -98,6 +102,7 @@ namespace Caramel{
 
         void build() override;
         std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) override;
+        bool ray_occluded(const Ray &ray, Float maxt) override;
 
     private:
         BVHMeshTraits m_traits;

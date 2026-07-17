@@ -52,6 +52,10 @@ namespace Caramel{
 
         // u, v, t
         virtual std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const = 0;
+        virtual bool ray_occluded(const Ray &ray, Float maxt) const {
+            const auto [hit, info] = ray_intersect(ray, maxt);
+            return hit && info.t < maxt;
+        }
         virtual AABB get_aabb() const = 0;
         virtual Float get_area() const = 0;
         // point, normal, probability
@@ -131,6 +135,7 @@ namespace Caramel{
         ~TriangleMesh() override;
 
         std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const override;
+        bool ray_occluded(const Ray &ray, Float maxt) const override;
         AABB get_aabb() const override;
         Float get_area() const override;
         // point, normal, probability
@@ -199,6 +204,7 @@ namespace Caramel{
         Instance(const Shape *geometry, const Matrix44f &to_world, BSDF *bsdf, AreaLight *arealight = nullptr);
 
         std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const override;
+        bool ray_occluded(const Ray &ray, Float maxt) const override;
         AABB get_aabb() const override;
         Float get_area() const override;
         std::tuple<Vector3f, Vector3f, Float> sample_point(Sampler &sampler) const override;

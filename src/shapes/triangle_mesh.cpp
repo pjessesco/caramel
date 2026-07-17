@@ -172,6 +172,10 @@ namespace Caramel {
         return m_accel->ray_intersect(ray, maxt);
     }
 
+    bool TriangleMesh::ray_occluded(const Ray &ray, Float maxt) const {
+        return m_accel->ray_occluded(ray, maxt);
+    }
+
     AABB TriangleMesh::get_aabb() const {
         return m_aabb;
     }

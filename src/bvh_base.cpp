@@ -244,6 +244,46 @@ namespace Caramel{
         return {true, m_traits.finalize(best, ray)};
     }
 
+    template<typename Traits>
+    bool BVHTree<Traits>::ray_occluded(const Ray &ray, Float maxt) const{
+        int to_visit_stack[64];
+        int to_visit_offset = 0;
+        int current = 0;
+
+        while (true) {
+            const LinearBVHNode &node = m_nodes[current];
+
+            if (node.aabb.ray_intersect(ray, maxt).first) {
+                if (node.n_primitives > 0) {
+                    for (int i = 0; i < node.n_primitives; i++) {
+                        if (m_traits.occluded(m_ordered_primitives[node.offset + i], ray, maxt)) {
+                            return true;
+                        }
+                    }
+                    if (to_visit_offset == 0) {
+                        break;
+                    }
+                    to_visit_offset -= 1;
+                    current = to_visit_stack[to_visit_offset];
+                }
+                else {
+                    to_visit_stack[to_visit_offset] = node.offset;
+                    to_visit_offset += 1;
+                    current = current + 1;
+                }
+            }
+            else {
+                if (to_visit_offset == 0) {
+                    break;
+                }
+                to_visit_offset -= 1;
+                current = to_visit_stack[to_visit_offset];
+            }
+        }
+
+        return false;
+    }
+
     // ---- Traits ----
 
     AABB BVHSceneTraits::get_aabb(const Shape *s) const {
@@ -270,6 +310,11 @@ namespace Caramel{
 
     RayIntersectInfo BVHMeshTraits::finalize(const TriHit &hit, const Ray &) const {
         return mesh.fill_intersect_info(hit.prim, hit.t, hit.u, hit.v);
+    }
+
+    bool BVHMeshTraits::occluded(Index i, const Ray &ray, Float maxt) const {
+        const std::optional<TriHit> hit = mesh.intersect_triangle(i, ray, maxt);
+        return hit.has_value() && hit->t < maxt;
     }
 
     template struct BVHNode<BVHSceneTraits>;

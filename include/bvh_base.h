@@ -90,6 +90,7 @@ namespace Caramel{
         BVHTree(std::vector<Primitive> primitives, const Traits &traits,
                 Float cost_traversal, Float cost_intersection, int subspace_count, int max_primitive_num);
         std::pair<bool, RayIntersectInfo> ray_intersect(const Ray &ray, Float maxt) const;
+        bool ray_occluded(const Ray &ray, Float maxt) const;
 
     private:
         Traits m_traits;
@@ -106,6 +107,7 @@ namespace Caramel{
         Vector3f get_center(Primitive p) const;
         std::optional<Hit> intersect(Primitive p, const Ray &ray, Float maxt) const;
         RayIntersectInfo finalize(const Hit &hit, const Ray &ray) const;
+        bool occluded(Primitive p, const Ray &ray, Float maxt) const;
     };
 
     // Traits for mesh-level BVH (triangle indices)
@@ -118,6 +120,7 @@ namespace Caramel{
         Vector3f get_center(Primitive p) const;
         std::optional<Hit> intersect(Primitive p, const Ray &ray, Float maxt) const;
         RayIntersectInfo finalize(const Hit &hit, const Ray &ray) const;
+        bool occluded(Primitive p, const Ray &ray, Float maxt) const;
 
         const TriangleMesh &mesh;
     };

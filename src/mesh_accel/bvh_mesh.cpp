@@ -49,4 +49,8 @@ namespace Caramel{
         return m_root->ray_intersect(ray, maxt);
     }
 
+    bool BVHMesh::ray_occluded(const Ray &ray, Float maxt) {
+        return m_root->ray_occluded(ray, maxt);
+    }
+
 }
