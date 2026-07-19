@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-#include <scene_accel.h>
+#include <tlas.h>
 
 #include <bvh_base.h>
 #include <common.h>
@@ -31,7 +31,7 @@
 #include <shape.h>
 
 namespace Caramel{
-    std::optional<RayIntersectInfo> BVHSceneTraits::intersect(const Shape *s, const Ray &ray, Float maxt) const {
+    std::optional<RayIntersectInfo> BVHTLASTraits::intersect(const Shape *s, const Ray &ray, Float maxt) const {
         auto [hit, info] = s->ray_intersect(ray, maxt);
         if (!hit) {
             return std::nullopt;
@@ -40,17 +40,17 @@ namespace Caramel{
         return info;
     }
 
-    RayIntersectInfo BVHSceneTraits::finalize(const RayIntersectInfo &hit, const Ray &) const {
+    RayIntersectInfo BVHTLASTraits::finalize(const RayIntersectInfo &hit, const Ray &) const {
         return hit;
     }
 
-    bool BVHSceneTraits::occluded(const Shape *s, const Ray &ray, Float maxt) const {
+    bool BVHTLASTraits::occluded(const Shape *s, const Ray &ray, Float maxt) const {
         return s->ray_occluded(ray, maxt);
     }
 
 
     void BVHScene::build(const std::vector<const Shape*> &shapes) {
-        m_bvh_root = new BVHTree<BVHSceneTraits>(shapes, BVHSceneTraits{}, Float1, Float2, 12, 4);
+        m_bvh_root = new BVHTree<BVHTLASTraits>(shapes, BVHTLASTraits{}, Float1, Float2, 12, 4);
     }
 
     std::pair<bool, RayIntersectInfo> BVHScene::ray_intersect(const Ray &ray, Float maxt) const {

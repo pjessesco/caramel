@@ -35,7 +35,7 @@
 #include <rayintersectinfo.h>
 #include <sampler.h>
 #include <shape.h>
-#include <scene_accel.h>
+#include <tlas.h>
 
 namespace Caramel{
 
@@ -47,7 +47,7 @@ namespace Caramel{
     }
 
     std::pair<bool, RayIntersectInfo> Scene::ray_intersect(const Ray &ray, Float maxt) const{
-        return m_accel->ray_intersect(ray, maxt);
+        return m_tlas->ray_intersect(ray, maxt);
     }
 
     void Scene::add_mesh_and_arealight(const Shape *shape){
@@ -83,7 +83,7 @@ namespace Caramel{
         const Vector3f dir = vec3_1_to_2 / len;
         const Ray ray{pos1 + (dir * EPSILON), dir};
 
-        return !m_accel->ray_occluded(ray, len - (EPSILON * static_cast<Float>(1.1)));
+        return !m_tlas->ray_occluded(ray, len - (EPSILON * static_cast<Float>(1.1)));
     }
 
     std::pair<const Light*, Float> Scene::sample_light(Sampler &sampler) const{
@@ -95,9 +95,9 @@ namespace Caramel{
         return m_lights_pdf.pdf(m_light_idx_map.at(light));
     }
 
-    void Scene::build_accel() {
-        m_accel = new BVHScene();
-        m_accel->build(m_meshes);
+    void Scene::build_tlas() {
+        m_tlas = new BVHScene();
+        m_tlas->build(m_meshes);
     }
 
     void Scene::build_light_pdf() {

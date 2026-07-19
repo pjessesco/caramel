@@ -43,4 +43,11 @@ namespace Caramel{
         Vector2f tex_uv; // Texture coordinate
         Index tri_index; // Triangle index within mesh (used by TriangleMesh)
     };
+
+    struct SimpleRayIntersectInfo {
+        Float t; // Length of the ray from origin to hitpoint
+        Float u;
+        Float v;
+        Index tri_index;
+    };
 }

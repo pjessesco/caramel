@@ -286,39 +286,39 @@ namespace Caramel{
 
     // ---- Traits ----
 
-    AABB BVHSceneTraits::get_aabb(const Shape *s) const {
+    AABB BVHTLASTraits::get_aabb(const Shape *s) const {
         return s->get_aabb();
     }
 
-    Vector3f BVHSceneTraits::get_center(const Shape *s) const {
+    Vector3f BVHTLASTraits::get_center(const Shape *s) const {
         return s->get_center();
     }
 
-    BVHMeshTraits::BVHMeshTraits(const TriangleMesh &m) : mesh(m) {}
+    BVHBLASTraits::BVHBLASTraits(const TriangleMesh &m) : mesh(m) {}
 
-    AABB BVHMeshTraits::get_aabb(Index i) const {
+    AABB BVHBLASTraits::get_aabb(Index i) const {
         return mesh.get_triangle_aabb(i);
     }
 
-    Vector3f BVHMeshTraits::get_center(Index i) const {
+    Vector3f BVHBLASTraits::get_center(Index i) const {
         return mesh.get_triangle_aabb(i).get_center();
     }
 
-    std::optional<TriHit> BVHMeshTraits::intersect(Index i, const Ray &ray, Float maxt) const {
+    std::optional<SimpleRayIntersectInfo> BVHBLASTraits::intersect(Index i, const Ray &ray, Float maxt) const {
         return mesh.intersect_triangle(i, ray, maxt);
     }
 
-    RayIntersectInfo BVHMeshTraits::finalize(const TriHit &hit, const Ray &) const {
-        return mesh.fill_intersect_info(hit.prim, hit.t, hit.u, hit.v);
+    RayIntersectInfo BVHBLASTraits::finalize(const SimpleRayIntersectInfo &hit, const Ray &) const {
+        return mesh.fill_intersect_info(hit.tri_index, hit.t, hit.u, hit.v);
     }
 
-    bool BVHMeshTraits::occluded(Index i, const Ray &ray, Float maxt) const {
-        const std::optional<TriHit> hit = mesh.intersect_triangle(i, ray, maxt);
+    bool BVHBLASTraits::occluded(Index i, const Ray &ray, Float maxt) const {
+        const std::optional<SimpleRayIntersectInfo> hit = mesh.intersect_triangle(i, ray, maxt);
         return hit.has_value() && hit->t < maxt;
     }
 
-    template struct BVHNode<BVHSceneTraits>;
-    template struct BVHNode<BVHMeshTraits>;
-    template class BVHTree<BVHSceneTraits>;
-    template class BVHTree<BVHMeshTraits>;
+    template struct BVHNode<BVHTLASTraits>;
+    template struct BVHNode<BVHBLASTraits>;
+    template class BVHTree<BVHTLASTraits>;
+    template class BVHTree<BVHBLASTraits>;
 }

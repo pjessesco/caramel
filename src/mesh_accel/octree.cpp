@@ -24,7 +24,7 @@
 
 #include <vector>
 
-#include <mesh_accel.h>
+#include <blas.h>
 
 #include <aabb.h>
 #include <common.h>
@@ -37,9 +37,9 @@ namespace Caramel{
 
     // ================= Octree::Node implementation ====================
 
-    Octree::Node::Node(const AABB &aabb) : m_aabb{aabb} {}
+    OctreeBLAS::Node::Node(const AABB &aabb) : m_aabb{aabb} {}
 
-    void Octree::Node::construct_children(const TriangleMesh &shape){
+    void OctreeBLAS::Node::construct_children(const TriangleMesh &shape){
         const Vector3f &center = (m_aabb.m_max + m_aabb.m_min) * Float0_5;
 
         m_childs.reserve(8);
@@ -57,7 +57,7 @@ namespace Caramel{
             }
         }
 
-        std::erase_if(m_childs, [](const Octree::Node &node){return node.m_triangle_indices.empty();});
+        std::erase_if(m_childs, [](const OctreeBLAS::Node &node){return node.m_triangle_indices.empty();});
         m_triangle_indices.clear();
 
         // Shrink aabb as possible
@@ -70,7 +70,7 @@ namespace Caramel{
         }
     }
 
-    void Octree::Node::construct_children_recursively(const TriangleMesh &shape, int depth){
+    void OctreeBLAS::Node::construct_children_recursively(const TriangleMesh &shape, int depth){
         if(depth > MAX_DEPTH){
             return;
         }
@@ -91,7 +91,7 @@ namespace Caramel{
         }
     }
 
-    std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect_leaf(const Ray &ray, Float maxt, const TriangleMesh &shape) const{
+    std::pair<bool, RayIntersectInfo> OctreeBLAS::Node::ray_intersect_leaf(const Ray &ray, Float maxt, const TriangleMesh &shape) const{
         RayIntersectInfo info;
         info.t = maxt;
         bool is_hit = false;
@@ -105,7 +105,7 @@ namespace Caramel{
         return {is_hit, info};
     }
 
-    std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect_branch(const Ray &ray, Float maxt, const TriangleMesh &shape) const{
+    std::pair<bool, RayIntersectInfo> OctreeBLAS::Node::ray_intersect_branch(const Ray &ray, Float maxt, const TriangleMesh &shape) const{
         RayIntersectInfo info;
         info.t = maxt;
         bool is_hit = false;
@@ -137,7 +137,7 @@ namespace Caramel{
         return {is_hit, info};
     }
 
-    std::pair<bool, RayIntersectInfo> Octree::Node::ray_intersect(const Ray &ray, Float maxt, const TriangleMesh &shape, std::optional<bool> is_intersect) const{
+    std::pair<bool, RayIntersectInfo> OctreeBLAS::Node::ray_intersect(const Ray &ray, Float maxt, const TriangleMesh &shape, std::optional<bool> is_intersect) const{
         const bool intersect = is_intersect.has_value() ? is_intersect.value() : m_aabb.ray_intersect(ray, maxt).first;
 
         if(intersect){
@@ -155,13 +155,13 @@ namespace Caramel{
 
     // ================= Octree implementation ====================
 
-    Octree::Octree(const TriangleMesh &shape) : MeshAccel(shape) {}
+    OctreeBLAS::OctreeBLAS(const TriangleMesh &shape) : BLAS(shape) {}
 
-    bool Octree::Node::is_leaf() const{
+    bool OctreeBLAS::Node::is_leaf() const{
         return m_childs.empty();
     }
 
-    void Octree::build(){
+    void OctreeBLAS::build(){
         // Construct head
         m_head = Node(m_shape.get_aabb());
         for(int i=0;i<m_shape.get_triangle_num();i++){
@@ -172,7 +172,7 @@ namespace Caramel{
         m_head.construct_children_recursively(m_shape, 0);
     }
 
-    std::pair<bool, RayIntersectInfo> Octree::ray_intersect(const Ray &ray, Float maxt) {
+    std::pair<bool, RayIntersectInfo> OctreeBLAS::ray_intersect(const Ray &ray, Float maxt) {
         return m_head.ray_intersect(ray, maxt, m_shape, std::nullopt);
     }
 

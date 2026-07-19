@@ -27,9 +27,9 @@
 
 #include <shape.h>
 
+#include <blas.h>
 #include <light.h>
 #include <logger.h>
-#include <mesh_accel.h>
 #include <polygon_sampling.h>
 #include <rayintersectinfo.h>
 #include <sampler.h>
@@ -67,7 +67,7 @@ namespace Caramel {
 
         m_triangle_pdf = Distrib1D(triangle_area_vec);
 
-        m_accel = std::make_unique<BVHMesh>(*this, Float1, Float1, 32, 1);
+        m_accel = std::make_unique<BVHBLAS>(*this, Float1, Float1, 32, 1);
         m_accel->build();
 
         if (AreaLight::TRY_SOLID_ANGLE_SAMPLING && arealight != nullptr && !m_face_indices.empty()) {
@@ -238,7 +238,7 @@ namespace Caramel {
                 Float1 / get_triangle_area(i)};
     }
 
-    std::optional<TriHit> TriangleMesh::intersect_triangle(Index i, const Ray &ray, Float maxt) const {
+    std::optional<SimpleRayIntersectInfo> TriangleMesh::intersect_triangle(Index i, const Ray &ray, Float maxt) const {
         const Vector3i& idx = m_face_indices[i];
         const Vector3f &p0 = m_vertices[idx[0]];
         const Vector3f &p1 = m_vertices[idx[1]];
@@ -256,7 +256,7 @@ namespace Caramel {
             return std::nullopt;
         }
 
-        return TriHit{t, u, v, i};
+        return SimpleRayIntersectInfo{t, u, v, i};
     }
 
     RayIntersectInfo TriangleMesh::fill_intersect_info(Index i, Float t, Float u, Float v) const {
@@ -298,11 +298,11 @@ namespace Caramel {
     }
 
     std::pair<bool, RayIntersectInfo> TriangleMesh::get_triangle_ray_intersect(Index i, const Ray &ray, Float maxt) const {
-        const std::optional<TriHit> hit = intersect_triangle(i, ray, maxt);
+        const std::optional<SimpleRayIntersectInfo> hit = intersect_triangle(i, ray, maxt);
         if (!hit) {
             return {false, RayIntersectInfo()};
         }
-        return {true, fill_intersect_info(hit->prim, hit->t, hit->u, hit->v)};
+        return {true, fill_intersect_info(hit->tri_index, hit->t, hit->u, hit->v)};
     }
 
     AABB TriangleMesh::get_triangle_aabb(Index i) const {

@@ -82,7 +82,7 @@ set(SOURCES
 
 set(HEADERS
         include/aabb.h
-        include/mesh_accel.h
+        include/blas.h
         include/bsdf.h
         include/camera.h
         include/common.h

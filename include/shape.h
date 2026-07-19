@@ -43,7 +43,7 @@ namespace Caramel{
     class Ray;
     class Sampler;
     class Distrib1D;
-    struct MeshAccel;
+    struct BLAS;
 
     class Shape{
     public:
@@ -145,7 +145,7 @@ namespace Caramel{
         const std::vector<Vector3f>& get_polygon_vertices() const override;
 
         Index get_triangle_num() const { return m_face_indices.size(); }
-        std::optional<TriHit> intersect_triangle(Index i, const Ray &ray, Float maxt) const;
+        std::optional<SimpleRayIntersectInfo> intersect_triangle(Index i, const Ray &ray, Float maxt) const;
         RayIntersectInfo fill_intersect_info(Index i, Float t, Float u, Float v) const;
         std::pair<bool, RayIntersectInfo> get_triangle_ray_intersect(Index i, const Ray &ray, Float maxt) const;
         AABB get_triangle_aabb(Index i) const;
@@ -163,7 +163,7 @@ namespace Caramel{
         AABB m_aabb;
         bool is_vn_exists = false;
         bool is_tx_exists = false;
-        std::unique_ptr<MeshAccel> m_accel;
+        std::unique_ptr<BLAS> m_accel;
         std::vector<Vector3f> m_vertices;
         std::vector<Vector3f> m_normals;
         std::vector<Vector2f> m_tex_coords;

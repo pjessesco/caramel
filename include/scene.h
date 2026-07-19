@@ -39,7 +39,7 @@ namespace Caramel{
     class Light;
     class Sampler;
     class ConstantEnvLight;
-    class SceneAccel;
+    class TLAS;
 
     class Scene{
     public:
@@ -53,7 +53,7 @@ namespace Caramel{
         bool is_visible(const Vector3f &pos1, const Vector3f &pos2) const;
         std::pair<const Light*, Float> sample_light(Sampler &sampler) const;
         Float pdf_light(const Light *light) const;
-        void build_accel();
+        void build_tlas();
         void build_light_pdf();
 
         std::vector<const Light*> m_lights;
@@ -66,7 +66,7 @@ namespace Caramel{
         Float m_sceneRadius;
         AABB m_aabb;
         const Camera *m_cam;
-        SceneAccel *m_accel;
+        TLAS *m_tlas;
 
     };
 }

@@ -54,7 +54,7 @@ namespace Caramel{
         scene->build_light_pdf();
 
         scene->set_camera(cam);
-        scene->build_accel();
+        scene->build_tlas();
 
         return {scene, integrator};
     }

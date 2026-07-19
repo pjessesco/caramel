@@ -28,8 +28,8 @@
 
 #include <shape.h>
 
+#include <blas.h>
 #include <logger.h>
-#include <mesh_accel.h>
 #include <transform.h>
 
 #define TINYOBJLOADER_IMPLEMENTATION

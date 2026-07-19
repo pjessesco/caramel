@@ -39,11 +39,11 @@ namespace Caramel{
 
 
     // Divide a single mesh
-    struct MeshAccel{
+    struct BLAS{
         friend class TriangleMesh;
 
-        explicit MeshAccel(const TriangleMesh &shape) : m_shape{shape} {}
-        virtual ~MeshAccel() = default;
+        explicit BLAS(const TriangleMesh &shape) : m_shape{shape} {}
+        virtual ~BLAS() = default;
 
         virtual void build() = 0;
 
@@ -57,8 +57,8 @@ namespace Caramel{
         const TriangleMesh &m_shape;
     };
 
-    struct NaiveMeshAccel final : public MeshAccel{
-        explicit NaiveMeshAccel(const TriangleMesh &shape);
+    struct NaiveBLAS final : public BLAS{
+        explicit NaiveBLAS(const TriangleMesh &shape);
 
         void build() override;
 
@@ -66,8 +66,8 @@ namespace Caramel{
     };
 
     // Octree for triangle meshes
-    struct Octree final : public MeshAccel{
-        explicit Octree(const TriangleMesh &shape);
+    struct OctreeBLAS final : public BLAS{
+        explicit OctreeBLAS(const TriangleMesh &shape);
 
         struct Node{
             Node() = default;
@@ -96,8 +96,8 @@ namespace Caramel{
     };
 
     // BVH for triangle meshes
-    struct BVHMesh final : public MeshAccel{
-        BVHMesh(const TriangleMesh &shape,
+    struct BVHBLAS final : public BLAS{
+        BVHBLAS(const TriangleMesh &shape,
                 Float cost_traversal, Float cost_intersection, int subspace_count, int max_primitive_num);
 
         void build() override;
@@ -105,12 +105,12 @@ namespace Caramel{
         bool ray_occluded(const Ray &ray, Float maxt) override;
 
     private:
-        BVHMeshTraits m_traits;
+        BVHBLASTraits m_traits;
         Float m_cost_traversal;
         Float m_cost_intersection;
         int m_subspace_count;
         int m_max_primitive_num;
-        std::unique_ptr<BVHTree<BVHMeshTraits>> m_root;
+        std::unique_ptr<BVHTree<BVHBLASTraits>> m_root;
     };
 
 }

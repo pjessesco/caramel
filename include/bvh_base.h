@@ -39,13 +39,6 @@ namespace Caramel{
     class RayIntersectInfo;
     class Ray;
 
-    struct TriHit {
-        Float t;
-        Float u;
-        Float v;
-        Index prim;
-    };
-
     struct LinearBVHNode {
         AABB aabb;
         int offset;        // primitives_offset (leaf) or second_child_offset (inner)
@@ -99,7 +92,7 @@ namespace Caramel{
     };
 
     // Traits for scene-level BVH (Shape pointers)
-    struct BVHSceneTraits {
+    struct BVHTLASTraits {
         using Primitive = const Shape *;
         using Hit = RayIntersectInfo;
 
@@ -111,10 +104,10 @@ namespace Caramel{
     };
 
     // Traits for mesh-level BVH (triangle indices)
-    struct BVHMeshTraits {
+    struct BVHBLASTraits {
         using Primitive = Index;
-        using Hit = TriHit;
-        explicit BVHMeshTraits(const TriangleMesh &m);
+        using Hit = SimpleRayIntersectInfo;
+        explicit BVHBLASTraits(const TriangleMesh &m);
 
         AABB get_aabb(Primitive p) const;
         Vector3f get_center(Primitive p) const;

@@ -26,7 +26,7 @@
 
 #include <shape.h>
 
-#include <mesh_accel.h>
+#include <blas.h>
 #include <transform.h>
 
 namespace Caramel {

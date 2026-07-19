@@ -22,7 +22,7 @@
 // SOFTWARE.
 //
 
-#include <mesh_accel.h>
+#include <blas.h>
 
 #include <bvh_base.h>
 #include <common.h>
@@ -31,25 +31,25 @@
 #include <shape.h>
 
 namespace Caramel{
-    BVHMesh::BVHMesh(const TriangleMesh &shape,
+    BVHBLAS::BVHBLAS(const TriangleMesh &shape,
                      Float cost_traversal, Float cost_intersection, int subspace_count, int max_primitive_num)
-    : MeshAccel(shape), m_traits(shape),
+    : BLAS(shape), m_traits(shape),
       m_cost_traversal(cost_traversal), m_cost_intersection(cost_intersection),
       m_subspace_count(subspace_count), m_max_primitive_num(max_primitive_num) {}
 
-    void BVHMesh::build() {
+    void BVHBLAS::build() {
         std::vector<Index> indices(m_shape.get_triangle_num());
         for (Index i = 0; i < m_shape.get_triangle_num(); i++) {
             indices[i] = i;
         }
-        m_root = std::make_unique<BVHTree<BVHMeshTraits>>(std::move(indices), m_traits, m_cost_traversal, m_cost_intersection, m_subspace_count, m_max_primitive_num);
+        m_root = std::make_unique<BVHTree<BVHBLASTraits>>(std::move(indices), m_traits, m_cost_traversal, m_cost_intersection, m_subspace_count, m_max_primitive_num);
     }
 
-    std::pair<bool, RayIntersectInfo> BVHMesh::ray_intersect(const Ray &ray, Float maxt) {
+    std::pair<bool, RayIntersectInfo> BVHBLAS::ray_intersect(const Ray &ray, Float maxt) {
         return m_root->ray_intersect(ray, maxt);
     }
 
-    bool BVHMesh::ray_occluded(const Ray &ray, Float maxt) {
+    bool BVHBLAS::ray_occluded(const Ray &ray, Float maxt) {
         return m_root->ray_occluded(ray, maxt);
     }
 
